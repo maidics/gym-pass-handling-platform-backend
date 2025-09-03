@@ -1,0 +1,29 @@
+Goals:
+    - have one qr code assigned to one gym and have to user scan that => if no tickets/ passes are available throw or return what
+        - why not have a qr code per pass => more complexity for the same problem - requires a gym staff member to scan the user's qr code 
+        instead the user has to scan the code and show the result to the gym staff or requires scanner hardware
+
+Passes:
+    - UsePass endpoint: - CurrentUser, GymAdministrator
+        - consume Gym qr code and passId to use (have frontend decide if the user has a valid Pass for this gym or if they have any)
+            - if a user has multiple passes to the same gym let them decide which one to use
+            - warn user if they already have a pass for that gym
+        - call .Use() on Pass instance
+
+Gyms: 
+    - RegisterGym endpoint - AppAdministrator
+    - UpdateGymProfile endpoint - GymAdministrator
+
+ApplicationUser:
+    - UpdateUserProfile endpoint
+
+TODO:
+    - Behaviours:
+        - need a way to throw exception when accessing IUser in application layer and user is not authenticated => 
+            - authorize attribute with behaviour?
+            - policy?
+        - throw if a regular user tries to access someone else's tickets
+
+Questions:
+    - how are transactions handled in apps like this?
+    - difference between endpointgroupbase .RequireAuthorization() and [Authorize]

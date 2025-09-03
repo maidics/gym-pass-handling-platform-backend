@@ -4,4 +4,5 @@ namespace FitPass.Infrastructure.Identity;
 
 public class ApplicationUser : IdentityUser
 {
+    
 }

@@ -61,7 +61,7 @@ public partial class Testing
 
     public static async Task<string> RunAsAdministratorAsync()
     {
-        return await RunAsUserAsync("administrator@local", "Administrator1234!", new[] { Roles.Administrator });
+        return await RunAsUserAsync("administrator@local", "Administrator1234!", new[] { Roles.AppAdministrator });
     }
 
     public static async Task<string> RunAsUserAsync(string userName, string password, string[] roles)

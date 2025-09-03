@@ -4,7 +4,7 @@ using FitPass.Domain.Constants;
 
 namespace FitPass.Application.TodoLists.Commands.PurgeTodoLists;
 
-[Authorize(Roles = Roles.Administrator)]
+[Authorize(Roles = Roles.AppAdministrator)]
 [Authorize(Policy = Policies.CanPurge)]
 public record PurgeTodoListsCommand : IRequest;
 
