@@ -18,12 +18,10 @@ ApplicationUser:
     - UpdateUserProfile endpoint
 
 TODO:
-    - Behaviours:
-        - need a way to throw exception when accessing IUser in application layer and user is not authenticated => 
-            - authorize attribute with behaviour?
-            - policy?
-        - throw if a regular user tries to access someone else's tickets
+    - add default AppAdministrator account
 
 Questions:
     - how are transactions handled in apps like this?
     - difference between endpointgroupbase .RequireAuthorization() and [Authorize]
+    - how to handle AppAdmin accounts? who can register and how? have a default one seeded into db?
+    - how to add role based authorization?
