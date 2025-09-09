@@ -17,11 +17,24 @@ Gyms:
 ApplicationUser:
     - UpdateUserProfile endpoint
 
+UserGymMembership:
+    
+
 TODO:
     - add default AppAdministrator account
-
+    - add logic to ban users from gyms => ApplicationUser.GymMemberStatus: GymMemberStatus enum (member, banned)
+    - add enpoint to ban users from gyms => policy CanBanMember - GymAdministrator && AppAdministrator - send email of this
+    - add default GymMemberStatus when user buys pass
+    - check if a user is banned when using passes
+    - parse incoming enums to actual enums
+    - change Price properties to decimal and config EFCore to use decimal(18, 2)
+    
 Questions:
     - how are transactions handled in apps like this?
-    - difference between endpointgroupbase .RequireAuthorization() and [Authorize]
     - how to handle AppAdmin accounts? who can register and how? have a default one seeded into db?
-    - how to add role based authorization?
+    - how are backends designed?
+
+Answers:
+    - difference between endpointgroupbase .RequireAuthorization() and [Authorize]: 
+        - .RequireAuthorization() - in ca it checks for Authentication, 
+        - [Authorize] - used for policies in CQRS files so they're more maintainable 

@@ -2,7 +2,6 @@ using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 
 namespace FitPass.Infrastructure.Identity;
 

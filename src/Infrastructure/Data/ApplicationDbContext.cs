@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using FitPass.Application.Common.Interfaces;
+using FitPass.Domain;
 using FitPass.Domain.Entities;
 using FitPass.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -11,9 +12,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
-    public DbSet<TodoList> TodoLists => Set<TodoList>();
-
-    public DbSet<TodoItem> TodoItems => Set<TodoItem>();
+    public DbSet<Gym> Gyms => Set<Gym>();
+    public DbSet<UserGymMembership> UserGymMemberships => Set<UserGymMembership>();
+    public DbSet<OwnedPass> Passes => Set<OwnedPass>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

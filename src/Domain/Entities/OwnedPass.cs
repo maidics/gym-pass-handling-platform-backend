@@ -1,15 +1,14 @@
 namespace FitPass.Domain;
 
-public class Pass : BaseEntity
+public class OwnedPass : BaseEntity
 {
-    public required string ApplicationUserId { get; set; }
-    public required string GymId { get; set; }
+    public required string? OwnerId { get; set; }
     public required PassType Type { get; set; }
     public required int? TotalUses { get; set; }
     public required int? RemainingUses { get; set; }
     public required DateTimeOffset? ExpirationDate { get; set; }
     public required double Price { get; set; }
-    public required Gym Gym { get; set; }
+    public required UserGymMembership Membership { get; set; }
 
     private bool IsExpired() => Type == PassType.Subscription && ExpirationDate.HasValue && ExpirationDate.Value < DateTimeOffset.UtcNow;
     private bool HasNoUsesLeft() => Type != PassType.Subscription && RemainingUses.HasValue && RemainingUses <= 0;

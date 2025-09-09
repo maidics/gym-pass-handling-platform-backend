@@ -2,11 +2,11 @@ namespace FitPass.Domain;
 
 public class PassUsedEvent : BaseEvent
 {
-    public PassUsedEvent(Pass pass)
+    public PassUsedEvent(OwnedPass pass)
     {
         Pass = pass;
         Timestamp = DateTimeOffset.UtcNow;
     }
-    public Pass Pass { get; }
+    public OwnedPass Pass { get; }
     public DateTimeOffset Timestamp { get; }
 }
