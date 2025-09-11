@@ -1,5 +1,4 @@
 ﻿using FitPass.Domain.Constants;
-using FitPass.Domain.Entities;
 using FitPass.Infrastructure.Identity;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
@@ -67,42 +66,45 @@ public class ApplicationDbContextInitialiser
     public async Task TrySeedAsync()
     {
         // Default roles
-        var administratorRole = new IdentityRole(Roles.AppAdministrator);
+        List<IdentityRole> roles =
+        [
+            new IdentityRole(Roles.AppAdministrator),
+            new IdentityRole(Roles.GymAdministrator),
+            new IdentityRole(Roles.GymStaff),
+        ];
 
-        if (_roleManager.Roles.All(r => r.Name != administratorRole.Name))
+        var existingRoles = _roleManager.Roles;
+
+        foreach (var role in roles)
         {
-            await _roleManager.CreateAsync(administratorRole);
-        }
-
-        // Default users
-        var administrator = new ApplicationUser { UserName = "administrator@localhost", Email = "administrator@localhost" };
-
-        if (_userManager.Users.All(u => u.UserName != administrator.UserName))
-        {
-            await _userManager.CreateAsync(administrator, "Administrator1!");
-            if (!string.IsNullOrWhiteSpace(administratorRole.Name))
+            if (existingRoles.All(r => r.Name != role.Name))
             {
-                await _userManager.AddToRolesAsync(administrator, new [] { administratorRole.Name });
+                await _roleManager.CreateAsync(role);
             }
         }
 
-        // Default data
-        // Seed, if necessary
-        if (!_context.TodoLists.Any())
-        {
-            _context.TodoLists.Add(new TodoList
-            {
-                Title = "Todo List",
-                Items =
-                {
-                    new TodoItem { Title = "Make a todo list 📃" },
-                    new TodoItem { Title = "Check off the first item ✅" },
-                    new TodoItem { Title = "Realise you've already done two things on the list! 🤯"},
-                    new TodoItem { Title = "Reward yourself with a nice, long nap 🏆" },
-                }
-            });
+        // Default users
+        List<(ApplicationUser, string)> defaultUsers =
+        [
+            (new ApplicationUser { UserName = "appadmin@localhost", Email = "appadmin@localhost", FirstName = "appadmin" }, Roles.AppAdministrator),
+            (new ApplicationUser { UserName = "gymadmin@localhost", Email = "gymadmin@localhost", FirstName = "gymadmin" }, Roles.GymAdministrator),
+            (new ApplicationUser { UserName = "gymstaff@localhost", Email = "gymstaff@localhost", FirstName = "gymstaff" }, Roles.GymStaff),
+            (new ApplicationUser { UserName = "user@localhost", Email = "user@localhost", FirstName = "user" }, string.Empty)
+        ];
 
-            await _context.SaveChangesAsync();
+        var existingUsers = _userManager.Users;
+
+        foreach (var obj in defaultUsers)
+        {
+            if (existingUsers.All(u => u.UserName != obj.Item1.UserName))
+            {
+                await _userManager.CreateAsync(obj.Item1, obj.Item1.FirstName);
+
+                if (roles.All(role => !string.IsNullOrWhiteSpace(role.Name)) && obj.Item2 != string.Empty)
+                {
+                    await _userManager.AddToRolesAsync(obj.Item1, [obj.Item2]);
+                }
+            }
         }
     }
 }

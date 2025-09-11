@@ -7,7 +7,8 @@ public static class ValidationExtensions
         return rule.NotEmpty().WithMessage(message);
     }
 
-    public static IRuleBuilderOptions<T, string> StrongPassword<T, string>(this IRuleBuilder<T, string> rule) {
+    public static IRuleBuilderOptions<T, string> StrongPassword<T>(this IRuleBuilder<T, string> rule)
+    {
         return rule
             .MinimumLength(10).WithMessage("'{PropertyName}' must be at least 10 characters long.")
             .Must(p => p.Any(char.IsLower)).WithMessage("'{PropertyName}' must contain at least one lowercase letter.")

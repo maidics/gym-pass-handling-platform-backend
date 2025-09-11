@@ -9,5 +9,15 @@ public class ApplicationUserConfiguration : IEntityTypeConfiguration<Application
     public void Configure(EntityTypeBuilder<ApplicationUser> builder)
     {
         builder.HasMany(au => au.UserGymMemberships).WithOne().HasForeignKey(ugm => ugm.ApplicationUserId);
+
+        builder.HasData(
+            new ApplicationUser
+            {
+                FirstName = "AppAdmin",
+                LastName = null,
+                Email = "appadmin@email.com",
+                
+            }
+        );
     }
 }
