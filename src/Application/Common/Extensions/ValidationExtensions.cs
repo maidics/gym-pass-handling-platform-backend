@@ -1,19 +1,38 @@
+using FitPass.Domain.Constants;
+
 namespace FitPass.Application.Extensions;
 
 public static class ValidationExtensions
 {
-    public static IRuleBuilderOptions<T, TProperty> NotEmptyWithMessage<T, TProperty>(this IRuleBuilder<T, TProperty> rule, string message)
+    public static IRuleBuilderOptions<T, TProperty> NotEmptyWithMessage<T, TProperty>(this IRuleBuilder<T, TProperty> rule, string propertyName)
     {
-        return rule.NotEmpty().WithMessage(message);
+        return rule
+            .NotEmpty()
+            .WithMessage($"{propertyName} is required.");
     }
 
     public static IRuleBuilderOptions<T, string> StrongPassword<T>(this IRuleBuilder<T, string> rule)
     {
         return rule
-            .MinimumLength(10).WithMessage("'{PropertyName}' must be at least 10 characters long.")
-            .Must(p => p.Any(char.IsLower)).WithMessage("'{PropertyName}' must contain at least one lowercase letter.")
-            .Must(p => p.Any(char.IsUpper)).WithMessage("'{PropertyName}' must contain at least one uppercase letter.")
-            .Must(p => p.Any(char.IsDigit)).WithMessage("'{PropertyName}' must contain at least one number.")
-            .Must(p => p.Any(c => !char.IsLetterOrDigit(c))).WithMessage("'{PropertyName}' must contain at least one special character.");
+            .MinimumLength(8).WithMessage("Password must be at least 8 characters long.")
+            .MaximumLength(MaxStringLengths.Password).WithMessage($"Password cannot be longer than {MaxStringLengths.Password}  characters.")
+            .Must(p => p.Any(char.IsLower)).WithMessage("Password must contain at least one lowercase letter.")
+            .Must(p => p.Any(char.IsUpper)).WithMessage("Password must contain at least one uppercase letter.")
+            .Must(p => p.Any(char.IsDigit)).WithMessage("Password must contain at least one number.")
+            .Must(p => p.Any(c => !char.IsLetterOrDigit(c))).WithMessage("Password must contain at least one special character.");
+    }
+
+    public static IRuleBuilderOptions<T, string> MaxLengthWithMessage<T>(this IRuleBuilder<T, string> rule, int maxLength, string propertyName)
+    {
+        return rule
+            .MaximumLength(maxLength)
+            .WithMessage($"{propertyName} cannot be longer than {maxLength} characters.");
+    }
+
+    public static IRuleBuilderOptions<T, string> NotEmptyWithMaxLenghtAndMessage<T>(this IRuleBuilder<T, string> rule, int maxLength, string propertyName)
+    {
+        return rule
+            .NotEmptyWithMessage(propertyName)
+            .MaxLengthWithMessage(maxLength, propertyName);
     }
 }

@@ -3,6 +3,7 @@ using FitPass.Domain.Constants;
 using FitPass.Infrastructure.Data;
 using FitPass.Infrastructure.Data.Interceptors;
 using FitPass.Infrastructure.Identity;
+using FitPass.Infrastructure.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -49,5 +50,7 @@ public static class DependencyInjection
 
         builder.Services.AddAuthorization(options =>
             options.AddPolicy(Policies.CanPurge, policy => policy.RequireRole(Roles.AppAdministrator)));
+
+        builder.Services.AddTransient<IQrCodeService, QrCodeService>();
     }
 }
