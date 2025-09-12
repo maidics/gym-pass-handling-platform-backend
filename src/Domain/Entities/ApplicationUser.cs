@@ -1,9 +1,6 @@
-﻿using FitPass.Domain.Entities;
-using Microsoft.AspNetCore.Identity;
+﻿namespace FitPass.Domain.Entities;
 
-namespace FitPass.Infrastructure.Identity;
-
-public class ApplicationUser : IdentityUser
+public class ApplicationUser : Microsoft.AspNetCore.Identity.IdentityUser
 {
     public required string FirstName { get; set; }
     public string? LastName { get; set; }

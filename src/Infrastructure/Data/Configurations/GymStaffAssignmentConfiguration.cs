@@ -1,5 +1,4 @@
 using FitPass.Domain.Entities;
-using FitPass.Infrastructure.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -11,6 +10,6 @@ public class GymStaffAssignmentConfiguration : IEntityTypeConfiguration<GymStaff
     {
         builder.HasKey(gsa => gsa.ApplicationUserId);
 
-        builder.HasOne<ApplicationUser>().WithOne(au => au.GymStaffAssigment);
+        builder.HasOne(gsa => gsa.ApplicationUser).WithOne(au => au.GymStaffAssigment);
     }
 }

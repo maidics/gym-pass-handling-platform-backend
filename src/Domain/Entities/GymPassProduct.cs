@@ -8,5 +8,5 @@ public class GymPassProduct : BaseEntity
     public required DateTimeOffset? ExpirationDate { get; set; }
     public required decimal EurPrice { get; set; }
     public required bool IsAvailable { get; set; }
-    public required Gym Gym { get; set; }
+    public Gym Gym { get; set; } = null!;
 }

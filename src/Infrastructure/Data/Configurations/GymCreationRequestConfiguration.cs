@@ -1,4 +1,3 @@
-using Azure.Core;
 using FitPass.Application.Requests.DTOs;
 using FitPass.Domain.Entities;
 using Microsoft.EntityFrameworkCore;

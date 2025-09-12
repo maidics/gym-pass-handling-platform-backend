@@ -6,6 +6,7 @@ public class UserGymMembership : BaseEntity
     public required string GymId { get; set; }
     public GymMembershipStatus GymMembershipStatus { get; set; } = GymMembershipStatus.Member;
     public DateTimeOffset? MemberSince { get; set; } = DateTimeOffset.UtcNow;
-    public required Gym Gym { get; set; }
+    public ApplicationUser ApplicationUser { get; set; } = null!;
+    public Gym Gym { get; set; } = null!;
     public ICollection<OwnedPass> OwnedPasses { get; set; } = [];
 }

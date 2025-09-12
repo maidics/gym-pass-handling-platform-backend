@@ -15,6 +15,6 @@ public class UserGymMembershipConfiguration : IEntityTypeConfiguration<UserGymMe
 
         builder.HasMany(ugm => ugm.OwnedPasses).WithOne(op => op.UserGymMembership).HasForeignKey(op => op.UserGymMembershipId);
 
-        builder.HasOne<ApplicationUser>().WithMany(au => au.UserGymMemberships);
+        builder.HasOne(ugm => ugm.ApplicationUser).WithMany(au => au.UserGymMemberships);
     }
 }

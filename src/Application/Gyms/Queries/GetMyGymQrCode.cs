@@ -1,25 +1,28 @@
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Security;
 using FitPass.Domain.Constants;
+using FitPass.Domain.Entities;
 
 namespace FitPass.Application.Gyms.Queries;
 
 [Authorize(Roles = $"{Roles.GymAdministrator},{Roles.GymStaff}")]
-public record GetMyGymQrCodeQuery : IRequest<byte[]?>;
+public record GetMyGymQrCodeQuery : IRequest<byte[]>;
 
-public class GetMyGymQrCodeQueryHandler : IRequestHandler<GetMyGymQrCodeQuery, byte[]?>
+public class GetMyGymQrCodeQueryHandler : IRequestHandler<GetMyGymQrCodeQuery, byte[]>
 {
-    private readonly IUserProfileService _userProfileService;
+    private readonly IUser _user;
+    private readonly IApplicationDbContext _context;
 
-    public GetMyGymQrCodeQueryHandler(IUserProfileService userProfileService)
+    public GetMyGymQrCodeQueryHandler(IUser user, IApplicationDbContext context)
     {
-        _userProfileService = userProfileService;
+        _user = user;
+        _context = context;
     }
 
-    public async Task<byte[]?> Handle(GetMyGymQrCodeQuery request, CancellationToken cancellationToken)
+    public async Task<byte[]> Handle(GetMyGymQrCodeQuery request, CancellationToken cancellationToken)
     {
-        var gymStaffAssigment = await _userProfileService.GetUserGymStaffAssigment(cancellationToken);
+        GymStaffAssigment gymStaffAssigment = await _context.GymStaffAssigments.FirstAsync(gsa => gsa.ApplicationUserId == _user.Id, cancellationToken);
 
-        return gymStaffAssigment == null ? null : gymStaffAssigment.Gym.QRCode;
+        return gymStaffAssigment.Gym.QRCode;
     }
 }

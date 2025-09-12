@@ -1,5 +1,4 @@
 using FitPass.Domain;
-using FitPass.Infrastructure.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
