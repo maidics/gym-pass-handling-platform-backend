@@ -30,40 +30,75 @@ public class IdentityService : IIdentityService
         return user?.UserName;
     }
 
-    public async Task<(Result Result, string UserId)> CreateUserAsync(string email, string password, string firstName, string? lastName, GymStaffAssigment? gymStaffAssigment)
-    { //TODO: use GymStaffAssignment? to set the property => how to handle AppAdmin in this case?
+    public async Task<(Result Result, string UserId)> CreateUserAsync(string email, string password, string firstName, string? lastName)
+    {
         var user = new ApplicationUser
         {
             Email = email,
             FirstName = firstName,
             LastName = lastName,
-            UserGymMemberships = ,
-            GymStaffAssigment = 
+            UserGymMemberships = [],
+            GymStaffAssigment = null
         };
 
         var result = await _userManager.CreateAsync(user, password);
 
-        if (!result.Succeeded)
-        {
-            return (result.ToApplicationResult(), user.Id);
-        }
-
-        if (role != null)
-        {
-            result = await _userManager.AddToRoleAsync(user, role);
-        }
-
         return (result.ToApplicationResult(), user.Id);
     }
 
-    private bool IsGymManagement(string? role)
+    public async Task<(Result Result, string UserId)> CreateAppAdminUserAsync(string email, string password, string firstName, string? lastName)
     {
-        if (role == null || role == Roles.AppAdministrator)
+        var user = new ApplicationUser
         {
-            return false;
+            Email = email,
+            FirstName = firstName,
+            LastName = lastName,
+            UserGymMemberships = null,
+            GymStaffAssigment = null
+        };
+
+        var creationResult = await _userManager.CreateAsync(user, password);
+
+        if (!creationResult.Succeeded)
+        {
+            return (creationResult.ToApplicationResult(), user.Id);
         }
 
-        return true;
+        var roleResult = await _userManager.AddToRoleAsync(user, Roles.AppAdministrator);
+
+        return (roleResult.ToApplicationResult(), user.Id);
+    }
+
+    public async Task<(Result Result, string UserId)> CreateGymManagementUserAsync(string email, string password, string firstName, string lastName, string role, Gym gym, string escalationEmail)
+    {
+        var userId = Guid.NewGuid().ToString();
+
+        var user = new ApplicationUser
+        {
+            Id = userId,
+            Email = email,
+            FirstName = firstName,
+            LastName = lastName,
+            UserGymMemberships = null,
+            GymStaffAssigment = new GymStaffAssigment
+            {
+                ApplicationUserId = userId,
+                GymId = gym.Id,
+                Gym = gym,
+                EscalationEmail = escalationEmail
+            }
+        };
+
+        var creationResult = await _userManager.CreateAsync(user, password);
+
+        if (!creationResult.Succeeded)
+        {
+            return (creationResult.ToApplicationResult(), userId);
+        }
+
+        var roleResult = await _userManager.AddToRoleAsync(user, role);
+
+        return (roleResult.ToApplicationResult(), userId);
     }
 
     public async Task<bool> IsInRoleAsync(string userId, string role)

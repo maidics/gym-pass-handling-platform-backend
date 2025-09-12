@@ -2,7 +2,7 @@ namespace FitPass.Domain.Enums;
 
 public enum RequestStatus
 {
-    Pending,
+    Submitted,
     InProgress,
     Completed,
     Cancelled,

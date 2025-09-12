@@ -1,50 +1,24 @@
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Models;
+using FitPass.Application.Common.Security;
 using FitPass.Application.Extensions;
-using FitPass.Domain;
+using FitPass.Application.Requests.DTOs;
 using FitPass.Domain.Constants;
+using FitPass.Domain.Entities;
+using FitPass.Domain.Enums;
 
 namespace FitPass.Application.Gyms.Commands;
 
+[Authorize(Roles = Roles.AppAdministrator)]
 public record RegisterGymCommand(
-    string Name,
-    string Address,
-    string? OwnerName,
-    string GymAdminEmail,
-    string GymAdminFirstName,
-    string GymAdminLastName,
-    string GymAdminPassword,
-    string GymAdminPasswordConfirm,
-    string EscalationEmail
+    string gymCreationRequestId
 ) : IRequest<Result>;
 
 public class RegisterGymCommandValidator : AbstractValidator<RegisterGymCommand>
 {
     public RegisterGymCommandValidator()
     {
-        RuleFor(v => v.Name).NotEmptyWithMaxLenghtAndMessage(MaxStringLengths.Name, "Gym name");
-
-        RuleFor(v => v.Address).NotEmptyWithMaxLenghtAndMessage(MaxStringLengths.Address, "Gym address");
-
-        RuleFor(v => v.GymAdminEmail)
-            .NotEmptyWithMaxLenghtAndMessage(MaxStringLengths.Email, "Email address")
-            .EmailAddress().WithMessage("An email address is required for the gym administrator account.");
-
-        RuleFor(v => v.GymAdminFirstName).NotEmptyWithMaxLenghtAndMessage(MaxStringLengths.Name, "First name");
-
-        RuleFor(v => v.GymAdminLastName).NotEmptyWithMaxLenghtAndMessage(MaxStringLengths.Name, "Last name");
-
-        RuleFor(v => v.GymAdminPassword)
-            .NotEmptyWithMessage("Password")
-            .StrongPassword();
-
-        RuleFor(v => v.GymAdminPasswordConfirm)
-            .NotEmptyWithMessage("Password confirmation")
-            .Equal(v => v.GymAdminPassword).WithMessage("Password and password confirmation must match.");
-
-        RuleFor(v => v.EscalationEmail)
-            .NotEmptyWithMaxLenghtAndMessage(MaxStringLengths.Email, "Escalation email")
-            .EmailAddress().WithMessage("An escalation email address from a higher-level contact than the gym administrator is required.");
+        RuleFor(v => v.gymCreationRequestId).NotEmptyWithMessage("Gym creation request id");
     }
 }
 
@@ -63,19 +37,62 @@ public class RegisterGymCommandHandler : IRequestHandler<RegisterGymCommand, Res
 
     public async Task<Result> Handle(RegisterGymCommand request, CancellationToken cancellationToken)
     {
-        var gymId = Guid.NewGuid().ToString();
+        await using var transaction = await _context.BeginTransactionAsync(cancellationToken);
 
-        var gym = new Gym
+        try
         {
-            Id = gymId,
-            Name = request.Name,
-            Address = request.Address,
-            EscalationEmail = request.EscalationEmail,
-            QRCode = _qrCodeService.GenerateQrCode(gymId),
-            OwnerName = request.OwnerName,
-        };
+            var gymCreationRequest = await _context.GymCreationRequests.FirstOrDefaultAsync(gcr => gcr.Id == request.gymCreationRequestId);
 
-        await _context.Gyms.AddAsync(gym, cancellationToken);
-        await _identityService.CreateUserAsync(request.GymAdminEmail, request.GymAdminPassword, request.GymAdminFirstName, request.GymAdminLastName, Roles.GymAdministrator);
+            if (gymCreationRequest == null)
+            {
+                return Result.Failure(["GymCreationRequest with this id not found."]);
+            }
+
+            var creationDto = gymCreationRequest.RequestDto;
+
+            if (creationDto == null || creationDto is not CreateGymDTO)
+            {
+                return Result.Failure(["Gym creation details are not found or corrupted for this request."]);
+            }
+
+            var gymId = Guid.NewGuid().ToString();
+            var gym = new Gym
+            {
+                Id = gymId,
+                QRCode = _qrCodeService.GenerateQrCode(gymId),
+                Name = creationDto.GymName,
+                Address = creationDto.GymAddress,
+                OwnerName = creationDto.GymOwnerName,
+            };
+
+            await _context.Gyms.AddAsync(gym);
+
+            var userCreationResult = await _identityService.CreateGymManagementUserAsync( 
+                creationDto.GymAdminEmail,
+                creationDto.GymAdminPassword,
+                creationDto.GymAdminFirstName,
+                creationDto.GymAdminLastName,
+                Roles.GymAdministrator,
+                gym,
+                creationDto.EscalationEmail
+            ); //this call it's own .SaveChangesAsync- they are using the same instance of dbcontext so the transaction use is correct
+
+            if (!userCreationResult.Result.Succeeded)
+            {
+                await transaction.RollbackAsync();
+                return Result.Failure(["Failed to create gym administrator account."]);
+            }
+
+            gymCreationRequest.RequestStatus = RequestStatus.Completed;
+            await _context.SaveChangesAsync(cancellationToken);
+            await transaction.CommitAsync(cancellationToken);
+
+            return Result.Success();
+        }
+        catch
+        {
+            await transaction.RollbackAsync(CancellationToken.None);
+            throw;
+        }
     }
 }
