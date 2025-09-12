@@ -17,6 +17,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
     public DbSet<UserGymMembership> UserGymMemberships => Set<UserGymMembership>();
     public DbSet<GymStaffAssigment> GymStaffAssigments => Set<GymStaffAssigment>();
     public DbSet<OwnedPass> Passes => Set<OwnedPass>();
+    public DbSet<GymPassProduct> GymPassProducts => Set<GymPassProduct>();
     public DbSet<Request<CreateGymDTO>> GymCreationRequests => Set<Request<CreateGymDTO>>();
 
     protected override void OnModelCreating(ModelBuilder builder)
