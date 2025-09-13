@@ -8,7 +8,7 @@ public class OwnedPass : BaseEntity
     public required int? RemainingUses { get; set; }
     public required DateTimeOffset? ExpirationDate { get; set; }
     public required decimal EurPrice { get; set; }
-    public required UserGymMembership UserGymMembership { get; set; }
+    public UserGymMembership UserGymMembership { get; set; }
 
     private bool IsExpired() => Type == PassType.Subscription && ExpirationDate.HasValue && ExpirationDate.Value < DateTimeOffset.UtcNow;
     private bool HasNoUsesLeft() => Type != PassType.Subscription && RemainingUses.HasValue && RemainingUses <= 0;

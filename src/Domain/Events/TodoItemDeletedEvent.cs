@@ -1,4 +1,5 @@
-﻿namespace FitPass.Domain.Events;
+﻿/*
+namespace FitPass.Domain.Events;
 
 public class TodoItemDeletedEvent : BaseEvent
 {
@@ -9,3 +10,4 @@ public class TodoItemDeletedEvent : BaseEvent
 
     public TodoItem Item { get; }
 }
+*/

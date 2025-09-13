@@ -3,7 +3,6 @@ using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Requests.DTOs;
 using FitPass.Domain;
 using FitPass.Domain.Entities;
-using FitPass.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -19,6 +18,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
     public DbSet<OwnedPass> Passes => Set<OwnedPass>();
     public DbSet<GymPassProduct> GymPassProducts => Set<GymPassProduct>();
     public DbSet<Request<CreateGymDTO>> GymCreationRequests => Set<Request<CreateGymDTO>>();
+    public DbSet<PurchaseReceipt> PurchaseReceipts => Set<PurchaseReceipt>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
