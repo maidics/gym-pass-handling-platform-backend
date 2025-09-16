@@ -12,7 +12,7 @@ public interface IApplicationDbContext
     DbSet<UserGymMembership> UserGymMemberships { get; }
     DbSet<GymStaffAssigment> GymStaffAssigments { get; }
     DbSet<OwnedPass> Passes { get; }
-    DbSet<Request<CreateGymDTO>> GymCreationRequests { get; }
+    DbSet<Request> Requests { get; }
     DbSet<GymPassProduct> GymPassProducts { get; }
     DbSet<PurchaseReceipt> PurchaseReceipts { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);

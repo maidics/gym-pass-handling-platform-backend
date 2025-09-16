@@ -15,26 +15,26 @@ public class Passes : EndpointGroupBase
         groupBuilder.MapPut(UserBuyPass, "{id}").RequireAuthorization();
     }
 
-    public async Task<Results<Ok<Result>, BadRequest>> UsePass(ISender sender, string id, [AsParameters] UsePassCommand request)
+    public async Task<Results<Ok<Result>, BadRequest>> UsePass(ISender sender, string id, [AsParameters] UsePassCommand command)
     {
-        if (id != request.OwnedPassId)
+        if (id != command.OwnedPassId)
         {
             return TypedResults.BadRequest();
         } 
 
-        var result = await sender.Send(request);
+        var result = await sender.Send(command);
 
         return TypedResults.Ok(result); 
     }
 
-    public async Task<Results<Ok<Result>, BadRequest>> UserBuyPass(ISender sender, string id, [AsParameters] UserBuyPassCommand request)
+    public async Task<Results<Ok<Result>, BadRequest>> UserBuyPass(ISender sender, string id, [AsParameters] UserBuyPassCommand command)
     {
-        if (id != request.GymPassProductId)
+        if (id != command.GymPassProductId)
         {
             return TypedResults.BadRequest();
         }
 
-        var result = await sender.Send(request);
+        var result = await sender.Send(command);
 
         return TypedResults.Ok(result);
     }

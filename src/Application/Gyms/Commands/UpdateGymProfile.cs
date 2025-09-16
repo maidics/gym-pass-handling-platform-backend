@@ -1,6 +1,5 @@
 using Fitpass.Application.Gyms.DTOs;
 using FitPass.Application.Common.Interfaces;
-using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Security;
 using FitPass.Application.Extensions;
 using FitPass.Domain.Constants;
@@ -12,7 +11,7 @@ public record UpdateGymProfileCommand(
     string GymId,
     string GymName,
     string GymAddress,
-    string? OwnerName
+    string? GymOwnerName
 ) : IRequest<GymDto?>;
 
 public class UpdateGymProfileCommandValidator : AbstractValidator<UpdateGymProfileCommand>
@@ -30,13 +29,28 @@ public class UpdateGymProfileCommandValidator : AbstractValidator<UpdateGymProfi
 public class UpdateGymProfileCommandHandler : IRequestHandler<UpdateGymProfileCommand, GymDto?>
 {
     private readonly IApplicationDbContext _context;
+    private readonly IMapper _mapper;
 
-    public UpdateGymProfileCommandHandler(IApplicationDbContext context)
+    public UpdateGymProfileCommandHandler(IApplicationDbContext context, IMapper mapper)
     {
         _context = context;
+        _mapper = mapper;
     }
-    public Task<GymDto?> Handle(UpdateGymProfileCommand request, CancellationToken cancellationToken)
+    public async Task<GymDto?> Handle(UpdateGymProfileCommand command, CancellationToken cancellationToken)
     {
-        
+        var gym = await _context.Gyms.FindAsync(command.GymId, cancellationToken);
+
+        if (gym == null)
+        {
+            return null;
+        }
+
+        gym.Name = command.GymName;
+        gym.Address = command.GymAddress;
+        gym.OwnerName = command.GymOwnerName;
+
+        await _context.SaveChangesAsync(cancellationToken);
+
+        return _mapper.Map<GymDto>(gym);
     }
 }

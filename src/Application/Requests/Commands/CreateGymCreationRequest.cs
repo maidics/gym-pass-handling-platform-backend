@@ -1,3 +1,4 @@
+using System.Text.Json;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Models;
 using FitPass.Application.Extensions;
@@ -11,7 +12,7 @@ namespace FitPass.Application.Requests.Commands;
 public record CreateGymCreationRequestCommand(
     string RequestDescription,
     PriorityLevel PriorityLevel,
-    CreateGymDTO CreateGymDTO
+    CreateGymDto CreateGymDTO
 ) : IRequest<Result>;
 
 public class CreateGymCreationRequestCommandValidator : AbstractValidator<CreateGymCreationRequestCommand>
@@ -55,17 +56,17 @@ public class CreateGymCreationRequestCommandHandler : IRequestHandler<CreateGymC
 
     public async Task<Result> Handle(CreateGymCreationRequestCommand request, CancellationToken cancellationToken)
     {
-        var gymCreationRequest = new Request<CreateGymDTO>
+        var gymCreationRequest = new Request
         {
             Id = Guid.NewGuid().ToString(),
             Title = $"'{request.CreateGymDTO.GymName}' gym creation",
             Description = request.RequestDescription,
             PriorityLevel = request.PriorityLevel,
-            RequestType = RequestType.GymCreation,
-            RequestDto = request.CreateGymDTO,
+            Type = RequestType.GymCreation,
+            Payload = JsonSerializer.Serialize(request.CreateGymDTO),
         };
 
-        await _context.GymCreationRequests.AddAsync(gymCreationRequest, cancellationToken);
+        await _context.Requests.AddAsync(gymCreationRequest, cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);
 
         return Result.Success();

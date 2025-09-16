@@ -36,16 +36,16 @@ public class UpdateRequestStatusCommandHandler : IRequestHandler<UpdateRequestSt
         _context = context;
     }
 
-    public async Task<Result> Handle(UpdateRequestStatusCommand request, CancellationToken cancellationToken)
+    public async Task<Result> Handle(UpdateRequestStatusCommand command, CancellationToken cancellationToken)
     {
-        var requestToChange = await _context.GymCreationRequests.FirstOrDefaultAsync(r => r.Id == request.RequestId);
+        var request = await _context.Requests.FindAsync(command.RequestId, cancellationToken);
 
-        if (requestToChange == null)
+        if (request == null)
         {
             return Result.Failure(["Request not found."]);
         }
 
-        requestToChange.RequestStatus = requestToChange.RequestStatus;
+        request.Status = request.Status;
 
         await _context.SaveChangesAsync(cancellationToken);
 

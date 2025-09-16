@@ -1,4 +1,5 @@
-
+using Fitpass.Application.Requests.DTOs;
+using Fitpass.Application.Requests.Queries;
 using FitPass.Application.Common.Models;
 using FitPass.Application.Requests.Commands;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -9,17 +10,49 @@ public class Requests : EndpointGroupBase
 {
     public override void Map(RouteGroupBuilder groupBuilder)
     {
+        groupBuilder.MapGet(GetRequest).RequireAuthorization();
+
+        groupBuilder.MapGet(GetRequests).RequireAuthorization();
+
         groupBuilder.MapPut(UpdateRequestStatus, "{id}").RequireAuthorization();
+
+        groupBuilder.MapPost(CreateGymCreationRequest);
     }
 
-    public async Task<Results<Ok<Result>, BadRequest>> UpdateRequestStatus (ISender sender, string id, [AsParameters] UpdateRequestStatusCommand request)
+    public async Task<Results<Ok<RequestDto>, NotFound>> GetRequest(ISender sender, [AsParameters] GetRequestQuery query)
     {
-        if (id != request.RequestId)
+        var result = await sender.Send(query);
+
+        if (result == null)
+        {
+            return TypedResults.NotFound();
+        }
+
+        return TypedResults.Ok(result);
+    }
+
+    public async Task<Ok<List<RequestDto>>> GetRequests(ISender sender, [AsParameters] GetRequestsQuery query)
+    {
+        var result = await sender.Send(query);
+
+        return TypedResults.Ok(result);
+    }
+
+    public async Task<Results<Ok<Result>, BadRequest>> UpdateRequestStatus(ISender sender, string id, [AsParameters] UpdateRequestStatusCommand command)
+    {
+        if (id != command.RequestId)
         {
             return TypedResults.BadRequest();
         }
 
-        var result = await sender.Send(request);
+        var result = await sender.Send(command);
+
+        return TypedResults.Ok(result);
+    }
+    
+    public async Task<Ok<Result>> CreateGymCreationRequest(ISender sender, [AsParameters] CreateGymCreationRequestCommand command)
+    {
+        var result = await sender.Send(command);
 
         return TypedResults.Ok(result);
     }

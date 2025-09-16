@@ -1,6 +1,6 @@
 namespace FitPass.Application.Requests.DTOs;
 
-public class CreateGymDTO
+public class CreateGymDto
 {
     public required string GymName { get; set; }
     public required string GymAddress { get; set; }

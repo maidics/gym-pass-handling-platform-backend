@@ -11,14 +11,14 @@ public class UserGymMemberships : EndpointGroupBase
         groupBuilder.MapPut("/{applicationUserId:string}/{gymId:string}", UpdateUserMembershipStatus).RequireAuthorization();
     }
 
-    public async Task<Results<Ok<Result>, BadRequest>> UpdateUserMembershipStatus(ISender sender, string applicationUserId, string gymId, [AsParameters] UpdateUserGymMembershipStatusCommand request)
+    public async Task<Results<Ok<Result>, BadRequest>> UpdateUserMembershipStatus(ISender sender, string applicationUserId, string gymId, [AsParameters] UpdateUserGymMembershipStatusCommand command)
     {
-        if (applicationUserId != request.ApplicationUserId || gymId != request.GymId)
+        if (applicationUserId != command.ApplicationUserId || gymId != command.GymId)
         {
             return TypedResults.BadRequest();
         }
 
-        var result = await sender.Send(request);
+        var result = await sender.Send(command);
 
         return TypedResults.Ok(result);
     }

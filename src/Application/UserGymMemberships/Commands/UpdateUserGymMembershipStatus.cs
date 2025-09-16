@@ -30,16 +30,16 @@ public class UpdateUserGymMembershipStatusCommandHandler : IRequestHandler<Updat
     {
         _context = context;
     }
-    public async Task<Result> Handle(UpdateUserGymMembershipStatusCommand request, CancellationToken cancellationToken)
+    public async Task<Result> Handle(UpdateUserGymMembershipStatusCommand command, CancellationToken cancellationToken)
     {
-        var userGymMembership = await _context.UserGymMemberships.FindAsync(request.ApplicationUserId, request.GymId, cancellationToken);
+        var userGymMembership = await _context.UserGymMemberships.FindAsync(command.ApplicationUserId, command.GymId, cancellationToken);
 
         if (userGymMembership == null)
         {
             return Result.Failure(["User's gym membership not found."]);
         }
 
-        userGymMembership.GymMembershipStatus = request.NewStatus;
+        userGymMembership.GymMembershipStatus = command.NewStatus;
 
         await _context.SaveChangesAsync(cancellationToken);
 

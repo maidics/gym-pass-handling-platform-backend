@@ -1,3 +1,4 @@
+using System.Text.Json;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Security;
@@ -35,24 +36,34 @@ public class RegisterGymCommandHandler : IRequestHandler<RegisterGymCommand, Res
         _qrCodeService = qrCodeService;
     }
 
-    public async Task<Result> Handle(RegisterGymCommand request, CancellationToken cancellationToken)
+    public async Task<Result> Handle(RegisterGymCommand command, CancellationToken cancellationToken)
     {
         await using var transaction = await _context.BeginTransactionAsync(cancellationToken);
 
         try
         {
-            var gymCreationRequest = await _context.GymCreationRequests.FirstOrDefaultAsync(gcr => gcr.Id == request.gymCreationRequestId);
+            var request = await _context.Requests.FindAsync(command.gymCreationRequestId);
 
-            if (gymCreationRequest == null)
+            if (request == null)
             {
-                return Result.Failure(["GymCreationRequest with this id not found."]);
+                return Result.Failure(["Request with this id not found."]);
             }
 
-            var creationDto = gymCreationRequest.RequestDto;
-
-            if (creationDto == null || creationDto is not CreateGymDTO)
+            if (request.Type != RequestType.GymCreation)
             {
-                return Result.Failure(["Gym creation details are not found or corrupted for this request."]);
+                return Result.Failure(["Request if not of GymCreation type."]);
+            }
+
+            if (request.Payload == null)
+            {
+                return Result.Failure(["Gym creation request details not found."]);
+            }
+
+            var creationDto = JsonSerializer.Deserialize<CreateGymDto>(request.Payload);
+
+            if (creationDto == null)
+            {
+                return Result.Failure(["Unable to serialize gym creation details."]);
             }
 
             var gymId = Guid.NewGuid().ToString();
@@ -83,7 +94,7 @@ public class RegisterGymCommandHandler : IRequestHandler<RegisterGymCommand, Res
                 return Result.Failure(["Failed to create gym administrator account."]);
             }
 
-            gymCreationRequest.RequestStatus = RequestStatus.Completed;
+            request.Status = RequestStatus.Completed;
             await _context.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
 

@@ -28,9 +28,9 @@ public class UsePassCommandHandler : IRequestHandler<UsePassCommand, Result>
         _user = user;
     }
 
-    public async Task<Result> Handle(UsePassCommand request, CancellationToken cancellationToken)
+    public async Task<Result> Handle(UsePassCommand command, CancellationToken cancellationToken)
     {
-        var pass = await _context.Passes.FirstOrDefaultAsync(pass => pass.Id == request.OwnedPassId);
+        var pass = await _context.Passes.FirstOrDefaultAsync(pass => pass.Id == command.OwnedPassId);
 
         if (pass == null)
         {

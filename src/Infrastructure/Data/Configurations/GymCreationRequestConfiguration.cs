@@ -1,16 +1,13 @@
-using FitPass.Application.Requests.DTOs;
 using FitPass.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace FitPass.Infrastructure.Data.Configurations;
 
-public class GymCreationRequestConfiguration : IEntityTypeConfiguration<Request<CreateGymDTO>>
+public class GymCreationRequestConfiguration : IEntityTypeConfiguration<Request>
 {
-    public void Configure(EntityTypeBuilder<Request<CreateGymDTO>> builder)
+    public void Configure(EntityTypeBuilder<Request> builder)
     {
-        builder.ToTable("GymCreationRequests");
-
-        builder.Property(r => r.RequestDto).HasColumnType("jsonb");
+        builder.Property(r => r.Payload).HasColumnType("json");
     }
 }

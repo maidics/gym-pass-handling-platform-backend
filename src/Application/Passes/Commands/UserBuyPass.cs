@@ -30,21 +30,21 @@ public class UserBuyPassCommandHandler : IRequestHandler<UserBuyPassCommand, Res
         _context = context;
     }
 
-    public async Task<Result> Handle(UserBuyPassCommand request, CancellationToken cancellationToken)
+    public async Task<Result> Handle(UserBuyPassCommand command, CancellationToken cancellationToken)
     {
         if (_user.Roles!.Count > 0)
         {
             return Result.Failure(["You are not allowed to buy passes on this account."]);
         }
 
-        var gym = await _context.Gyms.Include(g => g.GymPassProducts).AsNoTracking().FirstOrDefaultAsync(g => g.Id == request.GymId, cancellationToken);
+        var gym = await _context.Gyms.Include(g => g.GymPassProducts).AsNoTracking().FirstOrDefaultAsync(g => g.Id == command.GymId, cancellationToken);
 
         if (gym == null)
         {
             return Result.Failure(["Gym with given id does not exist."]);
         }
 
-        var gymPassProduct = gym.GymPassProducts.FirstOrDefault(gpp => gpp.Id == request.GymPassProductId);
+        var gymPassProduct = gym.GymPassProducts.FirstOrDefault(gpp => gpp.Id == command.GymPassProductId);
 
         if (gymPassProduct == null)
         {
@@ -61,7 +61,7 @@ public class UserBuyPassCommandHandler : IRequestHandler<UserBuyPassCommand, Res
         }
 
         //since the user does not have a role they will have a collection of UserGymMemberships
-        var userGymMembership = user.UserGymMemberships!.FirstOrDefault(ugm => ugm.GymId == request.GymId);
+        var userGymMembership = user.UserGymMemberships!.FirstOrDefault(ugm => ugm.GymId == command.GymId);
 
 
         if (userGymMembership == null)
@@ -70,7 +70,7 @@ public class UserBuyPassCommandHandler : IRequestHandler<UserBuyPassCommand, Res
             {
                 Id = Guid.NewGuid().ToString(),
                 ApplicationUserId = user.Id,
-                GymId = request.GymId
+                GymId = command.GymId
             };
 
             user.UserGymMemberships!.Add(userGymMembership);
