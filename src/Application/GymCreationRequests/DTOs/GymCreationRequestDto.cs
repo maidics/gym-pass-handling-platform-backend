@@ -1,6 +1,8 @@
-﻿using FitPass.Domain.Enums;
+﻿using FitPass.Domain.Entities;
+using FitPass.Domain.Enums;
 
 namespace FitPass.Application.Requests.DTOs;
+
 public class GymCreationRequestDto
 {
     public required string Id { get; set; }
@@ -9,4 +11,12 @@ public class GymCreationRequestDto
     public required PriorityLevel PriorityLevel { get; set; }
     public required RequestStatus RequestStatus { get; set; }
     public required CreateGymDTO CreateGymDTO { get; set; }
+
+    private class Mapping : Profile
+    {
+        public Mapping()
+        {
+            CreateMap<Request<CreateGymDTO>, GymCreationRequestDto>();
+        }
+    }
 }

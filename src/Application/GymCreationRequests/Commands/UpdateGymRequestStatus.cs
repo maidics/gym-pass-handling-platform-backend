@@ -8,11 +8,11 @@ using FitPass.Domain.Enums;
 namespace FitPass.Application.Requests.Commands;
 
 [Authorize(Roles = Roles.AppAdministrator)]
-public record ChangeRequestStatusCommand(string RequestId, RequestStatus NewRequestStatus) : IRequest<Result>;
+public record UpdateRequestStatusCommand(string RequestId, RequestStatus NewRequestStatus) : IRequest<Result>;
 
-public class ChangeRequestStatusCommandValidator : AbstractValidator<ChangeRequestStatusCommand>
+public class UpdateRequestStatusCommandValidator : AbstractValidator<UpdateRequestStatusCommand>
 {
-    public ChangeRequestStatusCommandValidator()
+    public UpdateRequestStatusCommandValidator()
     {
         List<RequestStatus> allowedStatuses = [
             RequestStatus.InProgress,
@@ -27,16 +27,16 @@ public class ChangeRequestStatusCommandValidator : AbstractValidator<ChangeReque
     }
 }
 
-public class ChangeRequestStatusCommandHandler : IRequestHandler<ChangeRequestStatusCommand, Result>
+public class UpdateRequestStatusCommandHandler : IRequestHandler<UpdateRequestStatusCommand, Result>
 {
     private readonly IApplicationDbContext _context;
 
-    public ChangeRequestStatusCommandHandler(IApplicationDbContext context)
+    public UpdateRequestStatusCommandHandler(IApplicationDbContext context)
     {
         _context = context;
     }
 
-    public async Task<Result> Handle(ChangeRequestStatusCommand request, CancellationToken cancellationToken)
+    public async Task<Result> Handle(UpdateRequestStatusCommand request, CancellationToken cancellationToken)
     {
         var requestToChange = await _context.GymCreationRequests.FirstOrDefaultAsync(r => r.Id == request.RequestId);
 

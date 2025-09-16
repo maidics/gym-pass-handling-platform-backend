@@ -17,7 +17,7 @@ public class Passes : EndpointGroupBase
 
     public async Task<Results<Ok<Result>, BadRequest>> UsePass(ISender sender, string id, [AsParameters] UsePassCommand request)
     {
-        if (id != request.passId)
+        if (id != request.OwnedPassId)
         {
             return TypedResults.BadRequest();
         } 

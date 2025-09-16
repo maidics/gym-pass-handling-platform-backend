@@ -6,13 +6,13 @@ using FitPass.Domain;
 namespace FitPass.Application;
 
 [Authorize]
-public record UsePassCommand(string qrCode, string passId) : IRequest<Result>;
+public record UsePassCommand(string QrCode, string OwnedPassId) : IRequest<Result>;
 
 public class UsePassCommandValidator : AbstractValidator<UsePassCommand>
 {
     public UsePassCommandValidator()
     {
-        RuleFor(v => v.qrCode)
+        RuleFor(v => v.QrCode)
             .NotEmpty().WithMessage("A QR code must be provided for this.");
     }
 }
@@ -30,7 +30,7 @@ public class UsePassCommandHandler : IRequestHandler<UsePassCommand, Result>
 
     public async Task<Result> Handle(UsePassCommand request, CancellationToken cancellationToken)
     {
-        var pass = await _context.Passes.FirstOrDefaultAsync(pass => pass.Id == request.passId);
+        var pass = await _context.Passes.FirstOrDefaultAsync(pass => pass.Id == request.OwnedPassId);
 
         if (pass == null)
         {
