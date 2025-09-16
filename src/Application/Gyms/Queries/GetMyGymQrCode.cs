@@ -19,7 +19,7 @@ public class GetMyGymQrCodeQueryHandler : IRequestHandler<GetMyGymQrCodeQuery, b
         _context = context;
     }
 
-    public async Task<byte[]> Handle(GetMyGymQrCodeQuery request, CancellationToken cancellationToken)
+    public async Task<byte[]> Handle(GetMyGymQrCodeQuery query, CancellationToken cancellationToken)
     {
         GymStaffAssigment gymStaffAssigment = await _context.GymStaffAssigments.FirstAsync(gsa => gsa.ApplicationUserId == _user.Id, cancellationToken);
 

@@ -54,16 +54,16 @@ public class CreateGymCreationRequestCommandHandler : IRequestHandler<CreateGymC
         _context = context;
     }
 
-    public async Task<Result> Handle(CreateGymCreationRequestCommand request, CancellationToken cancellationToken)
+    public async Task<Result> Handle(CreateGymCreationRequestCommand command, CancellationToken cancellationToken)
     {
         var gymCreationRequest = new Request
         {
             Id = Guid.NewGuid().ToString(),
-            Title = $"'{request.CreateGymDTO.GymName}' gym creation",
-            Description = request.RequestDescription,
-            PriorityLevel = request.PriorityLevel,
+            Title = $"'{command.CreateGymDTO.GymName}' gym creation",
+            Description = command.RequestDescription,
+            PriorityLevel = command.PriorityLevel,
             Type = RequestType.GymCreation,
-            Payload = JsonSerializer.Serialize(request.CreateGymDTO),
+            Payload = JsonSerializer.Serialize(command.CreateGymDTO),
         };
 
         await _context.Requests.AddAsync(gymCreationRequest, cancellationToken);
