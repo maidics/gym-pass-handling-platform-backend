@@ -1,6 +1,6 @@
 ﻿using FitPass.Application.Common.Models;
 
-namespace FitPass.Application.Common.Mappings;
+namespace FitPass.Application.Common.Extensions;
 
 public static class MappingExtensions
 {

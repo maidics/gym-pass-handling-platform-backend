@@ -1,6 +1,5 @@
 ﻿using System.Reflection;
 using FitPass.Application.Common.Interfaces;
-using FitPass.Application.Requests.DTOs;
 using FitPass.Domain;
 using FitPass.Domain.Entities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -12,6 +11,7 @@ namespace FitPass.Infrastructure.Data;
 public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplicationDbContext
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
+    public DbSet<NonRegisteredUser> NonRegisteredUsers => Set<NonRegisteredUser>();
     public DbSet<Gym> Gyms => Set<Gym>();
     public DbSet<UserGymMembership> UserGymMemberships => Set<UserGymMembership>();
     public DbSet<GymStaffAssigment> GymStaffAssigments => Set<GymStaffAssigment>();

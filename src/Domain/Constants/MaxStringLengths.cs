@@ -7,4 +7,5 @@ public abstract class MaxStringLengths
     public const int Description = 1500;
     public const int Address = 200;
     public const int Password = 128;
+    public const int PhoneNumber = 16; //15 Numerical characters & '+'
 }

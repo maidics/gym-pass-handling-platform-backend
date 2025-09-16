@@ -8,6 +8,7 @@ namespace FitPass.Application.Common.Interfaces;
 public interface IApplicationDbContext
 {
     DbSet<ApplicationUser> Users { get; }
+    DbSet<NonRegisteredUser> NonRegisteredUsers { get; }
     DbSet<Gym> Gyms { get; }
     DbSet<UserGymMembership> UserGymMemberships { get; }
     DbSet<GymStaffAssigment> GymStaffAssigments { get; }

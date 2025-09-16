@@ -35,4 +35,11 @@ public static class ValidationExtensions
             .NotEmptyWithMessage(propertyName)
             .MaxLengthWithMessage(maxLength, propertyName);
     }
+
+    public static IRuleBuilder<T, string> PhoneNumber<T>(this IRuleBuilder<T, string> rule, string propertyName)
+    {
+        return rule
+            .NotEmptyWithMaxLenghtAndMessage(MaxStringLengths.PhoneNumber, propertyName)
+            .Matches(@"^\+?[0-9]{7,15}$").WithMessage($"Phone number must contain 7 to 15 digits, with an optional '+' prefix and it must not contain any spaces or other special characters.");
+    }
 }
