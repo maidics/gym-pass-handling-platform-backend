@@ -1,5 +1,7 @@
 ﻿
+using Fitpass.Application.NonRegisteredUsers.Commands;
 using Fitpass.Application.NonRegisteredUsers.Queries;
+using FitPass.Application.Common.Models;
 using FitPass.Application.NonRegisteredUsers.Commands;
 using FitPass.Application.NonRegisteredUsers.DTOs;
 using FitPass.Application.NonRegisteredUsers.Queries;
@@ -16,6 +18,10 @@ public class NonRegisteredUsers : EndpointGroupBase
         groupBuilder.MapGet(GetNonRegisteredUser).RequireAuthorization();
 
         groupBuilder.MapGet(GetAllMyNonRegisteredUsers).RequireAuthorization();
+
+        groupBuilder.MapPut(AddUserGymMembershipToNonRegisteredUser, "{id}").RequireAuthorization();
+
+        groupBuilder.MapPut(BuyPassForNonRegisteredUser, "{id}").RequireAuthorization();
     }
 
     public async Task<Ok<NonRegisteredUserDto>> CreateNonRegisteredUser(ISender sender, CreateNonRegisteredUserCommand command)
@@ -44,14 +50,31 @@ public class NonRegisteredUsers : EndpointGroupBase
         return TypedResults.Ok(result);
     }
 
-    public async Task<Results<Ok<NonRegisteredUserDto>, NotFound>> AddUserGymMembershipToNonRegisteredUser(ISender sender, [AsParameters] AddUserGymMembershipToNonRegisteredUserCommand command)
+    public async Task<Results<Ok<NonRegisteredUserDto>, NotFound, BadRequest>> AddUserGymMembershipToNonRegisteredUser(ISender sender, string id, [AsParameters] AddUserGymMembershipToNonRegisteredUserCommand command)
     {
+        if (id != command.NonRegisteredUserId)
+        {
+            return TypedResults.BadRequest();
+        }
+
         var result = await sender.Send(command);
 
         if (result == null)
         {
             return TypedResults.NotFound();
         }
+
+        return TypedResults.Ok(result);
+    }
+
+    public async Task<Results<Ok<Result>, BadRequest>> BuyPassForNonRegisteredUser(ISender sender, string id, [AsParameters] BuyPassForNonRegisteredUserCommand command)
+    {
+        if (id != command.NonRegisteredUserId)
+        {
+            return TypedResults.BadRequest();
+        }
+
+        var result = await sender.Send(command);
 
         return TypedResults.Ok(result);
     }

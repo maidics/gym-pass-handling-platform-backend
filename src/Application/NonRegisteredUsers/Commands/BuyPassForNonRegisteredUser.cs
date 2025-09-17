@@ -2,6 +2,7 @@ using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Security;
 using FitPass.Application.Extensions;
+using FitPass.Domain;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 
@@ -47,6 +48,13 @@ public class BuyPassForNonRegisteredUserCommandHandler : IRequestHandler<BuyPass
             return Result.Failure(["Non registered user not found."]);
         }
 
+        var gymPassProduct = await _context.GymPassProducts.AsNoTracking().FirstOrDefaultAsync(gpp => gpp.Id == command.GymPassProductId, cancellationToken);
+
+        if (gymPassProduct == null)
+        {
+            return Result.Failure(["Gym pass product not found."]);
+        }
+
         var gymStaffAssignment = await _userProfileService.GetUserGymStaffAssigment(_user.Id!, cancellationToken);
 
         var userGymMembership = nonRegisteredUser.UserGymMemberships.FirstOrDefault(ugm => ugm.GymId == gymStaffAssignment!.GymId);
@@ -60,7 +68,24 @@ public class BuyPassForNonRegisteredUserCommandHandler : IRequestHandler<BuyPass
                 GymId = gymStaffAssignment!.GymId
             };
 
-            nonRegisteredUser
+            nonRegisteredUser.UserGymMemberships.Add(userGymMembership);
         }
+
+        var ownedPass = new OwnedPass
+        {
+            Id = Guid.NewGuid().ToString(),
+            UserGymMembershipId = userGymMembership.Id,
+            Type = gymPassProduct.Type,
+            TotalUses = gymPassProduct.TotalUses,
+            RemainingUses = gymPassProduct.TotalUses,
+            ExpirationDate = gymPassProduct.ExpirationDate,
+            EurPrice = gymPassProduct.EurPrice
+        };
+
+        userGymMembership.OwnedPasses.Add(ownedPass);
+
+        await _context.SaveChangesAsync(cancellationToken);
+
+        return Result.Success();
     }
 }
