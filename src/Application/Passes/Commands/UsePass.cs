@@ -37,7 +37,7 @@ public class UsePassCommandHandler : IRequestHandler<UsePassCommand, Result>
             return Result.Failure(["Pass id is not valid."]);
         }
         
-        if (_user.Id != pass.UserGymMembership.ApplicationUserId) //TODO: should I throw or have a custom behaviour for this or just return Result.Failure? have option for GymAdmin to use a user's pass?
+        if (_user.Id != pass.UserGymMembership.UserId) //TODO: should I throw or have a custom behaviour for this or just return Result.Failure? have option for GymAdmin to use a user's pass?
         {
             return Result.Failure(["This pass does not belong to you."]);
         }

@@ -69,7 +69,7 @@ public class UserBuyPassCommandHandler : IRequestHandler<UserBuyPassCommand, Res
             userGymMembership = new UserGymMembership
             {
                 Id = Guid.NewGuid().ToString(),
-                ApplicationUserId = user.Id,
+                UserId = user.Id,
                 GymId = command.GymId
             };
 

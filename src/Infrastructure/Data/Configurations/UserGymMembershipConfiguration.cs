@@ -9,7 +9,7 @@ public class UserGymMembershipConfiguration : IEntityTypeConfiguration<UserGymMe
 {
     public void Configure(EntityTypeBuilder<UserGymMembership> builder)
     {
-        builder.HasKey(ugm => new { ugm.ApplicationUserId, ugm.GymId });
+        builder.HasKey(ugm => new { ugm.UserId, ugm.GymId });
 
         builder.HasOne(ugm => ugm.Gym).WithMany(ugm => ugm.UserGymMemberships).HasForeignKey(ugm => ugm.GymId);
 
