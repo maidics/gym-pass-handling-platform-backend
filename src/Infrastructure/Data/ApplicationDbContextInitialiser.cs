@@ -1,5 +1,4 @@
-﻿using FitPass.Application.Common.Interfaces;
-using FitPass.Domain.Constants;
+﻿using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
@@ -67,21 +66,6 @@ public class ApplicationDbContextInitialiser
 
     public async Task TrySeedAsync()
     {
-        var gymId = "localhostGymId";
-
-        var gyms = await _context.Gyms.ToListAsync();
-
-        if (gyms.Count == 0 || gyms.FirstOrDefault(g => g.Id == gymId) == null)
-        {
-            await _context.Gyms.AddAsync(new Gym
-            {
-                Id = gymId,
-                Name = "Localhost Test Gym",
-                QRCode = 
-            });
-        }
-
-        // Default roles
         List<IdentityRole> roles =
         [
             new IdentityRole(Roles.AppAdministrator),
@@ -89,6 +73,31 @@ public class ApplicationDbContextInitialiser
             new IdentityRole(Roles.GymStaff),
         ];
 
+        var gymId = "localhostGymId";
+
+        await SeedGymAsync(gymId);
+        await SeedRolesAsync(roles);
+        await SeedUsersAsync(gymId, roles);
+    }
+
+    private async Task SeedGymAsync(string gymId)
+    {
+        var gyms = await _context.Gyms.ToListAsync();
+
+        if (gyms.Count == 0 || gyms.FirstOrDefault(g => g.Id == gymId) == null)
+        {
+            await _context.Gyms.AddAsync(new Gym
+            {
+                Id = gymId,
+                QRCode = [],
+                Name = "LocalHostGym",
+                Address = "Localhost"
+            });
+        }
+    }
+
+    private async Task SeedRolesAsync(List<IdentityRole> roles)
+    {
         var existingRoles = _roleManager.Roles;
 
         foreach (var role in roles)
@@ -98,46 +107,69 @@ public class ApplicationDbContextInitialiser
                 await _roleManager.CreateAsync(role);
             }
         }
+    }
 
-        // Default users
+    private async Task SeedUsersAsync(string gymId, List<IdentityRole> roles)
+    {
         List<(ApplicationUser, string)> defaultUsers =
         [
             (
-                new ApplicationUser 
-                { 
-                    UserName = "appadmin@localhost", 
-                    Email = "appadmin@localhost", 
-                    FirstName = "appadmin",
+                new ApplicationUser {
+                    Id = "AppAdminLocalhostId",
+                    FirstName = "AppAdmin",
                     UserGymMemberships = null,
                     GymStaffAssigment = null
-                }, 
+                },
                 Roles.AppAdministrator
             ),
             (
-                new ApplicationUser 
-                { 
-                    UserName = "gymadmin@localhost", 
-                    Email = "gymadmin@localhost", 
-                    FirstName = "gymadmin" 
-                }, 
+                new ApplicationUser
+                {
+                    Id = "GymAdminLocalhostId",
+                    Email = "gymadmin@localhost",
+                    FirstName = "GymAdmin",
+                    UserGymMemberships = null,
+                    GymStaffAssigment = new GymStaffAssigment {
+                        ApplicationUserId = "GymAdminLocalhostId",
+                        GymId = gymId,
+                        EscalationEmail = "escalation@localhost"
+                    }
+                },
                 Roles.GymAdministrator
                 ),
             (
-                new ApplicationUser 
-                { 
-                    UserName = "gymstaff@localhost", 
-                    Email = "gymstaff@localhost", 
-                    FirstName = "gymstaff" 
-                }, 
+                new ApplicationUser
+                {
+                    Id = "GymStaffLocalhostId",
+                    UserName = "gymstaff@localhost",
+                    Email = "gymstaff@localhost",
+                    FirstName = "gymstaff",
+                    UserGymMemberships = null,
+                    GymStaffAssigment = new GymStaffAssigment
+                    {
+                        ApplicationUserId = "GymStaffLocalhostId",
+                        GymId = gymId,
+                        EscalationEmail = "escalation@localhost"
+                    }
+                },
                 Roles.GymStaff
             ),
             (
-                new ApplicationUser 
-                { 
-                    UserName = "user@localhost", 
-                    Email = "user@localhost", 
-                    FirstName = "user" 
-                }, 
+                new ApplicationUser
+                {
+                    Id = "UserLocalhostId",
+                    UserName = "user@localhost",
+                    Email = "user@localhost",
+                    FirstName = "user",
+                    UserGymMemberships = [
+                        new UserGymMembership {
+                            Id = "UserGymMemberShipId",
+                            UserId = "UserLocalhostId",
+                            GymId = gymId
+                        }
+                    ],
+                    GymStaffAssigment = null
+                },
                 string.Empty
             )
         ];

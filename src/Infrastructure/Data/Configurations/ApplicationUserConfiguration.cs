@@ -1,3 +1,4 @@
+using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -11,5 +12,9 @@ public class ApplicationUserConfiguration : IEntityTypeConfiguration<Application
         builder.HasMany(au => au.UserGymMemberships).WithOne(ugm => ugm.ApplicationUser).HasForeignKey(ugm => ugm.UserId);
 
         builder.HasOne(au => au.GymStaffAssigment).WithOne(gsa => gsa.ApplicationUser).HasForeignKey<GymStaffAssigment>(gsa => gsa.ApplicationUserId);
+
+        builder.Property(au => au.FirstName).HasMaxLength(MaxStringLengths.Name);
+
+        builder.Property(au => au.LastName).HasMaxLength(MaxStringLengths.Name);
     }
 }

@@ -1,7 +1,6 @@
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Security;
 using FitPass.Domain.Constants;
-using FitPass.Domain.Entities;
 
 namespace FitPass.Application.Gyms.Queries;
 
@@ -12,17 +11,22 @@ public class GetMyGymQrCodeQueryHandler : IRequestHandler<GetMyGymQrCodeQuery, b
 {
     private readonly IUser _user;
     private readonly IApplicationDbContext _context;
+    private readonly IQrCodeService _qrCodeService;
 
-    public GetMyGymQrCodeQueryHandler(IUser user, IApplicationDbContext context)
+    public GetMyGymQrCodeQueryHandler(IUser user, IApplicationDbContext context, IQrCodeService qrCodeService)
     {
         _user = user;
         _context = context;
+        _qrCodeService = qrCodeService;
     }
 
     public async Task<byte[]> Handle(GetMyGymQrCodeQuery query, CancellationToken cancellationToken)
     {
-        GymStaffAssigment gymStaffAssigment = await _context.GymStaffAssigments.FirstAsync(gsa => gsa.ApplicationUserId == _user.Id, cancellationToken);
+        var gymStaffAssigment = await _context
+            .GymStaffAssigments
+            .AsNoTracking()
+            .FirstOrDefaultAsync(gsa => gsa.ApplicationUserId == _user.Id, cancellationToken);
 
-        return gymStaffAssigment.Gym.QRCode;
+        return _qrCodeService.GetQrCode(gymStaffAssigment!.GymId);
     }
 }

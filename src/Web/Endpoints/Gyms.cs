@@ -26,11 +26,11 @@ public class Gyms : EndpointGroupBase
         return TypedResults.Ok(result);
     }
 
-    public async Task<Ok<byte[]>> GetMyGymQrCode(ISender sender, [AsParameters] GetMyGymQrCodeQuery query)
+    public async Task<IResult> GetMyGymQrCode(ISender sender, [AsParameters] GetMyGymQrCodeQuery query)
     {
         var result = await sender.Send(query);
 
-        return TypedResults.Ok(result);
+        return TypedResults.File(result, contentType: "image/png", fileDownloadName: "gymQrCode.png");
     }
 
     public async Task<Results<Ok<GymDto>, NotFound>> UpdateGymProfile(ISender sender, string gymId, [AsParameters] UpdateGymProfileCommand command)

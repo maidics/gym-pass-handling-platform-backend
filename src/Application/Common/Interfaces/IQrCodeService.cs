@@ -2,5 +2,5 @@ namespace FitPass.Application.Common.Interfaces;
 
 public interface IQrCodeService
 {
-    byte[] GenerateQrCode(string textToEncode);
+    byte[] GetQrCode(string textToEncode);
 }

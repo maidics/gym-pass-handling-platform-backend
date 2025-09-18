@@ -27,13 +27,11 @@ public class RegisterGymCommandHandler : IRequestHandler<RegisterGymCommand, Res
 {
     private readonly IIdentityService _identityService;
     private readonly IApplicationDbContext _context;
-    private readonly IQrCodeService _qrCodeService;
 
-    public RegisterGymCommandHandler(IIdentityService identityService, IApplicationDbContext context, IQrCodeService qrCodeService)
+    public RegisterGymCommandHandler(IIdentityService identityService, IApplicationDbContext context)
     {
         _identityService = identityService;
         _context = context;
-        _qrCodeService = qrCodeService;
     }
 
     public async Task<Result> Handle(RegisterGymCommand command, CancellationToken cancellationToken)
@@ -66,11 +64,10 @@ public class RegisterGymCommandHandler : IRequestHandler<RegisterGymCommand, Res
                 return Result.Failure(["Unable to serialize gym creation details."]);
             }
 
-            var gymId = Guid.NewGuid().ToString();
+            var gymId = $"fitpass_gym_{Guid.NewGuid()}";
             var gym = new Gym
             {
                 Id = gymId,
-                QRCode = _qrCodeService.GenerateQrCode(gymId),
                 Name = creationDto.GymName,
                 Address = creationDto.GymAddress,
                 OwnerName = creationDto.GymOwnerName,

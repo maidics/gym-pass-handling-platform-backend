@@ -1,3 +1,4 @@
+using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -11,5 +12,7 @@ public class GymStaffAssignmentConfiguration : IEntityTypeConfiguration<GymStaff
         builder.HasKey(gsa => gsa.ApplicationUserId);
 
         builder.HasOne(gsa => gsa.ApplicationUser).WithOne(au => au.GymStaffAssigment);
+
+        builder.Property(gsa => gsa.EscalationEmail).HasMaxLength(MaxStringLengths.Email);
     }
 }

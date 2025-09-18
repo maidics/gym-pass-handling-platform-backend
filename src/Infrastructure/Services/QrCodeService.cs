@@ -5,9 +5,9 @@ namespace FitPass.Infrastructure.Services;
 
 public class QrCodeService : IQrCodeService
 {
-    public byte[] GenerateQrCode(string textToEncode)
+    public byte[] GetQrCode(string gymId)
     {
-        var qrCodeData = GenerateQrData(textToEncode);
+        var qrCodeData = GenerateQrData(gymId);
 
         using var qrCode = new PngByteQRCode(qrCodeData);
 
