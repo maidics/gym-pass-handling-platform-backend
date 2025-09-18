@@ -1,6 +1,6 @@
-﻿
-using Fitpass.Application.NonRegisteredUsers.Commands;
+﻿using Fitpass.Application.NonRegisteredUsers.Commands;
 using Fitpass.Application.NonRegisteredUsers.Queries;
+using Fitpass.Web.Infrastructure;
 using FitPass.Application.Common.Models;
 using FitPass.Application.NonRegisteredUsers.Commands;
 using FitPass.Application.NonRegisteredUsers.DTOs;
@@ -22,6 +22,8 @@ public class NonRegisteredUsers : EndpointGroupBase
         groupBuilder.MapPut(AddUserGymMembershipToNonRegisteredUser, "{id}").RequireAuthorization();
 
         groupBuilder.MapPut(BuyPassForNonRegisteredUser, "{id}").RequireAuthorization();
+
+        groupBuilder.MapPost(RegisterNonRegisteredUser).AllowAnonymousOnly();
     }
 
     public async Task<Ok<NonRegisteredUserDto>> CreateNonRegisteredUser(ISender sender, CreateNonRegisteredUserCommand command)
@@ -74,6 +76,13 @@ public class NonRegisteredUsers : EndpointGroupBase
             return TypedResults.BadRequest();
         }
 
+        var result = await sender.Send(command);
+
+        return TypedResults.Ok(result);
+    }
+
+    public async Task<Ok<Result>> RegisterNonRegisteredUser(ISender sender, [AsParameters] RegisterNonRegisteredUserCommand command)
+    {
         var result = await sender.Send(command);
 
         return TypedResults.Ok(result);

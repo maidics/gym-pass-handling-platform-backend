@@ -1,4 +1,3 @@
-
 using Fitpass.Application.Gyms.Commands;
 using Fitpass.Application.Gyms.DTOs;
 using FitPass.Application.Common.Models;
