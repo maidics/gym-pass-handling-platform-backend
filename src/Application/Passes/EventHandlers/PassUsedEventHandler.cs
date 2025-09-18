@@ -1,4 +1,4 @@
-using FitPass.Domain;
+using FitPass.Domain.Events;
 using Microsoft.Extensions.Logging;
 
 namespace FitPass.Application;

@@ -1,7 +1,9 @@
-﻿using FitPass.Domain.Constants;
-using FitPass.Infrastructure.Identity;
+﻿using FitPass.Application.Common.Interfaces;
+using FitPass.Domain.Constants;
+using FitPass.Domain.Entities;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -65,6 +67,20 @@ public class ApplicationDbContextInitialiser
 
     public async Task TrySeedAsync()
     {
+        var gymId = "localhostGymId";
+
+        var gyms = await _context.Gyms.ToListAsync();
+
+        if (gyms.Count == 0 || gyms.FirstOrDefault(g => g.Id == gymId) == null)
+        {
+            await _context.Gyms.AddAsync(new Gym
+            {
+                Id = gymId,
+                Name = "Localhost Test Gym",
+                QRCode = 
+            });
+        }
+
         // Default roles
         List<IdentityRole> roles =
         [
@@ -86,10 +102,44 @@ public class ApplicationDbContextInitialiser
         // Default users
         List<(ApplicationUser, string)> defaultUsers =
         [
-            (new ApplicationUser { UserName = "appadmin@localhost", Email = "appadmin@localhost", FirstName = "appadmin" }, Roles.AppAdministrator),
-            (new ApplicationUser { UserName = "gymadmin@localhost", Email = "gymadmin@localhost", FirstName = "gymadmin" }, Roles.GymAdministrator),
-            (new ApplicationUser { UserName = "gymstaff@localhost", Email = "gymstaff@localhost", FirstName = "gymstaff" }, Roles.GymStaff),
-            (new ApplicationUser { UserName = "user@localhost", Email = "user@localhost", FirstName = "user" }, string.Empty)
+            (
+                new ApplicationUser 
+                { 
+                    UserName = "appadmin@localhost", 
+                    Email = "appadmin@localhost", 
+                    FirstName = "appadmin",
+                    UserGymMemberships = null,
+                    GymStaffAssigment = null
+                }, 
+                Roles.AppAdministrator
+            ),
+            (
+                new ApplicationUser 
+                { 
+                    UserName = "gymadmin@localhost", 
+                    Email = "gymadmin@localhost", 
+                    FirstName = "gymadmin" 
+                }, 
+                Roles.GymAdministrator
+                ),
+            (
+                new ApplicationUser 
+                { 
+                    UserName = "gymstaff@localhost", 
+                    Email = "gymstaff@localhost", 
+                    FirstName = "gymstaff" 
+                }, 
+                Roles.GymStaff
+            ),
+            (
+                new ApplicationUser 
+                { 
+                    UserName = "user@localhost", 
+                    Email = "user@localhost", 
+                    FirstName = "user" 
+                }, 
+                string.Empty
+            )
         ];
 
         var existingUsers = _userManager.Users;
