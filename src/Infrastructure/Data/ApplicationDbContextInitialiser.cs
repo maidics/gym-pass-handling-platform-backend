@@ -89,7 +89,6 @@ public class ApplicationDbContextInitialiser
             await _context.Gyms.AddAsync(new Gym
             {
                 Id = gymId,
-                QRCode = [],
                 Name = "LocalHostGym",
                 Address = "Localhost"
             });
