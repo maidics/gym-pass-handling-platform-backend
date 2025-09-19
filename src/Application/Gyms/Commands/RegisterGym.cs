@@ -70,7 +70,9 @@ public class RegisterGymCommandHandler : IRequestHandler<RegisterGymCommand, Res
                 Id = gymId,
                 Name = creationDto.GymName,
                 Address = creationDto.GymAddress,
-                OwnerName = creationDto.GymOwnerName,
+                Status = creationDto.GymStatus,
+                Tier = creationDto.GymTier,
+                OwnerName = creationDto.GymOwnerName
             };
 
             await _context.Gyms.AddAsync(gym);

@@ -23,6 +23,10 @@ public class CreateGymCreationRequestCommandValidator : AbstractValidator<Create
 
         RuleFor(v => v.CreateGymDTO.GymAddress).NotEmptyWithMaxLenghtAndMessage(MaxStringLengths.Address, "Gym address");
 
+        RuleFor(v => v.CreateGymDTO.GymStatus).NotEmptyWithMessage("Gym status");
+
+        RuleFor(v => v.CreateGymDTO.GymTier).NotEmptyWithMessage("Gym tier");
+
         RuleFor(v => v.CreateGymDTO.GymAdminEmail)
             .NotEmptyWithMaxLenghtAndMessage(MaxStringLengths.Email, "Email address")
             .EmailAddress().WithMessage("An email address is required for the gym administrator account.");
