@@ -1,15 +1,21 @@
+using System.Text.Json;
+using Fitpass.Application.Requests.DTOs;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Security;
 using FitPass.Application.Extensions;
 using FitPass.Domain.Constants;
+using FitPass.Domain.Entities;
+using FitPass.Domain.Enums;
 
 namespace FitPass.Application.Requests.Commands;
 
 [Authorize(Roles = Roles.GymAdministrator)]
-public record CreateGymAdministratorUserCommand
+public record CreateGymAdministratorUserRequestCommand
 (
     string GymId,
+    string RequestDescription,
+    PriorityLevel RequestPriorityLevel,
     string GymAdminFirstName,
     string GymAdminLastName,
     string GymAdminEmail,
@@ -18,11 +24,15 @@ public record CreateGymAdministratorUserCommand
     string EscalationEmail
 ) : IRequest<Result>;
 
-public class CreateGymAdministratorUserCommandValidator : AbstractValidator<CreateGymAdministratorUserCommand>
+public class CreateGymAdministratorUserRequestCommandValidator : AbstractValidator<CreateGymAdministratorUserRequestCommand>
 {
-    public CreateGymAdministratorUserCommandValidator()
+    public CreateGymAdministratorUserRequestCommandValidator()
     {
         RuleFor(v => v.GymId).NotEmptyWithMessage("Gym id");
+
+        RuleFor(v => v.RequestDescription!).NotEmptyWithMaxLenghtAndMessage(MaxStringLengths.Description, "Request description");
+
+        RuleFor(v => v.RequestPriorityLevel).NotEmptyWithMessage("Request priority level");
 
         RuleFor(v => v.GymAdminFirstName).NotEmptyWithMaxLenghtAndMessage(MaxStringLengths.Name, "Gym admin first name");
 
@@ -44,17 +54,15 @@ public class CreateGymAdministratorUserCommandValidator : AbstractValidator<Crea
     }
 }
 
-public class CreateGymAdministratorUserCommandHandler : IRequestHandler<CreateGymAdministratorUserCommand, Result>
+public class CreateGymAdministratorUserRequestCommandHandler : IRequestHandler<CreateGymAdministratorUserRequestCommand, Result>
 {
     private readonly IApplicationDbContext _context;
-    private readonly IIdentityService _identityService;
 
-    public CreateGymAdministratorUserCommandHandler(IApplicationDbContext context, IIdentityService identityService)
+    public CreateGymAdministratorUserRequestCommandHandler(IApplicationDbContext context)
     {
         _context = context;
-        _identityService = identityService;
     }
-    public async Task<Result> Handle(CreateGymAdministratorUserCommand command, CancellationToken cancellationToken)
+    public async Task<Result> Handle(CreateGymAdministratorUserRequestCommand command, CancellationToken cancellationToken)
     {
         var gym = await _context.Gyms.AsNoTracking().FirstOrDefaultAsync(g => g.Id == command.GymId, cancellationToken);
 
@@ -70,17 +78,27 @@ public class CreateGymAdministratorUserCommandHandler : IRequestHandler<CreateGy
             return Result.Failure(["This email is already in use"]);
         }
 
-        var result = await _identityService.CreateGymManagementUserAsync
-        (
-            command.GymAdminEmail,
-            command.GymAdminPassword,
-            command.GymAdminFirstName,
-            command.GymAdminLastName,
-            Roles.GymAdministrator,
-            gym,
-            command.EscalationEmail
-        );
+        var request = new Request
+        {
+            Id = Guid.NewGuid().ToString(),
+            Title = "Gym Administrator Account Creation",
+            Description = command.RequestDescription,
+            PriorityLevel = command.RequestPriorityLevel,
+            Type = RequestType.GymAdministratorAccountCreation,
+            Payload = JsonSerializer.Serialize(new CreateGymAdministratorUserDto
+            {
+                GymId = command.GymId,
+                GymAdminFirstName = command.GymAdminFirstName,
+                GymAdminLastName = command.GymAdminLastName,
+                GymAdminEmail = command.GymAdminEmail,
+                GymAdminPassword = command.GymAdminPassword,
+                EscalationEmail = command.EscalationEmail
+            })
+        };
 
-        return result.Result;
+        await _context.Requests.AddAsync(request);
+        await _context.SaveChangesAsync();
+
+        return Result.Success();
     }
 }

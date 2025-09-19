@@ -31,7 +31,6 @@ app.UseSwaggerUi(settings =>
     settings.DocumentPath = "/api/specification.json";
 });
 
-
 app.UseExceptionHandler(options => { });
 
 app.Map("/", () => Results.Redirect("/api"));

@@ -31,4 +31,6 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
     {
         return await Database.BeginTransactionAsync(cancellationToken);
     }
+
+    public async Task<int> SaveChangesAsync() => await base.SaveChangesAsync(CancellationToken.None);
 }

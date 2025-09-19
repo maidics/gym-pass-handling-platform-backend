@@ -1,5 +1,4 @@
-﻿using FitPass.Application.Requests.DTOs;
-using FitPass.Domain;
+﻿using FitPass.Domain;
 using FitPass.Domain.Entities;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -17,6 +16,7 @@ public interface IApplicationDbContext
     DbSet<GymPassProduct> GymPassProducts { get; }
     DbSet<GymPassProductTemplate> GymPassProductTemplates { get; }
     DbSet<PurchaseReceipt> PurchaseReceipts { get; }
+    Task<int> SaveChangesAsync();
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
     Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default);
 }

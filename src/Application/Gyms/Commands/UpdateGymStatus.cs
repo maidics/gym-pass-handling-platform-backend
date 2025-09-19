@@ -33,13 +33,6 @@ public class UpdateGymStatusCommandHandler : IRequestHandler<UpdateGymStatusComm
 
     public async Task<Result> Handle(UpdateGymStatusCommand command, CancellationToken cancellationToken)
     {
-        var userRoles = await _identityService.GetRolesAsync(_user.Id!);
-
-        if (userRoles == null)
-        {
-            return Result.Failure(["Current logged in user not found."]);
-        }
-
         var gym = await _context.Gyms.FindAsync(command.GymID);
 
         if (gym == null)
@@ -47,7 +40,7 @@ public class UpdateGymStatusCommandHandler : IRequestHandler<UpdateGymStatusComm
             return Result.Failure(["Gym not found"]);
         }
 
-        if (userRoles.Contains(Roles.AppAdministrator))
+        if (_user.Roles!.Contains(Roles.AppAdministrator))
         {
             gym.Status = command.NewGymStatus;
 
@@ -63,7 +56,7 @@ public class UpdateGymStatusCommandHandler : IRequestHandler<UpdateGymStatusComm
             return Result.Failure(["You are not allowed to change the status of this gym."]);
         }
 
-        if (userRoles.Contains(Roles.GymAdministrator) && (command.NewGymStatus == GymStatus.Active || command.NewGymStatus == GymStatus.Inactive))
+        if (_user.Roles.Contains(Roles.GymAdministrator) && (command.NewGymStatus == GymStatus.Active || command.NewGymStatus == GymStatus.Inactive))
         {
             gym.Status = command.NewGymStatus;
 
