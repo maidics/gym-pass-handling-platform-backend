@@ -15,6 +15,7 @@ public interface IApplicationDbContext
     DbSet<OwnedPass> Passes { get; }
     DbSet<Request> Requests { get; }
     DbSet<GymPassProduct> GymPassProducts { get; }
+    DbSet<GymPassProductTemplate> GymPassProductTemplates { get; }
     DbSet<PurchaseReceipt> PurchaseReceipts { get; }
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
     Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default);

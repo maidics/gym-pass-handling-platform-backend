@@ -6,11 +6,11 @@ public class OwnedPass : BaseAuditableEntity
     public required PassType Type { get; set; }
     public required int? TotalUses { get; set; }
     public required int? RemainingUses { get; set; }
-    public required DateTimeOffset? ExpirationDate { get; set; }
+    public required DateOnly? ExpirationDate { get; set; }
     public required decimal EurPrice { get; set; }
     public UserGymMembership UserGymMembership { get; set; } = null!;
 
-    private bool IsExpired() => Type == PassType.Subscription && ExpirationDate.HasValue && ExpirationDate.Value < DateTimeOffset.UtcNow;
+    private bool IsExpired() => Type == PassType.Subscription && ExpirationDate.HasValue && ExpirationDate.Value < DateTimeOffset.UtcNow.Date;
     private bool HasNoUsesLeft() => Type != PassType.Subscription && RemainingUses.HasValue && RemainingUses <= 0;
 
     public PassUseResult Use()

@@ -1,4 +1,4 @@
-namespace FitPass.Domain;
+namespace FitPass.Domain.Enums;
 
 public enum PassType
 {

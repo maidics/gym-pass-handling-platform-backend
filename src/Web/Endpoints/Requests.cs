@@ -17,6 +17,8 @@ public class Requests : EndpointGroupBase
         groupBuilder.MapPut(UpdateRequestStatus, "{id}").RequireAuthorization();
 
         groupBuilder.MapPost(CreateGymCreationRequest);
+
+        groupBuilder.MapPost(CreateGymAdministratorUser).RequireAuthorization();
     }
 
     public async Task<Results<Ok<RequestDto>, NotFound>> GetRequest(ISender sender, [AsParameters] GetRequestQuery query)
@@ -49,8 +51,15 @@ public class Requests : EndpointGroupBase
 
         return TypedResults.Ok(result);
     }
-    
+
     public async Task<Ok<Result>> CreateGymCreationRequest(ISender sender, [AsParameters] CreateGymCreationRequestCommand command)
+    {
+        var result = await sender.Send(command);
+
+        return TypedResults.Ok(result);
+    }
+
+    public async Task<Ok<Result>> CreateGymAdministratorUser(ISender sender, [AsParameters] CreateGymAdministratorUserCommand command)
     {
         var result = await sender.Send(command);
 

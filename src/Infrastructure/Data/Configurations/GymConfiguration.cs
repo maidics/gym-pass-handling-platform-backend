@@ -13,6 +13,8 @@ public class GymConfiguration : IEntityTypeConfiguration<Gym>
 
         builder.HasMany(g => g.UserGymMemberships).WithOne(ugm => ugm.Gym).HasForeignKey(g => g.GymId);
 
+        builder.HasIndex(g => g.Name).IsUnique();
+
         builder.Property(g => g.Name).HasMaxLength(MaxStringLengths.Name);
 
         builder.Property(g => g.Address).HasMaxLength(MaxStringLengths.Address);
