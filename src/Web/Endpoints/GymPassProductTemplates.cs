@@ -20,40 +20,40 @@ public class GymPassProductTemplates : EndpointGroupBase
         groupBuilder.MapPut(UpdateGymPassProductTemplate, "{id}").RequireAuthorization();
     }
 
-    public async Task<Ok<Result>> CreateGymPassProductTemplate(ISender sender, [AsParameters] CreateGymPassProductTemplateCommand command)
+    public async Task<Ok<Result>> CreateGymPassProductTemplate(ISender sender, [AsParameters] CreateGymPassProductTemplateCommand command, CancellationToken cancellationToken)
     {
-        var result = await sender.Send(command);
+        var result = await sender.Send(command, cancellationToken);
 
         return TypedResults.Ok(result);
     }
 
-    public async Task<Ok<List<GymPassProductTemplateDto>>> GetAllGymPassProductTemplates(ISender sender, GetAllGymPassProductTemplatesQuery query)
+    public async Task<Ok<List<GymPassProductTemplateDto>>> GetAllGymPassProductTemplates(ISender sender, GetAllGymPassProductTemplatesQuery query, CancellationToken cancellationToken)
     {
-        var result = await sender.Send(query);
+        var result = await sender.Send(query, cancellationToken);
 
         return TypedResults.Ok(result);
     }
 
-    public async Task<Results<Ok<Result>, BadRequest>> DeleteGymPassProductTemplate(ISender sender, string id, [AsParameters] DeleteGymPassProductTemplateCommand command)
+    public async Task<Results<Ok<Result>, BadRequest>> DeleteGymPassProductTemplate(ISender sender, string id, [AsParameters] DeleteGymPassProductTemplateCommand command, CancellationToken cancellationToken)
     {
         if (id != command.GymPassProductTemplateId)
         {
             return TypedResults.BadRequest();
         }
 
-        var result = await sender.Send(command);
+        var result = await sender.Send(command, cancellationToken);
 
         return TypedResults.Ok(result);
     }
 
-    public async Task<Results<Ok<Result>, BadRequest>> UpdateGymPassProductTemplate(ISender sender, string id, [AsParameters] UpdateGymPassProductTemplateCommand command)
+    public async Task<Results<Ok<Result>, BadRequest>> UpdateGymPassProductTemplate(ISender sender, string id, [AsParameters] UpdateGymPassProductTemplateCommand command, CancellationToken cancellationToken)
     {
         if (id != command.GymPassProductTemplateId)
         {
             return TypedResults.BadRequest();
         }
 
-        var result = await sender.Send(command);
+        var result = await sender.Send(command, cancellationToken);
 
         return TypedResults.Ok(result);
     }

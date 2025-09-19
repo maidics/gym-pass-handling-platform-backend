@@ -36,7 +36,7 @@ public class DeleteGymPassProductTemplateCommandHandler : IRequestHandler<Delete
         }
 
         _context.GymPassProductTemplates.Remove(template);
-        await _context.SaveChangesAsync(cancellationToken);
+        await _context.SaveChangesAsync();
 
         return Result.Success();
     }

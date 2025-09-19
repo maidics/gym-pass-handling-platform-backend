@@ -52,7 +52,7 @@ public class UpdateGymProfileCommandHandler : IRequestHandler<UpdateGymProfileCo
         gym.Tier = command.GymTier;
         gym.OwnerName = command.GymOwnerName;
 
-        await _context.SaveChangesAsync(cancellationToken);
+        await _context.SaveChangesAsync();
 
         return _mapper.Map<GymDto>(gym);
     }

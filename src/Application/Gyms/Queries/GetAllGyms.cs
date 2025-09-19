@@ -20,7 +20,7 @@ public class GetAllGymsQueryHandler : IRequestHandler<GetAllGymsQuery, List<GymD
 
     public async Task<List<GymDto>> Handle(GetAllGymsQuery request, CancellationToken cancellationToken)
     {
-        var gyms = await _context.Gyms.AsNoTracking().ToListAsync();
+        var gyms = await _context.Gyms.AsNoTracking().ToListAsync(cancellationToken);
 
         return _mapper.Map<List<GymDto>>(gyms);
     }

@@ -104,7 +104,7 @@ public class UpdateGymPassProductTemplateCommandHandler : IRequestHandler<Update
         template.DaysAfterExpiring = command.DaysAfterExpiring;
         template.EurPrice = command.EurPrice;
 
-        await _context.SaveChangesAsync(cancellationToken);
+        await _context.SaveChangesAsync();
 
         return Result.Success();
     }

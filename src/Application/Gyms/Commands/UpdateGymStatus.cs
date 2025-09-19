@@ -44,12 +44,15 @@ public class UpdateGymStatusCommandHandler : IRequestHandler<UpdateGymStatusComm
         {
             gym.Status = command.NewGymStatus;
 
-            await _context.SaveChangesAsync(cancellationToken);
+            await _context.SaveChangesAsync();
 
             return Result.Success();
         }
 
-        var gymStaffAssigment = await _context.GymStaffAssigments.AsNoTracking().FirstOrDefaultAsync(gsa => gsa.ApplicationUserId == _user.Id);
+        var gymStaffAssigment = await _context
+            .GymStaffAssigments
+            .AsNoTracking()
+            .FirstOrDefaultAsync(gsa => gsa.ApplicationUserId == _user.Id);
 
         if (gymStaffAssigment!.GymId != command.GymID)
         {
@@ -60,7 +63,7 @@ public class UpdateGymStatusCommandHandler : IRequestHandler<UpdateGymStatusComm
         {
             gym.Status = command.NewGymStatus;
 
-            await _context.SaveChangesAsync(cancellationToken);
+            await _context.SaveChangesAsync();
 
             return Result.Success();
         }

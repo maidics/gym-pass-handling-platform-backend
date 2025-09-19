@@ -40,7 +40,7 @@ public class RegisterGymCommandHandler : IRequestHandler<RegisterGymCommand, Res
 
         try
         {
-            var request = await _context.Requests.FindAsync(command.gymCreationRequestId);
+            var request = await _context.Requests.FindAsync(command.gymCreationRequestId, cancellationToken);
 
             if (request == null)
             {
@@ -94,14 +94,14 @@ public class RegisterGymCommandHandler : IRequestHandler<RegisterGymCommand, Res
             }
 
             request.Status = RequestStatus.Completed;
-            await _context.SaveChangesAsync(cancellationToken);
-            await transaction.CommitAsync(cancellationToken);
+            await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
 
             return Result.Success();
         }
         catch
         {
-            await transaction.RollbackAsync(CancellationToken.None);
+            await transaction.RollbackAsync();
             throw;
         }
     }

@@ -15,9 +15,9 @@ public class ApplicationUsers : EndpointGroupBase
         groupBuilder.MapPost(RegisterGymAdministratorUser).RequireAuthorization();
     }
 
-    public async Task<Results<Ok<List<ApplicationUserDto>>, BadRequest<string>>> GetGymStaff(ISender sender, [AsParameters] GetGymStaffQuery query)
+    public async Task<Results<Ok<List<ApplicationUserDto>>, BadRequest<string>>> GetGymStaff(ISender sender, [AsParameters] GetGymStaffQuery query, CancellationToken cancellationToken)
     {
-        var result = await sender.Send(query);
+        var result = await sender.Send(query, cancellationToken);
 
         if (result.errorMessage != null)
         {
@@ -27,9 +27,9 @@ public class ApplicationUsers : EndpointGroupBase
         return TypedResults.Ok(result.gymStaffManagementUsers);
     }
 
-    public async Task<Ok<Result>> RegisterGymAdministratorUser(ISender sender, [AsParameters] RegisterGymAdministratorUserCommand command)
+    public async Task<Ok<Result>> RegisterGymAdministratorUser(ISender sender, [AsParameters] RegisterGymAdministratorUserCommand command, CancellationToken cancellationToken)
     {
-        var result = await sender.Send(command);
+        var result = await sender.Send(command, cancellationToken);
 
         return TypedResults.Ok(result);
     }

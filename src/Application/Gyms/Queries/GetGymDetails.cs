@@ -35,7 +35,7 @@ public class GetGymDetailsQueryHandler : IRequestHandler<GetGymDetailsQuery, Gym
             .AsNoTracking()
             .Include(g => g.GymPassProducts)
             .Include(g => g.UserGymMemberships)
-            .FirstOrDefaultAsync(g => g.Id == query.GymId);
+            .FirstOrDefaultAsync(g => g.Id == query.GymId, cancellationToken);
 
         return gym == null ? null : _mapper.Map<GymDto>(gym);
     }

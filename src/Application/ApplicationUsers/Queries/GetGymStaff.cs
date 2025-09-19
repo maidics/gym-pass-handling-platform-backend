@@ -43,7 +43,7 @@ public class GetGymStaffQueryHandler : IRequestHandler<GetGymStaffQuery, (List<A
                 .Users
                 .AsNoTracking()
                 .Include(u => u.GymStaffAssigment)
-                .FirstOrDefaultAsync(u => u.GymStaffAssigment!.GymId == query.GymId && u.Id == _user.Id);
+                .FirstOrDefaultAsync(u => u.GymStaffAssigment!.GymId == query.GymId && u.Id == _user.Id, cancellationToken);
 
             if (currentGymManagementUser == null)
             {

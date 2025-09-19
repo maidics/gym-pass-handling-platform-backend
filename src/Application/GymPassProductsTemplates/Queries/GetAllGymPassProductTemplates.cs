@@ -23,7 +23,7 @@ public class GetAllGymPassProductTemplatesQueryHandler : IRequestHandler<GetAllG
         var templates = await _context
             .GymPassProductTemplates
             .AsNoTracking()
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
 
         return _mapper.Map<List<GymPassProductTemplateDto>>(templates);
     }

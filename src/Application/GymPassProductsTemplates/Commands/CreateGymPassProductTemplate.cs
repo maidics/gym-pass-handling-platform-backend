@@ -2,7 +2,6 @@ using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Security;
 using FitPass.Application.Extensions;
-using FitPass.Domain;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
@@ -101,7 +100,7 @@ public class CreateGymPassProductTemplateCommandHandler : IRequestHandler<Create
         };
 
         await _context.GymPassProductTemplates.AddAsync(newTemplate);
-        await _context.SaveChangesAsync(cancellationToken);
+        await _context.SaveChangesAsync();
 
         return Result.Success();
     }

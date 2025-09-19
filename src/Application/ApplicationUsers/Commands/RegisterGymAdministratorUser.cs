@@ -61,16 +61,31 @@ public class RegisterGymAdministratorUserCommandHandler : IRequestHandler<Regist
             return Result.Failure(["Specified gym is not found from request details."]);
         }
 
-        var result = await _identityService.CreateGymManagementUserAsync
-        (
-            requestDto.GymAdminEmail,
-            requestDto.GymAdminPassword,
-            requestDto.GymAdminFirstName,
-            requestDto.GymAdminLastName,
-            Roles.GymAdministrator,
-            gym,
-            requestDto.EscalationEmail
-        );
+        await using var transaction = await _context.BeginTransactionAsync(cancellationToken);
+
+        try
+        {
+            var result = await _identityService.CreateGymManagementUserAsync
+            (
+                requestDto.GymAdminEmail,
+                requestDto.GymAdminPassword,
+                requestDto.GymAdminFirstName,
+                requestDto.GymAdminLastName,
+                Roles.GymAdministrator,
+                gym,
+                requestDto.EscalationEmail
+            );
+
+            request.Status = RequestStatus.Completed;
+
+            await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
 
         return Result.Success();
     }
