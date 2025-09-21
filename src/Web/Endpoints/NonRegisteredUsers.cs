@@ -21,9 +21,9 @@ public class NonRegisteredUsers : EndpointGroupBase
 
         groupBuilder.MapPut(AddUserGymMembershipToNonRegisteredUser, "{id}").RequireAuthorization();
 
-        groupBuilder.MapPut(BuyPassForNonRegisteredUser, "{id}").RequireAuthorization();
+        groupBuilder.MapPut(BuyPassForNonRegisteredUser, "{id}/Buy").RequireAuthorization();
 
-        groupBuilder.MapPost(RegisterNonRegisteredUser).AllowAnonymousOnly();
+        groupBuilder.MapPost(RegisterNonRegisteredUser, "/Register").AllowAnonymousOnly();
     }
 
     public async Task<Ok<NonRegisteredUserDto>> CreateNonRegisteredUser(ISender sender, CreateNonRegisteredUserCommand command)

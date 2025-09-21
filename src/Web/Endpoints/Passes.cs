@@ -10,9 +10,9 @@ public class Passes : EndpointGroupBase
 {
     public override void Map(RouteGroupBuilder groupBuilder)
     {
-        groupBuilder.MapPut(UsePass, "{id}").RequireAuthorization();
+        groupBuilder.MapPut(UsePass, "{id}/Use").RequireAuthorization();
 
-        groupBuilder.MapPut(UserBuyPass, "{id}").RequireAuthorization();
+        groupBuilder.MapPut(UserBuyPass, "{id}/Buy").RequireAuthorization();
     }
 
     public async Task<Results<Ok<Result>, BadRequest>> UsePass(ISender sender, string id, [AsParameters] UsePassCommand command)

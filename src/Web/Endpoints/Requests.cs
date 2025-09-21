@@ -10,21 +10,24 @@ public class Requests : EndpointGroupBase
 {
     public override void Map(RouteGroupBuilder groupBuilder)
     {
-        groupBuilder.MapGet(GetRequest).RequireAuthorization();
+        groupBuilder.MapGet(GetRequest, "{id}").RequireAuthorization();
 
         groupBuilder.MapGet(GetRequests).RequireAuthorization();
 
         groupBuilder.MapPut(UpdateRequestStatus, "{id}").RequireAuthorization();
 
-        groupBuilder.MapPost(CreateGymCreationRequest);
+        groupBuilder.MapPost(CreateGymCreationRequest, "/GymCreation");
 
-        groupBuilder.MapPost(CreateGymAdministratorUser).RequireAuthorization();
-
-        groupBuilder.MapPost(CreateGymAdministratorUserRequest).RequireAuthorization();
+        groupBuilder.MapPost(CreateGymAdministratorUserRequest, "GymAdministrator").RequireAuthorization();
     }
 
-    public async Task<Results<Ok<RequestDto>, NotFound>> GetRequest(ISender sender, [AsParameters] GetRequestQuery query)
+    public async Task<Results<Ok<RequestDto>, NotFound, BadRequest>> GetRequest(ISender sender, string id, [AsParameters] GetRequestQuery query)
     {
+        if (id != query.RequestId)
+        {
+            return TypedResults.BadRequest();
+        }
+
         var result = await sender.Send(query);
 
         if (result == null)
@@ -55,13 +58,6 @@ public class Requests : EndpointGroupBase
     }
 
     public async Task<Ok<Result>> CreateGymCreationRequest(ISender sender, [AsParameters] CreateGymCreationRequestCommand command)
-    {
-        var result = await sender.Send(command);
-
-        return TypedResults.Ok(result);
-    }
-
-    public async Task<Ok<Result>> CreateGymAdministratorUser(ISender sender, [AsParameters] CreateGymAdministratorUserRequestCommand command)
     {
         var result = await sender.Send(command);
 
