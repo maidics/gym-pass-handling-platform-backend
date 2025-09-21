@@ -44,7 +44,7 @@ public class AddUserGymMembershipToNonRegisteredUserCommandHandler : IRequestHan
             return null;
         }
 
-        var gymStaffAssignment = await _userProfileService.GetUserGymStaffAssigment(_user.Id!, cancellationToken);
+        var gymStaffAssignment = await _userProfileService.GetUserGymStaffAssigmentAsync(_user.Id!, cancellationToken);
 
         var userGymMembership = nonRegisteredUser.UserGymMemberships.FirstOrDefault(ugm => ugm.GymId == gymStaffAssignment!.GymId);
 

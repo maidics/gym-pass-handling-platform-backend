@@ -25,7 +25,7 @@ public class GetAllMyNonRegisteredUsersQueryHandler : IRequestHandler<GetAllMyNo
 
     public async Task<List<NonRegisteredUserDto>> Handle(GetAllMyNonRegisteredUsersQuery request, CancellationToken cancellationToken)
     {
-        var gymStaffAssignment = await _userProfileService.GetUserGymStaffAssigment(_user.Id!, cancellationToken);
+        var gymStaffAssignment = await _userProfileService.GetUserGymStaffAssigmentAsync(_user.Id!, cancellationToken);
 
         var nonRegisteredUsers = await _context
             .NonRegisteredUsers

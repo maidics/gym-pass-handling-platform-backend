@@ -4,6 +4,6 @@ namespace FitPass.Application.Common.Interfaces;
 
 public interface IUserProfileService
 {
-    Task<GymStaffAssigment?> GetUserGymStaffAssigment(string userId, CancellationToken cancellationToken);
+    Task<GymStaffAssigment?> GetUserGymStaffAssigmentAsync(string userId, CancellationToken cancellationToken);
     Task<IReadOnlyList<UserGymMembership>?> GetUserGymMembershipsAsync(string userId, CancellationToken cancellationToken);
 }

@@ -117,4 +117,6 @@ public class Gyms : EndpointGroupBase
 
         return TypedResults.Ok(result.gymStaffManagementUsers);
     }
+
+    public async Task<Ok<ApplicationUserDto>> GetMyGymManagementUsers(ISender sender, [AsParameters])
 }

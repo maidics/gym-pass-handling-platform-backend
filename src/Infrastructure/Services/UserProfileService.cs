@@ -28,7 +28,7 @@ public class UserProfileService : IUserProfileService
         return [..user.UserGymMemberships];
     }
 
-    public async Task<GymStaffAssigment?> GetUserGymStaffAssigment(string userId, CancellationToken cancellationToken)
+    public async Task<GymStaffAssigment?> GetUserGymStaffAssigmentAsync(string userId, CancellationToken cancellationToken)
     {
         return userId == null ? null : await _context.GymStaffAssigments.FirstOrDefaultAsync(gsa => gsa.ApplicationUserId == userId);
     }

@@ -55,7 +55,7 @@ public class BuyPassForNonRegisteredUserCommandHandler : IRequestHandler<BuyPass
             return Result.Failure(["Gym pass product not found."]);
         }
 
-        var gymStaffAssignment = await _userProfileService.GetUserGymStaffAssigment(_user.Id!, cancellationToken);
+        var gymStaffAssignment = await _userProfileService.GetUserGymStaffAssigmentAsync(_user.Id!, cancellationToken);
 
         var userGymMembership = nonRegisteredUser.UserGymMemberships.FirstOrDefault(ugm => ugm.GymId == gymStaffAssignment!.GymId);
 
