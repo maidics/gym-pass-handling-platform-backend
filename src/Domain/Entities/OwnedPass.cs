@@ -10,7 +10,14 @@ public class OwnedPass : BaseAuditableEntity
     public required decimal EurPrice { get; set; }
     public UserGymMembership UserGymMembership { get; set; } = null!;
 
-    private bool IsExpired() => Type == PassType.Subscription && ExpirationDate.HasValue && ExpirationDate.Value < DateTimeOffset.UtcNow.Date;
+    private bool IsExpired()
+    {
+        var utcNow = DateTimeOffset.UtcNow;
+
+        var now = new DateOnly(utcNow.Year, utcNow.Month, utcNow.Day);
+
+        return Type == PassType.Subscription && ExpirationDate.HasValue && ExpirationDate.Value < now;
+    }
     private bool HasNoUsesLeft() => Type != PassType.Subscription && RemainingUses.HasValue && RemainingUses <= 0;
 
     public PassUseResult Use()

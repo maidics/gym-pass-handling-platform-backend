@@ -14,15 +14,15 @@ public class Gyms : EndpointGroupBase
     {
         groupBuilder.MapPost(RegisterGym).RequireAuthorization();
 
-        groupBuilder.MapGet(GetMyGymQrCode).RequireAuthorization();
+        groupBuilder.MapGet(GetMyGymQrCode, "/QrCode").RequireAuthorization();
 
         groupBuilder.MapPut(UpdateGymProfile, "{gymId}").RequireAuthorization();
 
         groupBuilder.MapGet(GetAllGyms).RequireAuthorization();
 
-        groupBuilder.MapGet(GetGymDetails).RequireAuthorization();
+        groupBuilder.MapGet(GetGymDetails, "{id}").RequireAuthorization();
 
-        groupBuilder.MapGet(GetNewGymsThisMonth).RequireAuthorization();
+        groupBuilder.MapGet(GetNewGymsThisMonth, "New").RequireAuthorization();
 
         groupBuilder.MapPut(UpdateGymStatus, "{id}").RequireAuthorization();
     }
@@ -34,9 +34,9 @@ public class Gyms : EndpointGroupBase
         return TypedResults.Ok(result);
     }
 
-    public async Task<IResult> GetMyGymQrCode(ISender sender, [AsParameters] GetMyGymQrCodeQuery query, CancellationToken cancellationToken)
+    public async Task<IResult> GetMyGymQrCode(ISender sender, CancellationToken cancellationToken)
     {
-        var result = await sender.Send(query, cancellationToken);
+        var result = await sender.Send(new GetMyGymQrCodeQuery { }, cancellationToken);
 
         return TypedResults.File(result, contentType: "image/png", fileDownloadName: "gymQrCode.png");
     }
@@ -53,15 +53,20 @@ public class Gyms : EndpointGroupBase
         return TypedResults.Ok(result);
     }
 
-    public async Task<Ok<List<GymDto>>> GetAllGyms(ISender sender, GetAllGymsQuery query, CancellationToken cancellationToken)
+    public async Task<Ok<List<GymDto>>> GetAllGyms(ISender sender, CancellationToken cancellationToken)
     {
-        var result = await sender.Send(query, cancellationToken);
+        var result = await sender.Send(new GetAllGymsQuery { }, cancellationToken);
 
         return TypedResults.Ok(result);
     }
 
-    public async Task<Results<Ok<GymDto>, NotFound>> GetGymDetails(ISender sender, [AsParameters] GetGymDetailsQuery query, CancellationToken cancellationToken)
+    public async Task<Results<Ok<GymDto>, NotFound, BadRequest>> GetGymDetails(ISender sender, string id, [AsParameters] GetGymDetailsQuery query, CancellationToken cancellationToken)
     {
+        if (id != query.GymId)
+        {
+            return TypedResults.BadRequest();
+        }
+
         var result = await sender.Send(query, cancellationToken);
 
         if (result == null)
@@ -72,9 +77,9 @@ public class Gyms : EndpointGroupBase
         return TypedResults.Ok(result);
     }
 
-    public async Task<Ok<List<GymDto>>> GetNewGymsThisMonth(ISender sender, GetNewGymsThisMonthQuery query, CancellationToken cancellationToken)
+    public async Task<Ok<List<GymDto>>> GetNewGymsThisMonth(ISender sender, CancellationToken cancellationToken)
     {
-        var result = await sender.Send(query, cancellationToken);
+        var result = await sender.Send(new GetNewGymsThisMonthQuery { }, cancellationToken);
 
         return TypedResults.Ok(result);
     }

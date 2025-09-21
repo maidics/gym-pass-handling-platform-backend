@@ -15,9 +15,9 @@ public class NonRegisteredUsers : EndpointGroupBase
     {
         groupBuilder.MapPost(CreateNonRegisteredUser).RequireAuthorization();
 
-        groupBuilder.MapGet(GetNonRegisteredUser).RequireAuthorization();
+        groupBuilder.MapGet(GetNonRegisteredUser, "{id}").RequireAuthorization();
 
-        groupBuilder.MapGet(GetAllMyNonRegisteredUsers).RequireAuthorization();
+        groupBuilder.MapGet(GetAllMyNonRegisteredUsers, "My").RequireAuthorization();
 
         groupBuilder.MapPut(AddUserGymMembershipToNonRegisteredUser, "{id}").RequireAuthorization();
 
@@ -33,8 +33,13 @@ public class NonRegisteredUsers : EndpointGroupBase
         return TypedResults.Ok(result);
     }
 
-    public async Task<Results<Ok<NonRegisteredUserDto>, NotFound>> GetNonRegisteredUser(ISender sender, [AsParameters] GetNonRegisteredUserQuery query)
+    public async Task<Results<Ok<NonRegisteredUserDto>, NotFound, BadRequest>> GetNonRegisteredUser(ISender sender, string id, [AsParameters] GetNonRegisteredUserQuery query)
     {
+        if (id != query.NonRegisteredUserId)
+        {
+            return TypedResults.BadRequest();
+        }
+
         var result = await sender.Send(query);
 
         if (result == null)
@@ -45,9 +50,9 @@ public class NonRegisteredUsers : EndpointGroupBase
         return TypedResults.Ok(result);
     }
 
-    public async Task<Ok<List<NonRegisteredUserDto>>> GetAllMyNonRegisteredUsers(ISender sender, GetAllMyNonRegisteredUsersQuery query)
+    public async Task<Ok<List<NonRegisteredUserDto>>> GetAllMyNonRegisteredUsers(ISender sender)
     {
-        var result = await sender.Send(query);
+        var result = await sender.Send(new GetAllMyNonRegisteredUsersQuery { });
 
         return TypedResults.Ok(result);
     }

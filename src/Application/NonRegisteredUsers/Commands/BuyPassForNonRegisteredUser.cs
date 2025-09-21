@@ -71,6 +71,8 @@ public class BuyPassForNonRegisteredUserCommandHandler : IRequestHandler<BuyPass
             nonRegisteredUser.UserGymMemberships.Add(userGymMembership);
         }
 
+        var utcNow = DateTimeOffset.UtcNow;
+
         var ownedPass = new OwnedPass
         {
             Id = Guid.NewGuid().ToString(),
@@ -78,7 +80,7 @@ public class BuyPassForNonRegisteredUserCommandHandler : IRequestHandler<BuyPass
             Type = gymPassProduct.Type,
             TotalUses = gymPassProduct.TotalUses,
             RemainingUses = gymPassProduct.TotalUses,
-            ExpirationDate = gymPassProduct.ExpirationDate,
+            ExpirationDate = gymPassProduct.GetExpirationDate(),
             EurPrice = gymPassProduct.EurPrice
         };
 

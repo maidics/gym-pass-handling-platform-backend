@@ -4,6 +4,7 @@ using Fitpass.Application.GymPassProductsTemplates.DTOs;
 using Fitpass.Application.GymPassProductsTemplates.Queries;
 using FitPass.Application.Common.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Fitpass.Web.Endpoints;
 
@@ -27,9 +28,9 @@ public class GymPassProductTemplates : EndpointGroupBase
         return TypedResults.Ok(result);
     }
 
-    public async Task<Ok<List<GymPassProductTemplateDto>>> GetAllGymPassProductTemplates(ISender sender, GetAllGymPassProductTemplatesQuery query, CancellationToken cancellationToken)
+    public async Task<Ok<List<GymPassProductTemplateDto>>> GetAllGymPassProductTemplates(ISender sender, CancellationToken cancellationToken)
     {
-        var result = await sender.Send(query, cancellationToken);
+        var result = await sender.Send(new GetAllGymPassProductTemplatesQuery { }, cancellationToken);
 
         return TypedResults.Ok(result);
     }

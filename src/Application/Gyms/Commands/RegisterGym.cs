@@ -52,16 +52,11 @@ public class RegisterGymCommandHandler : IRequestHandler<RegisterGymCommand, Res
                 return Result.Failure(["Request if not of GymCreation type."]);
             }
 
-            if (request.Payload == null)
-            {
-                return Result.Failure(["Gym creation request details not found."]);
-            }
-
-            var creationDto = JsonSerializer.Deserialize<CreateGymDto>(request.Payload);
+            var creationDto = request.DeserializePayload<CreateGymDto>();
 
             if (creationDto == null)
             {
-                return Result.Failure(["Unable to serialize gym creation details."]);
+                return Result.Failure(["Unable to serialize gym creation details or no details found."]);
             }
 
             var gymId = $"fitpass_gym_{Guid.NewGuid()}";

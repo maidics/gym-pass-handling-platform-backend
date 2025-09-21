@@ -1,5 +1,7 @@
-﻿using FitPass.Domain.Constants;
+﻿using System.Linq;
+using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
+using FitPass.Domain.Enums;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -90,7 +92,9 @@ public class ApplicationDbContextInitialiser
             {
                 Id = gymId,
                 Name = "LocalHostGym",
-                Address = "Localhost"
+                Address = "Localhost",
+                Status = GymStatus.Active,
+                Tier = GymTier.MidRange
             });
         }
     }
@@ -110,22 +114,26 @@ public class ApplicationDbContextInitialiser
 
     private async Task SeedUsersAsync(string gymId, List<IdentityRole> roles)
     {
-        List<(ApplicationUser, string)> defaultUsers =
+        List<(ApplicationUser user, string role, string password)> defaultUsers =
         [
             (
                 new ApplicationUser {
                     Id = "AppAdminLocalhostId",
+                    Email = "appadmin@localhost",
+                    UserName = "AppAdmin",
                     FirstName = "AppAdmin",
                     UserGymMemberships = null,
                     GymStaffAssigment = null
                 },
-                Roles.AppAdministrator
+                Roles.AppAdministrator,
+                "Password123_"
             ),
             (
                 new ApplicationUser
                 {
                     Id = "GymAdminLocalhostId",
                     Email = "gymadmin@localhost",
+                    UserName = "GymAdmin",
                     FirstName = "GymAdmin",
                     UserGymMemberships = null,
                     GymStaffAssigment = new GymStaffAssigment {
@@ -134,13 +142,14 @@ public class ApplicationDbContextInitialiser
                         EscalationEmail = "escalation@localhost"
                     }
                 },
-                Roles.GymAdministrator
+                Roles.GymAdministrator,
+                "Password123_"
                 ),
             (
                 new ApplicationUser
                 {
                     Id = "GymStaffLocalhostId",
-                    UserName = "gymstaff@localhost",
+                    UserName = "GymStaff",
                     Email = "gymstaff@localhost",
                     FirstName = "gymstaff",
                     UserGymMemberships = null,
@@ -151,13 +160,14 @@ public class ApplicationDbContextInitialiser
                         EscalationEmail = "escalation@localhost"
                     }
                 },
-                Roles.GymStaff
+                Roles.GymStaff,
+                "Password123_"
             ),
             (
                 new ApplicationUser
                 {
                     Id = "UserLocalhostId",
-                    UserName = "user@localhost",
+                    UserName = "User",
                     Email = "user@localhost",
                     FirstName = "user",
                     UserGymMemberships = [
@@ -169,7 +179,8 @@ public class ApplicationDbContextInitialiser
                     ],
                     GymStaffAssigment = null
                 },
-                string.Empty
+                string.Empty,
+                "Password123_"
             )
         ];
 
@@ -177,13 +188,23 @@ public class ApplicationDbContextInitialiser
 
         foreach (var obj in defaultUsers)
         {
-            if (existingUsers.All(u => u.UserName != obj.Item1.UserName))
+            if (existingUsers.All(u => u.UserName != obj.user.UserName))
             {
-                await _userManager.CreateAsync(obj.Item1, obj.Item1.FirstName);
+                var result = await _userManager.CreateAsync(obj.user, obj.password);
 
-                if (roles.All(role => !string.IsNullOrWhiteSpace(role.Name)) && obj.Item2 != string.Empty)
+                if (!result.Succeeded)
                 {
-                    await _userManager.AddToRolesAsync(obj.Item1, [obj.Item2]);
+                    throw new ArgumentException($"Failed to create user: {result.Errors}");
+                }
+
+                if (roles.All(role => !string.IsNullOrWhiteSpace(role.Name)) && obj.role != string.Empty)
+                {
+                    var roleResult = await _userManager.AddToRoleAsync(obj.user, obj.role);
+
+                    if (!roleResult.Succeeded)
+                    {
+                        throw new ArgumentException($"Failed to add {obj.user.FirstName} user to {obj.role} role: {roleResult.Errors}");
+                    }
                 }
             }
         }

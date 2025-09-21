@@ -8,6 +8,8 @@ public class OwnedPassConfiguration : IEntityTypeConfiguration<OwnedPass>
 {
     public void Configure(EntityTypeBuilder<OwnedPass> builder)
     {
-        builder.HasOne(op => op.UserGymMembership).WithMany(ugm => ugm.OwnedPasses).HasForeignKey(ugm => ugm.UserGymMembershipId);
+        builder.HasOne(op => op.UserGymMembership).WithMany(ugm => ugm.OwnedPasses).HasForeignKey(ugm => ugm.Id);
+
+        builder.Property(op => op.EurPrice).HasPrecision(18, 2);
     }
 }

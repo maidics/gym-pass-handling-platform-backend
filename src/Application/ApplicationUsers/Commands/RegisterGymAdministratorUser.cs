@@ -47,18 +47,18 @@ public class RegisterGymAdministratorUserCommandHandler : IRequestHandler<Regist
             return Result.Failure(["Request is not of Gym administrator account creation type."]);
         }
 
-        var requestDto = JsonSerializer.Deserialize<CreateGymAdministratorUserDto>(request.Payload!);
+        var requestDto = request.DeserializePayload<CreateGymAdministratorUserDto>();
 
         if (requestDto == null)
         {
-            return Result.Failure(["Unable serialize gym administrator account creation details."]);
+            return Result.Failure(["Unable serialize gym administrator account creation details or no details found."]);
         }
 
         var gym = await _context.Gyms.AsNoTracking().FirstOrDefaultAsync(g => g.Id == requestDto.GymId, cancellationToken);
 
         if (gym == null)
         {
-            return Result.Failure(["Specified gym is not found from request details."]);
+            return Result.Failure(["Specified gym in request details not found."]);
         }
 
         await using var transaction = await _context.BeginTransactionAsync(cancellationToken);

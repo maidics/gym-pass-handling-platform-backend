@@ -9,5 +9,7 @@ public class GymPassProductConfiguration : IEntityTypeConfiguration<GymPassProdu
     public void Configure(EntityTypeBuilder<GymPassProduct> builder)
     {
         builder.HasOne(gpp => gpp.Gym).WithMany(g => g.GymPassProducts).HasForeignKey(gpp => gpp.GymId);
+
+        builder.Property(gpp => gpp.EurPrice).HasPrecision(18, 2);
     }
 }
