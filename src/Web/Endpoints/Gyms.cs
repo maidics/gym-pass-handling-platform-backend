@@ -1,10 +1,13 @@
+using Fitpass.Application.ApplicationUsers.Queries;
 using Fitpass.Application.Gyms.Commands;
 using Fitpass.Application.Gyms.DTOs;
 using Fitpass.Application.Gyms.Queries;
+using FitPass.Application.ApplicationUsers.DTOs;
 using FitPass.Application.Common.Models;
 using FitPass.Application.Gyms.Commands;
 using FitPass.Application.Gyms.Queries;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 
 namespace FitPass.Web.Endpoints;
 
@@ -12,23 +15,30 @@ public class Gyms : EndpointGroupBase
 {
     public override void Map(RouteGroupBuilder groupBuilder)
     {
-        groupBuilder.MapPost(RegisterGym).RequireAuthorization();
+        groupBuilder.MapPost(RegisterGym, "Register/{requestId}").RequireAuthorization();
 
-        groupBuilder.MapGet(GetMyGymQrCode, "/QrCode").RequireAuthorization();
+        groupBuilder.MapGet(GetMyGymQrCode, "My/QrCode").RequireAuthorization();
 
-        groupBuilder.MapPut(UpdateGymProfile, "{gymId}").RequireAuthorization();
+        groupBuilder.MapPut(UpdateGymProfile, "Profile/{id}").RequireAuthorization();
 
         groupBuilder.MapGet(GetAllGyms).RequireAuthorization();
 
-        groupBuilder.MapGet(GetGymDetails, "{id}").RequireAuthorization();
+        groupBuilder.MapGet(GetGymDetails, "Details/{id}").RequireAuthorization();
 
-        groupBuilder.MapGet(GetNewGymsThisMonth, "New").RequireAuthorization();
+        groupBuilder.MapGet(GetNewGymsThisMonth, "NewThisMonth").RequireAuthorization();
 
-        groupBuilder.MapPut(UpdateGymStatus, "{id}").RequireAuthorization();
+        groupBuilder.MapPut(UpdateGymStatus, "Status/{id}").RequireAuthorization();
+
+        groupBuilder.MapGet(GetGymManagementUsers, "Management").RequireAuthorization(); //TODO: split this endpoint into two: GetGymManagementUsers (AppAdmin), GetMyGymManagementUsers (Gym management)
     }
 
-    public async Task<Ok<Result>> RegisterGym(ISender sender, [AsParameters] RegisterGymCommand command)
+    public async Task<Results<Ok<Result>, BadRequest>> RegisterGym(ISender sender, string requestId, [AsParameters] RegisterGymCommand command)
     {
+        if (requestId != command.gymCreationRequestId)
+        {
+            return TypedResults.BadRequest();
+        }
+
         var result = await sender.Send(command);
 
         return TypedResults.Ok(result);
@@ -41,7 +51,7 @@ public class Gyms : EndpointGroupBase
         return TypedResults.File(result, contentType: "image/png", fileDownloadName: "gymQrCode.png");
     }
 
-    public async Task<Results<Ok<GymDto>, NotFound>> UpdateGymProfile(ISender sender, string gymId, [AsParameters] UpdateGymProfileCommand command, CancellationToken cancellationToken)
+    public async Task<Results<Ok<GymDto>, NotFound>> UpdateGymProfile(ISender sender, string id, [AsParameters] UpdateGymProfileCommand command, CancellationToken cancellationToken)
     {
         var result = await sender.Send(command, cancellationToken);
 
@@ -94,5 +104,17 @@ public class Gyms : EndpointGroupBase
         var result = await sender.Send(command, cancellationToken);
 
         return TypedResults.Ok(result);
+    }
+
+    public async Task<Results<Ok<List<ApplicationUserDto>>, BadRequest<string>>> GetGymManagementUsers(ISender sender, [AsParameters] GetGymStaffQuery query, CancellationToken cancellationToken)
+    {
+        var result = await sender.Send(query, cancellationToken);
+
+        if (result.errorMessage != null)
+        {
+            return TypedResults.BadRequest(result.errorMessage);
+        }
+
+        return TypedResults.Ok(result.gymStaffManagementUsers);
     }
 }

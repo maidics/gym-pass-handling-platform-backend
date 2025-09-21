@@ -13,15 +13,15 @@ public class NonRegisteredUsers : EndpointGroupBase
 {
     public override void Map(RouteGroupBuilder groupBuilder)
     {
-        groupBuilder.MapPost(CreateNonRegisteredUser).RequireAuthorization();
+        groupBuilder.MapPost(CreateNonRegisteredUser, "RegisterByGymManagement").RequireAuthorization();
 
         groupBuilder.MapGet(GetNonRegisteredUser, "{id}").RequireAuthorization();
 
         groupBuilder.MapGet(GetAllMyNonRegisteredUsers, "My").RequireAuthorization();
 
-        groupBuilder.MapPut(AddUserGymMembershipToNonRegisteredUser, "{id}").RequireAuthorization();
+        groupBuilder.MapPut(AddUserGymMembershipToNonRegisteredUser, "{id}/UserGymMembership").RequireAuthorization();
 
-        groupBuilder.MapPut(BuyPassForNonRegisteredUser, "{id}/Buy").RequireAuthorization();
+        groupBuilder.MapPut(BuyPassForNonRegisteredUser, "{id}/BuyPass").RequireAuthorization();
 
         groupBuilder.MapPost(RegisterNonRegisteredUser, "/Register").AllowAnonymousOnly();
     }

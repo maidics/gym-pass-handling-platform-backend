@@ -4,7 +4,6 @@ using Fitpass.Application.GymPassProductsTemplates.DTOs;
 using Fitpass.Application.GymPassProductsTemplates.Queries;
 using FitPass.Application.Common.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Fitpass.Web.Endpoints;
 

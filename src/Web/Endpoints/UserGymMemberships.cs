@@ -8,7 +8,7 @@ public class UserGymMemberships : EndpointGroupBase
 {
     public override void Map(RouteGroupBuilder groupBuilder)
     {
-        groupBuilder.MapPut("/{applicationUserId}/{gymId}", UpdateUserMembershipStatus).RequireAuthorization();
+        groupBuilder.MapPut("/{applicationUserId}/{gymId}", UpdateUserMembershipStatus).RequireAuthorization(); //TODO: fix this so it takes user gym membership id
     }
 
     public async Task<Results<Ok<Result>, BadRequest>> UpdateUserMembershipStatus(ISender sender, string applicationUserId, string gymId, [AsParameters] UpdateUserGymMembershipStatusCommand command)

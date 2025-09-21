@@ -14,7 +14,7 @@ public class Requests : EndpointGroupBase
 
         groupBuilder.MapGet(GetRequests).RequireAuthorization();
 
-        groupBuilder.MapPut(UpdateRequestStatus, "{id}").RequireAuthorization();
+        groupBuilder.MapPut(UpdateRequestStatus, "{id}/Status").RequireAuthorization();
 
         groupBuilder.MapPost(CreateGymCreationRequest, "/GymCreation");
 
