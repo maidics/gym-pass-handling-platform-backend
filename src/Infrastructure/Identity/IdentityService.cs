@@ -3,7 +3,6 @@ using System.Security.Claims;
 using System.Text;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Models;
-using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -38,65 +37,8 @@ public class IdentityService : IIdentityService
         return user?.UserName;
     }
 
-    public async Task<(Result Result, string UserId)> CreateAppAdminUserAsync(string email, string password, string firstName, string? lastName)
+    public async Task<bool> IsInRoleAsync(ApplicationUser user, string role)
     {
-        var user = new ApplicationUser
-        {
-            Email = email,
-            FirstName = firstName,
-            LastName = lastName,
-            UserGymMemberships = null,
-            GymStaffAssigment = null
-        };
-
-        var creationResult = await _userManager.CreateAsync(user, password);
-
-        if (!creationResult.Succeeded)
-        {
-            return (creationResult.ToApplicationResult(), user.Id);
-        }
-
-        var roleResult = await _userManager.AddToRoleAsync(user, Roles.AppAdministrator);
-
-        return (roleResult.ToApplicationResult(), user.Id);
-    }
-
-    public async Task<(Result Result, string UserId)> CreateGymManagementUserAsync(string email, string password, string firstName, string lastName, string role, Gym gym, string escalationEmail)
-    {
-        var userId = Guid.NewGuid().ToString();
-
-        var user = new ApplicationUser
-        {
-            Id = userId,
-            Email = email,
-            FirstName = firstName,
-            LastName = lastName,
-            UserGymMemberships = null,
-            GymStaffAssigment = new GymStaffAssigment
-            {
-                ApplicationUserId = userId,
-                GymId = gym.Id,
-                Gym = gym,
-                EscalationEmail = escalationEmail
-            }
-        };
-
-        var creationResult = await _userManager.CreateAsync(user, password);
-
-        if (!creationResult.Succeeded)
-        {
-            return (creationResult.ToApplicationResult(), userId);
-        }
-
-        var roleResult = await _userManager.AddToRoleAsync(user, role);
-
-        return (roleResult.ToApplicationResult(), userId);
-    }
-
-    public async Task<bool> IsInRoleAsync(string userId, string role)
-    {
-        var user = await _userManager.FindByIdAsync(userId);
-
         return user != null && await _userManager.IsInRoleAsync(user, role);
     }
 
@@ -145,7 +87,7 @@ public class IdentityService : IIdentityService
     public async Task<IdentityResult> CreateUserAsync(ApplicationUser user, string password, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        
+
         var result = await _userManager.CreateAsync(user, password);
 
         return result;
@@ -188,7 +130,7 @@ public class IdentityService : IIdentityService
         return accessToken;
     }
 
-    public async Task<(Result result, ApplicationUser? user)> AuthenticateUserAsync(string email, string password, CancellationToken cancellationToken) 
+    public async Task<(Result result, ApplicationUser? user)> AuthenticateUserAsync(string email, string password, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
@@ -202,5 +144,12 @@ public class IdentityService : IIdentityService
         }
 
         return (Result.Success(), user);
+    }
+
+    public async Task<Result> AddToRoleAsync(ApplicationUser user, string role)
+    {
+        var result = await _userManager.AddToRoleAsync(user, role);
+
+        return result.ToApplicationResult();
     }
 }

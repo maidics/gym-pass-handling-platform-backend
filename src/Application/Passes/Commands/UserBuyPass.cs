@@ -51,7 +51,7 @@ public class UserBuyPassCommandHandler : IRequestHandler<UserBuyPassCommand, Res
             return Result.Failure(["Gym pass product with given id does not exist."]);
         }
 
-        var user = await _context.Users
+        var user = await _context.ApplicationUsers
                 .Include(u => u.UserGymMemberships)
                 .FirstOrDefaultAsync(u => u.Id == _user.Id, cancellationToken);
 

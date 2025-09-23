@@ -18,7 +18,8 @@ public class CustomExceptionHandler : IExceptionHandler
                 { typeof(NotFoundException), HandleNotFoundException },
                 { typeof(UnauthorizedAccessException), HandleUnauthorizedAccessException },
                 { typeof(ForbiddenAccessException), HandleForbiddenAccessException },
-                { typeof(ConflictException), HandleConflictException }
+                { typeof(ConflictException), HandleConflictException },
+                { typeof(BadRequestException), HandleBadRequestException }
             };
     }
 
@@ -96,6 +97,19 @@ public class CustomExceptionHandler : IExceptionHandler
             Status = StatusCodes.Status409Conflict,
             Title = "Conflict",
             Type = "https://tools.ietf.org/html/rfc7231#section-6.5.8",
+            Detail = ex.Message
+        });
+    }
+
+    private async Task HandleBadRequestException(HttpContext httpContext, Exception ex)
+    {
+        httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
+
+        await httpContext.Response.WriteAsJsonAsync(new ProblemDetails
+        {
+            Status = StatusCodes.Status400BadRequest,
+            Title = "Bad Request",
+            Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1",
             Detail = ex.Message
         });
     }

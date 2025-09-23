@@ -7,7 +7,7 @@ using FitPass.Domain.Constants;
 namespace Fitpass.Application.Requests.Queries;
 
 [Authorize(Roles = Roles.AppAdministrator)]
-public record GetRequestQuery(string RequestId) : IRequest<RequestDto?>;
+public record GetRequestQuery(string RequestId) : IRequest<RequestDto>;
 
 public class GetRequestQueryValidator : AbstractValidator<GetRequestQuery>
 {
@@ -17,7 +17,7 @@ public class GetRequestQueryValidator : AbstractValidator<GetRequestQuery>
     }
 }
 
-public class GetRequestQueryHandler : IRequestHandler<GetRequestQuery, RequestDto?>
+public class GetRequestQueryHandler : IRequestHandler<GetRequestQuery, RequestDto>
 {
     private readonly IApplicationDbContext _context;
     private readonly IMapper _mapper;
@@ -27,9 +27,11 @@ public class GetRequestQueryHandler : IRequestHandler<GetRequestQuery, RequestDt
         _context = context;
         _mapper = mapper;
     }
-    public async Task<RequestDto?> Handle(GetRequestQuery query, CancellationToken cancellationToken)
+    public async Task<RequestDto> Handle(GetRequestQuery query, CancellationToken cancellationToken)
     {
         var gymCreationRequest = await _context.Requests.AsNoTracking().FirstOrDefaultAsync(gcr => gcr.Id == query.RequestId, cancellationToken);
+
+        Guard.Against.NotFound(query.RequestId, gymCreationRequest, "Id");
 
         return _mapper.Map<RequestDto>(gymCreationRequest);
     }

@@ -40,7 +40,7 @@ public class GetGymStaffQueryHandler : IRequestHandler<GetGymStaffQuery, (List<A
         if (_user.Roles!.Contains(Roles.GymAdministrator) || _user.Roles!.Contains(Roles.GymStaff))
         {
             var currentGymManagementUser = await _context
-                .Users
+                .ApplicationUsers
                 .AsNoTracking()
                 .Include(u => u.GymStaffAssigment)
                 .FirstOrDefaultAsync(u => u.GymStaffAssigment!.GymId == query.GymId && u.Id == _user.Id, cancellationToken);

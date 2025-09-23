@@ -10,7 +10,7 @@ namespace Fitpass.Application.ApplicationUsers.Commands;
 public record RegisterUserCommand
     (
         string FirstName,
-        string? LastName,
+        string LastName,
         string Email,
         string Password,
         string PasswordConfirm
@@ -22,10 +22,7 @@ public class RegisterUserCommandValidator : AbstractValidator<RegisterUserComman
     {
         RuleFor(v => v.FirstName).NotEmptyWithMaxLenghtAndMessage(MaxStringLengths.Name, "First name");
 
-        When(v => !string.IsNullOrEmpty(v.LastName), () =>
-        {
-            RuleFor(v => v.LastName!).MaxLengthWithMessage(MaxStringLengths.Name, "Last name");
-        });
+        RuleFor(v => v.LastName!).NotEmptyWithMaxLenghtAndMessage(MaxStringLengths.Name, "Last name");
 
         RuleFor(v => v.Email).EmailAddress().WithMessage("A valid email address is required.");
 

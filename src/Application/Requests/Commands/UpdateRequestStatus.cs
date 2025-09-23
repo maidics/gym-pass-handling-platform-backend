@@ -8,7 +8,7 @@ using FitPass.Domain.Enums;
 namespace FitPass.Application.Requests.Commands;
 
 [Authorize(Roles = Roles.AppAdministrator)]
-public record UpdateRequestStatusCommand(string RequestId, RequestStatus NewRequestStatus) : IRequest<Result>;
+public record UpdateRequestStatusCommand(string RequestId, RequestStatus NewRequestStatus) : IRequest;
 
 public class UpdateRequestStatusCommandValidator : AbstractValidator<UpdateRequestStatusCommand>
 {
@@ -27,7 +27,7 @@ public class UpdateRequestStatusCommandValidator : AbstractValidator<UpdateReque
     }
 }
 
-public class UpdateRequestStatusCommandHandler : IRequestHandler<UpdateRequestStatusCommand, Result>
+public class UpdateRequestStatusCommandHandler : IRequestHandler<UpdateRequestStatusCommand>
 {
     private readonly IApplicationDbContext _context;
 
@@ -36,19 +36,16 @@ public class UpdateRequestStatusCommandHandler : IRequestHandler<UpdateRequestSt
         _context = context;
     }
 
-    public async Task<Result> Handle(UpdateRequestStatusCommand command, CancellationToken cancellationToken)
+    public async Task Handle(UpdateRequestStatusCommand command, CancellationToken cancellationToken)
     {
         var request = await _context.Requests.FindAsync(command.RequestId, cancellationToken);
 
-        if (request == null)
-        {
-            return Result.Failure(["Request not found."]);
-        }
+        Guard.Against.NotFound(command.RequestId, request, "Id");
 
-        request.Status = request.Status;
+        request.Status = command.NewRequestStatus;
 
         await _context.SaveChangesAsync(cancellationToken);
 
-        return Result.Success();
+        return;
     }
 }

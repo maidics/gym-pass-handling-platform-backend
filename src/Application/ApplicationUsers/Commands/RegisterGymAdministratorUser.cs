@@ -42,12 +42,12 @@ public class RegisterGymAdministratorUserCommandHandler : IRequestHandler<Regist
             return Result.Failure(["Request not found."]);
         }
 
-        if (request.Type != RequestType.GymAdministratorAccountCreation)
+        if (request.Type != RequestType.GymAdminNomination)
         {
             return Result.Failure(["Request is not of Gym administrator account creation type."]);
         }
 
-        var requestDto = request.DeserializePayload<CreateGymAdministratorUserDto>();
+        var requestDto = request.DeserializePayload<GymAdminNominationDto>();
 
         if (requestDto == null)
         {

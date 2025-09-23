@@ -1,6 +1,7 @@
 using System.Text.Json;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Models;
+using FitPass.Application.Common.Security;
 using FitPass.Application.Extensions;
 using FitPass.Application.Requests.DTOs;
 using FitPass.Domain.Constants;
@@ -9,6 +10,7 @@ using FitPass.Domain.Enums;
 
 namespace FitPass.Application.Requests.Commands;
 
+[Authorize]
 public record CreateGymCreationRequestCommand(
     string RequestDescription,
     PriorityLevel PriorityLevel,
@@ -27,22 +29,6 @@ public class CreateGymCreationRequestCommandValidator : AbstractValidator<Create
 
         RuleFor(v => v.CreateGymDTO.GymTier).NotEmptyWithMessage("Gym tier");
 
-        RuleFor(v => v.CreateGymDTO.GymAdminEmail)
-            .NotEmptyWithMaxLenghtAndMessage(MaxStringLengths.Email, "Email address")
-            .EmailAddress().WithMessage("An email address is required for the gym administrator account.");
-
-        RuleFor(v => v.CreateGymDTO.GymAdminFirstName).NotEmptyWithMaxLenghtAndMessage(MaxStringLengths.Name, "Gym Administrator's first name");
-
-        RuleFor(v => v.CreateGymDTO.GymAdminLastName).NotEmptyWithMaxLenghtAndMessage(MaxStringLengths.Name, "Gym Administrator's last name");
-
-        RuleFor(v => v.CreateGymDTO.GymAdminPassword)
-            .NotEmptyWithMessage("Password")
-            .StrongPassword();
-
-        RuleFor(v => v.CreateGymDTO.GymAdminPasswordConfirm)
-            .NotEmptyWithMessage("Password confirmation")
-            .Equal(v => v.CreateGymDTO.GymAdminPassword).WithMessage("Gym Administrator's password and password confirmation must match.");
-
         RuleFor(v => v.CreateGymDTO.EscalationEmail)
             .NotEmptyWithMaxLenghtAndMessage(MaxStringLengths.Email, "Escalation email")
             .EmailAddress().WithMessage("An escalation email address from a higher-level contact than the gym administrator is required.");
@@ -52,14 +38,35 @@ public class CreateGymCreationRequestCommandValidator : AbstractValidator<Create
 public class CreateGymCreationRequestCommandHandler : IRequestHandler<CreateGymCreationRequestCommand, Result>
 {
     private readonly IApplicationDbContext _context;
+    private readonly IUser _user;
 
-    public CreateGymCreationRequestCommandHandler(IApplicationDbContext context)
+    public CreateGymCreationRequestCommandHandler(IApplicationDbContext context, IUser user)
     {
         _context = context;
+        _user = user;
     }
 
     public async Task<Result> Handle(CreateGymCreationRequestCommand command, CancellationToken cancellationToken)
     {
+        _user.ThrowIfIdNull();
+
+        var user = await _context.ApplicationUsers.FirstOrDefaultAsync(au => au.Id == _user.Id, cancellationToken);
+
+        if (user == null)
+        {
+            throw new UnauthorizedAccessException();
+        }
+
+        if (user.IsGymMember)
+        {
+            return Result.Failure(["A user who has purchased passes before cannot be nominated to Gym Administrator at Gym Creation. Please register a new account for this action."]);
+        }
+
+        if (user.GymStaffAssigment != null)
+        {
+            return Result.Failure(["You are already a Gym Administrator, you cannot be associated with two gyms."]);
+        }
+
         var gymCreationRequest = new Request
         {
             Id = Guid.NewGuid().ToString(),
@@ -71,6 +78,9 @@ public class CreateGymCreationRequestCommandHandler : IRequestHandler<CreateGymC
         };
 
         await _context.Requests.AddAsync(gymCreationRequest, cancellationToken);
+
+        user.Requests.Add(gymCreationRequest);
+
         await _context.SaveChangesAsync(cancellationToken);
 
         return Result.Success();
