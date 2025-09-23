@@ -1,9 +1,14 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Models;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 
 namespace FitPass.Infrastructure.Identity;
 
@@ -12,15 +17,18 @@ public class IdentityService : IIdentityService
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IUserClaimsPrincipalFactory<ApplicationUser> _userClaimsPrincipalFactory;
     private readonly IAuthorizationService _authorizationService;
+    private readonly IConfiguration _configuration;
 
     public IdentityService(
         UserManager<ApplicationUser> userManager,
         IUserClaimsPrincipalFactory<ApplicationUser> userClaimsPrincipalFactory,
-        IAuthorizationService authorizationService)
+        IAuthorizationService authorizationService,
+        IConfiguration configuration)
     {
         _userManager = userManager;
         _userClaimsPrincipalFactory = userClaimsPrincipalFactory;
         _authorizationService = authorizationService;
+        _configuration = configuration;
     }
 
     public async Task<string?> GetUserNameAsync(string userId)
@@ -28,13 +36,6 @@ public class IdentityService : IIdentityService
         var user = await _userManager.FindByIdAsync(userId);
 
         return user?.UserName;
-    }
-
-    public async Task<(Result Result, string UserId)> CreateUserAsync(ApplicationUser user, string password)
-    {
-        var result = await _userManager.CreateAsync(user, password);
-
-        return (result.ToApplicationResult(), user.Id);
     }
 
     public async Task<(Result Result, string UserId)> CreateAppAdminUserAsync(string email, string password, string firstName, string? lastName)
@@ -108,7 +109,7 @@ public class IdentityService : IIdentityService
             return null;
         }
 
-        return [..await _userManager.GetRolesAsync(user)];
+        return [.. await _userManager.GetRolesAsync(user)];
     }
 
     public async Task<bool> AuthorizeAsync(string userId, string policyName)
@@ -139,5 +140,67 @@ public class IdentityService : IIdentityService
         var result = await _userManager.DeleteAsync(user);
 
         return result.ToApplicationResult();
+    }
+
+    public async Task<IdentityResult> CreateUserAsync(ApplicationUser user, string password, CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        
+        var result = await _userManager.CreateAsync(user, password);
+
+        return result;
+    }
+
+    public async Task<string> GenerateJWTTokenAsync(ApplicationUser user, CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var userRoles = await _userManager.GetRolesAsync(user);
+
+        var claims = new List<Claim>
+        {
+            new(JwtRegisteredClaimNames.Sub, user.Id), //sub is the standard claim for user ID
+            new(JwtRegisteredClaimNames.Email, user.Email!),
+            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()) //jti is a unique token identifier
+        };
+
+        foreach (var role in userRoles)
+        {
+            claims.Add(new Claim(ClaimTypes.Role, role));
+        }
+
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtSettings:Key"]!));
+        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+        var expires = DateTime.UtcNow.AddHours(2);
+
+        var token = new JwtSecurityToken(
+            claims: claims,
+            expires: expires,
+            signingCredentials: creds
+        );
+
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var accessToken = tokenHandler.WriteToken(token);
+
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return accessToken;
+    }
+
+    public async Task<(Result result, ApplicationUser? user)> AuthenticateUserAsync(string email, string password, CancellationToken cancellationToken) 
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var user = await _userManager.FindByEmailAsync(email);
+
+        cancellationToken.ThrowIfCancellationRequested();
+
+        if (user == null || !await _userManager.CheckPasswordAsync(user, password))
+        {
+            return (Result.Failure(["Invalid email or password"]), null);
+        }
+
+        return (Result.Success(), user);
     }
 }

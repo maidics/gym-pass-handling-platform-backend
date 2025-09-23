@@ -14,6 +14,7 @@ public static class ValidationExtensions
     public static IRuleBuilderOptions<T, string> StrongPassword<T>(this IRuleBuilder<T, string> rule)
     {
         return rule
+            .NotEmptyWithMessage("Password")
             .MinimumLength(8).WithMessage("Password must be at least 8 characters long.")
             .MaximumLength(MaxStringLengths.Password).WithMessage($"Password cannot be longer than {MaxStringLengths.Password}  characters.")
             .Must(p => p.Any(char.IsLower)).WithMessage("Password must contain at least one lowercase letter.")
