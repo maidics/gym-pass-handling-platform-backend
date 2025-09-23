@@ -27,6 +27,8 @@ public class GetMyGymQrCodeQueryHandler : IRequestHandler<GetMyGymQrCodeQuery, b
             .AsNoTracking()
             .FirstOrDefaultAsync(gsa => gsa.ApplicationUserId == _user.Id, cancellationToken);
 
-        return _qrCodeService.GetQrCode(gymStaffAssigment!.GymId);
+        Guard.Against.Null(gymStaffAssigment);
+
+        return _qrCodeService.GetQrCode(gymStaffAssigment.GymId);
     }
 }

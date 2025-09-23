@@ -1,5 +1,4 @@
 using FitPass.Application.Common.Interfaces;
-using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Security;
 using FitPass.Application.Extensions;
 using FitPass.Domain.Constants;
@@ -7,7 +6,7 @@ using FitPass.Domain.Constants;
 namespace Fitpass.Application.GymPassProductsTemplates.Commands;
 
 [Authorize(Roles = Roles.AppAdministrator)]
-public record DeleteGymPassProductTemplateCommand(string GymPassProductTemplateId) : IRequest<Result>;
+public record DeleteGymPassProductTemplateCommand(string GymPassProductTemplateId) : IRequest;
 
 public class DeleteGymPassProductTemplateCommandValidator : AbstractValidator<DeleteGymPassProductTemplateCommand>
 {
@@ -17,7 +16,7 @@ public class DeleteGymPassProductTemplateCommandValidator : AbstractValidator<De
     }
 }
 
-public class DeleteGymPassProductTemplateCommandHandler : IRequestHandler<DeleteGymPassProductTemplateCommand, Result>
+public class DeleteGymPassProductTemplateCommandHandler : IRequestHandler<DeleteGymPassProductTemplateCommand>
 {
     private readonly IApplicationDbContext _context;
 
@@ -26,18 +25,13 @@ public class DeleteGymPassProductTemplateCommandHandler : IRequestHandler<Delete
         _context = context;
     }
 
-    public async Task<Result> Handle(DeleteGymPassProductTemplateCommand command, CancellationToken cancellationToken)
+    public async Task Handle(DeleteGymPassProductTemplateCommand command, CancellationToken cancellationToken)
     {
         var template = await _context.GymPassProductTemplates.FindAsync(command.GymPassProductTemplateId);
 
-        if (template == null)
-        {
-            return Result.Failure(["Gym pass product template not found."]);
-        }
+        Guard.Against.NotFound(command.GymPassProductTemplateId, template, "Id");
 
         _context.GymPassProductTemplates.Remove(template);
-        await _context.SaveChangesAsync();
-
-        return Result.Success();
+        await _context.SaveChangesAsync(cancellationToken);
     }
 }

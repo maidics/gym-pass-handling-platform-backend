@@ -1,3 +1,4 @@
+using Fitpass.Application.Common.Exceptions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Security;
@@ -86,7 +87,7 @@ public class CreateGymPassProductTemplateCommandHandler : IRequestHandler<Create
 
         if (existingTemplate != null)
         {
-            return Result.Failure([$"A pass template like this already exists."]);
+            throw new ConflictException("A pass template like this already exists.");
         }
 
         var newTemplate = new GymPassProductTemplate
@@ -99,8 +100,8 @@ public class CreateGymPassProductTemplateCommandHandler : IRequestHandler<Create
             EurPrice = command.EurPrice
         };
 
-        await _context.GymPassProductTemplates.AddAsync(newTemplate);
-        await _context.SaveChangesAsync();
+        await _context.GymPassProductTemplates.AddAsync(newTemplate, cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
 
         return Result.Success();
     }

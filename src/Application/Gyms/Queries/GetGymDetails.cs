@@ -7,7 +7,7 @@ using FitPass.Domain.Constants;
 namespace Fitpass.Application.Gyms.Queries;
 
 [Authorize(Roles = $"{Roles.AppAdministrator},{Roles.GymAdministrator},{Roles.GymStaff}")]
-public record GetGymDetailsQuery(string GymId) : IRequest<GymDto?>;
+public record GetGymDetailsQuery(string GymId) : IRequest<GymDto>;
 
 public class GetGymDetailsQueryValidator : AbstractValidator<GetGymDetailsQuery>
 {
@@ -17,7 +17,7 @@ public class GetGymDetailsQueryValidator : AbstractValidator<GetGymDetailsQuery>
     }
 }
 
-public class GetGymDetailsQueryHandler : IRequestHandler<GetGymDetailsQuery, GymDto?>
+public class GetGymDetailsQueryHandler : IRequestHandler<GetGymDetailsQuery, GymDto>
 {
     private readonly IApplicationDbContext _context;
     private readonly IMapper _mapper;
@@ -28,7 +28,7 @@ public class GetGymDetailsQueryHandler : IRequestHandler<GetGymDetailsQuery, Gym
         _mapper = mapper;
     }
 
-    public async Task<GymDto?> Handle(GetGymDetailsQuery query, CancellationToken cancellationToken)
+    public async Task<GymDto> Handle(GetGymDetailsQuery query, CancellationToken cancellationToken)
     {
         var gym = await _context
             .Gyms
@@ -37,6 +37,8 @@ public class GetGymDetailsQueryHandler : IRequestHandler<GetGymDetailsQuery, Gym
             .Include(g => g.UserGymMemberships)
             .FirstOrDefaultAsync(g => g.Id == query.GymId, cancellationToken);
 
-        return gym == null ? null : _mapper.Map<GymDto>(gym);
+        Guard.Against.NotFound(query.GymId, gym, "Id");
+
+        return _mapper.Map<GymDto>(gym);
     }
 }

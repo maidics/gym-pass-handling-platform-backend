@@ -8,17 +8,17 @@ using FitPass.Domain.Enums;
 namespace Fitpass.Application.Gyms.Commands;
 
 [Authorize(Roles = Roles.GymAdministrator)]
-public record UpdateGymProfileCommand(
+public record UpdateMyGymProfileCommand(
     string GymId,
     string GymName,
     string GymAddress,
     GymTier GymTier,
     string? GymOwnerName
-) : IRequest<GymDto?>;
+) : IRequest<GymDto>;
 
-public class UpdateGymProfileCommandValidator : AbstractValidator<UpdateGymProfileCommand>
+public class UpdateMyGymProfileCommandValidator : AbstractValidator<UpdateMyGymProfileCommand>
 {
-    public UpdateGymProfileCommandValidator()
+    public UpdateMyGymProfileCommandValidator()
     {
         RuleFor(v => v.GymId).NotEmptyWithMessage("Gym id");
 
@@ -28,31 +28,28 @@ public class UpdateGymProfileCommandValidator : AbstractValidator<UpdateGymProfi
     }
 }
 
-public class UpdateGymProfileCommandHandler : IRequestHandler<UpdateGymProfileCommand, GymDto?>
+public class UpdateMyGymProfileCommandHandler : IRequestHandler<UpdateMyGymProfileCommand, GymDto>
 {
     private readonly IApplicationDbContext _context;
     private readonly IMapper _mapper;
 
-    public UpdateGymProfileCommandHandler(IApplicationDbContext context, IMapper mapper)
+    public UpdateMyGymProfileCommandHandler(IApplicationDbContext context, IMapper mapper)
     {
         _context = context;
         _mapper = mapper;
     }
-    public async Task<GymDto?> Handle(UpdateGymProfileCommand command, CancellationToken cancellationToken)
+    public async Task<GymDto> Handle(UpdateMyGymProfileCommand command, CancellationToken cancellationToken)
     {
         var gym = await _context.Gyms.FindAsync(command.GymId, cancellationToken);
 
-        if (gym == null)
-        {
-            return null;
-        }
+        Guard.Against.NotFound(command.GymId, gym, "Id");
 
         gym.Name = command.GymName;
         gym.Address = command.GymAddress;
         gym.Tier = command.GymTier;
         gym.OwnerName = command.GymOwnerName;
 
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(cancellationToken);
 
         return _mapper.Map<GymDto>(gym);
     }

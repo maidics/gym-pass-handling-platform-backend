@@ -1,3 +1,4 @@
+using Fitpass.Application.Common.Exceptions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Security;
@@ -16,7 +17,7 @@ public record UpdateGymPassProductTemplateCommand
     int? TotalUses,
     int? DaysAfterExpiring,
     decimal EurPrice
-) : IRequest<Result>;
+) : IRequest;
 
 public class UpdateGymPassProductTemplateCommandValidator : AbstractValidator<UpdateGymPassProductTemplateCommand>
 {
@@ -63,7 +64,7 @@ public class UpdateGymPassProductTemplateCommandValidator : AbstractValidator<Up
     }
 }
 
-public class UpdateGymPassProductTemplateCommandHandler : IRequestHandler<UpdateGymPassProductTemplateCommand, Result>
+public class UpdateGymPassProductTemplateCommandHandler : IRequestHandler<UpdateGymPassProductTemplateCommand>
 {
     private readonly IApplicationDbContext _context;
 
@@ -72,14 +73,11 @@ public class UpdateGymPassProductTemplateCommandHandler : IRequestHandler<Update
         _context = context;
     }
 
-    public async Task<Result> Handle(UpdateGymPassProductTemplateCommand command, CancellationToken cancellationToken)
+    public async Task Handle(UpdateGymPassProductTemplateCommand command, CancellationToken cancellationToken)
     {
         var template = await _context.GymPassProductTemplates.FindAsync(command.GymPassProductTemplateId, cancellationToken);
 
-        if (template == null)
-        {
-            return Result.Failure(["Gym pass product template not found."]);
-        }
+        Guard.Against.NotFound(command.GymPassProductTemplateId, template, "Id");
 
         var existingTemplate = await _context
             .GymPassProductTemplates
@@ -95,7 +93,7 @@ public class UpdateGymPassProductTemplateCommandHandler : IRequestHandler<Update
 
         if (existingTemplate != null)
         {
-            return Result.Failure([$"A pass template like this already exists."]);
+            throw new ConflictException("A pass template like this already exists.");
         }
 
         template.GymTier = command.GymTier;
@@ -105,7 +103,5 @@ public class UpdateGymPassProductTemplateCommandHandler : IRequestHandler<Update
         template.EurPrice = command.EurPrice;
 
         await _context.SaveChangesAsync();
-
-        return Result.Success();
     }
 }

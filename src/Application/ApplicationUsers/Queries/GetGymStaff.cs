@@ -6,8 +6,8 @@ using FitPass.Domain.Constants;
 
 namespace Fitpass.Application.ApplicationUsers.Queries;
 
-[Authorize(Roles = $"{Roles.AppAdministrator},{Roles.GymAdministrator},{Roles.GymStaff}")]
-public record GetGymStaffQuery(string GymId) : IRequest<(List<ApplicationUserDto>? gymStaffManagementUsers, string? errorMessage)>;
+[Authorize(Roles = Roles.AppAdministrator)]
+public record GetGymStaffQuery(string GymId) : IRequest<List<ApplicationUserDto>>;
 
 public class GetGymStaffQueryValidator : AbstractValidator<GetGymStaffQuery>
 {
@@ -17,7 +17,7 @@ public class GetGymStaffQueryValidator : AbstractValidator<GetGymStaffQuery>
     }
 }
 
-public class GetGymStaffQueryHandler : IRequestHandler<GetGymStaffQuery, (List<ApplicationUserDto>? gymStaffManagementUsers, string? errorMessage)>
+public class GetGymStaffQueryHandler : IRequestHandler<GetGymStaffQuery, List<ApplicationUserDto>>
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
@@ -28,28 +28,11 @@ public class GetGymStaffQueryHandler : IRequestHandler<GetGymStaffQuery, (List<A
         _user = user;
     }
 
-    public async Task<(List<ApplicationUserDto>? gymStaffManagementUsers, string? errorMessage)> Handle(GetGymStaffQuery query, CancellationToken cancellationToken)
+    public async Task<List<ApplicationUserDto>> Handle(GetGymStaffQuery query, CancellationToken cancellationToken)
     {
         var gym = await _context.Gyms.AsNoTracking().FirstOrDefaultAsync(g => g.Id == query.GymId, cancellationToken);
 
-        if (gym == null)
-        {
-            return (null, "Gym not found");
-        }
-
-        if (_user.Roles!.Contains(Roles.GymAdministrator) || _user.Roles!.Contains(Roles.GymStaff))
-        {
-            var currentGymManagementUser = await _context
-                .ApplicationUsers
-                .AsNoTracking()
-                .Include(u => u.GymStaffAssigment)
-                .FirstOrDefaultAsync(u => u.GymStaffAssigment!.GymId == query.GymId && u.Id == _user.Id, cancellationToken);
-
-            if (currentGymManagementUser == null)
-            {
-                return (null, "You are not allowed to request this.");
-            }
-        }
+        Guard.Against.NotFound(query.GymId, gym, "GymId");
 
         var gymStaffAssigments = await _context
             .GymStaffAssigments
@@ -72,6 +55,6 @@ public class GetGymStaffQueryHandler : IRequestHandler<GetGymStaffQuery, (List<A
             });
         });
 
-        return (gymManagementUsers, null);
+        return gymManagementUsers;
     }
 }

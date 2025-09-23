@@ -1,9 +1,8 @@
-
 using Fitpass.Application.GymPassProductsTemplates.Commands;
 using Fitpass.Application.GymPassProductsTemplates.DTOs;
 using Fitpass.Application.GymPassProductsTemplates.Queries;
-using FitPass.Application.Common.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Fitpass.Web.Endpoints;
 
@@ -15,46 +14,41 @@ public class GymPassProductTemplates : EndpointGroupBase
 
         groupBuilder.MapGet(GetAllGymPassProductTemplates).RequireAuthorization();
 
-        groupBuilder.MapDelete(DeleteGymPassProductTemplate, "{id}").RequireAuthorization();
+        groupBuilder.MapDelete(DeleteGymPassProductTemplate, "{gymPassProductTemplateId}").RequireAuthorization();
 
-        groupBuilder.MapPut(UpdateGymPassProductTemplate, "{id}").RequireAuthorization();
+        groupBuilder.MapPut(UpdateGymPassProductTemplate, "{gymPassProductTemplateId}").RequireAuthorization();
     }
 
-    public async Task<Ok<Result>> CreateGymPassProductTemplate(ISender sender, [AsParameters] CreateGymPassProductTemplateCommand command, CancellationToken cancellationToken)
+    public async Task<Ok> CreateGymPassProductTemplate(ISender sender, [FromBody] CreateGymPassProductTemplateCommand command, CancellationToken cancellationToken)
     {
-        var result = await sender.Send(command, cancellationToken);
+        await sender.Send(command, cancellationToken);
 
-        return TypedResults.Ok(result);
+        return TypedResults.Ok();
     }
 
     public async Task<Ok<List<GymPassProductTemplateDto>>> GetAllGymPassProductTemplates(ISender sender, CancellationToken cancellationToken)
     {
-        var result = await sender.Send(new GetAllGymPassProductTemplatesQuery { }, cancellationToken);
+        var result = await sender.Send(new GetAllGymPassProductTemplatesQuery(), cancellationToken);
 
         return TypedResults.Ok(result);
     }
 
-    public async Task<Results<Ok<Result>, BadRequest>> DeleteGymPassProductTemplate(ISender sender, string id, [AsParameters] DeleteGymPassProductTemplateCommand command, CancellationToken cancellationToken)
+    public async Task<Results<NoContent, BadRequest>> DeleteGymPassProductTemplate(ISender sender, [FromRoute] string gymPassProductTemplateId, CancellationToken cancellationToken)
     {
-        if (id != command.GymPassProductTemplateId)
-        {
-            return TypedResults.BadRequest();
-        }
+        await sender.Send(new DeleteGymPassProductTemplateCommand(gymPassProductTemplateId), cancellationToken);
 
-        var result = await sender.Send(command, cancellationToken);
-
-        return TypedResults.Ok(result);
+        return TypedResults.NoContent();
     }
 
-    public async Task<Results<Ok<Result>, BadRequest>> UpdateGymPassProductTemplate(ISender sender, string id, [AsParameters] UpdateGymPassProductTemplateCommand command, CancellationToken cancellationToken)
+    public async Task<Results<NoContent, BadRequest>> UpdateGymPassProductTemplate(ISender sender, [FromRoute] string gymPassProductTemplateId, [FromBody] UpdateGymPassProductTemplateCommand command, CancellationToken cancellationToken)
     {
-        if (id != command.GymPassProductTemplateId)
+        if (gymPassProductTemplateId != command.GymPassProductTemplateId)
         {
             return TypedResults.BadRequest();
         }
 
-        var result = await sender.Send(command, cancellationToken);
+        await sender.Send(command, cancellationToken);
 
-        return TypedResults.Ok(result);
+        return TypedResults.NoContent();
     }
 }
