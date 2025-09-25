@@ -1,5 +1,4 @@
 using FitPass.Application.Common.Interfaces;
-using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Security;
 using FitPass.Application.Extensions;
 using FitPass.Domain;
@@ -8,69 +7,57 @@ using FitPass.Domain.Entities;
 namespace FitPass.Application.Passes.Commands;
 
 [Authorize]
-public record UserBuyPassCommand(string GymPassProductId, string GymId) : IRequest<Result>;
+public record ApplicationUserBuyPassCommand(string GymPassProductId) : IRequest;
 
-public class UserBuyPassCommandValidator : AbstractValidator<UserBuyPassCommand>
+public class ApplicationUserBuyPassCommandValidator : AbstractValidator<ApplicationUserBuyPassCommand>
 {
-    public UserBuyPassCommandValidator()
+    public ApplicationUserBuyPassCommandValidator()
     {
         RuleFor(v => v.GymPassProductId).NotEmptyWithMessage("Gym pass product id");
-
-        RuleFor(v => v.GymId).NotEmptyWithMessage("Gym id");
     }
 }
 
-public class UserBuyPassCommandHandler : IRequestHandler<UserBuyPassCommand, Result>
+public class ApplicationUserBuyPassCommandHandler : IRequestHandler<ApplicationUserBuyPassCommand>
 {
     private readonly IUser _user;
     private readonly IApplicationDbContext _context;
-    public UserBuyPassCommandHandler(IUser user, IApplicationDbContext context)
+    public ApplicationUserBuyPassCommandHandler(IUser user, IApplicationDbContext context)
     {
         _user = user;
         _context = context;
     }
 
-    public async Task<Result> Handle(UserBuyPassCommand command, CancellationToken cancellationToken)
+    public async Task Handle(ApplicationUserBuyPassCommand command, CancellationToken cancellationToken)
     {
+        cancellationToken = CancellationToken.None;
+
         if (_user.Roles!.Count > 0)
         {
-            return Result.Failure(["You are not allowed to buy passes on this account."]);
+            throw new UnauthorizedAccessException("You are not allowed to buy passes on this account.");
         }
 
-        var gym = await _context.Gyms.Include(g => g.GymPassProducts).AsNoTracking().FirstOrDefaultAsync(g => g.Id == command.GymId, cancellationToken);
+        var gymPassProduct = await _context
+            .GymPassProducts
+            .AsNoTracking()
+            .Include(gpp => gpp.Gym)
+            .FirstOrDefaultAsync(gpp => gpp.Id == command.GymPassProductId);
 
-        if (gym == null)
-        {
-            return Result.Failure(["Gym with given id does not exist."]);
-        }
-
-        var gymPassProduct = gym.GymPassProducts.FirstOrDefault(gpp => gpp.Id == command.GymPassProductId);
-
-        if (gymPassProduct == null)
-        {
-            return Result.Failure(["Gym pass product with given id does not exist."]);
-        }
+        Guard.Against.NotFound(command.GymPassProductId, gymPassProduct, "Id");
 
         var user = await _context.ApplicationUsers
                 .Include(u => u.UserGymMemberships)
-                .FirstOrDefaultAsync(u => u.Id == _user.Id, cancellationToken);
+                .FirstOrDefaultAsync(u => u.Id == _user.Id);
 
-        if (user == null)
-        {
-            return Result.Failure(["Currently logged in user does not exist."]);
-        }
+        Guard.Against.Null(user, "Id", "Failed to find currently logged in user.");
 
-        //since the user does not have a role they will have a collection of UserGymMemberships
-        var userGymMembership = user.UserGymMemberships!.FirstOrDefault(ugm => ugm.GymId == command.GymId);
-
+        var userGymMembership = user.UserGymMemberships!.FirstOrDefault(ugm => ugm.GymId == gymPassProduct.GymId);
 
         if (userGymMembership == null)
         {
             userGymMembership = new UserGymMembership
             {
-                Id = Guid.NewGuid().ToString(),
                 UserId = user.Id,
-                GymId = command.GymId
+                GymId = gymPassProduct.GymId
             };
 
             user.UserGymMemberships!.Add(userGymMembership);
@@ -78,7 +65,6 @@ public class UserBuyPassCommandHandler : IRequestHandler<UserBuyPassCommand, Res
 
         userGymMembership.OwnedPasses.Add(new OwnedPass
         {
-            Id = Guid.NewGuid().ToString(),
             UserGymMembershipId = userGymMembership.Id,
             Type = gymPassProduct.Type,
             TotalUses = gymPassProduct.TotalUses,
@@ -89,14 +75,11 @@ public class UserBuyPassCommandHandler : IRequestHandler<UserBuyPassCommand, Res
 
         var receipt = new PurchaseReceipt
         {
-            Id = Guid.NewGuid().ToString(),
             ApplicationUserId = _user.Id,
             GymPassProduct = gymPassProduct
         };
 
         await _context.PurchaseReceipts.AddAsync(receipt);
-        await _context.SaveChangesAsync(cancellationToken);
-
-        return Result.Success();
+        await _context.SaveChangesAsync();
     }
 }
