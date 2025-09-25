@@ -1,4 +1,7 @@
 using Fitpass.Application.ApplicationUsers.Commands;
+using Fitpass.Application.ApplicationUsers.Queries;
+using FitPass.Application.ApplicationUsers.Commands;
+using FitPass.Application.ApplicationUsers.DTOs;
 using FitPass.Application.Common.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -15,7 +18,9 @@ public class ApplicationUsers : EndpointGroupBase
 
         groupBuilder.MapPost(RegisterGymAdministratorUser, "Register/GymAdministrator").RequireAuthorization();
 
-        //TODO: create endpoint for Register/GymStaff
+        groupBuilder.MapGet(GetAllMyGymStaff, "GymManagement/My").RequireAuthorization();
+
+        groupBuilder.MapPut(NominateUserToGymStaffMember, "Nominate/GymStaff").RequireAuthorization();
     }
 
     public async Task<Ok<string>> RegisterUser(ISender sender, [FromBody] RegisterUserCommand command, CancellationToken cancellationToken)
@@ -37,5 +42,19 @@ public class ApplicationUsers : EndpointGroupBase
         var result = await sender.Send(command, cancellationToken);
 
         return TypedResults.Ok(result);
+    }
+
+    public async Task<Ok<List<ApplicationUserDto>>> GetAllMyGymStaff(ISender sender, CancellationToken cancellationToken)
+    {
+        var result = await sender.Send(new GetAllMyGymStaffQuery(), cancellationToken);
+
+        return TypedResults.Ok(result);
+    }
+
+    public async Task<Ok> NominateUserToGymStaffMember(ISender sender, [FromBody] NominateUserToGymStaffMemberCommand command, CancellationToken cancellationToken)
+    {
+        await sender.Send(command, cancellationToken);
+
+        return TypedResults.Ok();
     }
 }

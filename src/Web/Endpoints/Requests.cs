@@ -13,20 +13,20 @@ public class Requests : EndpointGroupBase
 {
     public override void Map(RouteGroupBuilder groupBuilder)
     {
-        groupBuilder.MapGet(GetRequest, "{id}").RequireAuthorization();
+        groupBuilder.MapGet(GetRequest, "{requestId}").RequireAuthorization();
 
         groupBuilder.MapGet(GetRequests).RequireAuthorization();
 
-        groupBuilder.MapPut(UpdateRequestStatus, "{id}/Status").RequireAuthorization();
+        groupBuilder.MapPut(UpdateRequestStatus, "{requestId}/Status").RequireAuthorization();
 
         groupBuilder.MapPost(CreateGymCreationRequest, "/GymCreation");
 
         groupBuilder.MapPost(CreateGymAdminNominationRequest, "GymAdminNomination").RequireAuthorization();
     }
 
-    public async Task<Ok<RequestDto>> GetRequest(ISender sender, string id, CancellationToken cancellationToken)
+    public async Task<Ok<RequestDto>> GetRequest(ISender sender, string requestId, CancellationToken cancellationToken)
     {
-        var result = await sender.Send(new GetRequestQuery(id), cancellationToken);
+        var result = await sender.Send(new GetRequestQuery(requestId), cancellationToken);
 
         return TypedResults.Ok(result);
     }
@@ -38,9 +38,9 @@ public class Requests : EndpointGroupBase
         return TypedResults.Ok(result);
     }
 
-    public async Task<Results<NoContent, BadRequest>> UpdateRequestStatus(ISender sender, string id, [FromBody] RequestStatus newRequestStatus, CancellationToken cancellationToken)
+    public async Task<NoContent> UpdateRequestStatus(ISender sender, string requestId, [FromBody] RequestStatus newRequestStatus, CancellationToken cancellationToken)
     {
-        await sender.Send(new UpdateRequestStatusCommand(id, newRequestStatus), cancellationToken);
+        await sender.Send(new UpdateRequestStatusCommand(requestId, newRequestStatus), cancellationToken);
 
         return TypedResults.NoContent();
     }
@@ -83,7 +83,7 @@ public class Requests : EndpointGroupBase
         return TypedResults.Ok(result);
     }
 
-    public async Task<NoContent> FulFillRequest(ISender sender, [FromRoute] string requestId)
+    public async Task<NoContent> FulFillRequest(ISender sender, string requestId)
     {
         await sender.Send(new FulfillRequestCommand(requestId));
 

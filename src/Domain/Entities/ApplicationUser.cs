@@ -1,4 +1,6 @@
-﻿namespace FitPass.Domain.Entities;
+﻿using FitPass.Domain.Constants;
+
+namespace FitPass.Domain.Entities;
 
 public class ApplicationUser : Microsoft.AspNetCore.Identity.IdentityUser
 {

@@ -1,5 +1,4 @@
 using FitPass.Application.Common.Interfaces;
-using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Security;
 using FitPass.Application.Extensions;
 using FitPass.Domain.Constants;
@@ -8,41 +7,47 @@ using FitPass.Domain.Enums;
 namespace Fitpass.Application.UserGymMemberships.Commands;
 
 [Authorize(Roles = $"{Roles.GymAdministrator},{Roles.GymStaff}")]
-public record UpdateUserGymMembershipStatusCommand(string ApplicationUserId, string GymId, GymMembershipStatus NewStatus) : IRequest<Result>;
+public record UpdateUserGymMembershipStatusCommand(string UserGymMembershipId, GymMembershipStatus NewStatus) : IRequest;
 
 public class UpdateUserGymMembershipStatusCommandValidator : AbstractValidator<UpdateUserGymMembershipStatusCommand>
 {
     public UpdateUserGymMembershipStatusCommandValidator()
     {
-        RuleFor(v => v.ApplicationUserId).NotEmptyWithMessage("User id");
-
-        RuleFor(v => v.GymId).NotEmptyWithMessage("Gym id");
+        RuleFor(v => v.UserGymMembershipId).NotEmptyWithMessage("User gym membership id");
 
         RuleFor(v => v.NewStatus).NotEmptyWithMessage("New gym membership status");
     }
 }
 
-public class UpdateUserGymMembershipStatusCommandHandler : IRequestHandler<UpdateUserGymMembershipStatusCommand, Result>
+public class UpdateUserGymMembershipStatusCommandHandler : IRequestHandler<UpdateUserGymMembershipStatusCommand>
 {
     private readonly IApplicationDbContext _context;
+    private readonly IUserProfileService _userProfileService;
+    private readonly IUser _user;
 
-    public UpdateUserGymMembershipStatusCommandHandler(IApplicationDbContext context)
+    public UpdateUserGymMembershipStatusCommandHandler(IApplicationDbContext context, IUserProfileService userProfileService, IUser user)
     {
         _context = context;
+        _userProfileService = userProfileService;
+        _user = user;
     }
-    public async Task<Result> Handle(UpdateUserGymMembershipStatusCommand command, CancellationToken cancellationToken)
+    public async Task Handle(UpdateUserGymMembershipStatusCommand command, CancellationToken cancellationToken)
     {
-        var userGymMembership = await _context.UserGymMemberships.FindAsync(command.ApplicationUserId, command.GymId, cancellationToken);
+        var gymStaffAssigment = await _userProfileService.GetUserGymStaffAssigmentAsync(_user.Id!, cancellationToken);
 
-        if (userGymMembership == null)
+        Guard.Against.Null(gymStaffAssigment, "Id", "Failed to find currently logged in Gym Admin or Gym Staff member.");
+
+        var userGymMembership = await _context.UserGymMemberships.FindAsync(command.UserGymMembershipId, cancellationToken);
+
+        Guard.Against.NotFound(command.UserGymMembershipId, userGymMembership, "Id");
+
+        if (userGymMembership.GymId != gymStaffAssigment.GymId)
         {
-            return Result.Failure(["User's gym membership not found."]);
+            throw new UnauthorizedAccessException();
         }
 
         userGymMembership.GymMembershipStatus = command.NewStatus;
 
         await _context.SaveChangesAsync(cancellationToken);
-
-        return Result.Success();
     }
 }

@@ -1,6 +1,8 @@
 using Fitpass.Application.UserGymMemberships.Commands;
 using FitPass.Application.Common.Models;
+using FitPass.Domain.Enums;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Fitpass.Web.Endpoints;
 
@@ -8,18 +10,13 @@ public class UserGymMemberships : EndpointGroupBase
 {
     public override void Map(RouteGroupBuilder groupBuilder)
     {
-        groupBuilder.MapPut("/{applicationUserId}/{gymId}", UpdateUserMembershipStatus).RequireAuthorization(); //TODO: fix this so it takes user gym membership id
+        groupBuilder.MapPut(UpdateUserMembershipStatus, "/{userGymMembership}").RequireAuthorization();
     }
 
-    public async Task<Results<Ok<Result>, BadRequest>> UpdateUserMembershipStatus(ISender sender, string applicationUserId, string gymId, [AsParameters] UpdateUserGymMembershipStatusCommand command)
+    public async Task<Ok> UpdateUserMembershipStatus(ISender sender, string userGymMembership, [FromBody] GymMembershipStatus newGymMembershipStatus, CancellationToken cancellationToken)
     {
-        if (applicationUserId != command.ApplicationUserId || gymId != command.GymId)
-        {
-            return TypedResults.BadRequest();
-        }
+        await sender.Send(new UpdateUserGymMembershipStatusCommand(userGymMembership, newGymMembershipStatus), cancellationToken);
 
-        var result = await sender.Send(command);
-
-        return TypedResults.Ok(result);
+        return TypedResults.Ok();
     }
 }
