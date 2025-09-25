@@ -12,7 +12,7 @@ public record CreateNonRegisteredUserCommand (
    string? Email, 
    string? PhoneNumber,
    string FirstName,
-   string? LastName
+   string LastName
 ) : IRequest<NonRegisteredUserDto>;
 
 public class CreateNonRegisteredUserCommandValidator : AbstractValidator<CreateNonRegisteredUserCommand>
@@ -33,26 +33,31 @@ public class CreateNonRegisteredUserCommandValidator : AbstractValidator<CreateN
 
         RuleFor(v => v.FirstName).NotEmptyWithMaxLenghtAndMessage(MaxStringLengths.Name, "First name");
 
-        When(v => !string.IsNullOrEmpty(v.LastName), () =>
-        {
-            RuleFor(v => v.LastName!).NotEmptyWithMaxLenghtAndMessage(MaxStringLengths.Name, "Last name");
-        });
+        RuleFor(v => v.LastName!).NotEmptyWithMaxLenghtAndMessage(MaxStringLengths.Name, "Last name");
     }
 }
 
 public class CreateNonRegisteredUserCommandHandler : IRequestHandler<CreateNonRegisteredUserCommand, NonRegisteredUserDto>
 {
     private readonly IApplicationDbContext _context;
+    private readonly IUserProfileService _userProfileService;
+    private readonly IUser _user;
     private readonly IMapper _mapper;
 
-    public CreateNonRegisteredUserCommandHandler(IApplicationDbContext context, IMapper mapper)
+    public CreateNonRegisteredUserCommandHandler(IApplicationDbContext context, IUserProfileService userProfileService, IUser user, IMapper mapper)
     {
         _context = context;
+        _userProfileService = userProfileService;
+        _user = user;
         _mapper = mapper;
     }
 
     public async Task<NonRegisteredUserDto> Handle(CreateNonRegisteredUserCommand command, CancellationToken cancellationToken)
     {
+        var gymStaffAssignment = await _userProfileService.GetUserGymStaffAssigmentAsync(_user.Id!, cancellationToken);
+
+        Guard.Against.Null(gymStaffAssignment, "Id", "Failed to find the current Gym Admin or Gym Staff member.");
+
         var nonRegisteredUser = new NonRegisteredUser
         {
             Id = Guid.NewGuid().ToString(),
@@ -61,6 +66,14 @@ public class CreateNonRegisteredUserCommandHandler : IRequestHandler<CreateNonRe
             FirstName = command.FirstName,
             LastName = command.LastName
         };
+
+        var userGymMembership = new UserGymMembership
+        {
+            UserId = nonRegisteredUser.Id,
+            GymId = gymStaffAssignment.GymId
+        };
+
+        nonRegisteredUser.UserGymMemberships.Add(userGymMembership);
 
         await _context.NonRegisteredUsers.AddAsync(nonRegisteredUser, cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);

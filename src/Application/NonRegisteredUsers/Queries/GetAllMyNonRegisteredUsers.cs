@@ -27,11 +27,14 @@ public class GetAllMyNonRegisteredUsersQueryHandler : IRequestHandler<GetAllMyNo
     {
         var gymStaffAssignment = await _userProfileService.GetUserGymStaffAssigmentAsync(_user.Id!, cancellationToken);
 
+        Guard.Against.Null(gymStaffAssignment, "Id", "Failed to find currently authenticated Gym Admin or Gym Staff member.");
+
         var nonRegisteredUsers = await _context
             .NonRegisteredUsers
-            .Include(nru => nru.UserGymMemberships)
+            .AsNoTracking()
             .Where(nru => nru.UserGymMemberships.Any(ugm => ugm.GymId == gymStaffAssignment!.GymId))
-            .ToListAsync();
+            .Include(nru => nru.UserGymMemberships.Where(ugm => ugm.GymId == gymStaffAssignment.GymId))
+            .ToListAsync(cancellationToken);
 
         return _mapper.Map<List<NonRegisteredUserDto>>(nonRegisteredUsers);
     }

@@ -1,5 +1,4 @@
 using FitPass.Application.Common.Interfaces;
-using FitPass.Application.Common.Models;
 using FitPass.Application.Extensions;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
@@ -11,9 +10,8 @@ public record RegisterNonRegisteredUserCommand
     string? NonRegisteredUserEmail,
     string? NonRegisteredUserPhoneNumber,
     string Password,
-    string PasswordConfirm,
-    string? LastName
-) : IRequest<Result>;
+    string PasswordConfirm
+) : IRequest;
 
 public class RegisterNonRegisteredUserCommandValidator : AbstractValidator<RegisterNonRegisteredUserCommand>
 {
@@ -38,15 +36,10 @@ public class RegisterNonRegisteredUserCommandValidator : AbstractValidator<Regis
         RuleFor(v => v.PasswordConfirm)
             .NotEmptyWithMessage("Password confirmation")
             .Equal(v => v.Password).WithMessage("Your password and password confirmation must match.");
-
-        When(v => !string.IsNullOrEmpty(v.LastName), () =>
-        {
-            RuleFor(v => v.LastName!).NotEmptyWithMaxLenghtAndMessage(MaxStringLengths.Name, "Last name");
-        });
     }
 }
 
-public class RegisterNonRegisteredUserCommandHandler : IRequestHandler<RegisterNonRegisteredUserCommand, Result>
+public class RegisterNonRegisteredUserCommandHandler : IRequestHandler<RegisterNonRegisteredUserCommand>
 {
     private readonly IIdentityService _identityService;
     private readonly IApplicationDbContext _context;
@@ -59,34 +52,34 @@ public class RegisterNonRegisteredUserCommandHandler : IRequestHandler<RegisterN
         _user = user;
     }
 
-    public async Task<Result> Handle(RegisterNonRegisteredUserCommand command, CancellationToken cancellationToken)
+    public async Task Handle(RegisterNonRegisteredUserCommand command, CancellationToken cancellationToken)
     {
         if (_user.Id != null)
         {
-            return Result.Failure(["Please log out for this action."]);
+            throw new UnauthorizedAccessException("Please log out for this action.");
         }
 
         var nonRegisteredUser = command.NonRegisteredUserEmail != null ?
             await _context.NonRegisteredUsers.FirstOrDefaultAsync(nru => nru.Email == command.NonRegisteredUserEmail, cancellationToken) :
             await _context.NonRegisteredUsers.FirstOrDefaultAsync(nru => nru.PhoneNumber == command.NonRegisteredUserPhoneNumber, cancellationToken);
 
-        if (nonRegisteredUser == null)
-        {
-            return Result.Failure(["User with the given credentials does not exist."]);
-        }
+        Guard.Against.NotFound("Email & PhoneNumber", nonRegisteredUser, "Email or PhoneNumber");
 
         var applicationUser = new ApplicationUser
         {
-            Id = Guid.NewGuid().ToString(),
             FirstName = nonRegisteredUser.FirstName,
+            LastName = nonRegisteredUser.LastName,
             UserGymMemberships = [],
             GymStaffAssigment = null,
             Email = nonRegisteredUser.Email,
             PhoneNumber = nonRegisteredUser.PhoneNumber
         };
 
-        var result = await _identityService.CreateUserAsync(applicationUser, command.Password);
+        var result = await _identityService.CreateUserAsync(applicationUser, command.Password, cancellationToken);
 
-        return result.Result;
+        if (!result.Succeeded)
+        {
+            throw new Exception($"An error occured during registration: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+        }
     }
 }

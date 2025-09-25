@@ -7,7 +7,7 @@ using FitPass.Domain.Constants;
 namespace Fitpass.Application.NonRegisteredUsers.Queries;
 
 [Authorize(Roles = $"{Roles.GymAdministrator},{Roles.GymStaff}")]
-public record GetNonRegisteredUserQuery(string NonRegisteredUserId) : IRequest<NonRegisteredUserDto?>;
+public record GetNonRegisteredUserQuery(string NonRegisteredUserId) : IRequest<NonRegisteredUserDto>;
 
 public class GetNonRegisteredUserQueryValidator : AbstractValidator<GetNonRegisteredUserQuery>
 {
@@ -17,23 +17,33 @@ public class GetNonRegisteredUserQueryValidator : AbstractValidator<GetNonRegist
     }
 }
 
-public class GetNonRegisteredUserQueryHandler : IRequestHandler<GetNonRegisteredUserQuery, NonRegisteredUserDto?>
+public class GetNonRegisteredUserQueryHandler : IRequestHandler<GetNonRegisteredUserQuery, NonRegisteredUserDto>
 {
     private readonly IApplicationDbContext _context;
+    private readonly IUserProfileService _userProfileService;
+    private readonly IUser _user;
     private readonly IMapper _mapper;
 
-    public GetNonRegisteredUserQueryHandler(IApplicationDbContext context, IMapper mapper)
+    public GetNonRegisteredUserQueryHandler(IApplicationDbContext context, IUserProfileService userProfileService, IUser user, IMapper mapper)
     {
         _context = context;
+        _userProfileService = userProfileService;
+        _user = user;
         _mapper = mapper;
     }
-    public async Task<NonRegisteredUserDto?> Handle(GetNonRegisteredUserQuery query, CancellationToken cancellationToken)
+    public async Task<NonRegisteredUserDto> Handle(GetNonRegisteredUserQuery query, CancellationToken cancellationToken)
     {
+        var gymStaffAssigment = await _userProfileService.GetUserGymStaffAssigmentAsync(_user.Id!, cancellationToken);
+
+        Guard.Against.Null(gymStaffAssigment, "Id", "Failed to find currently authenticated Gym Admin or Gym Staff member.");
+
         var nonRegisteredUser = await _context
             .NonRegisteredUsers
             .AsNoTracking()
-            .Include(nru => nru.UserGymMemberships)
+            .Include(nru => nru.UserGymMemberships.Where(ugm => ugm.GymId == gymStaffAssigment.GymId))
             .FirstOrDefaultAsync(nru => nru.Id == query.NonRegisteredUserId, cancellationToken);
+
+        Guard.Against.NotFound(query.NonRegisteredUserId, nonRegisteredUser, "Id");
 
         return _mapper.Map<NonRegisteredUserDto>(nonRegisteredUser);
     }

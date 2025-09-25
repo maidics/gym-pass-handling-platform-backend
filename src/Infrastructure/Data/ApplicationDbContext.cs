@@ -11,6 +11,7 @@ namespace FitPass.Infrastructure.Data;
 public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplicationDbContext
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
+    public DbSet<ApplicationUser> ApplicationUsers => Set<ApplicationUser>(); 
     public DbSet<NonRegisteredUser> NonRegisteredUsers => Set<NonRegisteredUser>();
     public DbSet<Gym> Gyms => Set<Gym>();
     public DbSet<UserGymMembership> UserGymMemberships => Set<UserGymMembership>();
@@ -32,5 +33,5 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
         return await Database.BeginTransactionAsync(cancellationToken);
     }
 
-    public async Task<int> SaveChangesAsync() => await base.SaveChangesAsync(CancellationToken.None);
+    public Task<int> SaveChangesAsync() => base.SaveChangesAsync(CancellationToken.None);
 }

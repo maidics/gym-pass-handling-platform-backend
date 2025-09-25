@@ -6,6 +6,7 @@ using FitPass.Application.NonRegisteredUsers.Commands;
 using FitPass.Application.NonRegisteredUsers.DTOs;
 using FitPass.Application.NonRegisteredUsers.Queries;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 
 namespace FitPass.Web.Endpoints;
 
@@ -15,81 +16,56 @@ public class NonRegisteredUsers : EndpointGroupBase
     {
         groupBuilder.MapPost(CreateNonRegisteredUser, "RegisterByGymManagement").RequireAuthorization();
 
-        groupBuilder.MapGet(GetNonRegisteredUser, "{id}").RequireAuthorization();
+        groupBuilder.MapGet(GetNonRegisteredUser, "{nonRegisteredUserId}").RequireAuthorization();
 
-        groupBuilder.MapGet(GetAllMyNonRegisteredUsers, "My").RequireAuthorization();
+        groupBuilder.MapGet(GetAllMyNonRegisteredUsers, "All/My").RequireAuthorization();
 
-        groupBuilder.MapPut(AddUserGymMembershipToNonRegisteredUser, "{id}/UserGymMembership").RequireAuthorization();
+        groupBuilder.MapPost(AddUserGymMembershipToNonRegisteredUser, "{nonRegisteredUserId}/UserGymMembership").RequireAuthorization();
 
-        groupBuilder.MapPut(BuyPassForNonRegisteredUser, "{id}/BuyPass").RequireAuthorization();
+        groupBuilder.MapPost(BuyPassForNonRegisteredUser, "{nonRegisteredUserId}/BuyPass/{gymPassProductId}").RequireAuthorization();
 
         groupBuilder.MapPost(RegisterNonRegisteredUser, "/Register").AllowAnonymousOnly();
     }
 
-    public async Task<Ok<NonRegisteredUserDto>> CreateNonRegisteredUser(ISender sender, CreateNonRegisteredUserCommand command)
+    public async Task<Ok<NonRegisteredUserDto>> CreateNonRegisteredUser(ISender sender, CreateNonRegisteredUserCommand command, CancellationToken cancellationToken)
     {
-        var result = await sender.Send(command);
+        var result = await sender.Send(command, cancellationToken);
 
         return TypedResults.Ok(result);
     }
 
-    public async Task<Results<Ok<NonRegisteredUserDto>, NotFound, BadRequest>> GetNonRegisteredUser(ISender sender, string id, [AsParameters] GetNonRegisteredUserQuery query)
+    public async Task<Ok<NonRegisteredUserDto>> GetNonRegisteredUser(ISender sender, string nonRegisteredUserId, CancellationToken cancellationToken)
     {
-        if (id != query.NonRegisteredUserId)
-        {
-            return TypedResults.BadRequest();
-        }
-
-        var result = await sender.Send(query);
-
-        if (result == null)
-        {
-            return TypedResults.NotFound();
-        }
+        var result = await sender.Send(new GetNonRegisteredUserQuery(nonRegisteredUserId), cancellationToken);
 
         return TypedResults.Ok(result);
     }
 
-    public async Task<Ok<List<NonRegisteredUserDto>>> GetAllMyNonRegisteredUsers(ISender sender)
+    public async Task<Ok<List<NonRegisteredUserDto>>> GetAllMyNonRegisteredUsers(ISender sender, CancellationToken cancellationToken)
     {
-        var result = await sender.Send(new GetAllMyNonRegisteredUsersQuery { });
+        var result = await sender.Send(new GetAllMyNonRegisteredUsersQuery(), cancellationToken);
 
         return TypedResults.Ok(result);
     }
 
-    public async Task<Results<Ok<NonRegisteredUserDto>, NotFound, BadRequest>> AddUserGymMembershipToNonRegisteredUser(ISender sender, string id, [AsParameters] AddUserGymMembershipToNonRegisteredUserCommand command)
+    public async Task<Ok<NonRegisteredUserDto>> AddUserGymMembershipToNonRegisteredUser(ISender sender, string nonRegisteredUserId, CancellationToken cancellationToken)
     {
-        if (id != command.NonRegisteredUserId)
-        {
-            return TypedResults.BadRequest();
-        }
-
-        var result = await sender.Send(command);
-
-        if (result == null)
-        {
-            return TypedResults.NotFound();
-        }
+        var result = await sender.Send(new AddUserGymMembershipToNonRegisteredUserCommand(nonRegisteredUserId), cancellationToken);
 
         return TypedResults.Ok(result);
     }
 
-    public async Task<Results<Ok<Result>, BadRequest>> BuyPassForNonRegisteredUser(ISender sender, string id, [AsParameters] BuyPassForNonRegisteredUserCommand command)
+    public async Task<Ok> BuyPassForNonRegisteredUser(ISender sender, string nonRegisteredUserId, string gymPassProductId, CancellationToken cancellationToken)
     {
-        if (id != command.NonRegisteredUserId)
-        {
-            return TypedResults.BadRequest();
-        }
+        await sender.Send(new BuyPassForNonRegisteredUserCommand(nonRegisteredUserId, gymPassProductId), cancellationToken);
 
-        var result = await sender.Send(command);
-
-        return TypedResults.Ok(result);
+        return TypedResults.Ok();
     }
 
-    public async Task<Ok<Result>> RegisterNonRegisteredUser(ISender sender, [AsParameters] RegisterNonRegisteredUserCommand command)
+    public async Task<Ok> RegisterNonRegisteredUser(ISender sender, [FromBody] RegisterNonRegisteredUserCommand command, CancellationToken cancellationToken)
     {
-        var result = await sender.Send(command);
+        await sender.Send(command, cancellationToken);
 
-        return TypedResults.Ok(result);
+        return TypedResults.Ok();
     }
 }

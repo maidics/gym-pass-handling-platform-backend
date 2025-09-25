@@ -1,5 +1,4 @@
 using FitPass.Application.Common.Interfaces;
-using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Security;
 using FitPass.Application.Extensions;
 using FitPass.Domain;
@@ -12,7 +11,7 @@ namespace Fitpass.Application.NonRegisteredUsers.Commands;
 public record BuyPassForNonRegisteredUserCommand(
     string NonRegisteredUserId,
     string GymPassProductId
-) : IRequest<Result>;
+) : IRequest;
 
 public class BuyPassForNonRegisteredUserCommandValidator : AbstractValidator<BuyPassForNonRegisteredUserCommand>
 {
@@ -24,7 +23,7 @@ public class BuyPassForNonRegisteredUserCommandValidator : AbstractValidator<Buy
     }
 }
 
-public class BuyPassForNonRegisteredUserCommandHandler : IRequestHandler<BuyPassForNonRegisteredUserCommand, Result>
+public class BuyPassForNonRegisteredUserCommandHandler : IRequestHandler<BuyPassForNonRegisteredUserCommand>
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
@@ -36,26 +35,25 @@ public class BuyPassForNonRegisteredUserCommandHandler : IRequestHandler<BuyPass
         _user = user;
         _userProfileService = userProfileService;
     }
-    public async Task<Result> Handle(BuyPassForNonRegisteredUserCommand command, CancellationToken cancellationToken)
+    public async Task Handle(BuyPassForNonRegisteredUserCommand command, CancellationToken cancellationToken)
     {
         var nonRegisteredUser = await _context
             .NonRegisteredUsers
             .Include(nru => nru.UserGymMemberships)
             .FirstOrDefaultAsync(nru => nru.Id == command.NonRegisteredUserId);
 
-        if (nonRegisteredUser == null)
-        {
-            return Result.Failure(["Non registered user not found."]);
-        }
+        Guard.Against.NotFound(command.NonRegisteredUserId, nonRegisteredUser, "Id");
 
-        var gymPassProduct = await _context.GymPassProducts.AsNoTracking().FirstOrDefaultAsync(gpp => gpp.Id == command.GymPassProductId, cancellationToken);
+        var gymPassProduct = await _context
+            .GymPassProducts
+            .AsNoTracking()
+            .FirstOrDefaultAsync(gpp => gpp.Id == command.GymPassProductId, cancellationToken);
 
-        if (gymPassProduct == null)
-        {
-            return Result.Failure(["Gym pass product not found."]);
-        }
+        Guard.Against.NotFound(command.GymPassProductId, gymPassProduct, "Id");
 
         var gymStaffAssignment = await _userProfileService.GetUserGymStaffAssigmentAsync(_user.Id!, cancellationToken);
+
+        Guard.Against.Null(gymStaffAssignment, "Id", "Failed to find currently logged in Gym Admin or Gym Staff member");
 
         var userGymMembership = nonRegisteredUser.UserGymMemberships.FirstOrDefault(ugm => ugm.GymId == gymStaffAssignment!.GymId);
 
@@ -87,7 +85,5 @@ public class BuyPassForNonRegisteredUserCommandHandler : IRequestHandler<BuyPass
         userGymMembership.OwnedPasses.Add(ownedPass);
 
         await _context.SaveChangesAsync(cancellationToken);
-
-        return Result.Success();
     }
 }
