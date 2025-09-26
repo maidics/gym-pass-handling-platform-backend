@@ -83,7 +83,8 @@ public class RequestService : IRequestService
             {
                 ApplicationUserId = user.Id,
                 GymId = requestDto.GymId,
-                EscalationEmail = requestDto.EscalationEmail
+                EscalationEmail = requestDto.EscalationEmail,
+                Role = Roles.GymAdministrator
             };
 
             user.GymStaffAssigment = assigment;
