@@ -10,5 +10,5 @@ public class ApplicationUser : Microsoft.AspNetCore.Identity.IdentityUser
     public required GymStaffAssigment? GymStaffAssigment { get; set; }
     public ICollection<Request> Requests { get; set; } = [];
     //returns a bool value on wether or not the user is a gym member aka purchased a pass before
-    public bool IsGymMember => UserGymMemberships == null || UserGymMemberships.Count == 0;
+    public bool IsGymMember => UserGymMemberships != null && UserGymMemberships.Count > 0;
 }

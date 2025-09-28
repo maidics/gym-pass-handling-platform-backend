@@ -16,7 +16,9 @@ public class NominateUserToGymStaffMemberCommandValidator : AbstractValidator<No
     {
         RuleFor(v => v.UserEmailToNominate).NotEmptyWithMessage("User's email to nominate");
 
-        RuleFor(v => v.EscalationEmail).NotEmptyWithMaxLenghtAndMessage(MaxStringLengths.Email, "Escalation email");
+        RuleFor(v => v.EscalationEmail)
+            .NotEmptyWithMaxLenghtAndMessage(MaxStringLengths.Email, "Escalation email")
+            .NotEqual(v => v.UserEmailToNominate);
     }
 }
 
