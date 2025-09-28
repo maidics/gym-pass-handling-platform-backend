@@ -20,12 +20,12 @@ public class GetGymStaffQueryValidator : AbstractValidator<GetGymStaffQuery>
 public class GetGymStaffQueryHandler : IRequestHandler<GetGymStaffQuery, List<ApplicationUserDto>>
 {
     private readonly IApplicationDbContext _context;
-    private readonly IUser _user;
+    private readonly IMapper _mapper;
 
-    public GetGymStaffQueryHandler(IApplicationDbContext context, IUser user)
+    public GetGymStaffQueryHandler(IApplicationDbContext context, IMapper mapper)
     {
         _context = context;
-        _user = user;
+        _mapper = mapper;
     }
 
     public async Task<List<ApplicationUserDto>> Handle(GetGymStaffQuery query, CancellationToken cancellationToken)
@@ -34,27 +34,12 @@ public class GetGymStaffQueryHandler : IRequestHandler<GetGymStaffQuery, List<Ap
 
         Guard.Against.NotFound(query.GymId, gym, "GymId");
 
-        var gymStaffAssigments = await _context
-            .GymStaffAssigments
-            .Include(gsa => gsa.ApplicationUser)
-            .Where(gsa => gsa.GymId == query.GymId)
+        var users = await _context
+            .ApplicationUsers
+            .Where(au => au.GymStaffAssigment != null && au.GymStaffAssigment.GymId == query.GymId)
+            .Include(au => au.GymStaffAssigment)
             .ToListAsync(cancellationToken);
 
-        List<ApplicationUserDto> gymManagementUsers = [];
-
-        gymStaffAssigments.ForEach(gsa =>
-        {
-            gymManagementUsers.Add(new ApplicationUserDto
-            {
-                Id = gsa.ApplicationUser.Id,
-                Email = gsa.ApplicationUser.Email!,
-                FirstName = gsa.ApplicationUser.FirstName,
-                LastName = gsa.ApplicationUser.LastName,
-                UserGymMemberships = null,
-                GymStaffAssigment = gsa
-            });
-        });
-
-        return gymManagementUsers;
+        return _mapper.Map<List<ApplicationUserDto>>(users);
     }
 }

@@ -30,8 +30,6 @@ public class Gyms : EndpointGroupBase
 
         groupBuilder.MapPut(UpdateGymStatus, "{gymId}/Status").RequireAuthorization();
 
-        groupBuilder.MapGet(GetGymManagementUsers, "{gymId}/Management").RequireAuthorization(); //TODO: split this endpoint into two: GetGymManagementUsers (AppAdmin), GetMyGymManagementUsers (Gym management)
-
         groupBuilder.MapGet(GetMyGymDetails, "Management/My").RequireAuthorization();
     }
 
@@ -87,13 +85,6 @@ public class Gyms : EndpointGroupBase
         await sender.Send(new UpdateGymStatusCommand(gymId, newGymStatus), cancellationToken);
 
         return TypedResults.NoContent();
-    }
-
-    public async Task<Ok<List<ApplicationUserDto>>> GetGymManagementUsers(ISender sender, [FromRoute] string gymId, CancellationToken cancellationToken)
-    {
-        var result = await sender.Send(new GetGymStaffQuery(gymId), cancellationToken);
-
-        return TypedResults.Ok(result);
     }
 
     public async Task<Ok<GymDto>> GetMyGymDetails(ISender sender, CancellationToken cancellationToken)

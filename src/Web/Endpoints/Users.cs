@@ -3,12 +3,13 @@ using Fitpass.Application.ApplicationUsers.Queries;
 using FitPass.Application.ApplicationUsers.Commands;
 using FitPass.Application.ApplicationUsers.DTOs;
 using FitPass.Application.Common.Models;
+using FitPass.Application.Gyms.Queries;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Fitpass.Web.Endpoints.ApplicationUsers;
+namespace Fitpass.Web.Endpoints.Users;
 
-public class ApplicationUsers : EndpointGroupBase
+public class Users : EndpointGroupBase
 {
     public override void Map(RouteGroupBuilder groupBuilder)
     {
@@ -21,6 +22,11 @@ public class ApplicationUsers : EndpointGroupBase
         groupBuilder.MapGet(GetAllMyGymStaff, "GymManagement/My").RequireAuthorization();
 
         groupBuilder.MapPut(NominateUserToGymStaffMember, "Nominate/GymStaff").RequireAuthorization();
+
+        groupBuilder.MapGet(GetMyGymManagementUsers, "GymManagement/My/GymMembers").RequireAuthorization();
+
+        groupBuilder.MapGet(GetGymManagementUsers, "Management/{gymId}").RequireAuthorization();
+
     }
 
     public async Task<Ok<string>> RegisterUser(ISender sender, [FromBody] RegisterUserCommand command, CancellationToken cancellationToken)
@@ -56,5 +62,19 @@ public class ApplicationUsers : EndpointGroupBase
         await sender.Send(command, cancellationToken);
 
         return TypedResults.Ok();
+    }
+
+    public async Task<Ok<List<ApplicationUserDto>>> GetMyGymManagementUsers(ISender sender, CancellationToken cancellationToken)
+    {
+        var result = await sender.Send(new GetMyGymManagementUsersQuery(), cancellationToken);
+
+        return TypedResults.Ok(result);
+    }
+
+    public async Task<Ok<List<ApplicationUserDto>>> GetGymManagementUsers(ISender sender, [FromRoute] string gymId, CancellationToken cancellationToken)
+    {
+        var result = await sender.Send(new GetGymStaffQuery(gymId), cancellationToken);
+
+        return TypedResults.Ok(result);
     }
 }

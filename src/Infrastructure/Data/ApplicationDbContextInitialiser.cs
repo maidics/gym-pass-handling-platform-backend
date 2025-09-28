@@ -121,7 +121,8 @@ public class ApplicationDbContextInitialiser
                     Id = "AppAdminLocalhostId",
                     Email = "appadmin@localhost",
                     UserName = "AppAdmin",
-                    FirstName = "AppAdmin",
+                    FirstName = "App",
+                    LastName = "Admin",
                     UserGymMemberships = null,
                     GymStaffAssigment = null
                 },
@@ -134,12 +135,14 @@ public class ApplicationDbContextInitialiser
                     Id = "GymAdminLocalhostId",
                     Email = "gymadmin@localhost",
                     UserName = "GymAdmin",
-                    FirstName = "GymAdmin",
+                    FirstName = "Gym",
+                    LastName = "Admin",
                     UserGymMemberships = null,
                     GymStaffAssigment = new GymStaffAssigment {
                         ApplicationUserId = "GymAdminLocalhostId",
                         GymId = gymId,
-                        EscalationEmail = "escalation@localhost"
+                        EscalationEmail = "escalation@localhost",
+                        Role = Roles.GymAdministrator
                     }
                 },
                 Roles.GymAdministrator,
@@ -151,13 +154,15 @@ public class ApplicationDbContextInitialiser
                     Id = "GymStaffLocalhostId",
                     UserName = "GymStaff",
                     Email = "gymstaff@localhost",
-                    FirstName = "gymstaff",
+                    FirstName = "Gym",
+                    LastName = "Staff",
                     UserGymMemberships = null,
                     GymStaffAssigment = new GymStaffAssigment
                     {
                         ApplicationUserId = "GymStaffLocalhostId",
                         GymId = gymId,
-                        EscalationEmail = "escalation@localhost"
+                        EscalationEmail = "escalation@localhost",
+                        Role = Roles.GymStaff
                     }
                 },
                 Roles.GymStaff,
@@ -169,7 +174,8 @@ public class ApplicationDbContextInitialiser
                     Id = "UserLocalhostId",
                     UserName = "User",
                     Email = "user@localhost",
-                    FirstName = "user",
+                    FirstName = "Localhost",
+                    LastName = "User",
                     UserGymMemberships = [
                         new UserGymMembership {
                             Id = "UserGymMemberShipId",

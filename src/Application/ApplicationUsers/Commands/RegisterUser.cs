@@ -35,29 +35,38 @@ public class RegisterUserCommandValidator : AbstractValidator<RegisterUserComman
 public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, string>
 {
     private readonly IIdentityService _identityService;
+    private readonly IApplicationDbContext _context;
 
-    public RegisterUserCommandHandler(IIdentityService identityService)
+    public RegisterUserCommandHandler(IIdentityService identityService, IApplicationDbContext context)
     {
         _identityService = identityService;
+        _context = context;
     }
     public async Task<string> Handle(RegisterUserCommand command, CancellationToken cancellationToken)
     {
+        var existingUser = await _context
+            .ApplicationUsers
+            .AsNoTracking()
+            .FirstOrDefaultAsync(au => au.Email == command.Email);
+
+        if (existingUser != null)
+        {
+            throw new ConflictException("User with this email already exists.");
+        }
+
         var user = new ApplicationUser
         {
             UserName = command.Email,
             FirstName = command.FirstName,
             LastName = command.LastName,
+            Email = command.Email,
             UserGymMemberships = null,
             GymStaffAssigment = null
         };
 
         var result = await _identityService.CreateUserAsync(user, command.Password, cancellationToken);
 
-        if (result.IsDuplicateEmail())
-        {
-            throw new ConflictException("Email is already in use.");
-        }
-        else if (!result.Succeeded)
+        if (!result.Succeeded)
         {
             throw new ValidationException(string.Join(", ", result.Errors.Select(e => e.Description).ToList()));
         }

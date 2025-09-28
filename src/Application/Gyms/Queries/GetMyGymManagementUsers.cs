@@ -26,8 +26,13 @@ public class GetMyGymManagementUsersQueryHandler : IRequestHandler<GetMyGymManag
     {
         var gymStaffManagement = await _userProfileService.GetUserGymStaffAssigmentAsync(_user.Id!, cancellationToken);
 
+        var users = await _context
+            .ApplicationUsers
+            .AsNoTracking()
+            .Where(au => au.UserGymMemberships != null)
+            .Include(au => au.UserGymMemberships!.Where(ugm => ugm.GymId == gymStaffManagement!.GymId))
+            .ToListAsync(cancellationToken);
 
-        
-        var gym = await _context.Gyms.AsNoTracking().FirstOrDefaultAsync()
+        return _mapper.Map<List<ApplicationUserDto>>(users);
     }
 }

@@ -5,6 +5,7 @@ using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Security;
 using FitPass.Application.Extensions;
 using FitPass.Domain.Constants;
+using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
 
 namespace Fitpass.Application.ApplicationUsers.Commands;
@@ -31,8 +32,10 @@ public class RegisterGymAdministratorUserCommandHandler : IRequestHandler<Regist
         _identityService = identityService;
     }
 
-    public async Task<Result> Handle(RegisterGymAdministratorUserCommand command, CancellationToken cancellationToken)
+    public Task<Result> Handle(RegisterGymAdministratorUserCommand command, CancellationToken cancellationToken)
     {
+        throw new NotImplementedException();
+        /*
         var request = await _context
             .Requests
             .FirstOrDefaultAsync(r => r.Id == command.RequestId, cancellationToken);
@@ -65,7 +68,9 @@ public class RegisterGymAdministratorUserCommandHandler : IRequestHandler<Regist
 
         try
         {
-            var result = await _identityService.CreateGymManagementUserAsync
+            
+
+            var result = await _identityService.CreateUserAsync
             (
                 requestDto.GymAdminEmail,
                 requestDto.GymAdminPassword,
@@ -88,5 +93,6 @@ public class RegisterGymAdministratorUserCommandHandler : IRequestHandler<Regist
         }
 
         return Result.Success();
+        */
     }
 }

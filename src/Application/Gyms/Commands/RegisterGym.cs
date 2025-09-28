@@ -34,8 +34,12 @@ public class RegisterGymCommandHandler : IRequestHandler<RegisterGymCommand, Res
         _context = context;
     }
 
-    public async Task<Result> Handle(RegisterGymCommand command, CancellationToken cancellationToken)
+    public Task<Result> Handle(RegisterGymCommand command, CancellationToken cancellationToken)
     {
+        throw new NotImplementedException();
+
+        /*
+
         await using var transaction = await _context.BeginTransactionAsync(cancellationToken);
 
         try
@@ -99,5 +103,7 @@ public class RegisterGymCommandHandler : IRequestHandler<RegisterGymCommand, Res
             await transaction.RollbackAsync();
             throw;
         }
+
+        */
     }
 }

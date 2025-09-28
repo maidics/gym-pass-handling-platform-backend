@@ -1,5 +1,7 @@
 ﻿using System.Reflection;
 using FitPass.Application.Common.Behaviours;
+using FitPass.Application.Common.Interfaces;
+using FitPass.Application.Common.Services;
 using Microsoft.Extensions.Hosting;
 
 namespace Microsoft.Extensions.DependencyInjection;
@@ -20,5 +22,7 @@ public static class DependencyInjection
             cfg.AddOpenBehavior(typeof(ValidationBehaviour<,>));
             cfg.AddOpenBehavior(typeof(PerformanceBehaviour<,>));
         });
+
+        builder.Services.AddScoped<IRequestService, RequestService>();
     }
 }

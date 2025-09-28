@@ -31,7 +31,7 @@ public class Requests : EndpointGroupBase
         return TypedResults.Ok(result);
     }
 
-    public async Task<Ok<List<RequestDto>>> GetRequests(ISender sender, [FromQuery] GetRequestsQuery query, CancellationToken cancellationToken)
+    public async Task<Ok<List<RequestDto>>> GetRequests(ISender sender, [FromBody] GetRequestsQuery query, CancellationToken cancellationToken)
     {
         var result = await sender.Send(query, cancellationToken);
 
