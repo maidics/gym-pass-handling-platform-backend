@@ -30,7 +30,7 @@ public class Gyms : EndpointGroupBase
 
         groupBuilder.MapPut(UpdateGymStatus, "{gymId}/Status").RequireAuthorization();
 
-        groupBuilder.MapGet(GetMyGymDetails, "Management/My").RequireAuthorization();
+        groupBuilder.MapGet(GetMyGymDetails, "My/Details").RequireAuthorization();
     }
 
     public async Task<Results<Ok<Result>, BadRequest>> RegisterGym(ISender sender, string requestId, [AsParameters] RegisterGymCommand command)

@@ -243,7 +243,7 @@
         ]
       }
     },
-    "/api/Gyms/Management/My": {
+    "/api/Gyms/Details/My": {
       "get": {
         "tags": [
           "Gyms"

@@ -126,13 +126,13 @@ public class IdentityService : IIdentityService
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtSettings:Key"]!));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-        var expires = DateTime.UtcNow.AddHours(2);
+        var expires = DateTime.UtcNow.AddMinutes(Convert.ToInt32(_configuration["JwtSettings:ExpiryInMinutes"]!));
 
         var token = new JwtSecurityToken(
             issuer: _configuration["JwtSettings:Issuer"],
             audience: _configuration["JwtSettings:Audience"],
             claims: claims,
-            expires: expires,
+            //expires: expires,
             signingCredentials: creds
         );
 
