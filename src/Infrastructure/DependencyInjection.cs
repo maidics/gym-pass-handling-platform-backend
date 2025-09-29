@@ -71,7 +71,7 @@ public static class DependencyInjection
 
                     ValidateIssuer = true,
                     ValidateAudience = true,
-                    ValidateLifetime = true,
+                    //ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
 
                     ValidIssuer = configuration["JwtSettings:Issuer"],

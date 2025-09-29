@@ -138,7 +138,7 @@
         ]
       }
     },
-    "/api/Gyms/Details/{gymId}": {
+    "/api/Gyms/{gymId}/Details": {
       "get": {
         "tags": [
           "Gyms"
@@ -243,7 +243,7 @@
         ]
       }
     },
-    "/api/Gyms/Details/My": {
+    "/api/Gyms/My/Details": {
       "get": {
         "tags": [
           "Gyms"

@@ -24,7 +24,7 @@ public class Gyms : EndpointGroupBase
 
         groupBuilder.MapGet(GetAllGyms).RequireAuthorization();
 
-        groupBuilder.MapGet(GetGymDetails, "Details/{gymId}").RequireAuthorization();
+        groupBuilder.MapGet(GetGymDetails, "{gymId}/Details").RequireAuthorization();
 
         groupBuilder.MapGet(GetNewGymsThisMonth, "NewThisMonth").RequireAuthorization();
 

@@ -3,12 +3,10 @@ using System.Security.Claims;
 using System.Text;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Models;
-using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 
 namespace FitPass.Infrastructure.Identity;
@@ -132,7 +130,7 @@ public class IdentityService : IIdentityService
             issuer: _configuration["JwtSettings:Issuer"],
             audience: _configuration["JwtSettings:Audience"],
             claims: claims,
-            //expires: expires,
+            expires: expires,
             signingCredentials: creds
         );
 
