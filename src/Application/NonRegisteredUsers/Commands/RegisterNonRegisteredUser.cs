@@ -65,8 +65,18 @@ public class RegisterNonRegisteredUserCommandHandler : IRequestHandler<RegisterN
 
         Guard.Against.NotFound("Email & PhoneNumber", nonRegisteredUser, "Email or PhoneNumber");
 
-        var applicationUser = new ApplicationUser
+        var applicationUserId = Guid.CreateVersion7().ToString();
+
+        var ugms = nonRegisteredUser.UserGymMemberships;
+
+        foreach (var ugm in ugms)
         {
+            ugm.Id = applicationUserId;
+        }
+
+        var applicationUser = new ApplicationUser
+        { 
+            Id = applicationUserId,
             FirstName = nonRegisteredUser.FirstName,
             LastName = nonRegisteredUser.LastName,
             UserGymMemberships = [],

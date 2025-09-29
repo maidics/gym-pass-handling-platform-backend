@@ -1169,7 +1169,7 @@
         }
       },
       "GymStatus": {
-        "type": "integer",
+        "type": "string",
         "description": "",
         "x-enumNames": [
           "Active",
@@ -1177,13 +1177,13 @@
           "Suspended"
         ],
         "enum": [
-          0,
-          1,
-          2
+          "Active",
+          "Inactive",
+          "Suspended"
         ]
       },
       "GymTier": {
-        "type": "integer",
+        "type": "string",
         "description": "",
         "x-enumNames": [
           "Local",
@@ -1192,10 +1192,10 @@
           "Elite"
         ],
         "enum": [
-          0,
-          1,
-          2,
-          3
+          "Local",
+          "MidRange",
+          "Premium",
+          "Elite"
         ]
       },
       "GymPassProductDto": {
@@ -1228,7 +1228,7 @@
         }
       },
       "PassType": {
-        "type": "integer",
+        "type": "string",
         "description": "",
         "x-enumNames": [
           "SingleUse",
@@ -1236,9 +1236,9 @@
           "Unlimited"
         ],
         "enum": [
-          0,
-          1,
-          2
+          "SingleUse",
+          "MultiUse",
+          "Unlimited"
         ]
       },
       "UpdateMyGymProfileCommand": {
@@ -1330,15 +1330,15 @@
         ]
       },
       "GymMembershipStatus": {
-        "type": "integer",
+        "type": "string",
         "description": "",
         "x-enumNames": [
           "Member",
           "Banned"
         ],
         "enum": [
-          0,
-          1
+          "Member",
+          "Banned"
         ]
       },
       "ApplicationUser": {
@@ -1546,7 +1546,7 @@
         ]
       },
       "PriorityLevel": {
-        "type": "integer",
+        "type": "string",
         "description": "",
         "x-enumNames": [
           "None",
@@ -1555,14 +1555,14 @@
           "High"
         ],
         "enum": [
-          0,
-          1,
-          2,
-          3
+          "None",
+          "Low",
+          "Medium",
+          "High"
         ]
       },
       "RequestType": {
-        "type": "integer",
+        "type": "string",
         "description": "",
         "x-enumNames": [
           "GymCreation",
@@ -1570,13 +1570,13 @@
           "Other"
         ],
         "enum": [
-          0,
-          1,
-          2
+          "GymCreation",
+          "GymAdminNomination",
+          "Other"
         ]
       },
       "RequestStatus": {
-        "type": "integer",
+        "type": "string",
         "description": "",
         "x-enumNames": [
           "Submitted",
@@ -1586,11 +1586,11 @@
           "Rejected"
         ],
         "enum": [
-          0,
-          1,
-          2,
-          3,
-          4
+          "Submitted",
+          "InProgress",
+          "Completed",
+          "Cancelled",
+          "Rejected"
         ]
       },
       "BaseAuditableEntity": {

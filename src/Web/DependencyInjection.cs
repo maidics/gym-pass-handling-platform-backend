@@ -1,7 +1,9 @@
-﻿using Azure.Identity;
+﻿using System.Text.Json.Serialization;
+using Azure.Identity;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Infrastructure.Data;
 using FitPass.Web.Services;
+using Microsoft.AspNetCore.Http.Json;
 using Microsoft.AspNetCore.Mvc;
 
 using NSwag;
@@ -29,6 +31,12 @@ public static class DependencyInjection
             options.SuppressModelStateInvalidFilter = true);
 
         builder.Services.AddEndpointsApiExplorer();
+
+        //Json - Enum converter
+        builder.Services.Configure<AspNetCore.Http.Json.JsonOptions>(options =>
+        {
+            options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+        });
 
         builder.Services.AddOpenApiDocument((configure, sp) =>
         {

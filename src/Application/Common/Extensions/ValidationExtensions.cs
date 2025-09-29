@@ -43,4 +43,10 @@ public static class ValidationExtensions
             .NotEmptyWithMaxLenghtAndMessage(MaxStringLengths.PhoneNumber, propertyName)
             .Matches(@"^\+?[0-9]{7,15}$").WithMessage($"Phone number must contain 7 to 15 digits, with an optional '+' prefix and it must not contain any spaces or other special characters.");
     }
+
+    public static IRuleBuilder<T, TEnum> IsInEnumWithMessage<T, TEnum>(this IRuleBuilder<T, TEnum> rule, string propertyName) where TEnum : Enum
+    {
+        return rule
+            .IsInEnum().WithMessage($"Provided {propertyName} is not valid.");
+    }
 }
