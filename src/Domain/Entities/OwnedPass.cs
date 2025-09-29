@@ -16,9 +16,9 @@ public class OwnedPass : BaseAuditableEntity
 
         var now = new DateOnly(utcNow.Year, utcNow.Month, utcNow.Day);
 
-        return Type == PassType.Subscription && ExpirationDate.HasValue && ExpirationDate.Value < now;
+        return Type == PassType.Unlimited && ExpirationDate.HasValue && ExpirationDate.Value < now;
     }
-    private bool HasNoUsesLeft() => Type != PassType.Subscription && RemainingUses.HasValue && RemainingUses <= 0;
+    private bool HasNoUsesLeft() => Type != PassType.Unlimited && RemainingUses.HasValue && RemainingUses <= 0;
 
     public PassUseResult Use()
     {
@@ -32,7 +32,7 @@ public class OwnedPass : BaseAuditableEntity
             return PassUseResult.NoUsesLeft;
         }
 
-        if (Type != PassType.Subscription)
+        if (Type != PassType.Unlimited)
         {
             RemainingUses--;
         }

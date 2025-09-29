@@ -4,6 +4,7 @@ using FitPass.Application.Common.Interfaces;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Infrastructure.Data;
+using FitPass.Infrastructure.Data.DbSeed;
 using FitPass.Infrastructure.Data.Interceptors;
 using FitPass.Infrastructure.Identity;
 using FitPass.Infrastructure.Services;

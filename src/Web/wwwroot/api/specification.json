@@ -1233,7 +1233,7 @@
         "x-enumNames": [
           "SingleUse",
           "MultiUse",
-          "Subscription"
+          "Unlimited"
         ],
         "enum": [
           0,

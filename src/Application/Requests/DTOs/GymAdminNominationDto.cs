@@ -1,5 +1,3 @@
-using FitPass.Domain.Entities;
-
 namespace Fitpass.Application.Requests.DTOs;
 
 public class GymAdminNominationDto

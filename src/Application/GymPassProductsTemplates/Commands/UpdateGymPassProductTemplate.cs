@@ -48,7 +48,7 @@ public class UpdateGymPassProductTemplateCommandValidator : AbstractValidator<Up
             RuleFor(v => v.DaysAfterExpiring).Null().WithMessage("Multi use pass cannot expire.");
         });
 
-        When(v => v.PassType == PassType.Subscription, () =>
+        When(v => v.PassType == PassType.Unlimited, () =>
         {
             var now = DateTimeOffset.UtcNow;
 
