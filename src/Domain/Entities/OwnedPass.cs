@@ -24,11 +24,13 @@ public class OwnedPass : BaseAuditableEntity
     {
         if (IsExpired()) //do not want exception thrown: compuationally more expensive, needs a (custom exception +) handler
         {
+            AddDomainEvent(new PassExpiredEvent(this));
             return PassUseResult.Expired;
         }
 
         if (HasNoUsesLeft())
         {
+            AddDomainEvent(new PassExpiredEvent(this));
             return PassUseResult.NoUsesLeft;
         }
 
@@ -36,8 +38,6 @@ public class OwnedPass : BaseAuditableEntity
         {
             RemainingUses--;
         }
-
-        AddDomainEvent(new PassUsedEvent(this));
 
         return PassUseResult.Success;
     }

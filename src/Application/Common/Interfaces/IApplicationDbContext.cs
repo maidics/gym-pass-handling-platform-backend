@@ -11,7 +11,7 @@ public interface IApplicationDbContext
     DbSet<Gym> Gyms { get; }
     DbSet<UserGymMembership> UserGymMemberships { get; }
     DbSet<GymStaffAssigment> GymStaffAssigments { get; }
-    DbSet<OwnedPass> Passes { get; }
+    DbSet<OwnedPass> OwnedPasses { get; }
     DbSet<Request> Requests { get; }
     DbSet<GymPassProduct> GymPassProducts { get; }
     DbSet<GymPassProductTemplate> GymPassProductTemplates { get; }

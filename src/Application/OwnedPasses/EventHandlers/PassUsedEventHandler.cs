@@ -1,21 +1,27 @@
-using FitPass.Domain.Events;
-using Microsoft.Extensions.Logging;
+using FitPass.Application.Common.Interfaces;
 
-namespace FitPass.Application;
+namespace FitPass.Application.OwnedPasses.EventHandlers;
 
-public class PassUsedEventHandler : INotificationHandler<PassUsedEvent>
+public class PassExpiredEvent : INotificationHandler<Domain.Events.PassExpiredEvent>
 {
-    private readonly ILogger<PassUsedEventHandler> _logger;
-
-    public PassUsedEventHandler(ILogger<PassUsedEventHandler> logger)
+    private readonly IApplicationDbContext _context;
+    public PassExpiredEvent(IApplicationDbContext context)
     {
-        _logger = logger;
+        _context = context;
     }
 
-    public Task Handle(PassUsedEvent notification, CancellationToken cancellationToken)
+    public async Task Handle(Domain.Events.PassExpiredEvent notification, CancellationToken cancellationToken)
     {
-        _logger.LogInformation("FitPass Domain Event: {DomainEvent}", notification.GetType().Name);
+        var pass = await _context
+            .OwnedPasses
+            .FirstOrDefaultAsync(op => op.Id == notification.Pass.Id);
 
-        return Task.CompletedTask;
+        if (pass == null)
+        {
+            return;
+        }
+
+        _context.OwnedPasses.Remove(pass);
+        await _context.SaveChangesAsync();
     }
 }
