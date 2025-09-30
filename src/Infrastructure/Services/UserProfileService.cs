@@ -1,6 +1,5 @@
 using FitPass.Application.Common.Interfaces;
 using FitPass.Domain.Entities;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace FitPass.Infrastructure.Services;
@@ -8,24 +7,20 @@ namespace FitPass.Infrastructure.Services;
 public class UserProfileService : IUserProfileService
 {
     private readonly IApplicationDbContext _context;
-    private readonly UserManager<ApplicationUser> _userManager;
 
-    public UserProfileService(IApplicationDbContext context, UserManager<ApplicationUser> userManager)
+    public UserProfileService(IApplicationDbContext context)
     {
         _context = context;
-        _userManager = userManager;
     }
 
-    public async Task<IReadOnlyList<UserGymMembership>?> GetUserGymMembershipsAsync(string userId, CancellationToken cancellationToken)
+    public async Task<UserGymMembership?> GetUserGymMembershipAsync(string userId, string gymId, CancellationToken cancellationToken)
     {
-        var user = await _userManager.FindByIdAsync(userId);
+        var ugm = await _context
+            .UserGymMemberships
+            .Include(ugm => ugm.OwnedPasses)
+            .FirstOrDefaultAsync(ugm => ugm.UserId == userId && ugm.GymId == gymId);
 
-        if (user == null || user.UserGymMemberships == null)
-        {
-            return null;
-        }
-
-        return [..user.UserGymMemberships];
+        return ugm;
     }
 
     public async Task<GymStaffAssigment?> GetUserGymStaffAssigmentAsync(string userId, CancellationToken cancellationToken)

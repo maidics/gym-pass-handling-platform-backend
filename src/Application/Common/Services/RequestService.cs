@@ -28,7 +28,7 @@ public class RequestService : IRequestService
 
         if (request.Status == RequestStatus.Completed || request.Status == RequestStatus.Rejected)
         {
-            throw new BadRequestException($"This request has been {request.Status}");
+            throw new BadRequestException($"This request has been {request.Status.ToString().ToLower()}.");
         }
 
         switch (request.Type)
