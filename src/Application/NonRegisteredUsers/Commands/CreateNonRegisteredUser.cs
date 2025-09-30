@@ -1,4 +1,5 @@
-﻿using FitPass.Application.Common.Interfaces;
+﻿using Fitpass.Application.Common.Exceptions;
+using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Security;
 using FitPass.Application.Extensions;
 using FitPass.Application.NonRegisteredUsers.DTOs;
@@ -57,6 +58,36 @@ public class CreateNonRegisteredUserCommandHandler : IRequestHandler<CreateNonRe
         var gymStaffAssignment = await _userProfileService.GetUserGymStaffAssigmentAsync(_user.Id!, cancellationToken);
 
         Guard.Against.Null(gymStaffAssignment, "Id", "Failed to find the current Gym Admin or Gym Staff member.");
+
+        var existingNonRegisteredUser = await _context
+            .NonRegisteredUsers
+            .AsNoTracking()
+            .FirstOrDefaultAsync(nru => nru.Email == command.Email || nru.PhoneNumber == command.PhoneNumber, cancellationToken);
+
+        if (existingNonRegisteredUser != null && command.Email != null && existingNonRegisteredUser.Email == command.Email)
+        {
+            throw new ConflictException("This email is already in use.");
+        }
+
+        if (existingNonRegisteredUser != null && command.PhoneNumber != null && existingNonRegisteredUser.PhoneNumber == command.PhoneNumber)
+        {
+            throw new ConflictException("This phone number is already in use.");
+        }
+
+        var existingUser = await _context
+            .ApplicationUsers
+            .AsNoTracking()
+            .FirstOrDefaultAsync(au => au.Email == command.Email || au.PhoneNumber == command.PhoneNumber, cancellationToken);
+
+        if (existingUser != null && command.Email != null && existingUser.Email == command.Email)
+        {
+            throw new ConflictException("This email is already in use.");
+        }
+
+        if (existingUser != null && command.PhoneNumber != null && existingUser.PhoneNumber == command.PhoneNumber)
+        {
+            throw new ConflictException("This phone number is already in use.");
+        }
 
         var nonRegisteredUser = new NonRegisteredUser
         {
