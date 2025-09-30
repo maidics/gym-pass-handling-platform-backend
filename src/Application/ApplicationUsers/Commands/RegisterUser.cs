@@ -1,9 +1,9 @@
 using Fitpass.Application.Common.Exceptions;
-using Fitpass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Extensions;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
+using FitPass.Domain.Events.Users;
 
 namespace Fitpass.Application.ApplicationUsers.Commands;
 
@@ -70,6 +70,8 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, s
         {
             throw new ValidationException(string.Join(", ", result.Errors.Select(e => e.Description).ToList()));
         }
+
+        user.AddDomainEvent(new UserRegisteredEvent(user));
 
         var jwtToken = await _identityService.GenerateJWTTokenAsync(user, cancellationToken);
 
