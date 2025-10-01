@@ -5,6 +5,7 @@ namespace FitPass.Application.OwnedPasses.DTOs;
 
 public class OwnedPassDto
 {
+    public required string Id { get; set; }
     public required string? UserGymMembershipId { get; set; }
     public required PassType Type { get; set; }
     public required int? TotalUses { get; set; }

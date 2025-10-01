@@ -1,16 +1,17 @@
 using FitPass.Application.Common.Interfaces;
+using FitPass.Domain.Events;
 
 namespace FitPass.Application.OwnedPasses.EventHandlers;
 
-public class PassExpiredEvent : INotificationHandler<Domain.Events.PassExpiredEvent>
+public class PassExpiredEventHandler : INotificationHandler<PassExpiredEvent>
 {
     private readonly IApplicationDbContext _context;
-    public PassExpiredEvent(IApplicationDbContext context)
+    public PassExpiredEventHandler(IApplicationDbContext context)
     {
         _context = context;
     }
 
-    public async Task Handle(Domain.Events.PassExpiredEvent notification, CancellationToken cancellationToken)
+    public async Task Handle(PassExpiredEvent notification, CancellationToken cancellationToken)
     {
         var pass = await _context
             .OwnedPasses
