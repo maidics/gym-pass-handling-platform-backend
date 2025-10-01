@@ -1,6 +1,7 @@
 ﻿using System.Security.Claims;
 using System.Text;
 using Fitpass.Infrastructure.Email;
+using Fitpass.Infrastructure.Services;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
@@ -55,6 +56,7 @@ public static class DependencyInjection
         builder.Services.AddTransient<IIdentityService, IdentityService>();
         builder.Services.AddTransient<IUserProfileService, UserProfileService>();
         builder.Services.AddTransient<ILocalDevEmailService, LocalDevEmailService>();
+        builder.Services.AddScoped<IPaymentService, PaymentService>();
 
         builder.Services.AddTransient<IQrCodeService, QrCodeService>();
 

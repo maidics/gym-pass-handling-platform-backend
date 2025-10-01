@@ -79,7 +79,7 @@ public class BuyPassForNonRegisteredUserCommandHandler : IRequestHandler<BuyPass
             TotalUses = gymPassProduct.TotalUses,
             RemainingUses = gymPassProduct.TotalUses,
             ExpirationDate = gymPassProduct.GetExpirationDate(),
-            EurPrice = gymPassProduct.EurPrice
+            EurPrice = gymPassProduct.HUFPrice
         };
 
         userGymMembership.OwnedPasses.Add(ownedPass);

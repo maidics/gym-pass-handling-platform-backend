@@ -70,7 +70,7 @@ public class ApplicationUserBuyPassCommandHandler : IRequestHandler<ApplicationU
             TotalUses = gymPassProduct.TotalUses,
             RemainingUses = gymPassProduct.TotalUses,
             ExpirationDate = gymPassProduct.GetExpirationDate(),
-            EurPrice = gymPassProduct.EurPrice
+            EurPrice = gymPassProduct.HUFPrice
         });
 
         var receipt = new PurchaseReceipt
