@@ -2,7 +2,7 @@
 
 namespace FitPass.Domain.Entities;
 
-public class ApplicationUser : Microsoft.AspNetCore.Identity.IdentityUser
+public class ApplicationUser : Microsoft.AspNetCore.Identity.IdentityUser, IHasDomainEvents
 {
     public required string FirstName { get; set; }
     public required string LastName { get; set; }

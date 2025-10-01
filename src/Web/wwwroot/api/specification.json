@@ -538,6 +538,122 @@
         ]
       }
     },
+    "/api/OwnedPasses/NonRegisteredUsers/{nonRegisteredUserId}/{passId}/Use": {
+      "put": {
+        "tags": [
+          "OwnedPasses"
+        ],
+        "operationId": "UseNonRegisteredUserOwnedPass",
+        "parameters": [
+          {
+            "name": "nonRegisteredUserId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "passId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/OwnedPasses/NonRegisteredUsers/{nonRegisteredUserId}": {
+      "get": {
+        "tags": [
+          "OwnedPasses"
+        ],
+        "operationId": "GetNonRegisteredUserOwnedPassesForCurrentGym",
+        "parameters": [
+          {
+            "name": "nonRegisteredUserId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/OwnedPassDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/OwnedPasses/My/{gymId}": {
+      "get": {
+        "tags": [
+          "OwnedPasses"
+        ],
+        "operationId": "GetUserOwnedPassesForGym",
+        "parameters": [
+          {
+            "name": "gymId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/OwnedPassDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
     "/api/GymPassProductTemplates": {
       "post": {
         "tags": [
@@ -1379,6 +1495,12 @@
               },
               "isGymMember": {
                 "type": "boolean"
+              },
+              "domainEvents": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/BaseEvent"
+                }
               }
             }
           }
@@ -1779,6 +1901,38 @@
           }
         }
       },
+      "OwnedPassDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "userGymMembershipId": {
+            "type": "string",
+            "nullable": true
+          },
+          "type": {
+            "$ref": "#/components/schemas/PassType"
+          },
+          "totalUses": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "remainingUses": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "expirationDate": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          },
+          "eurPrice": {
+            "type": "number",
+            "format": "decimal"
+          }
+        }
+      },
       "CreateGymPassProductTemplateCommand": {
         "type": "object",
         "additionalProperties": false,
@@ -2076,38 +2230,6 @@
             "items": {
               "$ref": "#/components/schemas/OwnedPassDto"
             }
-          }
-        }
-      },
-      "OwnedPassDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "userGymMembershipId": {
-            "type": "string",
-            "nullable": true
-          },
-          "type": {
-            "$ref": "#/components/schemas/PassType"
-          },
-          "totalUses": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "remainingUses": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "expirationDate": {
-            "type": "string",
-            "format": "date",
-            "nullable": true
-          },
-          "eurPrice": {
-            "type": "number",
-            "format": "decimal"
           }
         }
       },

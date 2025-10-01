@@ -1,16 +1,22 @@
 using System.Net.Mail;
 using FitPass.Application.Common.Interfaces;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace Fitpass.Infrastructure.Email;
 public class LocalDevEmailService : ILocalDevEmailService
 {
     private readonly string _pickupDirectory;
     private readonly MailAddress _noreplyAddress = new MailAddress("no-reply@fitpass.com");
+    private readonly ILogger<LocalDevEmailService> _logger;
 
-    public LocalDevEmailService(IWebHostEnvironment environment)
+    public LocalDevEmailService(IWebHostEnvironment environment, ILogger<LocalDevEmailService> logger)
     {
+        _logger = logger;
+
         _pickupDirectory = Path.Combine(environment.ContentRootPath, "EmailPickup");
+
+        _logger.LogInformation($"Local email path set to: {_pickupDirectory}");
 
         if (!Directory.Exists(_pickupDirectory))
         {

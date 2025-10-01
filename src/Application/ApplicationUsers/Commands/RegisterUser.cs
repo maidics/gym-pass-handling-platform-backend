@@ -73,6 +73,8 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, s
 
         user.AddDomainEvent(new UserRegisteredEvent(user));
 
+        await _context.SaveChangesAsync();
+
         var jwtToken = await _identityService.GenerateJWTTokenAsync(user, cancellationToken);
 
         return jwtToken;

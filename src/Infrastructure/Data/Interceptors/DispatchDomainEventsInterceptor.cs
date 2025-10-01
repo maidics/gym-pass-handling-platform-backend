@@ -1,4 +1,5 @@
 ﻿using FitPass.Domain.Common;
+using FitPass.Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -34,7 +35,7 @@ public class DispatchDomainEventsInterceptor : SaveChangesInterceptor
         if (context == null) return;
 
         var entities = context.ChangeTracker
-            .Entries<BaseEntity>()
+            .Entries<IHasDomainEvents>()
             .Where(e => e.Entity.DomainEvents.Any())
             .Select(e => e.Entity);
 
