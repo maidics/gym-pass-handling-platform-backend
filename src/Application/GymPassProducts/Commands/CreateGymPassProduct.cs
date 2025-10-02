@@ -67,7 +67,7 @@ public class CreateGymPassProductCommandValidator : AbstractValidator<CreateGymP
 
 public class CreateGymPassProductCommandHandler : IRequestHandler<CreateGymPassProductCommand>
 {
-    public async Task Handle(CreateGymPassProductCommand request, CancellationToken cancellationToken)
+    public Task Handle(CreateGymPassProductCommand request, CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
     }

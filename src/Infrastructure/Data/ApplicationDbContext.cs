@@ -12,6 +12,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
     public DbSet<ApplicationUser> ApplicationUsers => Set<ApplicationUser>(); 
+    public DbSet<UserPaymentProfile> UserPaymentProfiles => Set<UserPaymentProfile>();
+
     public DbSet<NonRegisteredUser> NonRegisteredUsers => Set<NonRegisteredUser>();
     public DbSet<Gym> Gyms => Set<Gym>();
     public DbSet<UserGymMembership> UserGymMemberships => Set<UserGymMembership>();
