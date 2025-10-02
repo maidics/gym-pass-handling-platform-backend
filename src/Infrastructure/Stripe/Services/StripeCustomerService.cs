@@ -48,9 +48,16 @@ public class StripeCustomerService : IStripeCustomerService
         {
             _logger.LogError(ex.ToErrorString(), ex);
         }
+
+        throw new NotImplementedException();
     }
 
     public Task<Result> DeleteCustomer(ApplicationUser user)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<Result> DeleteCustomer(ApplicationUser user, CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
     }

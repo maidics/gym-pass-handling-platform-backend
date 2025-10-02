@@ -1,4 +1,5 @@
 using FitPass.Infrastructure.Data;
+using Stripe;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +10,18 @@ builder.AddInfrastructureServices();
 builder.AddWebServices();
 
 var app = builder.Build();
+
+var httpClientFactory = app.Services.GetRequiredService<IHttpClientFactory>();
+var resilientHttpClient = httpClientFactory.CreateClient("StripeClient");
+
+var stripeAdapter = new SystemNetHttpClient(resilientHttpClient);
+
+var stripeClient = new StripeClient(
+    apiKey: "TODO",
+    httpClient: stripeAdapter
+);
+
+StripeConfiguration.StripeClient = stripeClient;
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

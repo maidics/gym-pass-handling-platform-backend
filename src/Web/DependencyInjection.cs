@@ -3,7 +3,6 @@ using Azure.Identity;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Infrastructure.Data;
 using FitPass.Web.Services;
-using Microsoft.AspNetCore.Http.Json;
 using Microsoft.AspNetCore.Mvc;
 
 using NSwag;

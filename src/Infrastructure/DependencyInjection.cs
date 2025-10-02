@@ -1,7 +1,8 @@
-﻿using System.Security.Claims;
+﻿using System.Net;
+using System.Security.Claims;
 using System.Text;
 using Fitpass.Infrastructure.Email;
-using Fitpass.Infrastructure.Stripe;
+using Fitpass.Infrastructure.Stripe.Services;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
@@ -11,12 +12,16 @@ using FitPass.Infrastructure.Data.Interceptors;
 using FitPass.Infrastructure.Identity;
 using FitPass.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Http.Resilience;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using Polly;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -56,7 +61,6 @@ public static class DependencyInjection
         builder.Services.AddTransient<IIdentityService, IdentityService>();
         builder.Services.AddTransient<IUserProfileService, UserProfileService>();
         builder.Services.AddTransient<ILocalDevEmailService, LocalDevEmailService>();
-        //builder.Services.AddScoped<IPaymentService, PaymentService>();
         builder.Services.AddTransient<IQrCodeService, QrCodeService>();
 
         builder.Services.AddScoped<IStripeCustomerService, StripeCustomerService>();
@@ -89,7 +93,39 @@ public static class DependencyInjection
                 };
             });
 
-        builder.Services.AddAuthorization(options =>
-            options.AddPolicy(Policies.CanPurge, policy => policy.RequireRole(Roles.AppAdministrator)));
+        builder.Services.AddHttpClient();
+
+        //Stripe Resilience:
+        builder.Services.AddHttpClient("StripeClient")
+            .AddResilienceHandler("StripeResiliencePolicy", pipelineBuilder =>
+            {
+                pipelineBuilder.AddRetry(new HttpRetryStrategyOptions
+                {
+                    ShouldHandle = args => ValueTask.FromResult(args.Outcome switch
+                    {
+                        { Exception: HttpRequestException } => true,
+                        { Result.StatusCode: HttpStatusCode.TooManyRequests } => true,
+                        { Result.StatusCode: >= HttpStatusCode.InternalServerError } => true,
+                        _ => false
+                    }),
+                    BackoffType = DelayBackoffType.Exponential,
+                    MaxRetryAttempts = 5,
+                    UseJitter = true,
+
+                    OnRetry = args =>
+                    {
+                        var loggerFactory = builder.Services.BuildServiceProvider().GetRequiredService<ILoggerFactory>();
+                        var logger = loggerFactory.CreateLogger("StripeResilience");
+
+                        logger.LogWarning(
+                            "Retrying request to Stripe... Attempt: {AttemptNumber}, Reason: {Reason}",
+                            args.AttemptNumber + 1,
+                            args.Outcome.Exception?.Message ?? args.Outcome.Result?.StatusCode.ToString()
+                        );
+
+                        return ValueTask.CompletedTask;
+                    }
+                });
+            });
     }
 }
