@@ -75,5 +75,14 @@ public class PaymentService : IPaymentService
         await _context.SaveChangesAsync();
     }
     
-    
+    public async Task CreateCustomer(ApplicationUser user, CancellationToken cancellationToken)
+    {
+        Guard.Against.Null(user, "User", "User has no payment profile.");
+
+        var customerOptions = new CustomerCreateOptions
+        {
+            Address = user.PaymentProfile.Address,
+
+        };
+    }
 }

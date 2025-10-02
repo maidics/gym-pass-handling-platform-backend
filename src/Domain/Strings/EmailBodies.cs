@@ -2,6 +2,11 @@ namespace FitPass.Domain.Strings;
 
 public static class EmailBodies
 {
+    public static string Placeholder()
+    {
+        return "{Placeholder Email Body}";
+    }
+
     public static string Welcome(string firstName)
     {
         return $"Hello {firstName}," +
