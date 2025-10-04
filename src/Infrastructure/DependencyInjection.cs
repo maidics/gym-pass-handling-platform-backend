@@ -11,6 +11,7 @@ using FitPass.Infrastructure.Data.DbSeed;
 using FitPass.Infrastructure.Data.Interceptors;
 using FitPass.Infrastructure.Identity;
 using FitPass.Infrastructure.Services;
+using FitPass.Infrastructure.Stripe;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -62,6 +63,8 @@ public static class DependencyInjection
         builder.Services.AddTransient<IUserProfileService, UserProfileService>();
         builder.Services.AddTransient<ILocalDevEmailService, LocalDevEmailService>();
         builder.Services.AddTransient<IQrCodeService, QrCodeService>();
+
+        builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection(StripeSettings.SectionName));
 
         builder.Services.AddScoped<IStripeCustomerService, StripeCustomerService>();
         builder.Services.AddScoped<IStripeProductService, StripeProductService>();

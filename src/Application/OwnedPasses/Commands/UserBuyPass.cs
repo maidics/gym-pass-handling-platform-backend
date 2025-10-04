@@ -75,7 +75,7 @@ public class ApplicationUserBuyPassCommandHandler : IRequestHandler<ApplicationU
 
         var receipt = new PurchaseReceipt
         {
-            ApplicationUserId = _user.Id,
+            UserPaymentProfileId = userGymMembership.Id,
             GymPassProduct = gymPassProduct
         };
 

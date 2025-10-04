@@ -54,6 +54,7 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, s
             throw new ConflictException("User with this email already exists.");
         }
 
+
         var user = new ApplicationUser
         {
             UserName = command.Email,
@@ -61,7 +62,8 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, s
             LastName = command.LastName,
             Email = command.Email,
             UserGymMemberships = null,
-            GymStaffAssigment = null
+            GymStaffAssigment = null,
+            PaymentProfile = null //TODO handle this
         };
 
         var result = await _identityService.CreateUserAsync(user, command.Password, cancellationToken);

@@ -82,7 +82,8 @@ public class RegisterNonRegisteredUserCommandHandler : IRequestHandler<RegisterN
             UserGymMemberships = [],
             GymStaffAssigment = null,
             Email = nonRegisteredUser.Email,
-            PhoneNumber = nonRegisteredUser.PhoneNumber
+            PhoneNumber = nonRegisteredUser.PhoneNumber,
+            PaymentProfile = null,
         };
 
         var result = await _identityService.CreateUserAsync(applicationUser, command.Password, cancellationToken);

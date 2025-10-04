@@ -16,7 +16,7 @@ public class GymPassProduct : BaseEntity
     public required decimal HUFPrice { get; set; }
     public required bool IsActive { get; set; }
     public bool IsCreatedOnStripe { get; set; } = false;
-    public string? StripeProductId { get; set; }
+    public bool HasPriceOnStripe { get; set; } = false;
     public Gym Gym { get; set; } = null!;
 
     public DateOnly? GetExpirationDate()

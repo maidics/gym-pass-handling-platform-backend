@@ -3,18 +3,21 @@ using FitPass.Application.Common.Models;
 using FitPass.Domain.Entities;
 using FitPass.Infrastructure.Stripe;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Stripe;
 
 namespace Fitpass.Infrastructure.Stripe.Services;
 
 public class StripeCustomerService : IStripeCustomerService
 {
+    private readonly StripeSettings _settings;
     private readonly ILogger<StripeCustomerService> _logger;
     private readonly CustomerService _customerService;
     private readonly IApplicationDbContext _context;
 
-    public StripeCustomerService(ILogger<StripeCustomerService> logger, CustomerService customerService, IApplicationDbContext context)
+    public StripeCustomerService(IOptions<StripeSettings> options, ILogger<StripeCustomerService> logger, CustomerService customerService, IApplicationDbContext context)
     {
+        _settings = options.Value;
         _logger = logger;
         _customerService = customerService;
         _context = context;
