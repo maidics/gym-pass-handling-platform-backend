@@ -38,6 +38,41 @@ public class StripePriceService : IStripePriceService
 
             var price = await _priceService.CreateAsync(priceOptions, null, cancellationToken);
 
+            gymPassProduct.HasPriceOnStripe = true;
+            gymPassProduct.StripePriceId = price.Id;
+
+            await _context.SaveChangesAsync();
+
+            return Result.Success();
+        } catch (StripeException ex)
+        {
+            return ex.LogAndGetResult<StripePriceService>(_logger);
+        }
+    }
+
+    public async Task<Result> ArchivePrice(GymPassProduct gymPassProduct, CancellationToken cancellationToken)
+    {
+        try
+        {
+            if (!gymPassProduct.HasPriceOnStripe || gymPassProduct.StripePriceId == null)
+            {
+                return Result.Failure(["Price does not exist for this product."]);
+            }
+
+            var priceOptions = new PriceUpdateOptions
+            {
+                Active = false
+            };
+
+            cancellationToken.ThrowIfCancellationRequested();
+
+            await _priceService.UpdateAsync(gymPassProduct.StripePriceId, priceOptions, cancellationToken: cancellationToken);
+
+            gymPassProduct.HasPriceOnStripe = false;
+            gymPassProduct.StripePriceId = null;
+
+            await _context.SaveChangesAsync();
+
             return Result.Success();
         } catch (StripeException ex)
         {
