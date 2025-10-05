@@ -1,4 +1,5 @@
 using FitPass.Application.Common.Interfaces;
+using FitPass.Application.Common.Models;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
 using FitPass.Infrastructure.Stripe;
@@ -23,7 +24,7 @@ public class StripeProductService : IStripeProductService
         _context = context;
     }
 
-    public async Task CreateProduct(GymPassProduct gymPassProduct, CancellationToken cancellationToken)
+    public async Task<Result> CreateProduct(GymPassProduct gymPassProduct, CancellationToken cancellationToken)
     {
         try
         {
@@ -37,15 +38,18 @@ public class StripeProductService : IStripeProductService
                 Type = "service"
             };
 
+            cancellationToken.ThrowIfCancellationRequested();
+
             var product = await _productService.CreateAsync(productOptions, null, cancellationToken);
 
             gymPassProduct.IsCreatedOnStripe = true;
 
             await _context.SaveChangesAsync();
+
+            return Result.Success();
         } catch (StripeException ex)
         {
-            _logger.LogError($"Failed to create product on stripe: {ex.Classify()}.");
-            throw new NotImplementedException();
+            return ex.LogAndGetResult<StripeProductService>(_logger);
         }
     }
 }

@@ -1,8 +1,9 @@
+using FitPass.Application.Common.Models;
 using FitPass.Domain.Entities;
 
 namespace FitPass.Application.Common.Interfaces;
 
 public interface IStripePriceService
 {
-    Task CreatePrice(GymPassProduct gymPassProduct, CancellationToken cancellationToken);
+    Task<Result> CreatePrice(GymPassProduct gymPassProduct, CancellationToken cancellationToken);
 }

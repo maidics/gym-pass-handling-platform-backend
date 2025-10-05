@@ -12,6 +12,7 @@ public partial class ApplicationDbContextInitialiser
     {
         List<Request> requests = [
                 new Request {
+                    Id = "Request1",
                     Title = "Gym Creation Request",
                     Description = "Gym creation description",
                     PriorityLevel = PriorityLevel.High,
@@ -27,6 +28,7 @@ public partial class ApplicationDbContextInitialiser
                         )
                 },
                 new Request {
+                    Id = "Request2",
                     Title = "Gym Admin Nomination",
                     Description = "Gym admin nomination description",
                     PriorityLevel = PriorityLevel.Medium,

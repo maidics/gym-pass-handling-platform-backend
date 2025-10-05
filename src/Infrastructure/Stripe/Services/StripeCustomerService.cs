@@ -33,6 +33,8 @@ public class StripeCustomerService : IStripeCustomerService
                 Email = user.Email,
             };
 
+            cancellationToken.ThrowIfCancellationRequested();
+
             var customer = await _customerService.CreateAsync(customerOptions, null, cancellationToken);
 
             var paymentProfile = new UserPaymentProfile
@@ -46,22 +48,36 @@ public class StripeCustomerService : IStripeCustomerService
             user.UserPaymentProfileId = paymentProfile.Id;
 
             await _context.SaveChangesAsync();
+
+            return Result.Success();
         }
         catch (StripeException ex)
         {
-            _logger.LogError(ex.ToErrorString(), ex);
+            return ex.LogAndGetResult<StripeCustomerService>(_logger);
         }
-
-        throw new NotImplementedException();
     }
 
-    public Task<Result> DeleteCustomer(ApplicationUser user)
+    public async Task<Result> DeleteCustomer(ApplicationUser user, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
-    }
+        try
+        {
+            if (user.PaymentProfile == null || user.PaymentProfile.StripeCustomerId == null)
+            {
+                return Result.Failure(["User is not a Stripe customer."]);
+            }
 
-    public Task<Result> DeleteCustomer(ApplicationUser user, CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException();
+            cancellationToken.ThrowIfCancellationRequested();
+
+            await _customerService.DeleteAsync(user.PaymentProfile.StripeCustomerId);
+
+            user.PaymentProfile.StripeCustomerId = null;
+
+            await _context.SaveChangesAsync();
+
+            return Result.Success();
+        } catch (StripeException ex)
+        {
+            return ex.LogAndGetResult<StripeCustomerService>(_logger);
+        }
     }
 }

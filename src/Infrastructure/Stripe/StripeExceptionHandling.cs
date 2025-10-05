@@ -1,4 +1,7 @@
 using System.Net;
+using System.Runtime.CompilerServices;
+using FitPass.Application.Common.Models;
+using Microsoft.Extensions.Logging;
 using Stripe;
 
 namespace FitPass.Infrastructure.Stripe;
@@ -11,7 +14,7 @@ public enum StripeFailureType
     UnexpectedError //everything else
 }
 
-public record StripeFailureDetails(StripeFailureType StripeFailureType, string UserErrorMessage, Exception OriginalException);
+public record StripeFailureDetails(StripeFailureType Type, string UserErrorMessage, Exception OriginalException);
 
 public static class StripeExceptionClassifier
 {
@@ -35,6 +38,23 @@ public static class StripeExceptionClassifier
 
             _ => new StripeFailureDetails(StripeFailureType.UnexpectedError, unexpectedErrorMessage, ex),
         };
+    }
+
+    public static Result LogAndGetResult<T>(this StripeException ex, ILogger<T> logger, [CallerMemberName] string memberName = "", [CallerFilePath] string callerFilePath = "", [CallerLineNumber] int callerLineNumber = -1) where T : class
+    {
+        var failureDetails = ex.Classify();
+
+        logger.LogError(
+            ex,
+            "StripeException: {Message}. Failure type: {FailureType} in {MemberName} at {SourceFilePath}:{SourceLineNumber}",
+            ex.Message,
+            failureDetails.Type,
+            memberName,
+            callerFilePath,
+            callerLineNumber
+        );
+
+        return Result.Failure([failureDetails.UserErrorMessage]);
     }
 
     public static string ToErrorString(this StripeException ex)

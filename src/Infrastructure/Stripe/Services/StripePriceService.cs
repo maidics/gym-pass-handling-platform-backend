@@ -1,4 +1,5 @@
 using FitPass.Application.Common.Interfaces;
+using FitPass.Application.Common.Models;
 using FitPass.Domain.Entities;
 using FitPass.Infrastructure.Stripe;
 using Microsoft.Extensions.Logging;
@@ -22,15 +23,25 @@ public class StripePriceService : IStripePriceService
         _context = context;
     }
 
-    public async Task CreatePrice(GymPassProduct gymPassProduct, CancellationToken cancellationToken)
+    public async Task<Result> CreatePrice(GymPassProduct gymPassProduct, CancellationToken cancellationToken)
     {
-        var priceOptions = new PriceCreateOptions
+        try
         {
-            Product = gymPassProduct.Id,
-            Currency = _settings.Currency,
-            UnitAmountDecimal = gymPassProduct.HUFPrice
-        };
+            var priceOptions = new PriceCreateOptions
+            {
+                Product = gymPassProduct.Id,
+                Currency = _settings.Currency,
+                UnitAmountDecimal = gymPassProduct.HUFPrice
+            };
 
-        var price = await _priceService.CreateAsync(priceOptions, null, cancellationToken);
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var price = await _priceService.CreateAsync(priceOptions, null, cancellationToken);
+
+            return Result.Success();
+        } catch (StripeException ex)
+        {
+            return ex.LogAndGetResult<StripePriceService>(_logger);
+        }
     }
 }
