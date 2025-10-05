@@ -1472,6 +1472,18 @@
               "lastName": {
                 "type": "string"
               },
+              "userPaymentProfileId": {
+                "type": "string",
+                "nullable": true
+              },
+              "paymentProfile": {
+                "nullable": true,
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/UserPaymentProfile"
+                  }
+                ]
+              },
               "userGymMemberships": {
                 "type": "array",
                 "nullable": true,
@@ -1505,6 +1517,50 @@
             }
           }
         ]
+      },
+      "UserPaymentProfile": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BaseEntity"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "applicationUserId": {
+                "type": "string"
+              },
+              "stripeCustomerId": {
+                "type": "string",
+                "nullable": true
+              },
+              "applicationUser": {
+                "$ref": "#/components/schemas/ApplicationUser"
+              }
+            }
+          }
+        ]
+      },
+      "BaseEntity": {
+        "type": "object",
+        "x-abstract": true,
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "domainEvents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BaseEvent"
+            }
+          }
+        }
+      },
+      "BaseEvent": {
+        "type": "object",
+        "x-abstract": true,
+        "additionalProperties": false
       },
       "GymStaffAssigment": {
         "type": "object",
@@ -1587,6 +1643,12 @@
               "gymId": {
                 "type": "string"
               },
+              "name": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
               "type": {
                 "$ref": "#/components/schemas/PassType"
               },
@@ -1600,11 +1662,17 @@
                 "format": "int32",
                 "nullable": true
               },
-              "eurPrice": {
+              "hufPrice": {
                 "type": "number",
                 "format": "decimal"
               },
-              "isAvailable": {
+              "isActive": {
+                "type": "boolean"
+              },
+              "isCreatedOnStripe": {
+                "type": "boolean"
+              },
+              "hasPriceOnStripe": {
                 "type": "boolean"
               },
               "gym": {
@@ -1613,27 +1681,6 @@
             }
           }
         ]
-      },
-      "BaseEntity": {
-        "type": "object",
-        "x-abstract": true,
-        "additionalProperties": false,
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "domainEvents": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/BaseEvent"
-            }
-          }
-        }
-      },
-      "BaseEvent": {
-        "type": "object",
-        "x-abstract": true,
-        "additionalProperties": false
       },
       "Request": {
         "allOf": [
@@ -1905,6 +1952,9 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
+          "id": {
+            "type": "string"
+          },
           "userGymMembershipId": {
             "type": "string",
             "nullable": true

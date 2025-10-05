@@ -23,7 +23,8 @@ public partial class ApplicationDbContextInitialiser
                     FirstName = "App",
                     LastName = "Admin",
                     UserGymMemberships = null,
-                    GymStaffAssigment = null
+                    GymStaffAssigment = null,
+                    PaymentProfile = null
                 },
                 Roles.AppAdministrator,
                 "Password123_"
@@ -42,7 +43,8 @@ public partial class ApplicationDbContextInitialiser
                         GymId = gymId1,
                         EscalationEmail = "escalation@localhost",
                         Role = Roles.GymAdministrator
-                    }
+                    },
+                    PaymentProfile = null
                 },
                 Roles.GymAdministrator,
                 "Password123_"
@@ -62,7 +64,8 @@ public partial class ApplicationDbContextInitialiser
                         GymId = gymId1,
                         EscalationEmail = "escalation@localhost",
                         Role = Roles.GymStaff
-                    }
+                    },
+                    PaymentProfile = null
                 },
                 Roles.GymStaff,
                 "Password123_"
@@ -76,7 +79,11 @@ public partial class ApplicationDbContextInitialiser
                     FirstName = "Localhost",
                     LastName = "User1",
                     UserGymMemberships = [],
-                    GymStaffAssigment = null
+                    GymStaffAssigment = null,
+                    PaymentProfile = new UserPaymentProfile 
+                    {
+                        ApplicationUserId = "User1",
+                    }
                 },
                 string.Empty,
                 "Password123_"
@@ -90,7 +97,11 @@ public partial class ApplicationDbContextInitialiser
                     FirstName = "Localhost",
                     LastName = "User2",
                     UserGymMemberships = [],
-                    GymStaffAssigment = null
+                    GymStaffAssigment = null,
+                    PaymentProfile = new UserPaymentProfile 
+                    {
+                        ApplicationUserId = "User2"
+                    }
                 },
                 string.Empty,
                 "Password123_"

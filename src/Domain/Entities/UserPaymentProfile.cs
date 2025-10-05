@@ -4,7 +4,7 @@ namespace FitPass.Domain.Entities;
 public class UserPaymentProfile : BaseEntity
 {
     public required string ApplicationUserId { get; set; }
-    public required string StripeCustomerId { get; set; }
+    public string? StripeCustomerId { get; set; } = null;
     List<PurchaseReceipt> PurchaseReceipts { get; set; } = [];
     public ApplicationUser ApplicationUser { get; set; } = null!;
     /*

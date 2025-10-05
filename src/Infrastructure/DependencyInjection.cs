@@ -23,6 +23,7 @@ using Microsoft.Extensions.Http.Resilience;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Polly;
+using Stripe;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -59,12 +60,16 @@ public static class DependencyInjection
             .AddApiEndpoints();
 
         builder.Services.AddSingleton(TimeProvider.System);
-        builder.Services.AddTransient<IIdentityService, IdentityService>();
+        builder.Services.AddTransient<IIdentityService, FitPass.Infrastructure.Identity.IdentityService>();
         builder.Services.AddTransient<IUserProfileService, UserProfileService>();
         builder.Services.AddTransient<ILocalDevEmailService, LocalDevEmailService>();
         builder.Services.AddTransient<IQrCodeService, QrCodeService>();
 
         builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection(StripeSettings.SectionName));
+
+        builder.Services.AddScoped<CustomerService>();
+        builder.Services.AddScoped<ProductService>();
+        builder.Services.AddScoped<PriceService>();
 
         builder.Services.AddScoped<IStripeCustomerService, StripeCustomerService>();
         builder.Services.AddScoped<IStripeProductService, StripeProductService>();
