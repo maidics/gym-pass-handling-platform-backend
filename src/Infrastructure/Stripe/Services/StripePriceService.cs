@@ -23,7 +23,7 @@ public class StripePriceService : IStripePriceService
         _context = context;
     }
 
-    public async Task<Result> CreatePrice(GymPassProduct gymPassProduct, CancellationToken cancellationToken)
+    public async Task<Result> CreatePrice(GymPassProduct gymPassProduct)
     {
         try
         {
@@ -34,14 +34,10 @@ public class StripePriceService : IStripePriceService
                 UnitAmountDecimal = gymPassProduct.HUFPrice
             };
 
-            cancellationToken.ThrowIfCancellationRequested();
-
-            var price = await _priceService.CreateAsync(priceOptions, null, cancellationToken);
+            var price = await _priceService.CreateAsync(priceOptions, null);
 
             gymPassProduct.HasPriceOnStripe = true;
             gymPassProduct.StripePriceId = price.Id;
-
-            await _context.SaveChangesAsync();
 
             return Result.Success();
         } catch (StripeException ex)
@@ -50,7 +46,7 @@ public class StripePriceService : IStripePriceService
         }
     }
 
-    public async Task<Result> ArchivePrice(GymPassProduct gymPassProduct, CancellationToken cancellationToken)
+    public async Task<Result> ArchivePrice(GymPassProduct gymPassProduct)
     {
         try
         {
@@ -64,14 +60,10 @@ public class StripePriceService : IStripePriceService
                 Active = false
             };
 
-            cancellationToken.ThrowIfCancellationRequested();
-
-            await _priceService.UpdateAsync(gymPassProduct.StripePriceId, priceOptions, cancellationToken: cancellationToken);
+            await _priceService.UpdateAsync(gymPassProduct.StripePriceId, priceOptions);
 
             gymPassProduct.HasPriceOnStripe = false;
             gymPassProduct.StripePriceId = null;
-
-            await _context.SaveChangesAsync();
 
             return Result.Success();
         } catch (StripeException ex)

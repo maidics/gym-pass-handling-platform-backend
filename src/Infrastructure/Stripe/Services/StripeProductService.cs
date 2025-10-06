@@ -24,7 +24,7 @@ public class StripeProductService : IStripeProductService
         _context = context;
     }
 
-    public async Task<Result> CreateProduct(GymPassProduct gymPassProduct, CancellationToken cancellationToken)
+    public async Task<Result> CreateProduct(GymPassProduct gymPassProduct)
     {
         try
         {
@@ -38,13 +38,9 @@ public class StripeProductService : IStripeProductService
                 Type = "service"
             };
 
-            cancellationToken.ThrowIfCancellationRequested();
-
-            var product = await _productService.CreateAsync(productOptions, null, cancellationToken);
+            var product = await _productService.CreateAsync(productOptions, null);
 
             gymPassProduct.IsCreatedOnStripe = true;
-
-            await _context.SaveChangesAsync();
 
             return Result.Success();
         } catch (StripeException ex)
