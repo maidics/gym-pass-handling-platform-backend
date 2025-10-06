@@ -1,6 +1,5 @@
 using System.Text.Json;
 using FitPass.Application.Common.Interfaces;
-using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Security;
 using FitPass.Application.Extensions;
 using FitPass.Application.Requests.DTOs;
@@ -10,12 +9,12 @@ using FitPass.Domain.Enums;
 
 namespace FitPass.Application.Requests.Commands;
 
-[Authorize]
+[Authorize(Roles = Roles.PendingGymAdministrator)]
 public record CreateGymCreationRequestCommand(
     string RequestDescription,
     PriorityLevel PriorityLevel,
     CreateGymDto CreateGymDTO
-) : IRequest<Result>;
+) : IRequest;
 
 public class CreateGymCreationRequestCommandValidator : AbstractValidator<CreateGymCreationRequestCommand>
 {
@@ -25,9 +24,9 @@ public class CreateGymCreationRequestCommandValidator : AbstractValidator<Create
 
         RuleFor(v => v.CreateGymDTO.GymAddress).NotEmptyWithMaxLenghtAndMessage(MaxStringLengths.Address, "Gym address");
 
-        RuleFor(v => v.CreateGymDTO.GymStatus).NotEmptyWithMessage("Gym status");
+        RuleFor(v => v.CreateGymDTO.GymStatus).IsInEnumWithMessage("Gym status");
 
-        RuleFor(v => v.CreateGymDTO.GymTier).NotEmptyWithMessage("Gym tier");
+        RuleFor(v => v.CreateGymDTO.GymTier).IsInEnumWithMessage("Gym tier");
 
         RuleFor(v => v.CreateGymDTO.EscalationEmail)
             .NotEmptyWithMaxLenghtAndMessage(MaxStringLengths.Email, "Escalation email")
@@ -35,7 +34,7 @@ public class CreateGymCreationRequestCommandValidator : AbstractValidator<Create
     }
 }
 
-public class CreateGymCreationRequestCommandHandler : IRequestHandler<CreateGymCreationRequestCommand, Result>
+public class CreateGymCreationRequestCommandHandler : IRequestHandler<CreateGymCreationRequestCommand>
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
@@ -46,27 +45,8 @@ public class CreateGymCreationRequestCommandHandler : IRequestHandler<CreateGymC
         _user = user;
     }
 
-    public async Task<Result> Handle(CreateGymCreationRequestCommand command, CancellationToken cancellationToken)
+    public async Task Handle(CreateGymCreationRequestCommand command, CancellationToken cancellationToken)
     {
-        _user.ThrowIfIdNull();
-
-        var user = await _context.ApplicationUsers.FirstOrDefaultAsync(au => au.Id == _user.Id, cancellationToken);
-
-        if (user == null)
-        {
-            throw new UnauthorizedAccessException();
-        }
-
-        if (user.IsGymMember)
-        {
-            return Result.Failure(["A user who has purchased passes before cannot be nominated to Gym Administrator at Gym Creation. Please register a new account for this action."]);
-        }
-
-        if (user.GymStaffAssigment != null)
-        {
-            return Result.Failure(["You are already a Gym Administrator, you cannot be associated with two gyms."]);
-        }
-
         var gymCreationRequest = new Request
         {
             Id = Guid.NewGuid().ToString(),
@@ -79,10 +59,6 @@ public class CreateGymCreationRequestCommandHandler : IRequestHandler<CreateGymC
 
         await _context.Requests.AddAsync(gymCreationRequest, cancellationToken);
 
-        user.Requests.Add(gymCreationRequest);
-
         await _context.SaveChangesAsync(cancellationToken);
-
-        return Result.Success();
     }
 }

@@ -4,14 +4,14 @@ using FitPass.Domain.Strings;
 
 namespace FitPass.Application.ApplicationUsers.EventHandlers;
 
-public class GymAdminRegisteredEventHandler : INotificationHandler<GymAdminRegisteredEvent>
+public class PendingGymAdminRegisteredEventHandler : INotificationHandler<PendingGymAdminRegisteredEvent>
 {
     private readonly ILocalDevEmailService _localDevEmailService;
-    public GymAdminRegisteredEventHandler(ILocalDevEmailService localDevEmailService)
+    public PendingGymAdminRegisteredEventHandler(ILocalDevEmailService localDevEmailService)
     {
         _localDevEmailService = localDevEmailService;
     }
-    public async Task Handle(GymAdminRegisteredEvent notification, CancellationToken cancellationToken)
+    public async Task Handle(PendingGymAdminRegisteredEvent notification, CancellationToken cancellationToken)
     {
         await _localDevEmailService.SendEmailAsync(notification.User.Email!, EmailBodies.Placeholder(), EmailBodies.Placeholder());
     }

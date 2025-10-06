@@ -27,13 +27,11 @@ public class BuyPassForNonRegisteredUserCommandHandler : IRequestHandler<BuyPass
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
-    private readonly IUserProfileService _userProfileService;
 
-    public BuyPassForNonRegisteredUserCommandHandler(IApplicationDbContext context, IUser user, IUserProfileService userProfileService)
+    public BuyPassForNonRegisteredUserCommandHandler(IApplicationDbContext context, IUser user)
     {
         _context = context;
         _user = user;
-        _userProfileService = userProfileService;
     }
     public async Task Handle(BuyPassForNonRegisteredUserCommand command, CancellationToken cancellationToken)
     {
@@ -51,7 +49,9 @@ public class BuyPassForNonRegisteredUserCommandHandler : IRequestHandler<BuyPass
 
         Guard.Against.NotFound(command.GymPassProductId, gymPassProduct, "Id");
 
-        var gymStaffAssignment = await _userProfileService.GetUserGymStaffAssigmentAsync(_user.Id!, cancellationToken);
+        var gymStaffAssignment = await _context.GymStaffAssigments
+            .AsNoTracking()
+            .FirstOrDefaultAsync(gsa => gsa.ApplicationUserId == _user.Id, cancellationToken);
 
         Guard.Against.Null(gymStaffAssignment, "Id", "Failed to find currently logged in Gym Admin or Gym Staff member");
 
@@ -63,7 +63,7 @@ public class BuyPassForNonRegisteredUserCommandHandler : IRequestHandler<BuyPass
             {
                 Id = Guid.NewGuid().ToString(),
                 UserId = nonRegisteredUser.Id,
-                GymId = gymStaffAssignment!.GymId
+                GymId = gymStaffAssignment!.GymId!
             };
 
             nonRegisteredUser.UserGymMemberships.Add(userGymMembership);

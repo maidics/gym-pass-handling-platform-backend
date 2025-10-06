@@ -24,14 +24,12 @@ public class AddUserGymMembershipToNonRegisteredUserCommandHandler : IRequestHan
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
-    private readonly IUserProfileService _userProfileService;
     private readonly IMapper _mapper;
 
-    public AddUserGymMembershipToNonRegisteredUserCommandHandler(IApplicationDbContext context, IUser user, IUserProfileService userProfileService, IMapper mapper)
+    public AddUserGymMembershipToNonRegisteredUserCommandHandler(IApplicationDbContext context, IUser user, IMapper mapper)
     {
         _context = context;
         _user = user;
-        _userProfileService = userProfileService;
         _mapper = mapper;
     }
     public async Task<NonRegisteredUserDto> Handle(AddUserGymMembershipToNonRegisteredUserCommand command, CancellationToken cancellationToken)
@@ -40,9 +38,9 @@ public class AddUserGymMembershipToNonRegisteredUserCommandHandler : IRequestHan
 
         Guard.Against.NotFound(command.NonRegisteredUserId, nonRegisteredUser, "Id");
 
-        var gymStaffAssignment = await _userProfileService.GetUserGymStaffAssigmentAsync(_user.Id!, cancellationToken);
-
-        Guard.Against.Null(gymStaffAssignment, "Id", "Failed to find currently logged in Gym Admin or Gym Staff member");
+        var gymStaffAssignment = await _context.GymStaffAssigments
+            .AsNoTracking()
+            .FirstOrDefaultAsync(gsa => gsa.ApplicationUserId == _user.Id, cancellationToken);
 
         var userGymMembership = nonRegisteredUser.UserGymMemberships.FirstOrDefault(ugm => ugm.GymId == gymStaffAssignment!.GymId);
 
@@ -54,7 +52,7 @@ public class AddUserGymMembershipToNonRegisteredUserCommandHandler : IRequestHan
         nonRegisteredUser.UserGymMemberships.Add(new UserGymMembership
         {
             UserId = nonRegisteredUser.Id,
-            GymId = gymStaffAssignment!.GymId,
+            GymId = gymStaffAssignment!.GymId!,
         });
 
         await _context.SaveChangesAsync(cancellationToken);

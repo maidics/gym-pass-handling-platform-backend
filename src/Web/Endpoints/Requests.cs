@@ -22,6 +22,8 @@ public class Requests : EndpointGroupBase
         groupBuilder.MapPost(CreateGymCreationRequest, "/GymCreation");
 
         groupBuilder.MapPost(CreateGymAdminNominationRequest, "GymAdminNomination").RequireAuthorization();
+
+        groupBuilder.MapPut(FulFillRequest, "Fulfill").RequireAuthorization();
     }
 
     public async Task<Ok<RequestDto>> GetRequest(ISender sender, string requestId, CancellationToken cancellationToken)
@@ -45,23 +47,11 @@ public class Requests : EndpointGroupBase
         return TypedResults.NoContent();
     }
 
-    public async Task<Results<Created, ProblemHttpResult>> CreateGymCreationRequest(ISender sender, [FromBody] CreateGymCreationRequestCommand command, CancellationToken cancellationToken)
+    public async Task<Ok> CreateGymCreationRequest(ISender sender, [FromBody] CreateGymCreationRequestCommand command, CancellationToken cancellationToken)
     {
-        var result = await sender.Send(command, cancellationToken);
+        await sender.Send(command, cancellationToken);
 
-        if (!result.Succeeded)
-        {
-            var problem = new ProblemDetails
-            {
-                Status = StatusCodes.Status409Conflict,
-                Title = "Business Rule Violation",
-                Detail = result.Errors[0]
-            };
-
-            return TypedResults.Problem(problem);
-        }
-
-        return TypedResults.Created();
+        return TypedResults.Ok();
     }
 
     public async Task<Results<Ok<Result>, ProblemHttpResult>> CreateGymAdminNominationRequest(ISender sender, [FromBody] CreateGymAdminNominationRequestCommand command)

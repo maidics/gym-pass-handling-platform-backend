@@ -22,18 +22,18 @@ public class UpdateUserGymMembershipStatusCommandValidator : AbstractValidator<U
 public class UpdateUserGymMembershipStatusCommandHandler : IRequestHandler<UpdateUserGymMembershipStatusCommand>
 {
     private readonly IApplicationDbContext _context;
-    private readonly IUserProfileService _userProfileService;
     private readonly IUser _user;
 
-    public UpdateUserGymMembershipStatusCommandHandler(IApplicationDbContext context, IUserProfileService userProfileService, IUser user)
+    public UpdateUserGymMembershipStatusCommandHandler(IApplicationDbContext context, IUser user)
     {
         _context = context;
-        _userProfileService = userProfileService;
         _user = user;
     }
     public async Task Handle(UpdateUserGymMembershipStatusCommand command, CancellationToken cancellationToken)
     {
-        var gymStaffAssigment = await _userProfileService.GetUserGymStaffAssigmentAsync(_user.Id!, cancellationToken);
+        var gymStaffAssigment = await _context.GymStaffAssigments
+            .AsNoTracking()
+            .FirstOrDefaultAsync(gsa => gsa.ApplicationUserId == _user.Id, cancellationToken);
 
         Guard.Against.Null(gymStaffAssigment, "Id", "Failed to find currently logged in Gym Admin or Gym Staff member.");
 

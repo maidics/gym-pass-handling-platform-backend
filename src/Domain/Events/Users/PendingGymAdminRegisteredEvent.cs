@@ -1,8 +1,8 @@
 ﻿namespace FitPass.Domain.Events.Users;
 
-public class GymAdminRegisteredEvent : BaseEvent
+public class PendingGymAdminRegisteredEvent : BaseEvent
 {
-    public GymAdminRegisteredEvent(ApplicationUser user)
+    public PendingGymAdminRegisteredEvent(ApplicationUser user)
     {
         User = user;
     }

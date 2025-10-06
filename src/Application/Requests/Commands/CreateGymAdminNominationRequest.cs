@@ -49,8 +49,6 @@ public class CreateGymAdminNominationRequestCommandHandler : IRequestHandler<Cre
     }
     public async Task<Result> Handle(CreateGymAdminNominationRequestCommand command, CancellationToken cancellationToken)
     {
-        _user.ThrowIfIdNull();
-
         var userToNominate = await _context
             .ApplicationUsers
             .AsNoTracking()

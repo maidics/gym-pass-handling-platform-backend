@@ -164,4 +164,11 @@ public class IdentityService : IIdentityService
 
         return result.ToApplicationResult();
     }
+
+    public async Task<Result> RemoveFromRoleAsync(ApplicationUser user, string role)
+    {
+        var result = await _userManager.RemoveFromRoleAsync(user, role);
+
+        return result.ToApplicationResult();
+    }
 }

@@ -12,27 +12,25 @@ public class GetMyGymDetailsQueryHandler : IRequestHandler<GetMyGymDetailsQuery,
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
-    private readonly IUserProfileService _userProfileService;
     private readonly IMapper _mapper;
 
-    public GetMyGymDetailsQueryHandler(IApplicationDbContext context, IUser user, IUserProfileService userProfileService, IMapper mapper)
+    public GetMyGymDetailsQueryHandler(IApplicationDbContext context, IUser user, IMapper mapper)
     {
         _context = context;
         _user = user;
-        _userProfileService = userProfileService;
         _mapper = mapper;
     }
     public async Task<GymDto> Handle(GetMyGymDetailsQuery query, CancellationToken cancellationToken)
     {
-        var gymStaffAssigment = await _userProfileService.GetUserGymStaffAssigmentAsync(_user.Id!, cancellationToken);
-
-        Guard.Against.Null(gymStaffAssigment, "Id", "Failed to find currently logged in Gym admin or Gym Staff member.");
+        var gymStaffAssigment = await _context.GymStaffAssigments
+            .AsNoTracking()
+            .FirstOrDefaultAsync(gsa => gsa.ApplicationUserId == _user.Id, cancellationToken);
 
         var gym = await _context
             .Gyms
             .AsNoTracking()
             .Include(g => g.GymPassProducts)
-            .FirstOrDefaultAsync(g => g.Id == gymStaffAssigment.GymId, cancellationToken);
+            .FirstOrDefaultAsync(g => g.Id == gymStaffAssigment!.GymId, cancellationToken);
 
         Guard.Against.Null(gym, "Id", "Failed to find gym for the current Gym Admin or Gym Staff member.");
 

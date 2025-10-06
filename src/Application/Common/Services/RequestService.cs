@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text.Json;
 using Fitpass.Application.Common.Exceptions;
 using Fitpass.Application.Requests.DTOs;
@@ -117,7 +118,9 @@ public class RequestService : IRequestService
             throw new ConflictException($"Gym with '{requestDto.GymName}' already exists.");
         }
 
-        var userToNominate = await _context.ApplicationUsers.FindAsync(request.CreatedBy);
+        var userToNominate = await _context.ApplicationUsers
+            .Include(au => au.GymStaffAssigment)
+            .FirstOrDefaultAsync(au => au.Id == request.CreatedBy);
 
         Guard.Against.NotFound(request.CreatedBy!, userToNominate, "Id");
 
@@ -131,15 +134,23 @@ public class RequestService : IRequestService
 
         _context.Gyms.Add(gym);
 
-        var result = await _identityService.AddToRoleAsync(userToNominate, Roles.GymAdministrator);
+        var demotionResult = await _identityService.RemoveFromRoleAsync(userToNominate, Roles.PendingGymAdministrator);
 
-        if (!result.Succeeded)
+        if (!demotionResult.Succeeded)
         {
-            throw new Exception("An unhandled error occured during user nomination.");
+            throw new Exception($"Failed to remove user from PendingGymAdministrator role: {string.Join(", ", demotionResult.Errors)}");
         }
 
-        await _context.SaveChangesAsync();
+        var promotionResult = await _identityService.AddToRoleAsync(userToNominate, Roles.GymAdministrator);
 
-        return;
+        if (!promotionResult.Succeeded)
+        {
+            throw new Exception($"Failed to add user to GymAdministrator role: {string.Join(", ", promotionResult.Errors)}");
+        }
+
+        userToNominate.GymStaffAssigment!.Role = Roles.GymAdministrator;
+        userToNominate.GymStaffAssigment.GymId = gym.Id;
+
+        await _context.SaveChangesAsync();
     }
 }

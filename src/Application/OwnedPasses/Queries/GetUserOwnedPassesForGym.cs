@@ -23,21 +23,20 @@ public class GetUserOwnedPassesForGymQueryHandler : IRequestHandler<GetUserOwned
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
-    private readonly IUserProfileService _userProfileService;
     private readonly IMapper _mapper;
 
-    public GetUserOwnedPassesForGymQueryHandler(IApplicationDbContext context, IUser user, IUserProfileService userProfileService, IMapper mapper)
+    public GetUserOwnedPassesForGymQueryHandler(IApplicationDbContext context, IUser user, IMapper mapper)
     {
         _context = context;
-        _userProfileService = userProfileService;
         _user = user;
         _mapper = mapper;
     }
     public async Task<List<OwnedPassDto>> Handle(GetUserOwnedPassesForGymQuery query, CancellationToken cancellationToken)
     {
-        _user.ThrowIfIdNull();
-
-        var userGymMembership = await _userProfileService.GetUserGymMembershipAsync(_user.Id!, query.GymId, cancellationToken);
+        var userGymMembership = await _context.UserGymMemberships
+            .AsNoTracking()
+            .Include(ugm => ugm.OwnedPasses)
+            .FirstOrDefaultAsync(ugm => ugm.UserId == _user.Id, cancellationToken);
 
         Guard.Against.Null(userGymMembership, query.GymId, "User is not a member of this gym.");
 

@@ -29,6 +29,6 @@ public class GetMyGymQrCodeQueryHandler : IRequestHandler<GetMyGymQrCodeQuery, b
 
         Guard.Against.Null(gymStaffAssigment);
 
-        return _qrCodeService.GetQrCode(gymStaffAssigment.GymId);
+        return _qrCodeService.GetQrCode(gymStaffAssigment.GymId!);
     }
 }

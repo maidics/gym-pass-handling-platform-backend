@@ -920,7 +920,7 @@
           "x-position": 1
         },
         "responses": {
-          "201": {
+          "200": {
             "description": ""
           }
         }
@@ -954,6 +954,35 @@
                 }
               }
             }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/Requests/Fulfill": {
+      "put": {
+        "tags": [
+          "Requests"
+        ],
+        "operationId": "FulFillRequest",
+        "parameters": [
+          {
+            "name": "requestId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
           }
         },
         "security": [
@@ -1068,41 +1097,36 @@
         }
       }
     },
-    "/api/Users/Register/GymAdministrator": {
+    "/api/Users/Register/PendingGymAdministrator": {
       "post": {
         "tags": [
           "Users"
         ],
-        "operationId": "RegisterGymAdministratorUser",
-        "parameters": [
-          {
-            "name": "RequestId",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "nullable": true
-            },
-            "x-position": 1
-          }
-        ],
+        "operationId": "RegisterPendingGymAdmin",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterPendingGymAdmin"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
         "responses": {
           "200": {
             "description": "",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Result"
+                  "type": "string"
                 }
               }
             }
           }
-        },
-        "security": [
-          {
-            "JWT": []
-          }
-        ]
+        }
       }
     },
     "/api/Users/GymManagement/My": {
@@ -1570,10 +1594,12 @@
             "type": "string"
           },
           "gymId": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "escalationEmail": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "role": {
             "type": "string"
@@ -1671,6 +1697,10 @@
               },
               "isCreatedOnStripe": {
                 "type": "boolean"
+              },
+              "stripePriceId": {
+                "type": "string",
+                "nullable": true
               },
               "hasPriceOnStripe": {
                 "type": "boolean"
@@ -2216,6 +2246,27 @@
             "type": "string"
           },
           "password": {
+            "type": "string"
+          }
+        }
+      },
+      "RegisterPendingGymAdmin": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "passwordConfirm": {
             "type": "string"
           }
         }

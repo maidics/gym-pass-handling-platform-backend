@@ -28,19 +28,17 @@ public class UseNonRegisteredUserOwnedPassCommandHandler : IRequestHandler<UseNo
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
-    private readonly IUserProfileService _userProfileService;
 
-    public UseNonRegisteredUserOwnedPassCommandHandler(IApplicationDbContext context, IUser user, IUserProfileService userProfileService)
+    public UseNonRegisteredUserOwnedPassCommandHandler(IApplicationDbContext context, IUser user)
     {
         _context = context;
         _user = user;
-        _userProfileService = userProfileService;
     }
     public async Task Handle(UseNonRegisteredUserOwnedPassCommand command, CancellationToken cancellationToken)
     {
-        _user.ThrowIfIdNull();
-
-        var gymStaffAssigment = await _userProfileService.GetUserGymStaffAssigmentAsync(_user.Id!, cancellationToken);
+        var gymStaffAssigment = await _context.GymStaffAssigments
+            .AsNoTracking()
+            .FirstOrDefaultAsync(gsa => gsa.ApplicationUserId == _user.Id, cancellationToken);
 
         Guard.Against.Null(gymStaffAssigment, "Gym staff assignment", "Failed to find currently logged in Gym Admin or Gym Staff member.");
 

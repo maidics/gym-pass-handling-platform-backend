@@ -58,7 +58,6 @@ public static class DependencyInjection
 
         builder.Services.AddSingleton(TimeProvider.System);
         builder.Services.AddTransient<IIdentityService, FitPass.Infrastructure.Identity.IdentityService>();
-        builder.Services.AddTransient<IUserProfileService, UserProfileService>();
         builder.Services.AddTransient<ILocalDevEmailService, LocalDevEmailService>();
         builder.Services.AddTransient<IQrCodeService, QrCodeService>();
 

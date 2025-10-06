@@ -12,6 +12,7 @@ builder.AddWebServices();
 
 var app = builder.Build();
 
+/*
 var httpClientFactory = app.Services.GetRequiredService<IHttpClientFactory>();
 var resilientHttpClient = httpClientFactory.CreateClient("StripeClient");
 
@@ -23,6 +24,7 @@ var stripeClient = new StripeClient(
 );
 
 StripeConfiguration.StripeClient = stripeClient;
+*/
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

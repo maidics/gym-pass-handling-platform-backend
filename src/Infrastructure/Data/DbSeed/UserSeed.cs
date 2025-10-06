@@ -105,6 +105,26 @@ public partial class ApplicationDbContextInitialiser
                 },
                 string.Empty,
                 "Password123_"
+            ),
+            (
+                new ApplicationUser 
+                {
+                    Id = "PendingGymAdmin",
+                    UserName = "PendingGymAdmin1",
+                    FirstName = "Pending",
+                    LastName = "GymAdmin",
+                    Email = "pendinggymadmin@localhost",
+                    UserGymMemberships = null,
+                    GymStaffAssigment = new GymStaffAssigment 
+                    {
+                        ApplicationUserId = "PendingGymAdmin",
+                        GymId = null,
+                        Role = Roles.PendingGymAdministrator
+                    },
+                    PaymentProfile = null
+                },
+                Roles.PendingGymAdministrator,
+                "Password123_"
             )
         ];
 

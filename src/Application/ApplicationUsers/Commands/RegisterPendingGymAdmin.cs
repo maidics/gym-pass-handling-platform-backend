@@ -1,5 +1,5 @@
-﻿using FitPass.Application.Common.Interfaces;
-using FitPass.Application.Common.Models;
+﻿using Fitpass.Application.Common.Exceptions;
+using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Extensions;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
@@ -7,18 +7,18 @@ using FitPass.Domain.Events.Users;
 
 namespace FitPass.Application.ApplicationUsers.Commands;
 
-public record RegisterGymAdminCommand
+public record RegisterPendingGymAdmin
     (
         string FirstName,
         string LastName,
         string Email,
         string Password,
         string PasswordConfirm
-    ): IRequest<(Result result, string? jwtToken)>;
+    ): IRequest<string>;
 
-public class RegisterGymAdminCommandValidator : AbstractValidator<RegisterGymAdminCommand>
+public class RegisterPendingGymAdminValidator : AbstractValidator<RegisterPendingGymAdmin>
 {
-    public RegisterGymAdminCommandValidator()
+    public RegisterPendingGymAdminValidator()
     {
         RuleFor(v => v.FirstName).NotEmptyWithMaxLenghtAndMessage(MaxStringLengths.Name, "First name");
 
@@ -32,25 +32,22 @@ public class RegisterGymAdminCommandValidator : AbstractValidator<RegisterGymAdm
     }
 }
 
-public class RegisterGymAdminCommandHandler : IRequestHandler<RegisterGymAdminCommand, (Result result, string? jwtToken)>
+public class RegisterPendingGymAdminHandler : IRequestHandler<RegisterPendingGymAdmin, string>
 {
     private readonly IIdentityService _identityService;
-    private readonly IStripeCustomerService _stripeCustomerService;
-    private readonly IApplicationDbContext _context;
 
-    public RegisterGymAdminCommandHandler(IIdentityService identityService, IStripeCustomerService stripeCustomerService, IApplicationDbContext context)
+    public RegisterPendingGymAdminHandler(IIdentityService identityService)
     {
         _identityService = identityService;
-        _stripeCustomerService = stripeCustomerService;
-        _context = context;
     }
-    public async Task<(Result result, string? jwtToken)> Handle(RegisterGymAdminCommand command, CancellationToken cancellationToken)
+    public async Task<string> Handle(RegisterPendingGymAdmin command, CancellationToken cancellationToken)
     {
         var user = new ApplicationUser
         {
             FirstName = command.FirstName,
             LastName = command.LastName,
             Email = command.Email,
+            UserName = command.Email,
             UserGymMemberships = null,
             PaymentProfile = null,
             GymStaffAssigment = null
@@ -60,20 +57,27 @@ public class RegisterGymAdminCommandHandler : IRequestHandler<RegisterGymAdminCo
         {
             ApplicationUserId = user.Id,
             GymId = null,
-            Role = Roles.GymAdministrator
+            Role = Roles.PendingGymAdministrator
         };
 
         var result = await _identityService.CreateUserAsync(user, command.Password, cancellationToken);
 
         if (!result.Succeeded)
         {
-            return (Result.Failure([..result.Errors.Select(e => e.Description).ToList()]), null);
+            throw new BadRequestException(string.Join(", ", result.Errors.Select(e => e.Description).ToList()));
+        }
+
+        var roleResult = await _identityService.AddToRoleAsync(user, Roles.GymAdministrator);
+
+        if (!roleResult.Succeeded)
+        {
+            throw new BadRequestException(string.Join(", ", roleResult.Errors));
         }
 
         var jwtToken = await _identityService.GenerateJWTTokenAsync(user, cancellationToken);
 
-        user.AddDomainEvent(new GymAdminRegisteredEvent(user));
+        user.AddDomainEvent(new PendingGymAdminRegisteredEvent(user));
 
-        return (Result.Success(), jwtToken);
+        return jwtToken;
     }
 }

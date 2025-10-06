@@ -12,20 +12,20 @@ public class GetAllMyNonRegisteredUsersQueryHandler : IRequestHandler<GetAllMyNo
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
-    private readonly IUserProfileService _userProfileService;
     private readonly IMapper _mapper;
 
-    public GetAllMyNonRegisteredUsersQueryHandler(IApplicationDbContext context, IUser user, IUserProfileService userProfileService, IMapper mapper)
+    public GetAllMyNonRegisteredUsersQueryHandler(IApplicationDbContext context, IUser user, IMapper mapper)
     {
         _context = context;
         _user = user;
-        _userProfileService = userProfileService;
         _mapper = mapper;
     }
 
     public async Task<List<NonRegisteredUserDto>> Handle(GetAllMyNonRegisteredUsersQuery request, CancellationToken cancellationToken)
     {
-        var gymStaffAssignment = await _userProfileService.GetUserGymStaffAssigmentAsync(_user.Id!, cancellationToken);
+        var gymStaffAssignment = await _context.GymStaffAssigments
+            .AsNoTracking()
+            .FirstOrDefaultAsync(gsa => gsa.ApplicationUserId == _user.Id, cancellationToken);
 
         Guard.Against.Null(gymStaffAssignment, "Id", "Failed to find currently authenticated Gym Admin or Gym Staff member.");
 

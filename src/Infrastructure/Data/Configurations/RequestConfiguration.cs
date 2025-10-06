@@ -12,5 +12,7 @@ public class RequestConfiguration : IEntityTypeConfiguration<Request>
         builder.Property(r => r.Title).HasMaxLength(MaxStringLengths.Title);
 
         builder.Property(r => r.Description).HasMaxLength(MaxStringLengths.Description);
+
+        builder.HasOne<ApplicationUser>().WithMany(au => au.Requests).HasForeignKey(r => r.CreatedBy);
     }
 }

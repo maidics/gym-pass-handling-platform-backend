@@ -13,18 +13,18 @@ public class GetMyGymManagementUsersQueryHandler : IRequestHandler<GetMyGymManag
     private readonly IApplicationDbContext _context;
     private readonly IMapper _mapper;
     private readonly IUser _user;
-    private readonly IUserProfileService _userProfileService;
 
-    public GetMyGymManagementUsersQueryHandler(IApplicationDbContext context, IMapper mapper, IUser user, IUserProfileService userProfileService)
+    public GetMyGymManagementUsersQueryHandler(IApplicationDbContext context, IMapper mapper, IUser user)
     {
         _context = context;
         _mapper = mapper;
         _user = user;
-        _userProfileService = userProfileService;
     }
     public async Task<List<ApplicationUserDto>> Handle(GetMyGymManagementUsersQuery request, CancellationToken cancellationToken)
     {
-        var gymStaffManagement = await _userProfileService.GetUserGymStaffAssigmentAsync(_user.Id!, cancellationToken);
+        var gymStaffManagement = await _context.GymStaffAssigments
+            .AsNoTracking()
+            .FirstOrDefaultAsync(gsa => gsa.ApplicationUserId == _user.Id, cancellationToken);
 
         var users = await _context
             .ApplicationUsers

@@ -25,20 +25,20 @@ public class NominateUserToGymStaffMemberCommandValidator : AbstractValidator<No
 public class NominateUserToGymStaffMemberCommandHandler : IRequestHandler<NominateUserToGymStaffMemberCommand>
 {
     private readonly IApplicationDbContext _context;
-    private readonly IUserProfileService _userProfileService;
     private readonly IUser _user;
     private readonly IIdentityService _identityService;
 
-    public NominateUserToGymStaffMemberCommandHandler(IApplicationDbContext context, IUserProfileService userProfileService, IUser user, IIdentityService identityService)
+    public NominateUserToGymStaffMemberCommandHandler(IApplicationDbContext context, IUser user, IIdentityService identityService)
     {
         _context = context;
-        _userProfileService = userProfileService;
         _user = user;
         _identityService = identityService;
     }
     public async Task Handle(NominateUserToGymStaffMemberCommand command, CancellationToken cancellationToken)
     {
-        var nominatorAssignment = await _userProfileService.GetUserGymStaffAssigmentAsync(_user.Id!, cancellationToken);
+        var nominatorAssignment = await _context.GymStaffAssigments
+            .AsNoTracking()
+            .FirstOrDefaultAsync(gsa => gsa.ApplicationUserId == _user.Id, cancellationToken);
 
         Guard.Against.Null(nominatorAssignment, "Id", "Failed to find currently logged in Gym Admin.");
 

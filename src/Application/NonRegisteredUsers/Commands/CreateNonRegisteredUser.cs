@@ -41,21 +41,21 @@ public class CreateNonRegisteredUserCommandValidator : AbstractValidator<CreateN
 public class CreateNonRegisteredUserCommandHandler : IRequestHandler<CreateNonRegisteredUserCommand, NonRegisteredUserDto>
 {
     private readonly IApplicationDbContext _context;
-    private readonly IUserProfileService _userProfileService;
     private readonly IUser _user;
     private readonly IMapper _mapper;
 
-    public CreateNonRegisteredUserCommandHandler(IApplicationDbContext context, IUserProfileService userProfileService, IUser user, IMapper mapper)
+    public CreateNonRegisteredUserCommandHandler(IApplicationDbContext context, IUser user, IMapper mapper)
     {
         _context = context;
-        _userProfileService = userProfileService;
         _user = user;
         _mapper = mapper;
     }
 
     public async Task<NonRegisteredUserDto> Handle(CreateNonRegisteredUserCommand command, CancellationToken cancellationToken)
     {
-        var gymStaffAssignment = await _userProfileService.GetUserGymStaffAssigmentAsync(_user.Id!, cancellationToken);
+        var gymStaffAssignment = await _context.GymStaffAssigments
+            .AsNoTracking()
+            .FirstOrDefaultAsync(gsa => gsa.ApplicationUserId == _user.Id, cancellationToken);
 
         Guard.Against.Null(gymStaffAssignment, "Id", "Failed to find the current Gym Admin or Gym Staff member.");
 
@@ -101,7 +101,7 @@ public class CreateNonRegisteredUserCommandHandler : IRequestHandler<CreateNonRe
         var userGymMembership = new UserGymMembership
         {
             UserId = nonRegisteredUser.Id,
-            GymId = gymStaffAssignment.GymId
+            GymId = gymStaffAssignment.GymId!
         };
 
         nonRegisteredUser.UserGymMemberships.Add(userGymMembership);

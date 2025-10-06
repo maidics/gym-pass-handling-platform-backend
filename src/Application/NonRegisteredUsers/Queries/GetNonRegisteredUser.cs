@@ -20,20 +20,20 @@ public class GetNonRegisteredUserQueryValidator : AbstractValidator<GetNonRegist
 public class GetNonRegisteredUserQueryHandler : IRequestHandler<GetNonRegisteredUserQuery, NonRegisteredUserDto>
 {
     private readonly IApplicationDbContext _context;
-    private readonly IUserProfileService _userProfileService;
     private readonly IUser _user;
     private readonly IMapper _mapper;
 
-    public GetNonRegisteredUserQueryHandler(IApplicationDbContext context, IUserProfileService userProfileService, IUser user, IMapper mapper)
+    public GetNonRegisteredUserQueryHandler(IApplicationDbContext context, IUser user, IMapper mapper)
     {
         _context = context;
-        _userProfileService = userProfileService;
         _user = user;
         _mapper = mapper;
     }
     public async Task<NonRegisteredUserDto> Handle(GetNonRegisteredUserQuery query, CancellationToken cancellationToken)
     {
-        var gymStaffAssigment = await _userProfileService.GetUserGymStaffAssigmentAsync(_user.Id!, cancellationToken);
+        var gymStaffAssigment = await _context.GymStaffAssigments
+            .AsNoTracking()
+            .FirstOrDefaultAsync(gsa => gsa.ApplicationUserId == _user.Id, cancellationToken);
 
         Guard.Against.Null(gymStaffAssigment, "Id", "Failed to find currently authenticated Gym Admin or Gym Staff member.");
 
