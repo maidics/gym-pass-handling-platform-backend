@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Security.Claims;
 using System.Text;
+using Fitpass.Infrastructure.Data.Interceptors;
 using Fitpass.Infrastructure.Email;
 using Fitpass.Infrastructure.Stripe.Services;
 using FitPass.Application.Common.Interfaces;
@@ -131,5 +132,7 @@ public static class DependencyInjection
                     }
                 });
             });
+
+        builder.Services.AddScoped<InterceptorStateService>();
     }
 }

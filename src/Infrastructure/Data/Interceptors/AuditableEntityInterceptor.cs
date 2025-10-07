@@ -1,4 +1,5 @@
-﻿using FitPass.Application.Common.Interfaces;
+﻿using Fitpass.Infrastructure.Data.Interceptors;
+using FitPass.Application.Common.Interfaces;
 using FitPass.Domain.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -10,17 +11,25 @@ public class AuditableEntityInterceptor : SaveChangesInterceptor
 {
     private readonly IUser _user;
     private readonly TimeProvider _dateTime;
+    private readonly InterceptorStateService _stateService;
 
     public AuditableEntityInterceptor(
         IUser user,
-        TimeProvider dateTime)
+        TimeProvider dateTime,
+        InterceptorStateService stateService)
     {
         _user = user;
         _dateTime = dateTime;
+        _stateService = stateService;
     }
 
     public override InterceptionResult<int> SavingChanges(DbContextEventData eventData, InterceptionResult<int> result)
     {
+        if (_stateService.IsAuditableEntityDisabled)
+        {
+            return result;
+        }
+
         UpdateEntities(eventData.Context);
 
         return base.SavingChanges(eventData, result);
@@ -28,6 +37,11 @@ public class AuditableEntityInterceptor : SaveChangesInterceptor
 
     public override ValueTask<InterceptionResult<int>> SavingChangesAsync(DbContextEventData eventData, InterceptionResult<int> result, CancellationToken cancellationToken = default)
     {
+        if (_stateService.IsAuditableEntityDisabled)
+        {
+            return new ValueTask<InterceptionResult<int>>(result);
+        }
+
         UpdateEntities(eventData.Context);
 
         return base.SavingChangesAsync(eventData, result, cancellationToken);
