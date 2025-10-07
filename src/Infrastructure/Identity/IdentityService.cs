@@ -70,13 +70,6 @@ public class IdentityService : IIdentityService
         return result.Succeeded;
     }
 
-    public async Task<Result> DeleteUserAsync(string userId)
-    {
-        var user = await _userManager.FindByIdAsync(userId);
-
-        return user != null ? await DeleteUserAsync(user) : Result.Success();
-    }
-
     public async Task<Result> DeleteUserAsync(ApplicationUser user)
     {
         var result = await _userManager.DeleteAsync(user);

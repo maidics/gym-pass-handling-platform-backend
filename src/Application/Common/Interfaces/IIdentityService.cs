@@ -10,7 +10,7 @@ public interface IIdentityService
     Task<bool> IsInRoleAsync(ApplicationUser user, string role);
     Task<List<string>?> GetRolesAsync(string userId);
     Task<bool> AuthorizeAsync(string userId, string policyName);
-    Task<Result> DeleteUserAsync(string userId);
+    Task<Result> DeleteUserAsync(ApplicationUser user);
     Task<IdentityResult> CreateUserAsync(ApplicationUser user, string password, CancellationToken cancellationToken);
     Task<string> GenerateJWTTokenAsync(ApplicationUser user, CancellationToken cancellationToken);
     Task<(Result result, ApplicationUser? user)> AuthenticateUserAsync(string email, string password, CancellationToken cancellationToken);

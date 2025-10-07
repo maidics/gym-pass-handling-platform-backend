@@ -27,6 +27,7 @@ public class Users : EndpointGroupBase
 
         groupBuilder.MapGet(GetGymManagementUsers, "Management/{gymId}").RequireAuthorization();
 
+        groupBuilder.MapDelete(DeleteMyAccount, "My/Delete").RequireAuthorization();
     }
 
     public async Task<Ok<string>> RegisterUser(ISender sender, [FromBody] RegisterUserCommand command, CancellationToken cancellationToken)
@@ -76,5 +77,12 @@ public class Users : EndpointGroupBase
         var result = await sender.Send(new GetGymStaffQuery(gymId), cancellationToken);
 
         return TypedResults.Ok(result);
+    }
+
+    public async Task<Ok> DeleteMyAccount(ISender sender)
+    {
+        await sender.Send(new DeleteMyAccountCommand());
+
+        return TypedResults.Ok();
     }
 }
