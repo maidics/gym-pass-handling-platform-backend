@@ -23,7 +23,7 @@ public class StripePriceService : IStripePriceService
         _context = context;
     }
 
-    public async Task<Result> CreatePrice(GymPassProduct gymPassProduct)
+    public async Task CreatePrice(GymPassProduct gymPassProduct)
     {
         try
         {
@@ -38,21 +38,20 @@ public class StripePriceService : IStripePriceService
 
             gymPassProduct.HasPriceOnStripe = true;
             gymPassProduct.StripePriceId = price.Id;
-
-            return Result.Success();
         } catch (StripeException ex)
         {
-            return ex.LogAndGetResult<StripePriceService>(_logger);
+            ex.LogAndThrowApplicationException<StripePriceService>(_logger);
         }
     }
 
-    public async Task<Result> ArchivePrice(GymPassProduct gymPassProduct)
+    public async Task ArchivePrice(GymPassProduct gymPassProduct)
     {
         try
         {
             if (!gymPassProduct.HasPriceOnStripe || gymPassProduct.StripePriceId == null)
             {
-                return Result.Failure(["Price does not exist for this product."]);
+                _logger.LogWarning("Attempted to archive GymPassProduct with '{GymPassProductId}' that has no price on Stripe.", gymPassProduct.Id);
+                return;
             }
 
             var priceOptions = new PriceUpdateOptions
@@ -64,11 +63,9 @@ public class StripePriceService : IStripePriceService
 
             gymPassProduct.HasPriceOnStripe = false;
             gymPassProduct.StripePriceId = null;
-
-            return Result.Success();
         } catch (StripeException ex)
         {
-            return ex.LogAndGetResult<StripePriceService>(_logger);
+            ex.LogAndThrowApplicationException<StripePriceService>(_logger);
         }
     }
 }

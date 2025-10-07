@@ -5,5 +5,5 @@ namespace FitPass.Application.Common.Interfaces;
 
 public interface IStripeProductService
 {
-    Task<Result> CreateProduct(GymPassProduct gymPassProduct);
+    Task CreateProduct(GymPassProduct gymPassProduct);
 }

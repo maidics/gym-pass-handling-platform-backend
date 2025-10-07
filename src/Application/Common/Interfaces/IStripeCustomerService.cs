@@ -5,6 +5,6 @@ namespace FitPass.Application.Common.Interfaces;
 
 public interface IStripeCustomerService
 {
-    Task<Result> CreateCustomer(ApplicationUser user);
-    Task<Result> DeleteCustomer(ApplicationUser user);
+    Task CreateCustomer(ApplicationUser user);
+    Task DeleteCustomer(ApplicationUser user);
 }

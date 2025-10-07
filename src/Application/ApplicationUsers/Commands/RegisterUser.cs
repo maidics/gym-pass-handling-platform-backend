@@ -36,11 +36,13 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, s
 {
     private readonly IIdentityService _identityService;
     private readonly IApplicationDbContext _context;
+    private readonly IStripeCustomerService _stripeCustomerService;
 
-    public RegisterUserCommandHandler(IIdentityService identityService, IApplicationDbContext context)
+    public RegisterUserCommandHandler(IIdentityService identityService, IApplicationDbContext context, IStripeCustomerService stripeCustomerService)
     {
         _identityService = identityService;
         _context = context;
+        _stripeCustomerService = stripeCustomerService;
     }
     public async Task<string> Handle(RegisterUserCommand command, CancellationToken cancellationToken)
     {
@@ -70,8 +72,10 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, s
 
         if (!result.Succeeded)
         {
-            throw new ValidationException(string.Join(", ", result.Errors.Select(e => e.Description).ToList()));
+            throw new BadRequestException(string.Join(", ", result.Errors.Select(e => e.Description).ToList()));
         }
+
+        await _stripeCustomerService.CreateCustomer(user);
 
         user.AddDomainEvent(new UserRegisteredEvent(user));
 

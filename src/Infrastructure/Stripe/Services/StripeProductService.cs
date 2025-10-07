@@ -24,7 +24,7 @@ public class StripeProductService : IStripeProductService
         _context = context;
     }
 
-    public async Task<Result> CreateProduct(GymPassProduct gymPassProduct)
+    public async Task CreateProduct(GymPassProduct gymPassProduct)
     {
         try
         {
@@ -41,11 +41,9 @@ public class StripeProductService : IStripeProductService
             var product = await _productService.CreateAsync(productOptions, null);
 
             gymPassProduct.IsCreatedOnStripe = true;
-
-            return Result.Success();
         } catch (StripeException ex)
         {
-            return ex.LogAndGetResult<StripeProductService>(_logger);
+            ex.LogAndThrowApplicationException<StripeProductService>(_logger);
         }
     }
 }

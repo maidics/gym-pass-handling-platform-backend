@@ -1,6 +1,7 @@
 using System.Net;
 using System.Runtime.CompilerServices;
-using FitPass.Application.Common.Models;
+using Fitpass.Application.Common.Exceptions;
+using Fitpass.Infrastructure.Common.Exceptions;
 using Microsoft.Extensions.Logging;
 using Stripe;
 
@@ -40,7 +41,7 @@ public static class StripeExceptionClassifier
         };
     }
 
-    public static Result LogAndGetResult<T>(this StripeException ex, ILogger<T> logger, [CallerMemberName] string memberName = "", [CallerFilePath] string callerFilePath = "", [CallerLineNumber] int callerLineNumber = -1) where T : class
+    public static void LogAndThrowApplicationException<T>(this StripeException ex, ILogger<T> logger, [CallerMemberName] string memberName = "", [CallerFilePath] string callerFilePath = "", [CallerLineNumber] int callerLineNumber = -1) where T : class
     {
         var failureDetails = ex.Classify();
 
@@ -54,7 +55,12 @@ public static class StripeExceptionClassifier
             callerLineNumber
         );
 
-        return Result.Failure([failureDetails.UserErrorMessage]);
+        throw failureDetails.Type switch
+        {
+            StripeFailureType.PaymentDeclined => new PaymentRequiredException(failureDetails.UserErrorMessage),
+            StripeFailureType.Retryable => new ServiceUnavailableException(failureDetails.UserErrorMessage),
+            _ => new Exception(failureDetails.UserErrorMessage)
+        };
     }
 
     public static string ToErrorString(this StripeException ex)

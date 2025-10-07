@@ -1,5 +1,4 @@
 using FitPass.Application.Common.Interfaces;
-using FitPass.Application.Common.Models;
 using FitPass.Domain.Entities;
 using FitPass.Infrastructure.Stripe;
 using Microsoft.Extensions.Logging;
@@ -23,7 +22,7 @@ public class StripeCustomerService : IStripeCustomerService
         _context = context;
     }
 
-    public async Task<Result> CreateCustomer(ApplicationUser user)
+    public async Task CreateCustomer(ApplicationUser user)
     {
         try
         {
@@ -44,34 +43,28 @@ public class StripeCustomerService : IStripeCustomerService
             await _context.UserPaymentProfiles.AddAsync(paymentProfile);
 
             user.UserPaymentProfileId = paymentProfile.Id;
-
-            return Result.Success();
         }
         catch (StripeException ex)
         {
-            return ex.LogAndGetResult<StripeCustomerService>(_logger);
+            ex.LogAndThrowApplicationException<StripeCustomerService>(_logger);
         }
     }
 
-    public async Task<Result> DeleteCustomer(ApplicationUser user)
+    public async Task DeleteCustomer(ApplicationUser user)
     {
         try
         {
             if (user.PaymentProfile == null || user.PaymentProfile.StripeCustomerId == null)
             {
-                _logger.LogError("User with '{UserId}' is not a Stripe customer.", user.Id);
-
-                return Result.Success();
+                _logger.LogWarning("Attempted to delete customer with '{UserId}' id from Stripe but they have no Stripe customer id.", user.Id);
             }
 
-            await _customerService.DeleteAsync(user.PaymentProfile.StripeCustomerId);
+            await _customerService.DeleteAsync(user.PaymentProfile!.StripeCustomerId);
 
             user.PaymentProfile.StripeCustomerId = null;
-
-            return Result.Success();
         } catch (StripeException ex)
         {
-            return ex.LogAndGetResult<StripeCustomerService>(_logger);
+            ex.LogAndThrowApplicationException<StripeCustomerService>(_logger);
         }
     }
 }

@@ -5,6 +5,6 @@ namespace FitPass.Application.Common.Interfaces;
 
 public interface IStripePriceService
 {
-    Task<Result> CreatePrice(GymPassProduct gymPassProduct);
-    Task<Result> ArchivePrice(GymPassProduct gymPassProduct);
+    Task CreatePrice(GymPassProduct gymPassProduct);
+    Task ArchivePrice(GymPassProduct gymPassProduct);
 }
