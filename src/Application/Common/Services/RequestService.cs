@@ -134,7 +134,7 @@ public class RequestService : IRequestService
 
         _context.Gyms.Add(gym);
 
-        var demotionResult = await _identityService.RemoveFromRoleAsync(userToNominate, Roles.PendingGymAdministrator);
+        var demotionResult = await _identityService.RemoveFromRoleAsync(userToNominate, Roles.PendingGymManagement);
 
         if (!demotionResult.Succeeded)
         {

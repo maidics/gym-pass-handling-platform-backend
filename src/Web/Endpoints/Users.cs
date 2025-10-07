@@ -17,11 +17,11 @@ public class Users : EndpointGroupBase
 
         groupBuilder.MapPost(LogInUser, "LogIn");
 
-        groupBuilder.MapPost(RegisterPendingGymAdmin, "Register/PendingGymAdministrator");
+        groupBuilder.MapPost(RegisterPendingGymManagement, "Register/PendingGymManagement");
 
         groupBuilder.MapGet(GetAllMyGymStaff, "GymManagement/My").RequireAuthorization();
 
-        groupBuilder.MapPut(NominateUserToGymStaffMember, "Nominate/GymStaff").RequireAuthorization();
+        groupBuilder.MapPut(NominateGymStaff, "Nominate/GymStaff").RequireAuthorization();
 
         groupBuilder.MapGet(GetMyGymManagementUsers, "GymManagement/My/GymMembers").RequireAuthorization();
 
@@ -44,7 +44,7 @@ public class Users : EndpointGroupBase
         return TypedResults.Ok(result);
     }
 
-    public async Task<Ok<string>> RegisterPendingGymAdmin(ISender sender, [FromBody] RegisterPendingGymAdmin command, CancellationToken cancellationToken)
+    public async Task<Ok<string>> RegisterPendingGymManagement(ISender sender, [FromBody] RegisterPendingGymManagementCommand command, CancellationToken cancellationToken)
     {
         var result = await sender.Send(command, cancellationToken);
 
@@ -58,7 +58,7 @@ public class Users : EndpointGroupBase
         return TypedResults.Ok(result);
     }
 
-    public async Task<Ok> NominateUserToGymStaffMember(ISender sender, [FromBody] NominateUserToGymStaffMemberCommand command, CancellationToken cancellationToken)
+    public async Task<Ok> NominateGymStaff(ISender sender, [FromBody] NominateGymStaffCommand command, CancellationToken cancellationToken)
     {
         await sender.Send(command, cancellationToken);
 

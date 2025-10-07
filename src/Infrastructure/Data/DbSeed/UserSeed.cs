@@ -119,11 +119,11 @@ public partial class ApplicationDbContextInitialiser
                     {
                         ApplicationUserId = "PendingGymAdmin",
                         GymId = null,
-                        Role = Roles.PendingGymAdministrator
+                        Role = Roles.PendingGymManagement
                     },
                     PaymentProfile = null
                 },
-                Roles.PendingGymAdministrator,
+                Roles.PendingGymManagement,
                 "Password123_"
             )
         ];

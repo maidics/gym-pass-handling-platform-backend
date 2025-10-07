@@ -7,7 +7,7 @@ using FitPass.Domain.Events.Users;
 
 namespace FitPass.Application.ApplicationUsers.Commands;
 
-public record RegisterPendingGymAdmin
+public record RegisterPendingGymManagementCommand
     (
         string FirstName,
         string LastName,
@@ -16,9 +16,9 @@ public record RegisterPendingGymAdmin
         string PasswordConfirm
     ): IRequest<string>;
 
-public class RegisterPendingGymAdminValidator : AbstractValidator<RegisterPendingGymAdmin>
+public class RegisterPendingGymManagementCommandValidator : AbstractValidator<RegisterPendingGymManagementCommand>
 {
-    public RegisterPendingGymAdminValidator()
+    public RegisterPendingGymManagementCommandValidator()
     {
         RuleFor(v => v.FirstName).NotEmptyWithMaxLenghtAndMessage(MaxStringLengths.Name, "First name");
 
@@ -32,15 +32,15 @@ public class RegisterPendingGymAdminValidator : AbstractValidator<RegisterPendin
     }
 }
 
-public class RegisterPendingGymAdminHandler : IRequestHandler<RegisterPendingGymAdmin, string>
+public class RegisterPendingGymManagementCommandHandler : IRequestHandler<RegisterPendingGymManagementCommand, string>
 {
     private readonly IIdentityService _identityService;
 
-    public RegisterPendingGymAdminHandler(IIdentityService identityService)
+    public RegisterPendingGymManagementCommandHandler(IIdentityService identityService)
     {
         _identityService = identityService;
     }
-    public async Task<string> Handle(RegisterPendingGymAdmin command, CancellationToken cancellationToken)
+    public async Task<string> Handle(RegisterPendingGymManagementCommand command, CancellationToken cancellationToken)
     {
         var user = new ApplicationUser
         {
@@ -57,7 +57,7 @@ public class RegisterPendingGymAdminHandler : IRequestHandler<RegisterPendingGym
         {
             ApplicationUserId = user.Id,
             GymId = null,
-            Role = Roles.PendingGymAdministrator
+            Role = Roles.PendingGymManagement
         };
 
         var result = await _identityService.CreateUserAsync(user, command.Password, cancellationToken);

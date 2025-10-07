@@ -7,7 +7,7 @@ public class ApplicationUser : Microsoft.AspNetCore.Identity.IdentityUser, IHasD
     public required string FirstName { get; set; }
     public required string LastName { get; set; }
     public string? UserPaymentProfileId { get; set; }
-    public required UserPaymentProfile? PaymentProfile { get; set; }
+    public UserPaymentProfile? PaymentProfile { get; set; }
     public required ICollection<UserGymMembership>? UserGymMemberships { get; set; }
     public required GymStaffAssigment? GymStaffAssigment { get; set; }
     public ICollection<Request> Requests { get; set; } = [];
