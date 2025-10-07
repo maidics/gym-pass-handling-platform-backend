@@ -8,6 +8,16 @@ public class NonRegisteredUserConfiguration : IEntityTypeConfiguration<NonRegist
 {
     public void Configure(EntityTypeBuilder<NonRegisteredUser> builder)
     {
-        builder.HasOne(nru => nru.PaymentProfile).WithOne().HasForeignKey<NonRegisteredUser>(nru => nru.UserPaymentProfileId);
+        builder
+            .HasOne(nru => nru.PaymentProfile)
+            .WithOne()
+            .HasForeignKey<NonRegisteredUser>(nru => nru.UserPaymentProfileId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder
+            .HasOne(nru => nru.PaymentProfile)
+            .WithOne()
+            .HasForeignKey<UserPaymentProfile>(upp => upp.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

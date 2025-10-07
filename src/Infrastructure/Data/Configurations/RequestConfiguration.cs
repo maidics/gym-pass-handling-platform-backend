@@ -13,6 +13,10 @@ public class RequestConfiguration : IEntityTypeConfiguration<Request>
 
         builder.Property(r => r.Description).HasMaxLength(MaxStringLengths.Description);
 
-        builder.HasOne<ApplicationUser>().WithMany(au => au.Requests).HasForeignKey(r => r.CreatedBy);
+        builder
+            .HasOne<ApplicationUser>()
+            .WithMany(au => au.Requests)
+            .HasForeignKey(r => r.CreatedBy)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }

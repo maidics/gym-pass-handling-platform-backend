@@ -11,7 +11,10 @@ public class GymStaffAssignmentConfiguration : IEntityTypeConfiguration<GymStaff
     {
         builder.HasKey(gsa => gsa.ApplicationUserId);
 
-        builder.HasOne(gsa => gsa.ApplicationUser).WithOne(au => au.GymStaffAssigment);
+        builder
+            .HasOne(gsa => gsa.ApplicationUser)
+            .WithOne(au => au.GymStaffAssigment)
+            .OnDelete(DeleteBehavior.SetNull);
 
         builder.Property(gsa => gsa.EscalationEmail).HasMaxLength(MaxStringLengths.Email);
     }

@@ -8,10 +8,21 @@ public class UserGymMembershipConfiguration : IEntityTypeConfiguration<UserGymMe
 {
     public void Configure(EntityTypeBuilder<UserGymMembership> builder)
     {
-        builder.HasOne(ugm => ugm.Gym).WithMany(ugm => ugm.UserGymMemberships).HasForeignKey(ugm => ugm.GymId);
+        builder
+            .HasOne(ugm => ugm.Gym)
+            .WithMany(ugm => ugm.UserGymMemberships)
+            .HasForeignKey(ugm => ugm.GymId)
+            .OnDelete(DeleteBehavior.SetNull);
 
-        builder.HasMany(ugm => ugm.OwnedPasses).WithOne(op => op.UserGymMembership).HasForeignKey(op => op.UserGymMembershipId);
+        builder
+            .HasMany(ugm => ugm.OwnedPasses)
+            .WithOne(op => op.UserGymMembership)
+            .HasForeignKey(op => op.UserGymMembershipId)
+            .OnDelete(DeleteBehavior.NoAction);
 
-        builder.HasOne(ugm => ugm.ApplicationUser).WithMany(au => au.UserGymMemberships);
+        builder
+            .HasOne(ugm => ugm.ApplicationUser)
+            .WithMany(au => au.UserGymMemberships)
+            .OnDelete(DeleteBehavior.NoAction);
     }
 }
