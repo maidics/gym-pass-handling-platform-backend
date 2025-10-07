@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Fitpass.Application.Common.Exceptions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Security;
 using FitPass.Application.Extensions;
@@ -47,6 +48,27 @@ public class CreateGymCreationRequestCommandHandler : IRequestHandler<CreateGymC
 
     public async Task Handle(CreateGymCreationRequestCommand command, CancellationToken cancellationToken)
     {
+        var ongoingRequests = await _context.Requests
+            .Where(r => r.CreatedBy == _user.Id && (r.Status == RequestStatus.Submitted || r.Status == RequestStatus.InProgress))
+            .ToListAsync();
+
+        if (ongoingRequests.Count > 0)
+        {
+            throw new BadRequestException("You already have an ongoing gym creation request.");
+        }
+
+        var sevenDaysAgo = DateTimeOffset.UtcNow.AddDays(-7);
+
+        var requestsInPastWeek = await _context.Requests
+            .Where(r => r.CreatedBy == _user.Id && r.CreatedOn <= sevenDaysAgo)
+            .OrderByDescending(r => r.CreatedOn)
+            .ToListAsync();
+
+        if (requestsInPastWeek.Count > 0)
+        {
+            throw new BadRequestException($"You can only submit one gym creation request per week. You will be able to submit a request on: {requestsInPastWeek.First().CreatedOn.AddDays(7)}.");
+        }
+
         var gymCreationRequest = new Request
         {
             Id = Guid.NewGuid().ToString(),
@@ -57,8 +79,8 @@ public class CreateGymCreationRequestCommandHandler : IRequestHandler<CreateGymC
             Payload = JsonSerializer.Serialize(command.CreateGymDTO),
         };
 
-        await _context.Requests.AddAsync(gymCreationRequest, cancellationToken);
+        await _context.Requests.AddAsync(gymCreationRequest);
 
-        await _context.SaveChangesAsync(cancellationToken);
+        await _context.SaveChangesAsync();
     }
 }

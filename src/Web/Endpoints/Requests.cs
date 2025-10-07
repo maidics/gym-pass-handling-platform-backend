@@ -47,9 +47,9 @@ public class Requests : EndpointGroupBase
         return TypedResults.NoContent();
     }
 
-    public async Task<Ok> CreateGymCreationRequest(ISender sender, [FromBody] CreateGymCreationRequestCommand command, CancellationToken cancellationToken)
+    public async Task<Ok> CreateGymCreationRequest(ISender sender, [FromBody] CreateGymCreationRequestCommand command)
     {
-        await sender.Send(command, cancellationToken);
+        await sender.Send(command);
 
         return TypedResults.Ok();
     }
