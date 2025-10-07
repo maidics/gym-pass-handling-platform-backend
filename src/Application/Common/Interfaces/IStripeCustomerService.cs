@@ -7,4 +7,5 @@ public interface IStripeCustomerService
 {
     Task CreateCustomer(ApplicationUser user);
     Task DeleteCustomer(ApplicationUser user);
+    Task CreateCustomer(NonRegisteredUser user);
 }

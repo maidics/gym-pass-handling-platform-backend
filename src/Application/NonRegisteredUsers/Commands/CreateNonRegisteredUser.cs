@@ -43,12 +43,14 @@ public class CreateNonRegisteredUserCommandHandler : IRequestHandler<CreateNonRe
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
     private readonly IMapper _mapper;
+    private readonly IStripeCustomerService _stripeCustomerService;
 
-    public CreateNonRegisteredUserCommandHandler(IApplicationDbContext context, IUser user, IMapper mapper)
+    public CreateNonRegisteredUserCommandHandler(IApplicationDbContext context, IUser user, IMapper mapper, IStripeCustomerService stripeCustomerService)
     {
         _context = context;
         _user = user;
         _mapper = mapper;
+        _stripeCustomerService = stripeCustomerService;
     }
 
     public async Task<NonRegisteredUserDto> Handle(CreateNonRegisteredUserCommand command, CancellationToken cancellationToken)
@@ -103,6 +105,8 @@ public class CreateNonRegisteredUserCommandHandler : IRequestHandler<CreateNonRe
             UserId = nonRegisteredUser.Id,
             GymId = gymStaffAssignment.GymId!
         };
+
+        await _stripeCustomerService.CreateCustomer(nonRegisteredUser);
 
         nonRegisteredUser.UserGymMemberships.Add(userGymMembership);
 

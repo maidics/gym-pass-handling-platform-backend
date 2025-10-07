@@ -6,5 +6,7 @@ public class NonRegisteredUser : BaseAuditableEntity
     public required string? PhoneNumber { get; set; }
     public required string FirstName { get; set; }
     public required string LastName { get; set; }
+    public string? UserPaymentProfileId { get; set; }
     public ICollection<UserGymMembership> UserGymMemberships { get; set; } = [];
+    public UserPaymentProfile? PaymentProfile { get; set; }
 }

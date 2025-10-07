@@ -65,7 +65,7 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, s
             Email = command.Email,
             UserGymMemberships = null,
             GymStaffAssigment = null,
-            PaymentProfile = null //TODO handle this
+            PaymentProfile = null //created in .CreateCustomer
         };
 
         var result = await _identityService.CreateUserAsync(user, command.Password, cancellationToken);

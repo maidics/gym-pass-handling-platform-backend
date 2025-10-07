@@ -36,7 +36,7 @@ public class StripeCustomerService : IStripeCustomerService
 
             var paymentProfile = new UserPaymentProfile
             {
-                ApplicationUserId = user.Id,
+                UserId = user.Id,
                 StripeCustomerId = customer.Id
             };
 
@@ -62,7 +62,37 @@ public class StripeCustomerService : IStripeCustomerService
             await _customerService.DeleteAsync(user.PaymentProfile!.StripeCustomerId);
 
             user.PaymentProfile.StripeCustomerId = null;
-        } catch (StripeException ex)
+        }
+        catch (StripeException ex)
+        {
+            ex.LogAndThrowApplicationException<StripeCustomerService>(_logger);
+        }
+    }
+
+    public async Task CreateCustomer(NonRegisteredUser user)
+    {
+        try
+        {
+            var customerOptions = new CustomerCreateOptions
+            {
+                Name = $"{user.FirstName} {user.LastName}",
+                Email = user.Email,
+                Phone = user.PhoneNumber
+            };
+
+            var customer = await _customerService.CreateAsync(customerOptions, null);
+
+            var paymentProfile = new UserPaymentProfile
+            {
+                UserId = user.Id,
+                StripeCustomerId = customer.Id
+            };
+
+            await _context.UserPaymentProfiles.AddAsync(paymentProfile);
+
+            user.UserPaymentProfileId = paymentProfile.Id;
+        }
+        catch (StripeException ex)
         {
             ex.LogAndThrowApplicationException<StripeCustomerService>(_logger);
         }

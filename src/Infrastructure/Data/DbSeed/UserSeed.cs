@@ -82,7 +82,7 @@ public partial class ApplicationDbContextInitialiser
                     GymStaffAssigment = null,
                     PaymentProfile = new UserPaymentProfile 
                     {
-                        ApplicationUserId = "User1",
+                        UserId = "User1",
                     }
                 },
                 string.Empty,
@@ -100,7 +100,7 @@ public partial class ApplicationDbContextInitialiser
                     GymStaffAssigment = null,
                     PaymentProfile = new UserPaymentProfile 
                     {
-                        ApplicationUserId = "User2"
+                        UserId = "User2"
                     }
                 },
                 string.Empty,

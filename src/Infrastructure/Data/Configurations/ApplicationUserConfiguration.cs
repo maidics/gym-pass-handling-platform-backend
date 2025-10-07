@@ -13,6 +13,8 @@ public class ApplicationUserConfiguration : IEntityTypeConfiguration<Application
 
         builder.HasOne(au => au.GymStaffAssigment).WithOne(gsa => gsa.ApplicationUser).HasForeignKey<GymStaffAssigment>(gsa => gsa.ApplicationUserId);
 
+        builder.HasOne(au => au.PaymentProfile).WithOne().HasForeignKey<UserPaymentProfile>(gsa => gsa.UserId);
+
         builder.Property(au => au.FirstName).HasMaxLength(MaxStringLengths.Name);
 
         builder.Property(au => au.LastName).HasMaxLength(MaxStringLengths.Name);
