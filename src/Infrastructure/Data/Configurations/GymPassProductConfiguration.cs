@@ -11,8 +11,7 @@ public class GymPassProductConfiguration : IEntityTypeConfiguration<GymPassProdu
         builder
             .HasOne(gpp => gpp.Gym)
             .WithMany(g => g.GymPassProducts)
-            .HasForeignKey(gpp => gpp.GymId)
-            .OnDelete(DeleteBehavior.NoAction);
+            .HasForeignKey(gpp => gpp.GymId);
 
         builder.Property(gpp => gpp.HUFPrice).HasPrecision(18, 2);
     }

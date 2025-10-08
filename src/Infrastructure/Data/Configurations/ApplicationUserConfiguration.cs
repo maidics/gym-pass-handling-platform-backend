@@ -12,19 +12,18 @@ public class ApplicationUserConfiguration : IEntityTypeConfiguration<Application
         builder
             .HasMany(au => au.UserGymMemberships)
             .WithOne(ugm => ugm.ApplicationUser)
-            .HasForeignKey(ugm => ugm.UserId)
-            .OnDelete(DeleteBehavior.SetNull);
+            .HasForeignKey(ugm => ugm.ApplicationUserId);
 
         builder
-            .HasOne(au => au.GymStaffAssigment)
+            .HasOne(au => au.GymStaffAssignment)
             .WithOne(gsa => gsa.ApplicationUser)
-            .HasForeignKey<GymStaffAssigment>(gsa => gsa.ApplicationUserId)
+            .HasForeignKey<GymStaffAssignment>(gsa => gsa.ApplicationUserId)
             .OnDelete(DeleteBehavior.Cascade);
 
         builder
             .HasOne(au => au.PaymentProfile)
-            .WithOne()
-            .HasForeignKey<UserPaymentProfile>(gsa => gsa.UserId)
+            .WithOne(upp => upp.ApplicationUser)
+            .HasForeignKey<UserPaymentProfile>(gsa => gsa.ApplicationUserId)
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.Property(au => au.FirstName).HasMaxLength(MaxStringLengths.Name);

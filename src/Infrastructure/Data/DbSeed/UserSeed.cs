@@ -23,7 +23,7 @@ public partial class ApplicationDbContextInitialiser
                     FirstName = "App",
                     LastName = "Admin",
                     UserGymMemberships = null,
-                    GymStaffAssigment = null,
+                    GymStaffAssignment = null,
                     PaymentProfile = null
                 },
                 Roles.AppAdministrator,
@@ -38,7 +38,7 @@ public partial class ApplicationDbContextInitialiser
                     FirstName = "Gym",
                     LastName = "Admin",
                     UserGymMemberships = null,
-                    GymStaffAssigment = new GymStaffAssigment {
+                    GymStaffAssignment = new GymStaffAssignment {
                         ApplicationUserId = "GymAdminLocalhostId",
                         GymId = gymId1,
                         EscalationEmail = "escalation@localhost",
@@ -58,7 +58,7 @@ public partial class ApplicationDbContextInitialiser
                     FirstName = "Gym",
                     LastName = "Staff",
                     UserGymMemberships = null,
-                    GymStaffAssigment = new GymStaffAssigment
+                    GymStaffAssignment = new GymStaffAssignment
                     {
                         ApplicationUserId = "GymStaffLocalhostId",
                         GymId = gymId1,
@@ -79,10 +79,11 @@ public partial class ApplicationDbContextInitialiser
                     FirstName = "Localhost",
                     LastName = "User1",
                     UserGymMemberships = [],
-                    GymStaffAssigment = null,
+                    GymStaffAssignment = null,
                     PaymentProfile = new UserPaymentProfile 
                     {
-                        UserId = "User1",
+                        ApplicationUserId = "User1",
+                        NonRegisteredUserId = null
                     }
                 },
                 string.Empty,
@@ -97,10 +98,11 @@ public partial class ApplicationDbContextInitialiser
                     FirstName = "Localhost",
                     LastName = "User2",
                     UserGymMemberships = [],
-                    GymStaffAssigment = null,
+                    GymStaffAssignment = null,
                     PaymentProfile = new UserPaymentProfile 
                     {
-                        UserId = "User2"
+                        ApplicationUserId = "User2",
+                        NonRegisteredUserId = null
                     }
                 },
                 string.Empty,
@@ -115,7 +117,7 @@ public partial class ApplicationDbContextInitialiser
                     LastName = "GymAdmin",
                     Email = "pendinggymadmin@localhost",
                     UserGymMemberships = null,
-                    GymStaffAssigment = new GymStaffAssigment 
+                    GymStaffAssignment = new GymStaffAssignment 
                     {
                         ApplicationUserId = "PendingGymAdmin",
                         GymId = null,

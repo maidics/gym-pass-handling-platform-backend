@@ -3,8 +3,11 @@ namespace FitPass.Domain.Entities;
 
 public class UserPaymentProfile : BaseEntity
 {
-    public required string UserId { get; set; }
-    public string? StripeCustomerId { get; set; } = null;
+    public required string? ApplicationUserId { get; set; }
+    public required string? NonRegisteredUserId { get; set; }
+    public string? StripeCustomerId { get; set; }
+    public ApplicationUser? ApplicationUser { get; set; }
+    public NonRegisteredUser? NonRegisteredUser { get; set; }
     List<PurchaseReceipt> PurchaseReceipts { get; set; } = [];
     /*
     public required string PhoneNumber { get; set; }

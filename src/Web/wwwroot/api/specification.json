@@ -1097,18 +1097,18 @@
         }
       }
     },
-    "/api/Users/Register/PendingGymAdministrator": {
+    "/api/Users/Register/PendingGymManagement": {
       "post": {
         "tags": [
           "Users"
         ],
-        "operationId": "RegisterPendingGymAdmin",
+        "operationId": "RegisterPendingGymManagement",
         "requestBody": {
           "x-name": "command",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/RegisterPendingGymAdmin"
+                "$ref": "#/components/schemas/RegisterPendingGymManagementCommand"
               }
             }
           },
@@ -1162,13 +1162,13 @@
         "tags": [
           "Users"
         ],
-        "operationId": "NominateUserToGymStaffMember",
+        "operationId": "NominateGymStaff",
         "requestBody": {
           "x-name": "command",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/NominateUserToGymStaffMemberCommand"
+                "$ref": "#/components/schemas/NominateGymStaffCommand"
               }
             }
           },
@@ -1245,6 +1245,24 @@
                 }
               }
             }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/Users/My/Delete": {
+      "delete": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "DeleteMyAccount",
+        "responses": {
+          "200": {
+            "description": ""
           }
         },
         "security": [
@@ -1439,11 +1457,17 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
-              "userId": {
-                "type": "string"
+              "applicationUserId": {
+                "type": "string",
+                "nullable": true
+              },
+              "nonRegisteredUserId": {
+                "type": "string",
+                "nullable": true
               },
               "gymId": {
-                "type": "string"
+                "type": "string",
+                "nullable": true
               },
               "gymMembershipStatus": {
                 "$ref": "#/components/schemas/GymMembershipStatus"
@@ -1454,7 +1478,20 @@
                 "nullable": true
               },
               "applicationUser": {
-                "$ref": "#/components/schemas/ApplicationUser"
+                "nullable": true,
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/ApplicationUser"
+                  }
+                ]
+              },
+              "nonRegisteredUser": {
+                "nullable": true,
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/NonRegisteredUser"
+                  }
+                ]
               },
               "gym": {
                 "$ref": "#/components/schemas/Gym"
@@ -1500,11 +1537,23 @@
                 "type": "string",
                 "nullable": true
               },
+              "gymstaffAssignmentId": {
+                "type": "string",
+                "nullable": true
+              },
               "paymentProfile": {
                 "nullable": true,
                 "oneOf": [
                   {
                     "$ref": "#/components/schemas/UserPaymentProfile"
+                  }
+                ]
+              },
+              "gymStaffAssignment": {
+                "nullable": true,
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/GymStaffAssignment"
                   }
                 ]
               },
@@ -1514,14 +1563,6 @@
                 "items": {
                   "$ref": "#/components/schemas/UserGymMembership"
                 }
-              },
-              "gymStaffAssigment": {
-                "nullable": true,
-                "oneOf": [
-                  {
-                    "$ref": "#/components/schemas/GymStaffAssigment"
-                  }
-                ]
               },
               "requests": {
                 "type": "array",
@@ -1552,14 +1593,107 @@
             "additionalProperties": false,
             "properties": {
               "applicationUserId": {
-                "type": "string"
+                "type": "string",
+                "nullable": true
+              },
+              "nonRegisteredUserId": {
+                "type": "string",
+                "nullable": true
               },
               "stripeCustomerId": {
                 "type": "string",
                 "nullable": true
               },
               "applicationUser": {
-                "$ref": "#/components/schemas/ApplicationUser"
+                "nullable": true,
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/ApplicationUser"
+                  }
+                ]
+              },
+              "nonRegisteredUser": {
+                "nullable": true,
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/NonRegisteredUser"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "NonRegisteredUser": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BaseAuditableEntity"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "email": {
+                "type": "string",
+                "nullable": true
+              },
+              "phoneNumber": {
+                "type": "string",
+                "nullable": true
+              },
+              "firstName": {
+                "type": "string"
+              },
+              "lastName": {
+                "type": "string"
+              },
+              "userPaymentProfileId": {
+                "type": "string",
+                "nullable": true
+              },
+              "userGymMemberships": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/UserGymMembership"
+                }
+              },
+              "paymentProfile": {
+                "nullable": true,
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/UserPaymentProfile"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "BaseAuditableEntity": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BaseEntity"
+          },
+          {
+            "type": "object",
+            "x-abstract": true,
+            "additionalProperties": false,
+            "properties": {
+              "createdOn": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "createdBy": {
+                "type": "string",
+                "nullable": true
+              },
+              "lastModifiedOn": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "lastModifiedBy": {
+                "type": "string",
+                "nullable": true
               }
             }
           }
@@ -1586,7 +1720,7 @@
         "x-abstract": true,
         "additionalProperties": false
       },
-      "GymStaffAssigment": {
+      "GymStaffAssignment": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -1790,36 +1924,6 @@
           "Completed",
           "Cancelled",
           "Rejected"
-        ]
-      },
-      "BaseAuditableEntity": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/BaseEntity"
-          },
-          {
-            "type": "object",
-            "x-abstract": true,
-            "additionalProperties": false,
-            "properties": {
-              "createdOn": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "createdBy": {
-                "type": "string",
-                "nullable": true
-              },
-              "lastModifiedOn": {
-                "type": "string",
-                "format": "date-time"
-              },
-              "lastModifiedBy": {
-                "type": "string",
-                "nullable": true
-              }
-            }
-          }
         ]
       },
       "IdentityUser": {
@@ -2250,7 +2354,7 @@
           }
         }
       },
-      "RegisterPendingGymAdmin": {
+      "RegisterPendingGymManagementCommand": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -2355,7 +2459,7 @@
           }
         }
       },
-      "NominateUserToGymStaffMemberCommand": {
+      "NominateGymStaffCommand": {
         "type": "object",
         "additionalProperties": false,
         "properties": {

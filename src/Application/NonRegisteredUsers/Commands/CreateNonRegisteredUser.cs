@@ -93,7 +93,6 @@ public class CreateNonRegisteredUserCommandHandler : IRequestHandler<CreateNonRe
 
         var nonRegisteredUser = new NonRegisteredUser
         {
-            Id = Guid.NewGuid().ToString(),
             Email = command.Email,
             PhoneNumber = command.PhoneNumber,
             FirstName = command.FirstName,
@@ -102,7 +101,8 @@ public class CreateNonRegisteredUserCommandHandler : IRequestHandler<CreateNonRe
 
         var userGymMembership = new UserGymMembership
         {
-            UserId = nonRegisteredUser.Id,
+            ApplicationUserId = null,
+            NonRegisteredUserId = nonRegisteredUser.Id,
             GymId = gymStaffAssignment.GymId!
         };
 

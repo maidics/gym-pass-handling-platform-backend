@@ -16,7 +16,6 @@ public class RequestConfiguration : IEntityTypeConfiguration<Request>
         builder
             .HasOne<ApplicationUser>()
             .WithMany(au => au.Requests)
-            .HasForeignKey(r => r.CreatedBy)
-            .OnDelete(DeleteBehavior.SetNull);
+            .HasForeignKey(r => r.CreatedBy);
     }
 }
