@@ -36,7 +36,8 @@ public class StripeCustomerService : IStripeCustomerService
 
             var paymentProfile = new UserPaymentProfile
             {
-                UserId = user.Id,
+                ApplicationUserId = user.Id,
+                NonRegisteredUserId = null,
                 StripeCustomerId = customer.Id
             };
 
@@ -84,7 +85,8 @@ public class StripeCustomerService : IStripeCustomerService
 
             var paymentProfile = new UserPaymentProfile
             {
-                UserId = user.Id,
+                ApplicationUserId = null,
+                NonRegisteredUserId = user.Id,
                 StripeCustomerId = customer.Id
             };
 

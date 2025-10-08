@@ -50,10 +50,10 @@ public class RegisterPendingGymManagementCommandHandler : IRequestHandler<Regist
             UserName = command.Email,
             UserGymMemberships = null,
             PaymentProfile = null,
-            GymStaffAssigment = null
+            GymStaffAssignment = null
         };
 
-        user.GymStaffAssigment = new GymStaffAssigment
+        user.GymStaffAssignment = new GymStaffAssignment
         {
             ApplicationUserId = user.Id,
             GymId = null,

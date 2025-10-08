@@ -64,7 +64,7 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, s
             LastName = command.LastName,
             Email = command.Email,
             UserGymMemberships = null,
-            GymStaffAssigment = null,
+            GymStaffAssignment = null,
             PaymentProfile = null //created in .CreateCustomer
         };
 

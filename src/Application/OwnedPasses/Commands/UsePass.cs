@@ -37,7 +37,7 @@ public class ApplicationUserUsePassCommandHandler : IRequestHandler<ApplicationU
 
         Guard.Against.NotFound(command.OwnedPassId, ownedPass, "Id");
         
-        if (_user.Id != ownedPass.UserGymMembership.UserId)
+        if (_user.Id != ownedPass.UserGymMembership.ApplicationUserId)
         {
             throw new UnauthorizedAccessException("This pass does not belong to you.");
         }

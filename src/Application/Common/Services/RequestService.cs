@@ -73,14 +73,14 @@ public class RequestService : IRequestService
             throw new BadRequestException("User has purchased passed before so they are not eligible for nomination.");
         }
 
-        if (user.GymStaffAssigment != null && user.GymStaffAssigment.GymId != requestDto.GymId)
+        if (user.GymStaffAssignment != null && user.GymStaffAssignment.GymId != requestDto.GymId)
         {
             throw new BadRequestException("Gym staff member cannot be nominated to Gym Administrator to another gym.");
         }
 
-        if (user.GymStaffAssigment == null)
+        if (user.GymStaffAssignment == null)
         {
-            var assigment = new GymStaffAssigment
+            var assigment = new GymStaffAssignment
             {
                 ApplicationUserId = user.Id,
                 GymId = requestDto.GymId,
@@ -88,11 +88,11 @@ public class RequestService : IRequestService
                 Role = Roles.GymAdministrator
             };
 
-            user.GymStaffAssigment = assigment;
+            user.GymStaffAssignment = assigment;
         }
         else
         {
-            user.GymStaffAssigment.EscalationEmail = requestDto.EscalationEmail;
+            user.GymStaffAssignment.EscalationEmail = requestDto.EscalationEmail;
         }
 
         var result = await _identityService.AddToRoleAsync(user, Roles.GymAdministrator);
@@ -119,7 +119,7 @@ public class RequestService : IRequestService
         }
 
         var userToNominate = await _context.ApplicationUsers
-            .Include(au => au.GymStaffAssigment)
+            .Include(au => au.GymStaffAssignment)
             .FirstOrDefaultAsync(au => au.Id == request.CreatedBy);
 
         Guard.Against.NotFound(request.CreatedBy!, userToNominate, "Id");
@@ -148,8 +148,8 @@ public class RequestService : IRequestService
             throw new Exception($"Failed to add user to GymAdministrator role: {string.Join(", ", promotionResult.Errors)}");
         }
 
-        userToNominate.GymStaffAssigment!.Role = Roles.GymAdministrator;
-        userToNominate.GymStaffAssigment.GymId = gym.Id;
+        userToNominate.GymStaffAssignment!.Role = Roles.GymAdministrator;
+        userToNominate.GymStaffAssignment.GymId = gym.Id;
 
         await _context.SaveChangesAsync();
     }

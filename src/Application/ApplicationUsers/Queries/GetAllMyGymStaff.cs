@@ -28,8 +28,8 @@ public class GetAllMyGymStaffQueryHandler : IRequestHandler<GetAllMyGymStaffQuer
 
         var gymStaffMembers = await _context
             .ApplicationUsers
-            .Where(au => au.GymStaffAssigment != null && au.GymStaffAssigment.GymId == gymStaffAssigment!.GymId)
-            .Include(au => au.GymStaffAssigment)
+            .Where(au => au.GymStaffAssignment != null && au.GymStaffAssignment.GymId == gymStaffAssigment!.GymId)
+            .Include(au => au.GymStaffAssignment)
             .ToListAsync(cancellationToken);
 
         return _mapper.Map<List<ApplicationUserDto>>(gymStaffMembers);

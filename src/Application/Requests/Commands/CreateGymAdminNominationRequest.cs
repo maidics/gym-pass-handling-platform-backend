@@ -68,13 +68,13 @@ public class CreateGymAdminNominationRequestCommandHandler : IRequestHandler<Cre
 
         var requester = await _context
             .ApplicationUsers
-            .Include(au => au.GymStaffAssigment)
+            .Include(au => au.GymStaffAssignment)
             .FirstOrDefaultAsync(au => au.Id == _user.Id, cancellationToken);
 
         var gym = await _context
             .Gyms
             .AsNoTracking()
-            .FirstOrDefaultAsync(g => g.Id == requester!.GymStaffAssigment!.GymId, cancellationToken);
+            .FirstOrDefaultAsync(g => g.Id == requester!.GymStaffAssignment!.GymId, cancellationToken);
 
         var request = new Request
         {

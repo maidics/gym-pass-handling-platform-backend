@@ -11,8 +11,7 @@ public class OwnedPassConfiguration : IEntityTypeConfiguration<OwnedPass>
         builder
             .HasOne(op => op.UserGymMembership)
             .WithMany(ugm => ugm.OwnedPasses)
-            .HasForeignKey(ugm => ugm.Id)
-            .OnDelete(DeleteBehavior.NoAction);
+            .HasForeignKey(ugm => ugm.Id);
 
         builder.Property(op => op.EurPrice).HasPrecision(18, 2);
     }

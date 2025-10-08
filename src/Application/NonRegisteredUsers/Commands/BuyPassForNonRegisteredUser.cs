@@ -61,8 +61,8 @@ public class BuyPassForNonRegisteredUserCommandHandler : IRequestHandler<BuyPass
         {
             userGymMembership = new UserGymMembership
             {
-                Id = Guid.NewGuid().ToString(),
-                UserId = nonRegisteredUser.Id,
+                ApplicationUserId = null,
+                NonRegisteredUserId = nonRegisteredUser.Id,
                 GymId = gymStaffAssignment!.GymId!
             };
 

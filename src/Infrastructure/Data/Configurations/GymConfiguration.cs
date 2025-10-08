@@ -18,8 +18,7 @@ public class GymConfiguration : IEntityTypeConfiguration<Gym>
         builder
             .HasMany(g => g.UserGymMemberships)
             .WithOne(ugm => ugm.Gym)
-            .HasForeignKey(g => g.GymId)
-            .OnDelete(DeleteBehavior.NoAction);
+            .HasForeignKey(g => g.GymId);
 
         builder.HasIndex(g => g.Name).IsUnique();
 

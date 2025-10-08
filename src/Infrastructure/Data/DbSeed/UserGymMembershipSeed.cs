@@ -11,12 +11,14 @@ public partial class ApplicationDbContextInitialiser
         List<UserGymMembership> ugms = [
                 new UserGymMembership {
                     Id = _userGymMembership1Id,
-                    UserId = "User1",
+                    ApplicationUserId = "User1",
+                    NonRegisteredUserId = null,
                     GymId = gymId1
                 },
                 new UserGymMembership {
                     Id = _userGymMembershipId2,
-                    UserId = "User1",
+                    ApplicationUserId = "User1",
+                    NonRegisteredUserId = null,
                     GymId = gymId2
                 }
             ];

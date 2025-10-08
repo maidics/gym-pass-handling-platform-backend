@@ -5,16 +5,15 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace FitPass.Infrastructure.Data.Configurations;
 
-public class GymStaffAssignmentConfiguration : IEntityTypeConfiguration<GymStaffAssigment>
+public class GymStaffAssignmentConfiguration : IEntityTypeConfiguration<GymStaffAssignment>
 {
-    public void Configure(EntityTypeBuilder<GymStaffAssigment> builder)
+    public void Configure(EntityTypeBuilder<GymStaffAssignment> builder)
     {
         builder.HasKey(gsa => gsa.ApplicationUserId);
 
         builder
             .HasOne(gsa => gsa.ApplicationUser)
-            .WithOne(au => au.GymStaffAssigment)
-            .OnDelete(DeleteBehavior.SetNull);
+            .WithOne(au => au.GymStaffAssignment);
 
         builder.Property(gsa => gsa.EscalationEmail).HasMaxLength(MaxStringLengths.Email);
     }

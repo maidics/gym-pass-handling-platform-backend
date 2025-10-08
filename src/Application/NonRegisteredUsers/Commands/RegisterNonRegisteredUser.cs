@@ -71,8 +71,12 @@ public class RegisterNonRegisteredUserCommandHandler : IRequestHandler<RegisterN
 
         foreach (var ugm in ugms)
         {
-            ugm.Id = applicationUserId;
+            ugm.ApplicationUserId = applicationUserId;
+            ugm.NonRegisteredUserId = null;
         }
+
+        nonRegisteredUser.PaymentProfile!.ApplicationUserId = applicationUserId;
+        nonRegisteredUser.PaymentProfile!.NonRegisteredUserId = null;
 
         var applicationUser = new ApplicationUser
         { 
@@ -80,10 +84,10 @@ public class RegisterNonRegisteredUserCommandHandler : IRequestHandler<RegisterN
             FirstName = nonRegisteredUser.FirstName,
             LastName = nonRegisteredUser.LastName,
             UserGymMemberships = [],
-            GymStaffAssigment = null,
+            GymStaffAssignment = null,
             Email = nonRegisteredUser.Email,
             PhoneNumber = nonRegisteredUser.PhoneNumber,
-            PaymentProfile = null,
+            PaymentProfile = nonRegisteredUser.PaymentProfile,
         };
 
         var result = await _identityService.CreateUserAsync(applicationUser, command.Password, cancellationToken);
@@ -92,5 +96,9 @@ public class RegisterNonRegisteredUserCommandHandler : IRequestHandler<RegisterN
         {
             throw new Exception($"An error occured during registration: {string.Join(", ", result.Errors.Select(e => e.Description))}");
         }
+
+        _context.NonRegisteredUsers.Remove(nonRegisteredUser);
+
+        await _context.SaveChangesAsync();
     }
 }

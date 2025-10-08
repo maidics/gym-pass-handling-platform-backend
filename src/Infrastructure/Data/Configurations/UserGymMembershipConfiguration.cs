@@ -11,18 +11,15 @@ public class UserGymMembershipConfiguration : IEntityTypeConfiguration<UserGymMe
         builder
             .HasOne(ugm => ugm.Gym)
             .WithMany(ugm => ugm.UserGymMemberships)
-            .HasForeignKey(ugm => ugm.GymId)
-            .OnDelete(DeleteBehavior.SetNull);
+            .HasForeignKey(ugm => ugm.GymId);
 
         builder
             .HasMany(ugm => ugm.OwnedPasses)
             .WithOne(op => op.UserGymMembership)
-            .HasForeignKey(op => op.UserGymMembershipId)
-            .OnDelete(DeleteBehavior.NoAction);
+            .HasForeignKey(op => op.UserGymMembershipId);
 
         builder
             .HasOne(ugm => ugm.ApplicationUser)
-            .WithMany(au => au.UserGymMemberships)
-            .OnDelete(DeleteBehavior.NoAction);
+            .WithMany(au => au.UserGymMemberships);
     }
 }

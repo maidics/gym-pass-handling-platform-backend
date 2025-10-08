@@ -42,12 +42,12 @@ public class NominateGymStaffCommandHandler : IRequestHandler<NominateGymStaffCo
 
         var user = await _context
             .ApplicationUsers
-            .Include(au => au.GymStaffAssigment)
+            .Include(au => au.GymStaffAssignment)
             .FirstOrDefaultAsync(au => au.Email == command.UserEmailToNominate);
 
         Guard.Against.NotFound(command.UserEmailToNominate, user, "Email");
 
-        if (user.GymStaffAssigment == null || user.GymStaffAssigment!.Role != Roles.PendingGymManagement)
+        if (user.GymStaffAssignment == null || user.GymStaffAssignment!.Role != Roles.PendingGymManagement)
         {
             throw new BadRequestException("Account with this email is not eligible for GymStaff nomination. Please register a new gym management account for this action");
         }
@@ -66,9 +66,9 @@ public class NominateGymStaffCommandHandler : IRequestHandler<NominateGymStaffCo
             throw new Exception($"Failed to nominate user: {string.Join(", ", nominationResult.Errors)}");
         }
 
-        user.GymStaffAssigment.GymId = nominatorAssignment!.GymId;
-        user.GymStaffAssigment.Role = Roles.GymStaff;
-        user.GymStaffAssigment.EscalationEmail = command.EscalationEmail;
+        user.GymStaffAssignment.GymId = nominatorAssignment!.GymId;
+        user.GymStaffAssignment.Role = Roles.GymStaff;
+        user.GymStaffAssignment.EscalationEmail = command.EscalationEmail;
 
         user.AddDomainEvent(new GymStaffNominatedEvent(user));
 

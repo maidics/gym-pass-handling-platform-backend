@@ -51,7 +51,8 @@ public class AddUserGymMembershipToNonRegisteredUserCommandHandler : IRequestHan
 
         nonRegisteredUser.UserGymMemberships.Add(new UserGymMembership
         {
-            UserId = nonRegisteredUser.Id,
+            ApplicationUserId = null,
+            NonRegisteredUserId = nonRegisteredUser.Id,
             GymId = gymStaffAssignment!.GymId!,
         });
 

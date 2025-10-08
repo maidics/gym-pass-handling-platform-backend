@@ -36,7 +36,7 @@ public class GetUserOwnedPassesForGymQueryHandler : IRequestHandler<GetUserOwned
         var userGymMembership = await _context.UserGymMemberships
             .AsNoTracking()
             .Include(ugm => ugm.OwnedPasses)
-            .FirstOrDefaultAsync(ugm => ugm.UserId == _user.Id, cancellationToken);
+            .FirstOrDefaultAsync(ugm => ugm.ApplicationUserId == _user.Id, cancellationToken);
 
         Guard.Against.Null(userGymMembership, query.GymId, "User is not a member of this gym.");
 

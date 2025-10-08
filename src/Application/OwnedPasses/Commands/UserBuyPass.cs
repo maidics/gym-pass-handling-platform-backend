@@ -56,7 +56,8 @@ public class ApplicationUserBuyPassCommandHandler : IRequestHandler<ApplicationU
         {
             userGymMembership = new UserGymMembership
             {
-                UserId = user.Id,
+                ApplicationUserId = user.Id,
+                NonRegisteredUserId = null,
                 GymId = gymPassProduct.GymId
             };
 
