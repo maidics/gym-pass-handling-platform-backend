@@ -19,7 +19,7 @@
       "defaultDictionaryValueReferenceTypeNullHandling": "NotNull",
       "defaultResponseReferenceTypeNullHandling": "NotNull",
       "generateOriginalParameterNames": true,
-      "defaultEnumHandling": "Integer",
+      "defaultEnumHandling": "String",
       "flattenInheritanceHierarchy": false,
       "generateKnownTypes": true,
       "generateEnumMappingDescription": false,
