@@ -1,6 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using FitPass.Application.ApplicationUsers.DTOs;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Models;
 using FitPass.Domain.Entities;
@@ -86,7 +87,7 @@ public class IdentityService : IIdentityService
         return result;
     }
 
-    public async Task<string> GenerateJWTTokenAsync(ApplicationUser user, CancellationToken cancellationToken)
+    public async Task<TokenResponse> GenerateJWTTokenAsync(ApplicationUser user, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
@@ -117,7 +118,8 @@ public class IdentityService : IIdentityService
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtSettings:Key"]!));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-        var expires = DateTime.UtcNow.AddMinutes(Convert.ToInt32(_configuration["JwtSettings:ExpiryInMinutes"]!));
+        var expiryMinutes = Convert.ToInt32(_configuration["JwtSettings:ExpiryInMinutes"]!);
+        var expires = DateTime.UtcNow.AddMinutes(expiryMinutes);
 
         var token = new JwtSecurityToken(
             issuer: _configuration["JwtSettings:Issuer"],
@@ -132,7 +134,11 @@ public class IdentityService : IIdentityService
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        return accessToken;
+        return new TokenResponse
+        {
+            AccessToken = accessToken,
+            ExpiresIn = expiryMinutes * 60
+        };
     }
 
     public async Task<(Result result, ApplicationUser? user)> AuthenticateUserAsync(string email, string password, CancellationToken cancellationToken)

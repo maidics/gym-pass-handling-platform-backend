@@ -1,4 +1,5 @@
 ﻿using Fitpass.Application.Common.Exceptions;
+using FitPass.Application.ApplicationUsers.DTOs;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Extensions;
 using FitPass.Domain.Constants;
@@ -14,7 +15,7 @@ public record RegisterPendingGymManagementCommand
         string Email,
         string Password,
         string PasswordConfirm
-    ): IRequest<string>;
+    ): IRequest<TokenResponse>;
 
 public class RegisterPendingGymManagementCommandValidator : AbstractValidator<RegisterPendingGymManagementCommand>
 {
@@ -32,7 +33,7 @@ public class RegisterPendingGymManagementCommandValidator : AbstractValidator<Re
     }
 }
 
-public class RegisterPendingGymManagementCommandHandler : IRequestHandler<RegisterPendingGymManagementCommand, string>
+public class RegisterPendingGymManagementCommandHandler : IRequestHandler<RegisterPendingGymManagementCommand, TokenResponse>
 {
     private readonly IIdentityService _identityService;
 
@@ -40,7 +41,7 @@ public class RegisterPendingGymManagementCommandHandler : IRequestHandler<Regist
     {
         _identityService = identityService;
     }
-    public async Task<string> Handle(RegisterPendingGymManagementCommand command, CancellationToken cancellationToken)
+    public async Task<TokenResponse> Handle(RegisterPendingGymManagementCommand command, CancellationToken cancellationToken)
     {
         var user = new ApplicationUser
         {

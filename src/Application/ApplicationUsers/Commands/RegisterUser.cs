@@ -1,4 +1,5 @@
 using Fitpass.Application.Common.Exceptions;
+using FitPass.Application.ApplicationUsers.DTOs;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Extensions;
 using FitPass.Domain.Constants;
@@ -14,7 +15,7 @@ public record RegisterUserCommand
         string Email,
         string Password,
         string PasswordConfirm
-    ) : IRequest<string>;
+    ) : IRequest<TokenResponse>;
 
 public class RegisterUserCommandValidator : AbstractValidator<RegisterUserCommand>
 {
@@ -32,7 +33,7 @@ public class RegisterUserCommandValidator : AbstractValidator<RegisterUserComman
     }
 }
 
-public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, string>
+public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, TokenResponse>
 {
     private readonly IIdentityService _identityService;
     private readonly IApplicationDbContext _context;
@@ -44,7 +45,7 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, s
         _context = context;
         _stripeCustomerService = stripeCustomerService;
     }
-    public async Task<string> Handle(RegisterUserCommand command, CancellationToken cancellationToken)
+    public async Task<TokenResponse> Handle(RegisterUserCommand command, CancellationToken cancellationToken)
     {
         var existingUser = await _context
             .ApplicationUsers
@@ -81,8 +82,8 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, s
 
         await _context.SaveChangesAsync();
 
-        var jwtToken = await _identityService.GenerateJWTTokenAsync(user, cancellationToken);
+        var jwtResponse = await _identityService.GenerateJWTTokenAsync(user, cancellationToken);
 
-        return jwtToken;
+        return jwtResponse;
     }
 }

@@ -1,4 +1,5 @@
-﻿using FitPass.Application.Common.Models;
+﻿using FitPass.Application.ApplicationUsers.DTOs;
+using FitPass.Application.Common.Models;
 using FitPass.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 
@@ -12,7 +13,7 @@ public interface IIdentityService
     Task<bool> AuthorizeAsync(string userId, string policyName);
     Task<Result> DeleteUserAsync(ApplicationUser user);
     Task<IdentityResult> CreateUserAsync(ApplicationUser user, string password, CancellationToken cancellationToken);
-    Task<string> GenerateJWTTokenAsync(ApplicationUser user, CancellationToken cancellationToken);
+    Task<TokenResponse> GenerateJWTTokenAsync(ApplicationUser user, CancellationToken cancellationToken);
     Task<(Result result, ApplicationUser? user)> AuthenticateUserAsync(string email, string password, CancellationToken cancellationToken);
     Task<Result> AddToRoleAsync(ApplicationUser user, string role);
     Task<Result> RemoveFromRoleAsync(ApplicationUser user, string role);

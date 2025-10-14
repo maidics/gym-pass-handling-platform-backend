@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using FitPass.Domain.Constants;
+﻿using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
-using Microsoft.AspNetCore.Identity;
 
 namespace FitPass.Infrastructure.Data.DbSeed;
 

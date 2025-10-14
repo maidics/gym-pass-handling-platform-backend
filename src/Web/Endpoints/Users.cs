@@ -30,21 +30,21 @@ public class Users : EndpointGroupBase
         groupBuilder.MapDelete(DeleteMyAccount, "My/Delete").RequireAuthorization();
     }
 
-    public async Task<Ok<string>> RegisterUser(ISender sender, [FromBody] RegisterUserCommand command, CancellationToken cancellationToken)
+    public async Task<Ok<TokenResponse>> RegisterUser(ISender sender, [FromBody] RegisterUserCommand command, CancellationToken cancellationToken)
     {
         var result = await sender.Send(command, cancellationToken);
 
         return TypedResults.Ok(result);
     }
 
-    public async Task<Ok<string>> LogInUser(ISender sender, [FromBody] LogInUserCommand command, CancellationToken cancellationToken)
+    public async Task<Ok<TokenResponse>> LogInUser(ISender sender, [FromBody] LogInUserCommand command, CancellationToken cancellationToken)
     {
         var result = await sender.Send(command, cancellationToken);
 
         return TypedResults.Ok(result);
     }
 
-    public async Task<Ok<string>> RegisterPendingGymManagement(ISender sender, [FromBody] RegisterPendingGymManagementCommand command, CancellationToken cancellationToken)
+    public async Task<Ok<TokenResponse>> RegisterPendingGymManagement(ISender sender, [FromBody] RegisterPendingGymManagementCommand command, CancellationToken cancellationToken)
     {
         var result = await sender.Send(command, cancellationToken);
 

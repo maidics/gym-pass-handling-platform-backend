@@ -1,3 +1,4 @@
+using FitPass.Application.ApplicationUsers.DTOs;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Extensions;
 
@@ -7,7 +8,7 @@ public record LogInUserCommand
     (
         string Email,
         string Password
-    ) : IRequest<string>;
+    ) : IRequest<TokenResponse>;
 
 public class LogInUserCommandValidator : AbstractValidator<LogInUserCommand>
 {
@@ -22,7 +23,7 @@ public class LogInUserCommandValidator : AbstractValidator<LogInUserCommand>
     }
 }
 
-public class LogInUserCommandHandler : IRequestHandler<LogInUserCommand, string>
+public class LogInUserCommandHandler : IRequestHandler<LogInUserCommand, TokenResponse>
 {
     private readonly IIdentityService _identityService;
 
@@ -30,7 +31,7 @@ public class LogInUserCommandHandler : IRequestHandler<LogInUserCommand, string>
     {
         _identityService = identityService;
     }
-    public async Task<string> Handle(LogInUserCommand command, CancellationToken cancellationToken)
+    public async Task<TokenResponse> Handle(LogInUserCommand command, CancellationToken cancellationToken)
     {
         var result = await _identityService.AuthenticateUserAsync(command.Email, command.Password, cancellationToken);
 
@@ -39,8 +40,8 @@ public class LogInUserCommandHandler : IRequestHandler<LogInUserCommand, string>
             throw new UnauthorizedAccessException(string.Join(", ", result.result.Errors));
         }
 
-        var jwtToken = await _identityService.GenerateJWTTokenAsync(result.user!, cancellationToken);
+        var jwtResponse = await _identityService.GenerateJWTTokenAsync(result.user!, cancellationToken);
 
-        return jwtToken;
+        return jwtResponse;
     }
 }
