@@ -19,7 +19,7 @@
       "defaultDictionaryValueReferenceTypeNullHandling": "NotNull",
       "defaultResponseReferenceTypeNullHandling": "NotNull",
       "generateOriginalParameterNames": true,
-      "defaultEnumHandling": "Integer",
+      "defaultEnumHandling": "String",
       "flattenInheritanceHierarchy": false,
       "generateKnownTypes": true,
       "generateEnumMappingDescription": false,
@@ -58,6 +58,19 @@
       "assemblyConfig": null,
       "referencePaths": [],
       "useNuGetCache": false
+    }
+  },
+  "codeGenerators": {
+    "openApiToTypeScriptClient": {
+      "className": "ApiClient",
+      "moduleName": "apiClient",
+      "template": "Axios",
+      "typeScriptVersion": 5.5.2,
+      "generateClientInterfaces": true,
+      "useSingletonProvider": true,
+      "enumStyle": "StringLiteral",
+      "input": "wwwroot/api/specification.json",
+      "output": "../../scaffold/types.ts"
     }
   }
 }
