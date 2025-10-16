@@ -76,9 +76,12 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, T
             throw new BadRequestException(string.Join(", ", result.Errors.Select(e => e.Description).ToList()));
         }
 
+        /*
+
         await _stripeCustomerService.CreateCustomer(user);
 
         user.AddDomainEvent(new UserRegisteredEvent(user));
+        */
 
         await _context.SaveChangesAsync();
 

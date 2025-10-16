@@ -12,6 +12,8 @@ builder.AddWebServices();
 
 var app = builder.Build();
 
+app.UseCors("AllowFrontent");
+
 /*
 var httpClientFactory = app.Services.GetRequiredService<IHttpClientFactory>();
 var resilientHttpClient = httpClientFactory.CreateClient("StripeClient");

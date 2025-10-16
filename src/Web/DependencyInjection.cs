@@ -52,6 +52,17 @@ public static class DependencyInjection
 
             configure.OperationProcessors.Add(new AspNetCoreOperationSecurityScopeProcessor("JWT"));
         });
+
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("AllowFrontent", builder =>
+            {
+                builder.WithOrigins("http://localhost:5000")
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .AllowCredentials();
+            });
+        });
     }
 
     public static void AddKeyVaultIfConfigured(this IHostApplicationBuilder builder)
