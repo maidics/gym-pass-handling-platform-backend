@@ -51,7 +51,7 @@ public class RequestService : IRequestService
 
         Guard.Against.Null(requestDto, "Request object", "Failed to retrieve Gym Admin Nomination details.");
 
-        var user = await _context.ApplicationUsers.FindAsync(requestDto.UserIdToNominate);
+        var user = await _identityService.FindUserByIdAsync(requestDto.UserIdToNominate);
 
         Guard.Against.NotFound(requestDto.UserIdToNominate, user, "Email");
 
@@ -118,9 +118,7 @@ public class RequestService : IRequestService
             throw new ConflictException($"Gym with '{requestDto.GymName}' already exists.");
         }
 
-        var userToNominate = await _context.ApplicationUsers
-            .Include(au => au.GymStaffAssignment)
-            .FirstOrDefaultAsync(au => au.Id == request.CreatedBy);
+        var userToNominate = await _identityService.FindUserByIdAsync(request.CreatedBy!);
 
         Guard.Against.NotFound(request.CreatedBy!, userToNominate, "Id");
 

@@ -22,9 +22,4 @@ public static class EmailBodies
         "\n\nBest Regards," +
         $"\n\nThe {CommonStrings.AppName} Team";
     }
-
-    public static string PasswordReset(string passwordResetToken)
-    {
-        return $"Your password reset token: {passwordResetToken}";
-    }
 }

@@ -1,14 +1,8 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-using FitPass.Application.ApplicationUsers.DTOs;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Models;
 using FitPass.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
 
 namespace FitPass.Infrastructure.Identity;
 
@@ -17,25 +11,25 @@ public class IdentityService : IIdentityService
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IUserClaimsPrincipalFactory<ApplicationUser> _userClaimsPrincipalFactory;
     private readonly IAuthorizationService _authorizationService;
-    private readonly IConfiguration _configuration;
 
     public IdentityService(
         UserManager<ApplicationUser> userManager,
         IUserClaimsPrincipalFactory<ApplicationUser> userClaimsPrincipalFactory,
-        IAuthorizationService authorizationService,
-        IConfiguration configuration)
+        IAuthorizationService authorizationService)
     {
         _userManager = userManager;
         _userClaimsPrincipalFactory = userClaimsPrincipalFactory;
         _authorizationService = authorizationService;
-        _configuration = configuration;
     }
 
-    public async Task<string?> GetUserNameAsync(string userId)
+    public async Task<ApplicationUser?> FindUserByIdAsync(string userId)
     {
-        var user = await _userManager.FindByIdAsync(userId);
+        return await _userManager.FindByIdAsync(userId);
+    }
 
-        return user?.UserName;
+    public async Task<ApplicationUser?> FindUserByEmailAsync(string email)
+    {
+        return await _userManager.FindByEmailAsync(email);
     }
 
     public async Task<bool> IsInRoleAsync(ApplicationUser user, string role)
@@ -43,15 +37,8 @@ public class IdentityService : IIdentityService
         return user != null && await _userManager.IsInRoleAsync(user, role);
     }
 
-    public async Task<List<string>?> GetRolesAsync(string userId)
+    public async Task<List<string>?> GetRolesAsync(ApplicationUser user)
     {
-        var user = await _userManager.FindByIdAsync(userId);
-
-        if (user == null)
-        {
-            return null;
-        }
-
         return [.. await _userManager.GetRolesAsync(user)];
     }
 
@@ -87,52 +74,6 @@ public class IdentityService : IIdentityService
         return result;
     }
 
-    public async Task<TokenResponse> GenerateJWTTokenAsync(ApplicationUser user, CancellationToken cancellationToken)
-    {
-        cancellationToken.ThrowIfCancellationRequested();
-
-        var claims = new List<Claim>
-        {
-            new(JwtRegisteredClaimNames.Sub, user.Id), //sub is the standard claim for user ID
-            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()) //jti is a unique token identifier
-        };
-
-        var userRoles = await _userManager.GetRolesAsync(user);
-
-        foreach (var role in userRoles)
-        {
-            claims.Add(new Claim(ClaimTypes.Role, role));
-        }
-
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtSettings:Key"]!));
-        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-        var utcNow = DateTime.UtcNow;
-
-        var expiryMinutes = Convert.ToInt32(_configuration["JwtSettings:ExpiryInMinutes"]!);
-        var expires = utcNow.AddMinutes(expiryMinutes);
-
-        var token = new JwtSecurityToken(
-            issuer: _configuration["JwtSettings:Issuer"],
-            audience: _configuration["JwtSettings:Audience"],
-            notBefore: utcNow,
-            expires: expires,
-            claims: claims,
-            signingCredentials: creds
-        );
-
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var accessToken = tokenHandler.WriteToken(token);
-
-        cancellationToken.ThrowIfCancellationRequested();
-
-        return new TokenResponse
-        {
-            AccessToken = accessToken,
-            ExpiresIn = expiryMinutes * 60
-        };
-    }
-
     public async Task<(Result result, ApplicationUser? user)> AuthenticateUserAsync(string email, string password, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
@@ -166,5 +107,19 @@ public class IdentityService : IIdentityService
     public Task<string> GeneratePasswordResetTokenAsync(ApplicationUser user)
     {
         return _userManager.GeneratePasswordResetTokenAsync(user);
+    }
+
+    public async Task<Result> ResetPasswordAsync(ApplicationUser user, string resetToken, string newPassword)
+    {
+        var result = await _userManager.ResetPasswordAsync(user, resetToken, newPassword);
+
+        return result.ToApplicationResult();
+    }
+
+    public async Task<Result> UpdateSecurityStampAsync(ApplicationUser user)
+    {
+        var result = await _userManager.UpdateSecurityStampAsync(user);
+
+        return result.ToApplicationResult();
     }
 }

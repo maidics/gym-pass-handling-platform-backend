@@ -1,42 +1,31 @@
-
 using FitPass.Application.Common.Interfaces;
-using FitPass.Application.Common.Security;
-using FitPass.Domain.Strings;
 
 namespace Fitpass.Application.ApplicationUsers.Commands;
 
-[Authorize]
-public record RequestPasswordResetEmailCommand : IRequest;
+public record RequestPasswordResetEmailCommand(string Email) : IRequest; //not validated because if it does not exists then it is not sent but frontend does validate if it is an email
 
 public class RequestPasswordResetEmailCommandHandler : IRequestHandler<RequestPasswordResetEmailCommand>
 {
-    private readonly IApplicationDbContext _context;
-    private readonly IUser _user;
     private readonly IIdentityService _identityService;
     private readonly ILocalDevEmailService _emailService;
 
-    public RequestPasswordResetEmailCommandHandler(IApplicationDbContext context, IUser user, IIdentityService identityService, ILocalDevEmailService emailService)
+    public RequestPasswordResetEmailCommandHandler(IIdentityService identityService, ILocalDevEmailService emailService)
     {
-        _context = context;
-        _user = user;
         _identityService = identityService;
         _emailService = emailService;
     }
 
-    public async Task Handle(RequestPasswordResetEmailCommand request, CancellationToken cancellationToken)
+    public async Task Handle(RequestPasswordResetEmailCommand command, CancellationToken cancellationToken)
     {
-        var user = await _context
-            .ApplicationUsers
-            .AsNoTracking()
-            .FirstOrDefaultAsync(au => au.Id == _user.Id!);
+        var user = await _identityService.FindUserByEmailAsync(command.Email);
 
         if (user == null)
         {
-            throw new UnauthorizedAccessException();
+            return;
         }
 
         var passwordResetToken = await _identityService.GeneratePasswordResetTokenAsync(user);
 
-        await _emailService.SendEmailAsync(user.Email!, EmailSubjects.Placeholder(), EmailBodies.PasswordReset(passwordResetToken));
+        await _emailService.SendPasswordResetEmailAsync(user.Email!, passwordResetToken, user.Id);
     }
 }

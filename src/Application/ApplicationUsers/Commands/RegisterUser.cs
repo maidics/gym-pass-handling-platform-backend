@@ -29,7 +29,7 @@ public class RegisterUserCommandValidator : AbstractValidator<RegisterUserComman
 
         RuleFor(v => v.Password).StrongPassword();
 
-        RuleFor(v => v.PasswordConfirm).Equal(v => v.PasswordConfirm);
+        RuleFor(v => v.PasswordConfirm).Equal(v => v.PasswordConfirm).WithMessage("Password and password confirm must match.");
     }
 }
 
@@ -38,12 +38,14 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, T
     private readonly IIdentityService _identityService;
     private readonly IApplicationDbContext _context;
     private readonly IStripeCustomerService _stripeCustomerService;
+    private readonly IJwtTokenService _jwtTokenService;
 
-    public RegisterUserCommandHandler(IIdentityService identityService, IApplicationDbContext context, IStripeCustomerService stripeCustomerService)
+    public RegisterUserCommandHandler(IIdentityService identityService, IApplicationDbContext context, IStripeCustomerService stripeCustomerService, IJwtTokenService jwtTokenService)
     {
         _identityService = identityService;
         _context = context;
         _stripeCustomerService = stripeCustomerService;
+        _jwtTokenService = jwtTokenService;
     }
     public async Task<TokenResponse> Handle(RegisterUserCommand command, CancellationToken cancellationToken)
     {
@@ -56,7 +58,6 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, T
         {
             throw new ConflictException("User with this email already exists.");
         }
-
 
         var user = new ApplicationUser
         {
@@ -77,7 +78,6 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, T
         }
 
         /*
-
         await _stripeCustomerService.CreateCustomer(user);
 
         user.AddDomainEvent(new UserRegisteredEvent(user));
@@ -85,7 +85,7 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, T
 
         await _context.SaveChangesAsync();
 
-        var jwtResponse = await _identityService.GenerateJWTTokenAsync(user, cancellationToken);
+        var jwtResponse = await _jwtTokenService.GenerateTokenAsync(user, cancellationToken);
 
         return jwtResponse;
     }

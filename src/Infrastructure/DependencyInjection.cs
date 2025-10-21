@@ -2,7 +2,7 @@
 using System.Security.Claims;
 using System.Text;
 using Fitpass.Infrastructure.Data.Interceptors;
-using Fitpass.Infrastructure.Email;
+using Fitpass.Infrastructure.Services.Email;
 using Fitpass.Infrastructure.Stripe.Services;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Domain.Entities;
@@ -10,6 +10,8 @@ using FitPass.Infrastructure.Data;
 using FitPass.Infrastructure.Data.DbSeed;
 using FitPass.Infrastructure.Data.Interceptors;
 using FitPass.Infrastructure.Services;
+using FitPass.Infrastructure.Services.Email;
+using FitPass.Infrastructure.Services.Jwt;
 using FitPass.Infrastructure.Stripe;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -34,6 +36,7 @@ public static class DependencyInjection
 
         builder.Services.AddScoped<ISaveChangesInterceptor, AuditableEntityInterceptor>();
         builder.Services.AddScoped<ISaveChangesInterceptor, DispatchDomainEventsInterceptor>();
+        builder.Services.AddScoped<InterceptorStateService>();
 
         builder.Services.AddDbContext<ApplicationDbContext>((sp, options) =>
         {
@@ -59,7 +62,13 @@ public static class DependencyInjection
 
         builder.Services.AddSingleton(TimeProvider.System);
         builder.Services.AddTransient<IIdentityService, FitPass.Infrastructure.Identity.IdentityService>();
+
+        builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));
+        builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
+
+        builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("Email"));
         builder.Services.AddTransient<ILocalDevEmailService, LocalDevEmailService>();
+
         builder.Services.AddTransient<IQrCodeService, QrCodeService>();
 
         builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection(StripeSettings.SectionName));
@@ -130,7 +139,5 @@ public static class DependencyInjection
                     }
                 });
             });
-
-        builder.Services.AddScoped<InterceptorStateService>();
     }
 }

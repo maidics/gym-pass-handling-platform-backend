@@ -36,10 +36,12 @@ public class RegisterPendingGymManagementCommandValidator : AbstractValidator<Re
 public class RegisterPendingGymManagementCommandHandler : IRequestHandler<RegisterPendingGymManagementCommand, TokenResponse>
 {
     private readonly IIdentityService _identityService;
+    private readonly IJwtTokenService _jwtTokenService;
 
-    public RegisterPendingGymManagementCommandHandler(IIdentityService identityService)
+    public RegisterPendingGymManagementCommandHandler(IIdentityService identityService, IJwtTokenService jwtTokenService)
     {
         _identityService = identityService;
+        _jwtTokenService = jwtTokenService;
     }
     public async Task<TokenResponse> Handle(RegisterPendingGymManagementCommand command, CancellationToken cancellationToken)
     {
@@ -75,7 +77,7 @@ public class RegisterPendingGymManagementCommandHandler : IRequestHandler<Regist
             throw new BadRequestException(string.Join(", ", roleResult.Errors));
         }
 
-        var jwtToken = await _identityService.GenerateJWTTokenAsync(user, cancellationToken);
+        var jwtToken = await _jwtTokenService.GenerateTokenAsync(user, cancellationToken);
 
         user.AddDomainEvent(new PendingGymAdminRegisteredEvent(user));
 

@@ -26,10 +26,12 @@ public class LogInUserCommandValidator : AbstractValidator<LogInUserCommand>
 public class LogInUserCommandHandler : IRequestHandler<LogInUserCommand, TokenResponse>
 {
     private readonly IIdentityService _identityService;
+    private readonly IJwtTokenService _jwtTokenService;
 
-    public LogInUserCommandHandler(IIdentityService identityService)
+    public LogInUserCommandHandler(IIdentityService identityService, IJwtTokenService jwtTokenService)
     {
         _identityService = identityService;
+        _jwtTokenService = jwtTokenService;
     }
     public async Task<TokenResponse> Handle(LogInUserCommand command, CancellationToken cancellationToken)
     {
@@ -40,7 +42,7 @@ public class LogInUserCommandHandler : IRequestHandler<LogInUserCommand, TokenRe
             throw new UnauthorizedAccessException(string.Join(", ", result.result.Errors));
         }
 
-        var jwtResponse = await _identityService.GenerateJWTTokenAsync(result.user!, cancellationToken);
+        var jwtResponse = await _jwtTokenService.GenerateTokenAsync(result.user!, cancellationToken);
 
         return jwtResponse;
     }

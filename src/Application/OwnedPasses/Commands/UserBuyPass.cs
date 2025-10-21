@@ -21,10 +21,12 @@ public class ApplicationUserBuyPassCommandHandler : IRequestHandler<ApplicationU
 {
     private readonly IUser _user;
     private readonly IApplicationDbContext _context;
-    public ApplicationUserBuyPassCommandHandler(IUser user, IApplicationDbContext context)
+    private readonly IIdentityService _identityService;
+    public ApplicationUserBuyPassCommandHandler(IUser user, IApplicationDbContext context, IIdentityService identityService)
     {
         _user = user;
         _context = context;
+        _identityService = identityService;
     }
 
     public async Task Handle(ApplicationUserBuyPassCommand command, CancellationToken cancellationToken)
@@ -44,9 +46,7 @@ public class ApplicationUserBuyPassCommandHandler : IRequestHandler<ApplicationU
 
         Guard.Against.NotFound(command.GymPassProductId, gymPassProduct, "Id");
 
-        var user = await _context.ApplicationUsers
-                .Include(u => u.UserGymMemberships)
-                .FirstOrDefaultAsync(u => u.Id == _user.Id);
+        var user = await _identityService.FindUserByIdAsync(_user.Id!);
 
         Guard.Against.Null(user, "Id", "Failed to find currently logged in user.");
 

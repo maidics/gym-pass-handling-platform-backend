@@ -23,20 +23,20 @@ public class UpdateMyUserProfileCommandValidator : AbstractValidator<UpdateMyUse
 
 public class UpdateMyUserProfileCommandHandler : IRequestHandler<UpdateMyUserProfileCommand>
 {
+    private readonly IIdentityService _identityService;
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
-    private readonly IMapper _mapper;
 
-    public UpdateMyUserProfileCommandHandler(IApplicationDbContext context, IUser user, IMapper mapper)
+    public UpdateMyUserProfileCommandHandler(IIdentityService identityService, IApplicationDbContext context, IUser user)
     {
+        _identityService = identityService;
         _context = context;
         _user = user;
-        _mapper = mapper;
     }
     
-    public async Task Handle(UpdateMyUserProfileCommand command, CancellationToken cancellationToken)
+    public async Task Handle(UpdateMyUserProfileCommand command, CancellationToken cancellationToken) //TODO: test if this saves
     {
-        var user = await _context.ApplicationUsers.FindAsync(_user.Id!);
+        var user = await _identityService.FindUserByIdAsync(_user.Id!);
 
         if (user == null)
         {

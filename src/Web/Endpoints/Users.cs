@@ -33,7 +33,9 @@ public class Users : EndpointGroupBase
 
         groupBuilder.MapPut(UpdateMyUserProfile, "My/Profile").RequireAuthorization();
 
-        groupBuilder.MapPost(RequestPasswordResetEmail, "My/PasswordReset").RequireAuthorization();
+        groupBuilder.MapPost(RequestPasswordResetEmail, "RequestPasswordResetEmail");
+
+        groupBuilder.MapPost(ResetPassword, "ResetPassword");
     }
 
     public async Task<Ok<TokenResponse>> RegisterUser(ISender sender, [FromBody] RegisterUserCommand command, CancellationToken cancellationToken)
@@ -106,10 +108,17 @@ public class Users : EndpointGroupBase
         return TypedResults.NoContent();
     }
 
-    public async Task<NoContent> RequestPasswordResetEmail(ISender sender, CancellationToken cancellationToken)
+    public async Task<NoContent> RequestPasswordResetEmail(ISender sender, [FromBody] RequestPasswordResetEmailCommand command, CancellationToken cancellationToken)
     {
-        await sender.Send(new RequestPasswordResetEmailCommand());
+        await sender.Send(command);
 
         return TypedResults.NoContent();
+    }
+
+    public async Task<Ok<TokenResponse>> ResetPassword(ISender sender, [FromBody] ResetPasswordCommand command)
+    {
+        var result = await sender.Send(command);
+
+        return TypedResults.Ok(result);
     }
 }
