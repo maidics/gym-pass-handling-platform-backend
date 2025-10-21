@@ -91,20 +91,9 @@ public class IdentityService : IIdentityService
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (user.Id == null)
-        {
-            throw new Exception("User id is null");
-        }
-
-        if (user.Email == null)
-        {
-            throw new Exception("User email is null");
-        }
-
         var claims = new List<Claim>
         {
             new(JwtRegisteredClaimNames.Sub, user.Id), //sub is the standard claim for user ID
-            new(JwtRegisteredClaimNames.Email, user.Email!),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()) //jti is a unique token identifier
         };
 
@@ -118,14 +107,17 @@ public class IdentityService : IIdentityService
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtSettings:Key"]!));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
+        var utcNow = DateTime.UtcNow;
+
         var expiryMinutes = Convert.ToInt32(_configuration["JwtSettings:ExpiryInMinutes"]!);
-        var expires = DateTime.UtcNow.AddMinutes(expiryMinutes);
+        var expires = utcNow.AddMinutes(expiryMinutes);
 
         var token = new JwtSecurityToken(
             issuer: _configuration["JwtSettings:Issuer"],
             audience: _configuration["JwtSettings:Audience"],
-            claims: claims,
+            notBefore: utcNow,
             expires: expires,
+            claims: claims,
             signingCredentials: creds
         );
 

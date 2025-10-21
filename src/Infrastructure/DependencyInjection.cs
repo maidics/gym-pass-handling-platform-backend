@@ -84,8 +84,6 @@ public static class DependencyInjection
 
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
-
-
                     ValidateIssuer = true,
                     ValidateAudience = true,
                     //ValidateLifetime = true,
