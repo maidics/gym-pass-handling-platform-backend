@@ -11,9 +11,4 @@ public static class EmailSubjects
     {
         return "Welcome To Fitpass!";
     }
-
-    public static string Confirm()
-    {
-        return "";
-    }
 }

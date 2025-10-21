@@ -162,4 +162,9 @@ public class IdentityService : IIdentityService
 
         return result.ToApplicationResult();
     }
+
+    public Task<string> GeneratePasswordResetTokenAsync(ApplicationUser user)
+    {
+        return _userManager.GeneratePasswordResetTokenAsync(user);
+    }
 }

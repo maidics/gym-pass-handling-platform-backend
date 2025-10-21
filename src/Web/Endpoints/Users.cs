@@ -1,8 +1,8 @@
 using Fitpass.Application.ApplicationUsers.Commands;
+using Fitpass.Application.ApplicationUsers.DTOs;
 using Fitpass.Application.ApplicationUsers.Queries;
 using FitPass.Application.ApplicationUsers.Commands;
 using FitPass.Application.ApplicationUsers.DTOs;
-using FitPass.Application.Common.Models;
 using FitPass.Application.Gyms.Queries;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -28,6 +28,12 @@ public class Users : EndpointGroupBase
         groupBuilder.MapGet(GetGymManagementUsers, "Management/{gymId}").RequireAuthorization();
 
         groupBuilder.MapDelete(DeleteMyAccount, "My/Delete").RequireAuthorization();
+
+        groupBuilder.MapGet(GetMyUserProfileData, "My/Profile").RequireAuthorization();
+
+        groupBuilder.MapPut(UpdateMyUserProfile, "My/Profile").RequireAuthorization();
+
+        groupBuilder.MapPost(RequestPasswordResetEmail, "My/PasswordReset").RequireAuthorization();
     }
 
     public async Task<Ok<TokenResponse>> RegisterUser(ISender sender, [FromBody] RegisterUserCommand command, CancellationToken cancellationToken)
@@ -84,5 +90,26 @@ public class Users : EndpointGroupBase
         await sender.Send(new DeleteMyAccountCommand());
 
         return TypedResults.Ok();
+    }
+
+    public async Task<Ok<ApplicationUserProfileDataDto>> GetMyUserProfileData(ISender sender, CancellationToken cancellationToken)
+    {
+        var result = await sender.Send(new GetMyUserProfileDataQuery(), cancellationToken);
+
+        return TypedResults.Ok(result);
+    }
+
+    public async Task<NoContent> UpdateMyUserProfile(ISender sender, UpdateMyUserProfileCommand command, CancellationToken cancellationToken)
+    {
+        await sender.Send(command);
+
+        return TypedResults.NoContent();
+    }
+
+    public async Task<NoContent> RequestPasswordResetEmail(ISender sender, CancellationToken cancellationToken)
+    {
+        await sender.Send(new RequestPasswordResetEmailCommand());
+
+        return TypedResults.NoContent();
     }
 }

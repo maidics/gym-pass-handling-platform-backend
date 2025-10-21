@@ -17,4 +17,5 @@ public interface IIdentityService
     Task<(Result result, ApplicationUser? user)> AuthenticateUserAsync(string email, string password, CancellationToken cancellationToken);
     Task<Result> AddToRoleAsync(ApplicationUser user, string role);
     Task<Result> RemoveFromRoleAsync(ApplicationUser user, string role);
+    Task<string> GeneratePasswordResetTokenAsync(ApplicationUser user);
 }

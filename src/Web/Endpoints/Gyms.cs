@@ -22,7 +22,7 @@ public class Gyms : EndpointGroupBase
 
         groupBuilder.MapPut(UpdateMyGymProfile, "My/Profile").RequireAuthorization();
 
-        groupBuilder.MapGet(GetAllGyms).RequireAuthorization();
+        groupBuilder.MapGet(GetAllGyms);
 
         groupBuilder.MapGet(GetGymDetails, "{gymId}/Details").RequireAuthorization();
 

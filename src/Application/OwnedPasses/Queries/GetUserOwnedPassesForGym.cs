@@ -8,14 +8,14 @@ namespace Fitpass.Application.OwnedPasses.Queries;
 [Authorize]
 public record GetUserOwnedPassesForGymQuery
     (
-        string GymId
+        string UserGymMembershipId
     ) : IRequest<List<OwnedPassDto>>;
 
 public class GetUserOwnedPassesForGymQueryValidator : AbstractValidator<GetUserOwnedPassesForGymQuery>
 {
     public GetUserOwnedPassesForGymQueryValidator()
     {
-        RuleFor(v => v.GymId).NotEmptyWithMessage("Gym id");
+        RuleFor(v => v.UserGymMembershipId).NotEmptyWithMessage("User gym membership id");
     }
 }
 
@@ -36,9 +36,14 @@ public class GetUserOwnedPassesForGymQueryHandler : IRequestHandler<GetUserOwned
         var userGymMembership = await _context.UserGymMemberships
             .AsNoTracking()
             .Include(ugm => ugm.OwnedPasses)
-            .FirstOrDefaultAsync(ugm => ugm.ApplicationUserId == _user.Id, cancellationToken);
+            .FirstOrDefaultAsync(ugm => ugm.Id == query.UserGymMembershipId, cancellationToken);
 
-        Guard.Against.Null(userGymMembership, query.GymId, "User is not a member of this gym.");
+        Guard.Against.Null(userGymMembership, query.UserGymMembershipId, "User is not a member of this gym.");
+
+        if (userGymMembership.ApplicationUserId != _user.Id!)
+        {
+            throw new UnauthorizedAccessException();
+        }
 
         return _mapper.Map<List<OwnedPassDto>>(userGymMembership.OwnedPasses);
     }

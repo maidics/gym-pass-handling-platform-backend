@@ -1,11 +1,8 @@
 using Fitpass.Application.Gyms.DTOs;
 using FitPass.Application.Common.Interfaces;
-using FitPass.Application.Common.Security;
-using FitPass.Domain.Constants;
 
 namespace Fitpass.Application.Gyms.Queries;
 
-[Authorize(Roles = Roles.AppAdministrator)]
 public record GetAllGymsQuery : IRequest<List<GymDto>>;
 
 public class GetAllGymsQueryHandler : IRequestHandler<GetAllGymsQuery, List<GymDto>>
