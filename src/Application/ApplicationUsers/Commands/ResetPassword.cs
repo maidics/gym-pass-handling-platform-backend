@@ -64,6 +64,7 @@ public class ResetPasswordCommandHandler : IRequestHandler<ResetPasswordCommand,
             //return modified response - add property to TokenResponse: string? Warning
             //roll back password change
             //remove security stamps from db - brute force
+            //add logic to have an invalid jwt tokens after table and check if the token was made before the set value then reject requests
 
             //Solution: log error here + add retry mechanism to UpdateSecurityStampAsync
         }
