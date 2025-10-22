@@ -18,5 +18,4 @@ public interface IIdentityService
     Task<Result> RemoveFromRoleAsync(ApplicationUser user, string role);
     Task<string> GeneratePasswordResetTokenAsync(ApplicationUser user);
     Task<Result> ResetPasswordAsync(ApplicationUser user, string resetToken, string newPassword);
-    Task<Result> UpdateSecurityStampAsync(ApplicationUser user);
 }
