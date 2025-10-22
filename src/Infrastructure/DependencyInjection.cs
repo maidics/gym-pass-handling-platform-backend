@@ -89,7 +89,13 @@ public static class DependencyInjection
         })
             .AddJwtBearer(options =>
             {
-                var configuration = builder.Configuration;
+                string jwtSectionKey = "Jwt"; 
+                var jwtSettings = builder.Configuration.GetSection(jwtSectionKey).Get<JwtSettings>();
+
+                if (jwtSettings == null)
+                {
+                    throw new ArgumentException($"Jwt section not found with '{jwtSectionKey}' key.");
+                }
 
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
@@ -98,9 +104,9 @@ public static class DependencyInjection
                     //ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
 
-                    ValidIssuer = configuration["JwtSettings:Issuer"],
-                    ValidAudience = configuration["JwtSettings:Audience"],
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JwtSettings:Key"]!)),
+                    ValidIssuer = jwtSettings.Issuer,
+                    ValidAudience = jwtSettings.Audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Key)),
                     RoleClaimType = ClaimTypes.Role
                 };
             });

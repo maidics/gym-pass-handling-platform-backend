@@ -76,7 +76,7 @@
       "templateDirectory": null,
       "serviceHost": null,
       "serviceSchemes": null,
-      "output": "../../scaffold/types.ts",
+      "output": "../../client_types/nswag_generated.ts",
       "newLineBehavior": "Auto"
     }
   }

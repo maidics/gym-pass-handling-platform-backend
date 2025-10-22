@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using FitPass.Application.Common.Interfaces;
+using FitPass.Domain.Entities;
 using Microsoft.Extensions.Logging;
 
 namespace FitPass.Application.Common.Behaviours;
@@ -37,16 +38,15 @@ public class PerformanceBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequ
         if (elapsedMilliseconds > 500)
         {
             var requestName = typeof(TRequest).Name;
-            var userId = _user.Id ?? string.Empty;
-            var userName = string.Empty;
+            ApplicationUser? user = null;
 
-            if (!string.IsNullOrEmpty(userId))
+            if (!string.IsNullOrEmpty(_user.Id))
             {
-                userName = await _identityService.GetUserNameAsync(userId);
+                user = await _identityService.FindUserByIdAsync(_user.Id);
             }
 
             _logger.LogWarning("FitPass Long Running Request: {Name} ({ElapsedMilliseconds} milliseconds) {@UserId} {@UserName} {@Request}",
-                requestName, elapsedMilliseconds, userId, userName, request);
+                requestName, elapsedMilliseconds, user?.Id, user?.Email, request);
         }
 
         return response;

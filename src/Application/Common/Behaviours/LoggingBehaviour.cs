@@ -1,4 +1,5 @@
 ﻿using FitPass.Application.Common.Interfaces;
+using FitPass.Domain.Entities;
 using MediatR.Pipeline;
 using Microsoft.Extensions.Logging;
 
@@ -21,15 +22,14 @@ public class LoggingBehaviour<TRequest> : IRequestPreProcessor<TRequest>
     public async Task Process(TRequest request, CancellationToken cancellationToken)
     {
         var requestName = typeof(TRequest).Name;
-        var userId = _user.Id ?? string.Empty;
-        string? userName = string.Empty;
+        ApplicationUser? user = null;
 
-        if (!string.IsNullOrEmpty(userId))
+        if (!string.IsNullOrEmpty(_user.Id))
         {
-            userName = await _identityService.GetUserNameAsync(userId);
+            user = await _identityService.FindUserByIdAsync(_user.Id);
         }
 
         _logger.LogInformation("FitPass Request: {Name} {@UserId} {@UserName} {@Request}",
-            requestName, userId, userName, request);
+            requestName, user?.Id, user?.Email, request);
     }
 }
