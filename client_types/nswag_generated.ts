@@ -2391,8 +2391,8 @@ export class GymDto implements IGymDto {
     id?: string;
     name?: string;
     address?: string;
-    gymStatus?: GymStatus;
-    gymTier?: GymTier;
+    status?: GymStatus;
+    tier?: GymTier;
     creationDate?: Date;
     ownerName?: string | undefined;
     gymPassProducts?: GymPassProductDto[] | undefined;
@@ -2411,8 +2411,8 @@ export class GymDto implements IGymDto {
             this.id = _data["id"];
             this.name = _data["name"];
             this.address = _data["address"];
-            this.gymStatus = _data["gymStatus"];
-            this.gymTier = _data["gymTier"];
+            this.status = _data["status"];
+            this.tier = _data["tier"];
             this.creationDate = _data["creationDate"] ? new Date(_data["creationDate"].toString()) : <any>undefined;
             this.ownerName = _data["ownerName"];
             if (Array.isArray(_data["gymPassProducts"])) {
@@ -2435,8 +2435,8 @@ export class GymDto implements IGymDto {
         data["id"] = this.id;
         data["name"] = this.name;
         data["address"] = this.address;
-        data["gymStatus"] = this.gymStatus;
-        data["gymTier"] = this.gymTier;
+        data["status"] = this.status;
+        data["tier"] = this.tier;
         data["creationDate"] = this.creationDate ? this.creationDate.toISOString() : <any>undefined;
         data["ownerName"] = this.ownerName;
         if (Array.isArray(this.gymPassProducts)) {
@@ -2452,8 +2452,8 @@ export interface IGymDto {
     id?: string;
     name?: string;
     address?: string;
-    gymStatus?: GymStatus;
-    gymTier?: GymTier;
+    status?: GymStatus;
+    tier?: GymTier;
     creationDate?: Date;
     ownerName?: string | undefined;
     gymPassProducts?: GymPassProductDto[] | undefined;
@@ -2468,8 +2468,8 @@ export class GymPassProductDto implements IGymPassProductDto {
     type?: PassType;
     totalUses?: number | undefined;
     daysAfterExpiring?: number | undefined;
-    eurPrice?: number;
-    isAvailable?: boolean;
+    hufPrice?: number;
+    isActive?: boolean;
 
     constructor(data?: IGymPassProductDto) {
         if (data) {
@@ -2486,8 +2486,8 @@ export class GymPassProductDto implements IGymPassProductDto {
             this.type = _data["type"];
             this.totalUses = _data["totalUses"];
             this.daysAfterExpiring = _data["daysAfterExpiring"];
-            this.eurPrice = _data["eurPrice"];
-            this.isAvailable = _data["isAvailable"];
+            this.hufPrice = _data["hufPrice"];
+            this.isActive = _data["isActive"];
         }
     }
 
@@ -2504,8 +2504,8 @@ export class GymPassProductDto implements IGymPassProductDto {
         data["type"] = this.type;
         data["totalUses"] = this.totalUses;
         data["daysAfterExpiring"] = this.daysAfterExpiring;
-        data["eurPrice"] = this.eurPrice;
-        data["isAvailable"] = this.isAvailable;
+        data["hufPrice"] = this.hufPrice;
+        data["isActive"] = this.isActive;
         return data;
     }
 }
@@ -2515,8 +2515,8 @@ export interface IGymPassProductDto {
     type?: PassType;
     totalUses?: number | undefined;
     daysAfterExpiring?: number | undefined;
-    eurPrice?: number;
-    isAvailable?: boolean;
+    hufPrice?: number;
+    isActive?: boolean;
 }
 
 export type PassType = "SingleUse" | "MultiUse" | "Unlimited";
@@ -3802,9 +3802,9 @@ export class RequestDto implements IRequestDto {
     title?: string;
     description?: string;
     priorityLevel?: PriorityLevel;
-    requestType?: RequestType;
-    requestStatus?: RequestStatus;
-    requestPayload?: string | undefined;
+    type?: RequestType;
+    status?: RequestStatus;
+    payload?: string | undefined;
 
     constructor(data?: IRequestDto) {
         if (data) {
@@ -3825,9 +3825,9 @@ export class RequestDto implements IRequestDto {
             this.title = _data["title"];
             this.description = _data["description"];
             this.priorityLevel = _data["priorityLevel"];
-            this.requestType = _data["requestType"];
-            this.requestStatus = _data["requestStatus"];
-            this.requestPayload = _data["requestPayload"];
+            this.type = _data["type"];
+            this.status = _data["status"];
+            this.payload = _data["payload"];
         }
     }
 
@@ -3848,9 +3848,9 @@ export class RequestDto implements IRequestDto {
         data["title"] = this.title;
         data["description"] = this.description;
         data["priorityLevel"] = this.priorityLevel;
-        data["requestType"] = this.requestType;
-        data["requestStatus"] = this.requestStatus;
-        data["requestPayload"] = this.requestPayload;
+        data["type"] = this.type;
+        data["status"] = this.status;
+        data["payload"] = this.payload;
         return data;
     }
 }
@@ -3864,9 +3864,9 @@ export interface IRequestDto {
     title?: string;
     description?: string;
     priorityLevel?: PriorityLevel;
-    requestType?: RequestType;
-    requestStatus?: RequestStatus;
-    requestPayload?: string | undefined;
+    type?: RequestType;
+    status?: RequestStatus;
+    payload?: string | undefined;
 }
 
 export class GetRequestsQuery implements IGetRequestsQuery {
@@ -4255,7 +4255,7 @@ export class ApplicationUserDto implements IApplicationUserDto {
     firstName?: string;
     lastName?: string | undefined;
     userGymMemberships?: UserGymMembershipDto[] | undefined;
-    gymStaffAssigment?: GymStaffAssignmentDto | undefined;
+    gymStaffAssignment?: GymStaffAssignmentDto | undefined;
 
     constructor(data?: IApplicationUserDto) {
         if (data) {
@@ -4277,7 +4277,7 @@ export class ApplicationUserDto implements IApplicationUserDto {
                 for (let item of _data["userGymMemberships"])
                     this.userGymMemberships!.push(UserGymMembershipDto.fromJS(item));
             }
-            this.gymStaffAssigment = _data["gymStaffAssigment"] ? GymStaffAssignmentDto.fromJS(_data["gymStaffAssigment"]) : <any>undefined;
+            this.gymStaffAssignment = _data["gymStaffAssignment"] ? GymStaffAssignmentDto.fromJS(_data["gymStaffAssignment"]) : <any>undefined;
         }
     }
 
@@ -4299,7 +4299,7 @@ export class ApplicationUserDto implements IApplicationUserDto {
             for (let item of this.userGymMemberships)
                 data["userGymMemberships"].push(item.toJSON());
         }
-        data["gymStaffAssigment"] = this.gymStaffAssigment ? this.gymStaffAssigment.toJSON() : <any>undefined;
+        data["gymStaffAssignment"] = this.gymStaffAssignment ? this.gymStaffAssignment.toJSON() : <any>undefined;
         return data;
     }
 }
@@ -4310,11 +4310,12 @@ export interface IApplicationUserDto {
     firstName?: string;
     lastName?: string | undefined;
     userGymMemberships?: UserGymMembershipDto[] | undefined;
-    gymStaffAssigment?: GymStaffAssignmentDto | undefined;
+    gymStaffAssignment?: GymStaffAssignmentDto | undefined;
 }
 
 export class UserGymMembershipDto implements IUserGymMembershipDto {
-    userId?: string;
+    applicationUserId?: string | undefined;
+    nonRegisteredUserId?: string | undefined;
     gymId?: string;
     gymMembershipStatus?: GymMembershipStatus;
     memberSince?: Date | undefined;
@@ -4332,7 +4333,8 @@ export class UserGymMembershipDto implements IUserGymMembershipDto {
 
     init(_data?: any) {
         if (_data) {
-            this.userId = _data["userId"];
+            this.applicationUserId = _data["applicationUserId"];
+            this.nonRegisteredUserId = _data["nonRegisteredUserId"];
             this.gymId = _data["gymId"];
             this.gymMembershipStatus = _data["gymMembershipStatus"];
             this.memberSince = _data["memberSince"] ? new Date(_data["memberSince"].toString()) : <any>undefined;
@@ -4354,7 +4356,8 @@ export class UserGymMembershipDto implements IUserGymMembershipDto {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["userId"] = this.userId;
+        data["applicationUserId"] = this.applicationUserId;
+        data["nonRegisteredUserId"] = this.nonRegisteredUserId;
         data["gymId"] = this.gymId;
         data["gymMembershipStatus"] = this.gymMembershipStatus;
         data["memberSince"] = this.memberSince ? this.memberSince.toISOString() : <any>undefined;
@@ -4369,7 +4372,8 @@ export class UserGymMembershipDto implements IUserGymMembershipDto {
 }
 
 export interface IUserGymMembershipDto {
-    userId?: string;
+    applicationUserId?: string | undefined;
+    nonRegisteredUserId?: string | undefined;
     gymId?: string;
     gymMembershipStatus?: GymMembershipStatus;
     memberSince?: Date | undefined;

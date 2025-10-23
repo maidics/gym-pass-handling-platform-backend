@@ -36,6 +36,6 @@ public class DeleteMyAccountCommandHandler : IRequestHandler<DeleteMyAccountComm
             throw new BadRequestException(string.Join(", ", result.Errors));
         }
 
-        await _stripeCustomerService.DeleteCustomer(user!);
+        //await _stripeCustomerService.DeleteCustomer(user!);
     }
 }

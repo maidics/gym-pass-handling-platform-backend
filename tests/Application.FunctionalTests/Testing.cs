@@ -1,4 +1,5 @@
 ﻿using FitPass.Domain.Constants;
+using FitPass.Domain.Entities;
 using FitPass.Infrastructure.Data;
 using FitPass.Infrastructure.Identity;
 using MediatR;
@@ -16,6 +17,7 @@ public partial class Testing
     private static IServiceScopeFactory _scopeFactory = null!;
     private static string? _userId;
     private static List<string>? _roles;
+
     [OneTimeSetUp]
     public async Task RunBeforeAnyTests()
     {
@@ -56,21 +58,98 @@ public partial class Testing
 
     public static async Task<string> RunAsDefaultUserAsync()
     {
-        return await RunAsUserAsync("test@local", "Testing1234!", Array.Empty<string>());
+        var user = new ApplicationUser
+        {
+            Id = "DefaultUserId",
+            FirstName = "Default",
+            LastName = "User",
+            Email = "default@localhost",
+            GymStaffAssignment = null,
+            UserGymMemberships = [
+                    new UserGymMembership {
+                        ApplicationUserId = "DefaultUserId",
+                        NonRegisteredUserId = null,
+                        GymId = "LocalhostGymId1"
+                    }
+                ]
+        };
+
+        return await RunAsUserAsync(user, "Password123_", []);
     }
 
-    public static async Task<string> RunAsAdministratorAsync()
+    public static async Task<string> RunAsAppAdministratorAsync()
     {
-        return await RunAsUserAsync("administrator@local", "Administrator1234!", new[] { Roles.AppAdministrator });
+        var user = new ApplicationUser
+        {
+            FirstName = "App",
+            LastName = "Administrator",
+            Email = "appadmin@localhost",
+            GymStaffAssignment = null,
+            UserGymMemberships = null
+        };
+
+        return await RunAsUserAsync(user, "Password123_", [Roles.AppAdministrator]);
     }
 
-    public static async Task<string> RunAsUserAsync(string userName, string password, string[] roles)
+    public static async Task<string> RunAsGymAdministratorAsync()
+    {
+        var user = new ApplicationUser
+        {
+            Id = "GymAdministratorId",
+            FirstName = "Gym",
+            LastName = "Administrator",
+            Email = "gymadmin@localhost",
+            GymStaffAssignment = new GymStaffAssignment
+            {
+                ApplicationUserId = "GymAdministratorId",
+                GymId = "LocalhostGymId1",
+                Role = Roles.GymAdministrator
+            },
+            UserGymMemberships = null
+        };
+
+        return await RunAsUserAsync(user, "Password123_", [Roles.GymAdministrator]);
+    }
+
+    public static async Task<string> RunAsGymStaffAsync()
+    {
+        var user = new ApplicationUser
+        {
+            Id = "GymStaffId",
+            FirstName = "Gym",
+            LastName = "Staff",
+            Email = "gymstaff@localhost",
+            GymStaffAssignment = new GymStaffAssignment
+            {
+                ApplicationUserId = "GymStaffId",
+                GymId = "LocalhostGymId1",
+                Role = Roles.GymStaff
+            },
+            UserGymMemberships = null
+        };
+
+        return await RunAsUserAsync(user, "Password123_", [Roles.GymStaff]);
+    }
+
+    public static async Task<string> RunAsPendingGymManagementAsync()
+    {
+        var user = new ApplicationUser
+        {
+            FirstName = "Pending",
+            LastName = "GymManagement",
+            Email = "pendinggymmanagement@localhost",
+            GymStaffAssignment = null,
+            UserGymMemberships = null
+        };
+
+        return await RunAsUserAsync(user, "Password123_", [Roles.PendingGymManagement]);
+    }
+
+    public static async Task<string> RunAsUserAsync(ApplicationUser user, string password, string[] roles)
     {
         using var scope = _scopeFactory.CreateScope();
 
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-
-        var user = new ApplicationUser { UserName = userName, Email = userName };
 
         var result = await userManager.CreateAsync(user, password);
 
@@ -95,7 +174,7 @@ public partial class Testing
 
         var errors = string.Join(Environment.NewLine, result.ToApplicationResult().Errors);
 
-        throw new Exception($"Unable to create {userName}.{Environment.NewLine}{errors}");
+        throw new Exception($"Unable to create {roles[0]} user.{Environment.NewLine}{errors}");
     }
 
     public static async Task ResetState()

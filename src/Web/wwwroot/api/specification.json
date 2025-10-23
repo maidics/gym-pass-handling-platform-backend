@@ -1477,10 +1477,10 @@
           "address": {
             "type": "string"
           },
-          "gymStatus": {
+          "status": {
             "$ref": "#/components/schemas/GymStatus"
           },
-          "gymTier": {
+          "tier": {
             "$ref": "#/components/schemas/GymTier"
           },
           "creationDate": {
@@ -1550,11 +1550,11 @@
             "format": "int32",
             "nullable": true
           },
-          "eurPrice": {
+          "hufPrice": {
             "type": "number",
             "format": "decimal"
           },
-          "isAvailable": {
+          "isActive": {
             "type": "boolean"
           }
         }
@@ -2404,13 +2404,13 @@
           "priorityLevel": {
             "$ref": "#/components/schemas/PriorityLevel"
           },
-          "requestType": {
+          "type": {
             "$ref": "#/components/schemas/RequestType"
           },
-          "requestStatus": {
+          "status": {
             "$ref": "#/components/schemas/RequestStatus"
           },
-          "requestPayload": {
+          "payload": {
             "type": "string",
             "nullable": true
           }
@@ -2593,7 +2593,7 @@
               "$ref": "#/components/schemas/UserGymMembershipDto"
             }
           },
-          "gymStaffAssigment": {
+          "gymStaffAssignment": {
             "nullable": true,
             "oneOf": [
               {
@@ -2607,8 +2607,13 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "userId": {
-            "type": "string"
+          "applicationUserId": {
+            "type": "string",
+            "nullable": true
+          },
+          "nonRegisteredUserId": {
+            "type": "string",
+            "nullable": true
           },
           "gymId": {
             "type": "string"
