@@ -6,8 +6,8 @@ namespace FitPass.Application.Common.Interfaces;
 
 public interface IIdentityService
 {
-    Task<ApplicationUser?> FindUserByIdAsync(string userId);
-    Task<ApplicationUser?> FindUserByEmailAsync(string email);
+    Task<ApplicationUser?> FindUserByIdAsync(string userId, CancellationToken? cancellationToken = null);
+    Task<ApplicationUser?> FindUserByEmailAsync(string email, CancellationToken? cancellationToken = null);
     Task<bool> IsInRoleAsync(ApplicationUser user, string role);
     Task<List<string>?> GetRolesAsync(ApplicationUser user);
     Task<bool> AuthorizeAsync(string userId, string policyName);

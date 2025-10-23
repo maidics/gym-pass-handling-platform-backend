@@ -1364,17 +1364,50 @@
           "x-position": 1
         },
         "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TokenResponse"
-                }
-              }
-            }
+          "204": {
+            "description": ""
           }
         }
+      }
+    },
+    "/api/Users/RevokeGymStaffRole/{gymStaffMemberId}": {
+      "put": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "RevokeGymStaffRole",
+        "parameters": [
+          {
+            "name": "gymStaffMemberId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "x-name": "message",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          },
+          "x-position": 2
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
       }
     }
   },

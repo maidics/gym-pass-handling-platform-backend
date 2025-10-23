@@ -3,6 +3,7 @@ using Fitpass.Application.ApplicationUsers.DTOs;
 using Fitpass.Application.ApplicationUsers.Queries;
 using FitPass.Application.ApplicationUsers.Commands;
 using FitPass.Application.ApplicationUsers.DTOs;
+using FitPass.Application.ApplicationUsers.Queries;
 using FitPass.Application.Gyms.Queries;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -36,6 +37,10 @@ public class Users : EndpointGroupBase
         groupBuilder.MapPost(RequestPasswordResetEmail, "RequestPasswordResetEmail");
 
         groupBuilder.MapPost(ResetPassword, "ResetPassword");
+
+        groupBuilder.MapPut(RevokeGymStaffRole, "RevokeGymStaffRole/{gymStaffMemberId}").RequireAuthorization();
+
+        groupBuilder.MapGet(GetGymManagementUser, "GymManagement/My/{gymManagementUserId}").RequireAuthorization();
     }
 
     public async Task<Ok<TokenResponse>> RegisterUser(ISender sender, [FromBody] RegisterUserCommand command, CancellationToken cancellationToken)
@@ -115,9 +120,23 @@ public class Users : EndpointGroupBase
         return TypedResults.NoContent();
     }
 
-    public async Task<Ok<TokenResponse>> ResetPassword(ISender sender, [FromBody] ResetPasswordCommand command)
+    public async Task<NoContent> ResetPassword(ISender sender, [FromBody] ResetPasswordCommand command)
     {
-        var result = await sender.Send(command);
+        await sender.Send(command);
+
+        return TypedResults.NoContent();
+    }
+
+    public async Task<NoContent> RevokeGymStaffRole(ISender sender, string gymStaffMemberId, [FromBody] string? message)
+    {
+        await sender.Send(new RevokeGymStaffRoleCommand(gymStaffMemberId, message));
+
+        return TypedResults.NoContent();
+    }
+
+    public async Task<Ok<ApplicationUserDto>> GetGymManagementUser(ISender sender, string gymManagementUserId, CancellationToken cancellationToken)
+    {
+        var result = await sender.Send(new GetGymManagementUserQuery(gymManagementUserId), cancellationToken);
 
         return TypedResults.Ok(result);
     }

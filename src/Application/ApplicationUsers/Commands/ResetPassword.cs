@@ -1,4 +1,3 @@
-using FitPass.Application.ApplicationUsers.DTOs;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Extensions;
 
@@ -9,7 +8,7 @@ public record ResetPasswordCommand(
     string PasswordResetToken,
     string NewPassword,
     string NewPasswordConfirm
-) : IRequest<TokenResponse>;
+) : IRequest;
 
 public class ResetPasswordCommandValidator : AbstractValidator<ResetPasswordCommand>
 {
@@ -27,18 +26,16 @@ public class ResetPasswordCommandValidator : AbstractValidator<ResetPasswordComm
     }
 }
 
-public class ResetPasswordCommandHandler : IRequestHandler<ResetPasswordCommand, TokenResponse>
+public class ResetPasswordCommandHandler : IRequestHandler<ResetPasswordCommand>
 {
     private readonly IIdentityService _identityService;
-    private readonly IJwtTokenService _jwtTokenService;
 
-    public ResetPasswordCommandHandler(IIdentityService identityService, IJwtTokenService jwtTokenService)
+    public ResetPasswordCommandHandler(IIdentityService identityService)
     {
         _identityService = identityService;
-        _jwtTokenService = jwtTokenService;
     }
 
-    public async Task<TokenResponse> Handle(ResetPasswordCommand command, CancellationToken cancellationToken)
+    public async Task Handle(ResetPasswordCommand command, CancellationToken cancellationToken)
     {
         var user = await _identityService.FindUserByIdAsync(command.UserId);
 
@@ -51,26 +48,7 @@ public class ResetPasswordCommandHandler : IRequestHandler<ResetPasswordCommand,
 
         if (!passwordResetResult.Succeeded)
         {
-            throw new ValidationException(string.Join(Environment.NewLine, passwordResetResult.Errors));
+            throw new InvalidOperationException("Password reset returned with failure.");
         }
-
-        var securityStampResult = await _identityService.UpdateSecurityStampAsync(user);
-
-        if (!securityStampResult.Succeeded)
-        {
-            //What to do? Options:
-            //log error and continue
-            //throw InvalidOperationException/ Custom Exception
-            //return modified response - add property to TokenResponse: string? Warning
-            //roll back password change
-            //remove security stamps from db - brute force
-            //add logic to have an invalid jwt tokens after table and check if the token was made before the set value then reject requests
-
-            //Solution: log error here + add retry mechanism to UpdateSecurityStampAsync
-        }
-
-        var tokenResponse = await _jwtTokenService.GenerateTokenAsync(user, CancellationToken.None);
-
-        return tokenResponse;
     }
 }

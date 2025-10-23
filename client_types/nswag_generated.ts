@@ -55,7 +55,8 @@ export interface IApiClient {
     getMyUserProfileData(): Promise<ApplicationUserProfileDataDto>;
     updateMyUserProfile(command: UpdateMyUserProfileCommand): Promise<void>;
     requestPasswordResetEmail(command: RequestPasswordResetEmailCommand): Promise<void>;
-    resetPassword(command: ResetPasswordCommand): Promise<TokenResponse>;
+    resetPassword(command: ResetPasswordCommand): Promise<void>;
+    revokeGymStaffRole(gymStaffMemberId: string, message: string | undefined): Promise<void>;
 }
 
 export class ApiClient implements IApiClient {
@@ -2186,7 +2187,7 @@ export class ApiClient implements IApiClient {
         return Promise.resolve<void>(null as any);
     }
 
-    resetPassword(command: ResetPasswordCommand, cancelToken?: CancelToken): Promise<TokenResponse> {
+    resetPassword(command: ResetPasswordCommand, cancelToken?: CancelToken): Promise<void> {
         let url_ = this.baseUrl + "/api/Users/ResetPassword";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -2198,7 +2199,6 @@ export class ApiClient implements IApiClient {
             url: url_,
             headers: {
                 "Content-Type": "application/json",
-                "Accept": "application/json"
             },
             cancelToken
         };
@@ -2214,7 +2214,7 @@ export class ApiClient implements IApiClient {
         });
     }
 
-    protected processResetPassword(response: AxiosResponse): Promise<TokenResponse> {
+    protected processResetPassword(response: AxiosResponse): Promise<void> {
         const status = response.status;
         let _headers: any = {};
         if (response.headers && typeof response.headers === "object") {
@@ -2224,18 +2224,66 @@ export class ApiClient implements IApiClient {
                 }
             }
         }
-        if (status === 200) {
+        if (status === 204) {
             const _responseText = response.data;
-            let result200: any = null;
-            let resultData200  = _responseText;
-            result200 = TokenResponse.fromJS(resultData200);
-            return Promise.resolve<TokenResponse>(result200);
+            return Promise.resolve<void>(null as any);
 
         } else if (status !== 200 && status !== 204) {
             const _responseText = response.data;
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
         }
-        return Promise.resolve<TokenResponse>(null as any);
+        return Promise.resolve<void>(null as any);
+    }
+
+    revokeGymStaffRole(gymStaffMemberId: string, message: string | undefined, cancelToken?: CancelToken): Promise<void> {
+        let url_ = this.baseUrl + "/api/Users/RevokeGymStaffRole/{gymStaffMemberId}";
+        if (gymStaffMemberId === undefined || gymStaffMemberId === null)
+            throw new Error("The parameter 'gymStaffMemberId' must be defined.");
+        url_ = url_.replace("{gymStaffMemberId}", encodeURIComponent("" + gymStaffMemberId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(message);
+
+        let options_: AxiosRequestConfig = {
+            data: content_,
+            method: "PUT",
+            url: url_,
+            headers: {
+                "Content-Type": "application/json",
+            },
+            cancelToken
+        };
+
+        return this.instance.request(options_).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processRevokeGymStaffRole(_response);
+        });
+    }
+
+    protected processRevokeGymStaffRole(response: AxiosResponse): Promise<void> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (const k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 204) {
+            const _responseText = response.data;
+            return Promise.resolve<void>(null as any);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<void>(null as any);
     }
 }
 

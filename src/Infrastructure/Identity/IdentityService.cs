@@ -27,12 +27,12 @@ public class IdentityService : IIdentityService
         _logger = logger;
     }
 
-    public async Task<ApplicationUser?> FindUserByIdAsync(string userId)
+    public async Task<ApplicationUser?> FindUserByIdAsync(string userId, CancellationToken? cancellationToken = null)
     {
         return await _userManager.FindByIdAsync(userId);
     }
 
-    public async Task<ApplicationUser?> FindUserByEmailAsync(string email)
+    public async Task<ApplicationUser?> FindUserByEmailAsync(string email, CancellationToken? cancellationToken = null)
     {
         return await _userManager.FindByEmailAsync(email);
     }
