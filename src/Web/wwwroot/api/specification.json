@@ -1409,6 +1409,42 @@
           }
         ]
       }
+    },
+    "/api/Users/GymManagement/My/{gymManagementUserId}": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "GetMyGymManagementUser",
+        "parameters": [
+          {
+            "name": "gymManagementUserId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApplicationUserDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
     }
   },
   "components": {

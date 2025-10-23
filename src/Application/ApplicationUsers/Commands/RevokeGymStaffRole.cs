@@ -1,4 +1,5 @@
-﻿using FitPass.Application.Common.Interfaces;
+﻿using FitPass.Application.Common.Exceptions;
+using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Security;
 using FitPass.Application.Extensions;
 using FitPass.Domain.Constants;
@@ -44,21 +45,21 @@ public class RevokeGymStaffRoleCommandHandler : IRequestHandler<RevokeGymStaffRo
 
         if (!roleCheckResult)
         {
-            throw new ValidationException("User is not in gym staff role.");
+            throw new Common.Exceptions.ValidationException("User role", "User is not in gym staff role.");
         }
 
         var gymStaffAssigment = await _context.GymStaffAssigments.AsNoTracking().FirstOrDefaultAsync(gsa => gsa.ApplicationUserId == _user.Id!);
 
         if (user.GymStaffAssignment!.GymId != gymStaffAssigment!.GymId)
         {
-            throw new UnauthorizedAccessException();
+            throw new ForbiddenAccessException();
         }
 
         var roleRevocationResult = await _identityService.RemoveFromRoleAsync(user, Roles.GymStaff);
 
         if (!roleRevocationResult.Succeeded)
         {
-            throw new ValidationException($"Failed to remove user from gym staff role: {string.Join(", ", roleRevocationResult.Errors)}");
+            throw new Common.Exceptions.ValidationException("User role", $"Failed to remove user from gym staff role: {string.Join(", ", roleRevocationResult.Errors)}");
         }
     }
 }

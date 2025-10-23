@@ -1,10 +1,9 @@
 ﻿using System.Reflection;
 using System.Runtime.CompilerServices;
 using AutoMapper;
+using AutoMapper.Internal;
+using FitPass.Application.ApplicationUsers.DTOs;
 using FitPass.Application.Common.Interfaces;
-using FitPass.Application.Common.Models;
-using FitPass.Application.TodoItems.Queries.GetTodoItemsWithPagination;
-using FitPass.Application.TodoLists.Queries.GetTodos;
 using FitPass.Domain.Entities;
 using NUnit.Framework;
 
@@ -30,11 +29,24 @@ public class MappingTests
     }
 
     [Test]
-    [TestCase(typeof(TodoList), typeof(TodoListDto))]
-    [TestCase(typeof(TodoItem), typeof(TodoItemDto))]
-    [TestCase(typeof(TodoList), typeof(LookupDto))]
-    [TestCase(typeof(TodoItem), typeof(LookupDto))]
-    [TestCase(typeof(TodoItem), typeof(TodoItemBriefDto))]
+    public void ShouldDiscoverAllMappings()
+    {
+        var typeMaps = _configuration.Internal().GetAllTypeMaps();
+
+        var mappings = typeMaps.ToList();
+
+        TestContext.WriteLine($"\tFound {mappings.Count} mapping(s).");
+
+        foreach (var map in typeMaps)
+        {
+            TestContext.WriteLine($"{map.SourceType.Name} -> {map.DestinationType.Name}");
+        }
+
+        Assert.That(mappings, Is.Not.Empty, "No mappings were discovered.");
+    }
+
+    [Test]
+    [TestCaseSource(nameof(GetMappingTestCases))]
     public void ShouldSupportMappingFromSourceToDestination(Type source, Type destination)
     {
         var instance = GetInstanceOf(source);
@@ -49,5 +61,19 @@ public class MappingTests
 
         // Type without parameterless constructor
         return RuntimeHelpers.GetUninitializedObject(type);
+    }
+
+    private static IEnumerable<TestCaseData> GetMappingTestCases()
+    {
+        IConfigurationProvider config = new MapperConfiguration(cfg =>
+            cfg.AddMaps(Assembly.GetAssembly(typeof(IApplicationDbContext))));
+
+        var typeMaps = config.Internal().GetAllTypeMaps();
+
+        foreach(var map in typeMaps)
+        {
+            yield return new TestCaseData(map.SourceType, map.DestinationType)
+                .SetName($"{map.SourceType.Name} -> {map.DestinationType.Name}");
+        }
     }
 }

@@ -11,7 +11,7 @@ public class ApplicationUserDto
     public required string FirstName { get; set; }
     public required string? LastName { get; set; }
     public required List<UserGymMembershipDto>? UserGymMemberships { get; set; }
-    public required GymStaffAssignmentDto? GymStaffAssigment { get; set; }
+    public required GymStaffAssignmentDto? GymStaffAssignment { get; set; }
 
     private class Mapping : Profile
     {

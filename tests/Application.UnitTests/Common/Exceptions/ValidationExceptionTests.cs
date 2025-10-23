@@ -32,7 +32,7 @@ public class ValidationExceptionTests
     [Test]
     public void MulitpleValidationFailureForMultiplePropertiesCreatesAMultipleElementErrorDictionaryEachWithMultipleValues()
     {
-        var failures = new List<ValidationFailure>
+        var failures = new List<ValidationFailure>  
             {
                 new ValidationFailure("Age", "must be 18 or older"),
                 new ValidationFailure("Age", "must be 25 or younger"),
@@ -59,5 +59,18 @@ public class ValidationExceptionTests
                 "must contain at least 8 characters",
                 "must contain a digit",
         }, ignoreOrder: true);
+    }
+
+    [Test]
+    public void OnePropertyNameAndErrorMessageStringCreatesASingleElementErrorDictionary()
+    {
+        string propertyName = "Name";
+        string errorMessage = "Name is required";
+
+        var actual = new ValidationException(propertyName, errorMessage).Errors;
+
+        actual.Keys.ShouldBe(new string[] { "Name" });
+
+        actual["Name"].ShouldBe(new string[] { "Name is required" });
     }
 }

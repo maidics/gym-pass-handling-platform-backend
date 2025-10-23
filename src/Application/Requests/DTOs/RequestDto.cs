@@ -13,9 +13,9 @@ public class RequestDto
     public required string Title { get; set; }
     public required string Description { get; set; }
     public required PriorityLevel PriorityLevel { get; set; }
-    public required RequestType RequestType { get; set; }
-    public required RequestStatus RequestStatus { get; set; }
-    public required string? RequestPayload { get; set; }
+    public required RequestType Type { get; set; }
+    public required RequestStatus Status { get; set; }
+    public required string? Payload { get; set; }
 
     private class Mapping : Profile
     {

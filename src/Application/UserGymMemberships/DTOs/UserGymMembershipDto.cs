@@ -7,7 +7,8 @@ namespace FitPass.Application.UserGymMemberships.DTOs;
 
 public class UserGymMembershipDto
 {
-    public required string UserId { get; set; }
+    public required string? ApplicationUserId { get; set; }
+    public required string? NonRegisteredUserId { get; set; }
     public required string GymId { get; set; }
     public required GymMembershipStatus GymMembershipStatus { get; set; }
     public required DateTimeOffset? MemberSince { get; set; }
