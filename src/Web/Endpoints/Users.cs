@@ -40,7 +40,7 @@ public class Users : EndpointGroupBase
 
         groupBuilder.MapPut(RevokeGymStaffRole, "RevokeGymStaffRole/{gymStaffMemberId}").RequireAuthorization();
 
-        groupBuilder.MapGet(GetGymManagementUser, "GymManagement/My/{gymManagementUserId}").RequireAuthorization();
+        groupBuilder.MapGet(GetMyGymManagementUser, "GymManagement/My/{gymManagementUserId}").RequireAuthorization();
     }
 
     public async Task<Ok<TokenResponse>> RegisterUser(ISender sender, [FromBody] RegisterUserCommand command, CancellationToken cancellationToken)
@@ -134,9 +134,9 @@ public class Users : EndpointGroupBase
         return TypedResults.NoContent();
     }
 
-    public async Task<Ok<ApplicationUserDto>> GetGymManagementUser(ISender sender, string gymManagementUserId, CancellationToken cancellationToken)
+    public async Task<Ok<ApplicationUserDto>> GetMyGymManagementUser(ISender sender, string gymManagementUserId, CancellationToken cancellationToken)
     {
-        var result = await sender.Send(new GetGymManagementUserQuery(gymManagementUserId), cancellationToken);
+        var result = await sender.Send(new GetMyGymManagementUserQuery(gymManagementUserId), cancellationToken);
 
         return TypedResults.Ok(result);
     }

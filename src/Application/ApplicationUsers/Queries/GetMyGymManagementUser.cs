@@ -7,24 +7,24 @@ using FitPass.Domain.Constants;
 namespace FitPass.Application.ApplicationUsers.Queries;
 
 [Authorize(Roles = $"{Roles.GymAdministrator},{Roles.GymStaff}")]
-public record GetGymManagementUserQuery(string GymManagementUserId) : IRequest<ApplicationUserDto>;
+public record GetMyGymManagementUserQuery(string GymManagementUserId) : IRequest<ApplicationUserDto>;
 
-public class GetGymManagementUserQueryValidator : AbstractValidator<GetGymManagementUserQuery>
+public class GetMyGymManagementUserQueryValidator : AbstractValidator<GetMyGymManagementUserQuery>
 {
-    public GetGymManagementUserQueryValidator()
+    public GetMyGymManagementUserQueryValidator()
     {
         RuleFor(v => v.GymManagementUserId).NotEmptyWithMessage("Gym management user id");
     }
 }
 
-public class GetGymManagementUserQueryHandler : IRequestHandler<GetGymManagementUserQuery, ApplicationUserDto>
+public class GetMyGymManagementUserQueryHandler : IRequestHandler<GetMyGymManagementUserQuery, ApplicationUserDto>
 {
     private readonly IIdentityService _identityService;
     private readonly IMapper _mapper;
     private readonly IUser _user;
     private readonly IApplicationDbContext _context;
 
-    public GetGymManagementUserQueryHandler(IIdentityService identityService, IMapper mapper, IUser user, IApplicationDbContext context)
+    public GetMyGymManagementUserQueryHandler(IIdentityService identityService, IMapper mapper, IUser user, IApplicationDbContext context)
     {
         _identityService = identityService;
         _mapper = mapper;
@@ -32,7 +32,7 @@ public class GetGymManagementUserQueryHandler : IRequestHandler<GetGymManagement
         _context = context;
     }
 
-    public async Task<ApplicationUserDto> Handle(GetGymManagementUserQuery query, CancellationToken cancellationToken)
+    public async Task<ApplicationUserDto> Handle(GetMyGymManagementUserQuery query, CancellationToken cancellationToken)
     {
         var user = await _identityService.FindUserByIdAsync(query.GymManagementUserId, cancellationToken);
 
