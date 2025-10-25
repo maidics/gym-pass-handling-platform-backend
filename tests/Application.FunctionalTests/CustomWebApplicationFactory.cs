@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -48,6 +49,11 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
                     options.AddInterceptors(sp.GetServices<ISaveChangesInterceptor>());
                     options.UseSqlServer(_connection);
                 });
+        });
+
+        builder.ConfigureAppConfiguration((context, config) =>
+        {
+            config.AddJsonFile("./appsettings.Test.json", optional: false);
         });
     }
 }

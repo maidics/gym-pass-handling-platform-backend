@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using FitPass.Domain.Entities;
+﻿using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
 
 namespace FitPass.Infrastructure.Data.DbSeed;

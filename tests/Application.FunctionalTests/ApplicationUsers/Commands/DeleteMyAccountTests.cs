@@ -1,4 +1,5 @@
 ﻿using FitPass.Application.ApplicationUsers.Commands;
+using FitPass.Application.Common.Security;
 using FitPass.Domain.Entities;
 
 namespace FitPass.Application.FunctionalTests.ApplicationUsers.Commands;
@@ -14,9 +15,21 @@ public class DeleteMyAccountTests : BaseTestFixture
 
         var action = () => SendAsync(command);
 
-        command.GetType().ShouldSatisfyAllConditions(type => type.ShouldBeDecoratedWith<AuthorAttribute>());
+        command.GetType().ShouldSatisfyAllConditions(type => type.ShouldBeDecoratedWith<AuthorizeAttribute>());
 
         await Should.ThrowAsync<UnauthorizedAccessException>(action);
+    }
+
+    [Test]
+    public async Task ShouldThrowIfUserDoesNotExist()
+    {
+        var command = new DeleteMyAccountCommand();
+
+        SetLoggedInUserId("invalidUserId");
+
+        var action = () => SendAsync(command);
+
+        await action.ShouldThrowAsync<UnauthorizedAccessException>();
     }
 
     [Test]
@@ -38,11 +51,11 @@ public class DeleteMyAccountTests : BaseTestFixture
 
         await SendAsync(new DeleteMyAccountCommand());
 
-        await RunAsAppAdministratorAsync();
+        await RunAsAppAdminAsync();
 
         await SendAsync(new DeleteMyAccountCommand());
 
-        await RunAsGymAdministratorAsync();
+        await RunAsGymAdminAsync();
 
         await SendAsync(new DeleteMyAccountCommand());
 

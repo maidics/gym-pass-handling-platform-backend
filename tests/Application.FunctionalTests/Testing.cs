@@ -1,4 +1,6 @@
-﻿using FitPass.Domain.Constants;
+﻿using FitPass.Application.Common.Interfaces;
+using FitPass.Application.FunctionalTests.TestData;
+using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Infrastructure.Data;
 using FitPass.Infrastructure.Identity;
@@ -18,6 +20,12 @@ public partial class Testing
     private static string? _userId;
     private static List<string>? _roles;
 
+    private static Lazy<TestApplicationUserBuilder> _testApplicationUserBuilder;
+    private static Lazy<TestGymBuilder> _testGymBuilder;
+
+    public static TestApplicationUserBuilder TestApplicationUserBuilder => _testApplicationUserBuilder.Value;
+    public static TestGymBuilder TestGymBuilder => _testGymBuilder.Value;
+
     [OneTimeSetUp]
     public async Task RunBeforeAnyTests()
     {
@@ -26,6 +34,11 @@ public partial class Testing
         _factory = new CustomWebApplicationFactory(_database.GetConnection(), _database.GetConnectionString());
 
         _scopeFactory = _factory.Services.GetRequiredService<IServiceScopeFactory>();
+
+        await SeedRolesIfNotExist();
+
+        _testApplicationUserBuilder = new Lazy<TestApplicationUserBuilder>(() => new TestApplicationUserBuilder(_scopeFactory));
+        _testGymBuilder = new Lazy<TestGymBuilder>(() => new TestGymBuilder(_scopeFactory));
     }
 
     public static async Task<TResponse> SendAsync<TResponse>(IRequest<TResponse> request)
@@ -56,125 +69,53 @@ public partial class Testing
         return _roles;
     }
 
-    public static async Task<string> RunAsDefaultUserAsync()
+    public static async Task<ApplicationUser> RunAsDefaultUserAsync()
     {
-        var user = new ApplicationUser
-        {
-            Id = "DefaultUserId",
-            FirstName = "Default",
-            LastName = "User",
-            Email = "default@localhost",
-            GymStaffAssignment = null,
-            UserGymMemberships = [
-                    new UserGymMembership {
-                        ApplicationUserId = "DefaultUserId",
-                        NonRegisteredUserId = null,
-                        GymId = "LocalhostGymId1"
-                    }
-                ]
-        };
+        var user = await TestApplicationUserBuilder.BuildAsync();
 
-        return await RunAsUserAsync(user, "Password123_", []);
+        return await RunAsUserAsync(user);
     }
 
-    public static async Task<string> RunAsAppAdministratorAsync()
+    public static async Task<ApplicationUser> RunAsAppAdminAsync()
     {
-        var user = new ApplicationUser
-        {
-            FirstName = "App",
-            LastName = "Administrator",
-            Email = "appadmin@localhost",
-            GymStaffAssignment = null,
-            UserGymMemberships = null
-        };
+        var user = await TestApplicationUserBuilder.WithRole(Roles.AppAdministrator).BuildAsync();
 
-        return await RunAsUserAsync(user, "Password123_", [Roles.AppAdministrator]);
+        return await RunAsUserAsync(user);
     }
 
-    public static async Task<string> RunAsGymAdministratorAsync()
+    public static async Task<ApplicationUser> RunAsGymAdminAsync()
     {
-        var user = new ApplicationUser
-        {
-            Id = "GymAdministratorId",
-            FirstName = "Gym",
-            LastName = "Administrator",
-            Email = "gymadmin@localhost",
-            GymStaffAssignment = new GymStaffAssignment
-            {
-                ApplicationUserId = "GymAdministratorId",
-                GymId = "LocalhostGymId1",
-                Role = Roles.GymAdministrator
-            },
-            UserGymMemberships = null
-        };
+        var user = await TestApplicationUserBuilder.WithRole(Roles.GymAdministrator).BuildAsync();
 
-        return await RunAsUserAsync(user, "Password123_", [Roles.GymAdministrator]);
+        return await RunAsUserAsync(user);
     }
 
-    public static async Task<string> RunAsGymStaffAsync()
+    public static async Task<ApplicationUser> RunAsGymStaffAsync()
     {
-        var user = new ApplicationUser
-        {
-            Id = "GymStaffId",
-            FirstName = "Gym",
-            LastName = "Staff",
-            Email = "gymstaff@localhost",
-            GymStaffAssignment = new GymStaffAssignment
-            {
-                ApplicationUserId = "GymStaffId",
-                GymId = "LocalhostGymId1",
-                Role = Roles.GymStaff
-            },
-            UserGymMemberships = null
-        };
+        var user = await TestApplicationUserBuilder.WithRole(Roles.GymStaff).BuildAsync();
 
-        return await RunAsUserAsync(user, "Password123_", [Roles.GymStaff]);
+        return await RunAsUserAsync(user);
     }
 
-    public static async Task<string> RunAsPendingGymManagementAsync()
+    public static async Task<ApplicationUser> RunAsPendingGymManagementAsync()
     {
-        var user = new ApplicationUser
-        {
-            FirstName = "Pending",
-            LastName = "GymManagement",
-            Email = "pendinggymmanagement@localhost",
-            GymStaffAssignment = null,
-            UserGymMemberships = null
-        };
+        var user = await TestApplicationUserBuilder.WithRole(Roles.PendingGymManagement).BuildAsync();
 
-        return await RunAsUserAsync(user, "Password123_", [Roles.PendingGymManagement]);
+        return await RunAsUserAsync(user);
     }
 
-    public static async Task<string> RunAsUserAsync(ApplicationUser user, string password, string[] roles)
+    public static async Task<ApplicationUser> RunAsUserAsync(ApplicationUser user)
     {
         using var scope = _scopeFactory.CreateScope();
 
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
-        var result = await userManager.CreateAsync(user, password);
+        var roles = await userManager.GetRolesAsync(user);
 
-        if (roles.Any())
-        {
-            var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+        _userId = user.Id;
+        _roles = roles.ToList();
 
-            foreach (var role in roles)
-            {
-                await roleManager.CreateAsync(new IdentityRole(role));
-            }
-
-            await userManager.AddToRolesAsync(user, roles);
-        }
-
-        if (result.Succeeded)
-        {
-            _userId = user.Id;
-            _roles = roles.ToList();
-            return _userId;
-        }
-
-        var errors = string.Join(Environment.NewLine, result.ToApplicationResult().Errors);
-
-        throw new Exception($"Unable to create {roles[0]} user.{Environment.NewLine}{errors}");
+        return user;
     }
 
     public static async Task ResetState()
@@ -188,6 +129,12 @@ public partial class Testing
         }
 
         _userId = null;
+        _roles = null;
+    }
+
+    public static void SetLoggedInUserId(string userId)
+    {
+        _userId = userId; 
     }
 
     public static async Task<TEntity?> FindAsync<TEntity>(params object[] keyValues)
@@ -226,5 +173,32 @@ public partial class Testing
     {
         await _database.DisposeAsync();
         await _factory.DisposeAsync();
+    }
+
+    private static async Task SeedRolesIfNotExist()
+    {
+        using var scope = _scopeFactory.CreateScope();
+        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+        var roles = new List<IdentityRole>()
+        {
+            new(Roles.AppAdministrator),
+            new(Roles.GymAdministrator),
+            new(Roles.GymStaff),
+            new(Roles.PendingGymManagement)
+        };
+
+        foreach (var role in roles)
+        {
+            if (!await roleManager.RoleExistsAsync(role.Name!))
+            {
+                var result = await roleManager.CreateAsync(role);
+
+                if (!result.Succeeded)
+                {
+                    throw new InvalidOperationException($"Failed to create {role} role. Result: {result.ToApplicationResult()}");
+                }
+            }
+        }
     }
 }

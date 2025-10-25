@@ -1,5 +1,7 @@
 ﻿using System.Data.Common;
+using FitPass.Domain.Constants;
 using FitPass.Infrastructure.Data;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -47,7 +49,14 @@ public class SqlTestcontainersTestDatabase : ITestDatabase
         await context.Database.EnsureDeletedAsync();
         await context.Database.EnsureCreatedAsync();
 
-        _respawner = await Respawner.CreateAsync(_connectionString);
+        _respawner = await Respawner.CreateAsync(_connectionString, new RespawnerOptions
+        {
+            TablesToIgnore =
+            [
+                new("AspNetRoles"),
+                new("AspNetRoleClaims")
+            ]
+        });
     }
 
     public DbConnection GetConnection()

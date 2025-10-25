@@ -1,6 +1,7 @@
 using FitPass.Application.ApplicationUsers.DTOs;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Extensions;
+using FitPass.Domain.Constants;
 
 namespace Fitpass.Application.ApplicationUsers.Commands;
 
@@ -15,11 +16,11 @@ public class LogInUserCommandValidator : AbstractValidator<LogInUserCommand>
     public LogInUserCommandValidator()
     {
         RuleFor(v => v.Email)
-            .NotEmptyWithMessage("Email")
-            .EmailAddress().WithMessage("Email is required");
+            .NotEmptyWithMaxLenghtAndMessage(MaxStringLengths.Email, "Email")
+            .EmailAddress().WithMessage("Valid email address is required");
 
         RuleFor(v => v.Password)
-            .NotEmptyWithMessage("Password");
+            .NotEmptyWithMaxLenghtAndMessage(MaxStringLengths.Password, "Password");
     }
 }
 
