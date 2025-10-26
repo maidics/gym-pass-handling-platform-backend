@@ -16,11 +16,12 @@ public class LogInUserCommandValidator : AbstractValidator<LogInUserCommand>
     public LogInUserCommandValidator()
     {
         RuleFor(v => v.Email)
-            .NotEmptyWithMaxLenghtAndMessage(MaxStringLengths.Email, "Email")
-            .EmailAddress().WithMessage("Valid email address is required");
+            .NotEmptyWithMaxLenghtAndMessage(nameof(LogInUserCommand.Email), MaxStringLengths.Email)
+            .ValidEmailAddress(nameof(LogInUserCommand.Email));
 
         RuleFor(v => v.Password)
-            .NotEmptyWithMaxLenghtAndMessage(MaxStringLengths.Password, "Password");
+            .NotEmptyWithMaxLenghtAndMessage(nameof(LogInUserCommand.Password), MaxStringLengths.Password)
+            .MinimumLengthWithMessage(nameof(LogInUserCommand.Password), MinStringLengths.Password);
     }
 }
 

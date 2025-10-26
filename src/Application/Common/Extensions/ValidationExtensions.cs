@@ -1,4 +1,5 @@
 using FitPass.Domain.Constants;
+using FitPass.Domain.Strings;
 
 namespace FitPass.Application.Extensions;
 
@@ -8,50 +9,62 @@ public static class ValidationExtensions
     {
         return rule
             .NotEmpty()
-            .WithMessage($"{propertyName} is required.");
+            .WithMessage(ErrorMessages.PropertyIsRequired(propertyName));
     }
 
     public static IRuleBuilderOptions<T, string> StrongPassword<T>(this IRuleBuilder<T, string> rule)
     {
         return rule
             .NotEmptyWithMessage("Password")
-            .MinimumLength(8).WithMessage("Password must be at least 8 characters long.")
-            .MaximumLength(MaxStringLengths.Password).WithMessage($"Password cannot be longer than {MaxStringLengths.Password}  characters.")
-            .Must(p => p.Any(char.IsLower)).WithMessage("Password must contain at least one lowercase letter.")
-            .Must(p => p.Any(char.IsUpper)).WithMessage("Password must contain at least one uppercase letter.")
-            .Must(p => p.Any(char.IsDigit)).WithMessage("Password must contain at least one number.")
-            .Must(p => p.Any(c => !char.IsLetterOrDigit(c))).WithMessage("Password must contain at least one special character.");
+            .MinimumLength(8).WithMessage(ErrorMessages.PasswordMinimumLength())
+            .MaximumLength(MaxStringLengths.Password).WithMessage(ErrorMessages.PasswordMaximumLength())
+            .Must(p => p.Any(char.IsLower)).WithMessage(ErrorMessages.PasswordAtLeastOneLowerCase())
+            .Must(p => p.Any(char.IsUpper)).WithMessage(ErrorMessages.PasswordAtLeastOneUpperCase())
+            .Must(p => p.Any(char.IsDigit)).WithMessage(ErrorMessages.PasswordAtLeastOneNumber())
+            .Must(p => p.Any(c => !char.IsLetterOrDigit(c))).WithMessage(ErrorMessages.PasswordAtLeastOneSpecial());
     }
 
-    public static IRuleBuilderOptions<T, string> MaxLengthWithMessage<T>(this IRuleBuilder<T, string> rule, int maxLength, string propertyName)
+    public static IRuleBuilderOptions<T, string> MaxLengthWithMessage<T>(this IRuleBuilder<T, string> rule, string propertyName, int maxLength)
     {
         return rule
-            .MaximumLength(maxLength)
-            .WithMessage($"{propertyName} cannot be longer than {maxLength} characters.");
+            .MaximumLength(maxLength).WithMessage(ErrorMessages.PropertyCannotBeLongerThan(propertyName, maxLength));
     }
 
-    public static IRuleBuilderOptions<T, string> NotEmptyWithMaxLenghtAndMessage<T>(this IRuleBuilder<T, string> rule, int maxLength, string propertyName)
+    public static IRuleBuilderOptions<T, string> MinimumLengthWithMessage<T>(this IRuleBuilder<T, string> rule, string propertyName, int minLength)
+    {
+        return rule
+            .MinimumLength(minLength).WithMessage(ErrorMessages.PropertyMustBeAtLeastLength(propertyName, minLength));
+    }
+
+    public static IRuleBuilderOptions<T, string> NotEmptyWithMaxLenghtAndMessage<T>(this IRuleBuilder<T, string> rule, string propertyName, int maxLength)
     {
         return rule
             .NotEmptyWithMessage(propertyName)
-            .MaxLengthWithMessage(maxLength, propertyName);
+            .MaxLengthWithMessage(propertyName, maxLength);
+    }
+
+    public static IRuleBuilderOptions<T, string> NotEmptyWithMinimumLength<T>(this IRuleBuilder<T, string> rule, string propertyName, int minLength)
+    {
+        return rule
+            .NotEmptyWithMessage(propertyName)
+            .MinimumLengthWithMessage(propertyName, minLength);
     }
 
     public static IRuleBuilder<T, string> PhoneNumber<T>(this IRuleBuilder<T, string> rule, string propertyName)
     {
         return rule
-            .NotEmptyWithMaxLenghtAndMessage(MaxStringLengths.PhoneNumber, propertyName)
-            .Matches(@"^\+?[0-9]{7,15}$").WithMessage($"Phone number must contain 7 to 15 digits, with an optional '+' prefix and it must not contain any spaces or other special characters.");
+            .NotEmptyWithMaxLenghtAndMessage(propertyName, MaxStringLengths.PhoneNumber)
+            .Matches(@"^\+?[0-9]{7,15}$").WithMessage(ErrorMessages.InvalidPhoneNumber());
     }
 
-    public static IRuleBuilder<T, TEnum> IsInEnumWithMessage<T, TEnum>(this IRuleBuilder<T, TEnum> rule, string propertyName) where TEnum : Enum
+    public static IRuleBuilder<T, TEnum> IsInEnumWithMessage<T, TEnum>(this IRuleBuilder<T, TEnum> rule, Enum e) where TEnum : Enum
     {
         return rule
-            .IsInEnum().WithMessage($"Provided {propertyName} is not valid.");
+            .IsInEnum().WithMessage(ErrorMessages.NotContainedByEnum(e));
     }
 
-    public static IRuleBuilder<T, string> ValidEmailAddress<T>(this IRuleBuilder<T, string> rule)
+    public static IRuleBuilder<T, string> ValidEmailAddress<T>(this IRuleBuilder<T, string> rule, string emailPropertyName)
     {
-        return rule.EmailAddress().WithMessage("Valid email address is required.");
+        return rule.EmailAddress().WithMessage(ErrorMessages.InvalidEmailAddress(emailPropertyName));
     }
 }

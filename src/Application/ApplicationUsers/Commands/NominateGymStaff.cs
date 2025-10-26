@@ -4,6 +4,7 @@ using FitPass.Application.Common.Security;
 using FitPass.Application.Extensions;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Events.Users;
+using FitPass.Domain.Strings;
 
 namespace FitPass.Application.ApplicationUsers.Commands;
 
@@ -15,13 +16,14 @@ public class NominateGymStaffCommandValidator : AbstractValidator<NominateGymSta
     public NominateGymStaffCommandValidator()
     {
         RuleFor(v => v.UserEmailToNominate)
-            .NotEmptyWithMessage("User's email to nominate")
-            .ValidEmailAddress();
+            .NotEmptyWithMaxLenghtAndMessage(nameof(NominateGymStaffCommand.UserEmailToNominate), MaxStringLengths.Email)
+            .ValidEmailAddress(nameof(NominateGymStaffCommand.UserEmailToNominate));
 
         RuleFor(v => v.EscalationEmail)
-            .NotEmptyWithMaxLenghtAndMessage(MaxStringLengths.Email, "Escalation email")
+            .NotEmptyWithMaxLenghtAndMessage(nameof(NominateGymStaffCommand.EscalationEmail), MaxStringLengths.Email)
             .NotEqual(v => v.UserEmailToNominate)
-            .ValidEmailAddress();
+            .WithMessage(ErrorMessages.PropertyMustNotEqualToAnotherProperty(nameof(NominateGymStaffCommand.UserEmailToNominate), nameof(NominateGymStaffCommand.EscalationEmail)))
+            .ValidEmailAddress(nameof(NominateGymStaffCommand.EscalationEmail));
     }
 }
 

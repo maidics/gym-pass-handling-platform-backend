@@ -1,8 +1,17 @@
 using FitPass.Application.Common.Interfaces;
+using FitPass.Application.Extensions;
 
 namespace Fitpass.Application.ApplicationUsers.Commands;
 
-public record RequestPasswordResetEmailCommand(string Email) : IRequest; //not validated because if it does not exists then it is not sent but frontend does validate if it is an email
+public record RequestPasswordResetEmailCommand(string Email) : IRequest; 
+
+public class RequestPasswordResetEmailCommandValidator : AbstractValidator<RequestPasswordResetEmailCommand>
+{
+    public RequestPasswordResetEmailCommandValidator()
+    {
+        RuleFor(v => v.Email).ValidEmailAddress(nameof(RequestPasswordResetEmailCommand.Email));
+    }
+}
 
 public class RequestPasswordResetEmailCommandHandler : IRequestHandler<RequestPasswordResetEmailCommand>
 {

@@ -4,7 +4,7 @@ using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Extensions;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
-using FitPass.Domain.Events.Users;
+using FitPass.Domain.Strings;
 
 namespace Fitpass.Application.ApplicationUsers.Commands;
 
@@ -21,15 +21,17 @@ public class RegisterUserCommandValidator : AbstractValidator<RegisterUserComman
 {
     public RegisterUserCommandValidator()
     {
-        RuleFor(v => v.FirstName).NotEmptyWithMaxLenghtAndMessage(MaxStringLengths.Name, "First name");
+        RuleFor(v => v.FirstName).NotEmptyWithMaxLenghtAndMessage(nameof(RegisterUserCommand.FirstName), MaxStringLengths.Name);
 
-        RuleFor(v => v.LastName!).NotEmptyWithMaxLenghtAndMessage(MaxStringLengths.Name, "Last name");
+        RuleFor(v => v.LastName!).NotEmptyWithMaxLenghtAndMessage(nameof(RegisterUserCommand.LastName), MaxStringLengths.Name);
 
-        RuleFor(v => v.Email).EmailAddress().WithMessage("A valid email address is required.");
+        RuleFor(v => v.Email).ValidEmailAddress(nameof(RegisterUserCommand.Email));
 
         RuleFor(v => v.Password).StrongPassword();
 
-        RuleFor(v => v.PasswordConfirm).Equal(v => v.PasswordConfirm).WithMessage("Password and password confirm must match.");
+        RuleFor(v => v.PasswordConfirm)
+            .Equal(v => v.PasswordConfirm)
+            .WithMessage(ErrorMessages.PropertyMustEqualToAnotherProperty(nameof(RegisterUserCommand.Password), nameof(RegisterUserCommand.PasswordConfirm)));
     }
 }
 

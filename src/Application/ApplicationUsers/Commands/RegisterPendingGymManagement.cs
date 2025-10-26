@@ -5,6 +5,7 @@ using FitPass.Application.Extensions;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Events.Users;
+using FitPass.Domain.Strings;
 
 namespace FitPass.Application.ApplicationUsers.Commands;
 
@@ -21,15 +22,17 @@ public class RegisterPendingGymManagementCommandValidator : AbstractValidator<Re
 {
     public RegisterPendingGymManagementCommandValidator()
     {
-        RuleFor(v => v.FirstName).NotEmptyWithMaxLenghtAndMessage(MaxStringLengths.Name, "First name");
+        RuleFor(v => v.FirstName).NotEmptyWithMaxLenghtAndMessage(nameof(RegisterPendingGymManagementCommand.FirstName), MaxStringLengths.Name);
 
-        RuleFor(v => v.LastName).NotEmptyWithMaxLenghtAndMessage(MaxStringLengths.Name, "Last name");
+        RuleFor(v => v.LastName).NotEmptyWithMaxLenghtAndMessage(nameof(RegisterPendingGymManagementCommand.LastName), MaxStringLengths.Name);
 
-        RuleFor(v => v.Email).EmailAddress().WithMessage("A valid email address is required");
+        RuleFor(v => v.Email).ValidEmailAddress(nameof(RegisterPendingGymManagementCommand.Email));
 
         RuleFor(v => v.Password).StrongPassword();
 
-        RuleFor(v => v.PasswordConfirm).Equal(v => v.PasswordConfirm);
+        RuleFor(v => v.PasswordConfirm)
+            .Equal(v => v.PasswordConfirm)
+            .WithMessage(ErrorMessages.PropertyMustEqualToAnotherProperty(nameof(RegisterPendingGymManagementCommand.Password), nameof(RegisterPendingGymManagementCommand.PasswordConfirm)));
     }
 }
 

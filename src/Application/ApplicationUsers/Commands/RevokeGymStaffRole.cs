@@ -13,11 +13,11 @@ public class RevokeGymStaffRoleCommandValidator : AbstractValidator<RevokeGymSta
 {
     public RevokeGymStaffRoleCommandValidator()
     {
-        RuleFor(v => v.GymStaffMemberId).NotEmptyWithMessage("Gym staff member id");
+        RuleFor(v => v.GymStaffMemberId).NotEmptyWithMessage(nameof(RevokeGymStaffRoleCommand.GymStaffMemberId));
 
         When(v => v.Message != string.Empty || v.Message != null, () =>
         {
-            RuleFor(v => v.Message!).MaxLengthWithMessage(MaxStringLengths.Description, "Message");
+            RuleFor(v => v.Message!).MaxLengthWithMessage(nameof(RevokeGymStaffRoleCommand.Message), MaxStringLengths.Description);
         });
     }
 }

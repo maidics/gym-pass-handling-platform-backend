@@ -1,5 +1,6 @@
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Extensions;
+using FitPass.Domain.Strings;
 
 namespace FitPass.Application.ApplicationUsers.Commands;
 
@@ -14,15 +15,16 @@ public class ResetPasswordCommandValidator : AbstractValidator<ResetPasswordComm
 {
     public ResetPasswordCommandValidator()
     {
-        RuleFor(v => v.UserId).NotEmptyWithMessage("User id");
+        RuleFor(v => v.UserId).NotEmptyWithMessage(nameof(ResetPasswordCommand.UserId));
 
-        RuleFor(v => v.PasswordResetToken).NotEmptyWithMessage("Password reset token");
+        RuleFor(v => v.PasswordResetToken).NotEmptyWithMessage(nameof(ResetPasswordCommand.PasswordResetToken));
 
         RuleFor(v => v.NewPassword).StrongPassword();
 
         RuleFor(v => v.NewPasswordConfirm)
-            .NotEmptyWithMessage("New password confirm")
-            .Equal(v => v.NewPassword).WithMessage("New password and new password confirm must match.");
+            .NotEmptyWithMessage(nameof(ResetPasswordCommand.NewPasswordConfirm))
+            .Equal(v => v.NewPassword)
+            .WithMessage(ErrorMessages.PropertyMustEqualToAnotherProperty(nameof(ResetPasswordCommand.NewPassword), nameof(ResetPasswordCommand.NewPasswordConfirm)));
     }
 }
 
