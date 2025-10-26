@@ -1,5 +1,4 @@
-﻿using FitPass.Application.Common.Interfaces;
-using FitPass.Application.FunctionalTests.TestData.Common;
+﻿using FitPass.Application.FunctionalTests.TestData.Common;
 using FitPass.Domain.Entities;
 using FitPass.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
@@ -9,7 +8,7 @@ namespace FitPass.Application.FunctionalTests.TestData;
 
 public class TestApplicationUserBuilder : TestEntityBuilderBase<ApplicationUser>
 {
-    private readonly string _userId = Guid.NewGuid().ToString();
+    private readonly string _userId = Guid.CreateVersion7().ToString();
 
     private readonly ApplicationUser _user;
     private string? _role = null;
@@ -21,7 +20,7 @@ public class TestApplicationUserBuilder : TestEntityBuilderBase<ApplicationUser>
             Id = _userId,
             FirstName = "Test",
             LastName = "User",
-            Email = $"user_{_userId}@localhost",
+            Email = $"user_{(_role == null ? "default" : _role)}@{_userId}_localhost",
             UserName = $"user_{_userId}@localhost",
             GymStaffAssignment = null,
             UserGymMemberships = null,

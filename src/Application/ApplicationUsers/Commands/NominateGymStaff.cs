@@ -14,11 +14,14 @@ public class NominateGymStaffCommandValidator : AbstractValidator<NominateGymSta
 {
     public NominateGymStaffCommandValidator()
     {
-        RuleFor(v => v.UserEmailToNominate).NotEmptyWithMessage("User's email to nominate");
+        RuleFor(v => v.UserEmailToNominate)
+            .NotEmptyWithMessage("User's email to nominate")
+            .ValidEmailAddress();
 
         RuleFor(v => v.EscalationEmail)
             .NotEmptyWithMaxLenghtAndMessage(MaxStringLengths.Email, "Escalation email")
-            .NotEqual(v => v.UserEmailToNominate);
+            .NotEqual(v => v.UserEmailToNominate)
+            .ValidEmailAddress();
     }
 }
 
@@ -40,37 +43,58 @@ public class NominateGymStaffCommandHandler : IRequestHandler<NominateGymStaffCo
             .AsNoTracking()
             .FirstOrDefaultAsync(gsa => gsa.ApplicationUserId == _user.Id);
 
-        var user = await _context
+        var userToNominate = await _context
             .ApplicationUsers
             .Include(au => au.GymStaffAssignment)
             .FirstOrDefaultAsync(au => au.Email == command.UserEmailToNominate);
 
-        Guard.Against.NotFound(command.UserEmailToNominate, user, "Email");
+        Guard.Against.NotFound(command.UserEmailToNominate, userToNominate, "Email");
 
-        if (user.GymStaffAssignment == null || user.GymStaffAssignment!.Role != Roles.PendingGymManagement)
+        var userToNominateRoles = await _identityService.GetRolesAsync(userToNominate);
+
+        if (userToNominateRoles != null && userToNominateRoles.Count > 1)
+        {
+            throw new InvalidOperationException("There was an error handling specified user, please contact support: user has more than 1 role.");
+        }
+
+        if (userToNominateRoles == null || (userToNominateRoles != null &&  (userToNominateRoles.Count == 0 || userToNominateRoles.First() != Roles.PendingGymManagement)))
         {
             throw new BadRequestException("Account with this email is not eligible for GymStaff nomination. Please register a new gym management account for this action");
         }
 
-        var demotionResult = await _identityService.RemoveFromRoleAsync(user, Roles.PendingGymManagement);
+        var demotionResult = await _identityService.RemoveFromRoleAsync(userToNominate, Roles.PendingGymManagement);
 
         if (!demotionResult.Succeeded)
         {
             throw new Exception($"Failed to remove user from pending gym management role: {string.Join(", ", demotionResult.Errors)}.");
         }
 
-        var nominationResult = await _identityService.AddToRoleAsync(user, Roles.GymStaff);
+        var nominationResult = await _identityService.AddToRoleAsync(userToNominate, Roles.GymStaff);
 
         if (!nominationResult.Succeeded)
         {
+            await _identityService.AddToRoleAsync(userToNominate, Roles.PendingGymManagement);
+
             throw new Exception($"Failed to nominate user: {string.Join(", ", nominationResult.Errors)}");
         }
 
-        user.GymStaffAssignment.GymId = nominatorAssignment!.GymId;
-        user.GymStaffAssignment.Role = Roles.GymStaff;
-        user.GymStaffAssignment.EscalationEmail = command.EscalationEmail;
-
-        user.AddDomainEvent(new GymStaffNominatedEvent(user));
+        if (userToNominate.GymStaffAssignment == null) //they could have been gym staff already but they were demoted
+        {
+            userToNominate.GymStaffAssignment = new()
+            {
+                ApplicationUserId = userToNominate.Id,
+                GymId = nominatorAssignment!.GymId,
+                Role = Roles.GymStaff,
+                EscalationEmail = command.EscalationEmail
+            };
+        } else
+        {
+            userToNominate.GymStaffAssignment.GymId = nominatorAssignment!.GymId;
+            userToNominate.GymStaffAssignment.Role = Roles.GymStaff;
+            userToNominate.GymStaffAssignment.EscalationEmail = command.EscalationEmail;
+        }
+            
+        userToNominate.AddDomainEvent(new GymStaffNominatedEvent(userToNominate));
 
         await _context.SaveChangesAsync();
     }

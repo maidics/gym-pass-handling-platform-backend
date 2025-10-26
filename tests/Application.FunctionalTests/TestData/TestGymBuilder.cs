@@ -47,14 +47,14 @@ public class TestGymBuilder : TestEntityBuilderBase<Gym>
         return this;
     }
 
-    public async Task<TestGymBuilder> WithManagement()
+    public TestGymBuilder WithManagement()
     {
         _gymManagement = "both";
 
         return this;
     }
 
-    public async Task<TestGymBuilder> WithGymAdmin()
+    public TestGymBuilder WithGymAdmin()
     {
         _gymManagement = Roles.GymAdministrator;
 
@@ -135,6 +135,11 @@ public class TestGymBuilder : TestEntityBuilderBase<Gym>
     {
         using var scope = _scopeFactory.CreateScope();
 
+        var context = scope.ServiceProvider.GetRequiredService<IApplicationDbContext>();
+
+        await context.Gyms.AddAsync(_gym);
+        await context.SaveChangesAsync();
+
         if (_gymManagement != null)
         {
             var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
@@ -156,10 +161,6 @@ public class TestGymBuilder : TestEntityBuilderBase<Gym>
             }
         }
 
-        var context = scope.ServiceProvider.GetRequiredService<IApplicationDbContext>();
-
-        await context.Gyms.AddAsync(_gym);
-        await context.SaveChangesAsync();
         return _gym;
     }
 }

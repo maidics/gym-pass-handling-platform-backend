@@ -49,4 +49,9 @@ public static class ValidationExtensions
         return rule
             .IsInEnum().WithMessage($"Provided {propertyName} is not valid.");
     }
+
+    public static IRuleBuilder<T, string> ValidEmailAddress<T>(this IRuleBuilder<T, string> rule)
+    {
+        return rule.EmailAddress().WithMessage("Valid email address is required.");
+    }
 }
