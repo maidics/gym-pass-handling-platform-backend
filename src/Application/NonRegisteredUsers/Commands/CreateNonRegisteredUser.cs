@@ -5,6 +5,7 @@ using FitPass.Application.Extensions;
 using FitPass.Application.NonRegisteredUsers.DTOs;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
+using FitPass.Domain.Strings;
 
 namespace FitPass.Application.NonRegisteredUsers.Commands;
 
@@ -22,19 +23,35 @@ public class CreateNonRegisteredUserCommandValidator : AbstractValidator<CreateN
     {
         RuleFor(v => v).Must(v => !string.IsNullOrEmpty(v.Email) || !string.IsNullOrEmpty(v.PhoneNumber));
 
-        RuleFor(v => v.Email)
-            .EmailAddress()
-            .NotEmptyWithMaxLenghtAndMessage(MaxStringLengths.Email, "Email")
-            .When(v => !string.IsNullOrEmpty(v.Email));
+        When(v => string.IsNullOrEmpty(v.Email), () =>
+        {
+            RuleFor(v => v.PhoneNumber)
+                .NotNull()
+                .WithMessage(ErrorMessages.PropertyCannotBeNullIfAnotherIsNull(nameof(CreateNonRegisteredUserCommand.PhoneNumber), nameof(CreateNonRegisteredUserCommand.Email)));
+        });
+
+        When(v => string.IsNullOrEmpty(v.PhoneNumber), () =>
+        {
+            RuleFor(v => v.Email)
+                .NotNull()
+                .WithMessage(ErrorMessages.PropertyCannotBeNullIfAnotherIsNull(nameof(CreateNonRegisteredUserCommand.Email), nameof(CreateNonRegisteredUserCommand.PhoneNumber)));
+        });
+
+        When(v => !string.IsNullOrEmpty(v.Email), () =>
+        {
+            RuleFor(v => v.Email!)
+                .MaxLengthWithMessage(nameof(CreateNonRegisteredUserCommand.Email), MaxStringLengths.Email)
+                .ValidEmailAddress(nameof(CreateNonRegisteredUserCommand.Email));
+        });
 
         When(v => !string.IsNullOrEmpty(v.PhoneNumber), () =>
         {
-            RuleFor(v => v.PhoneNumber!).PhoneNumber("Phone number");
+            RuleFor(v => v.PhoneNumber!).PhoneNumber(nameof(CreateNonRegisteredUserCommand.PhoneNumber));
         });
 
-        RuleFor(v => v.FirstName).NotEmptyWithMaxLenghtAndMessage(MaxStringLengths.Name, "First name");
+        RuleFor(v => v.FirstName).NotEmptyWithMaxLenghtAndMessage(nameof(CreateNonRegisteredUserCommand.FirstName), MaxStringLengths.Name);
 
-        RuleFor(v => v.LastName!).NotEmptyWithMaxLenghtAndMessage(MaxStringLengths.Name, "Last name");
+        RuleFor(v => v.LastName).NotEmptyWithMaxLenghtAndMessage(nameof(CreateNonRegisteredUserCommand.LastName), MaxStringLengths.Name);
     }
 }
 

@@ -24,16 +24,14 @@ public class CreateGymAdminNominationRequestCommandValidator : AbstractValidator
     public CreateGymAdminNominationRequestCommandValidator()
     {
         RuleFor(v => v.UserEmailToNominate)
-            .NotEmptyWithMessage("Email")
-            .EmailAddress().WithMessage("A valid email address must be provided.");
+            .ValidEmailAddress(nameof(CreateGymAdminNominationRequestCommand.UserEmailToNominate));
 
-        RuleFor(v => v.RequestDescription!).NotEmptyWithMaxLenghtAndMessage(MaxStringLengths.Description, "Request description");
+        RuleFor(v => v.RequestDescription!)
+            .NotEmptyWithMaxLenghtAndMessage(nameof(CreateGymAdminNominationRequestCommand.RequestDescription), MaxStringLengths.Description);
 
-        RuleFor(v => v.RequestPriorityLevel).NotEmptyWithMessage("Request priority level");
+        RuleFor(v => v.RequestPriorityLevel).IsInEnumWithMessage();
 
-        RuleFor(v => v.EscalationEmail)
-            .NotEmptyWithMessage("Escalation email")
-            .EmailAddress().WithMessage("A valid email address must be provided.");
+        RuleFor(v => v.EscalationEmail).ValidEmailAddress(nameof(CreateGymAdminNominationRequestCommand.EscalationEmail));
     }
 }
 

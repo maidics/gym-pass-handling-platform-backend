@@ -2,6 +2,7 @@ using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Extensions;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
+using FitPass.Domain.Strings;
 
 namespace FitPass.Application.NonRegisteredUsers.Commands;
 
@@ -17,25 +18,36 @@ public class RegisterNonRegisteredUserCommandValidator : AbstractValidator<Regis
 {
     public RegisterNonRegisteredUserCommandValidator()
     {
-        RuleFor(v => v).Must(v => !string.IsNullOrEmpty(v.NonRegisteredUserEmail) || !string.IsNullOrEmpty(v.NonRegisteredUserPhoneNumber));
+        When(v => string.IsNullOrEmpty(v.NonRegisteredUserEmail), () =>
+        {
+            RuleFor(v => v.NonRegisteredUserPhoneNumber)
+                .NotNull()
+                .WithMessage(ErrorMessages.PropertyCannotBeNullIfAnotherIsNull(nameof(RegisterNonRegisteredUserCommand.NonRegisteredUserPhoneNumber), nameof(RegisterNonRegisteredUserCommand.NonRegisteredUserEmail)));
+        });
+
+        When(v => string.IsNullOrEmpty(v.NonRegisteredUserPhoneNumber), () =>
+        {
+            RuleFor(v => v.NonRegisteredUserEmail)
+                .NotNull()
+                .WithMessage(ErrorMessages.PropertyCannotBeNullIfAnotherIsNull(nameof(RegisterNonRegisteredUserCommand.NonRegisteredUserEmail), nameof(RegisterNonRegisteredUserCommand.NonRegisteredUserPhoneNumber)));
+        });
 
         When(v => !string.IsNullOrEmpty(v.NonRegisteredUserEmail), () =>
         {
-            RuleFor(v => v.NonRegisteredUserEmail!).NotEmptyWithMaxLenghtAndMessage(MaxStringLengths.Email, "Non registered user email");
+            RuleFor(v => v.NonRegisteredUserEmail!).NotEmptyWithMaxLenghtAndMessage(nameof(RegisterNonRegisteredUserCommand.NonRegisteredUserEmail), MaxStringLengths.Email);
         });
 
         When(v => !string.IsNullOrEmpty(v.NonRegisteredUserPhoneNumber), () =>
         {
-            RuleFor(v => v.NonRegisteredUserEmail!).NotEmptyWithMaxLenghtAndMessage(MaxStringLengths.PhoneNumber, "Non registered phone number");
+            RuleFor(v => v.NonRegisteredUserEmail!).NotEmptyWithMaxLenghtAndMessage(nameof(RegisterNonRegisteredUserCommand.NonRegisteredUserEmail), MaxStringLengths.PhoneNumber);
         });
 
-        RuleFor(v => v.Password)
-            .NotEmptyWithMessage("Password")
-            .StrongPassword();
+        RuleFor(v => v.Password).StrongPassword();
 
         RuleFor(v => v.PasswordConfirm)
-            .NotEmptyWithMessage("Password confirmation")
-            .Equal(v => v.Password).WithMessage("Your password and password confirmation must match.");
+            .NotEmptyWithMessage(nameof(RegisterNonRegisteredUserCommand.PasswordConfirm))
+            .Equal(v => v.Password)
+            .WithMessage(ErrorMessages.PropertyMustEqualToAnotherProperty(nameof(RegisterNonRegisteredUserCommand.Password), nameof(RegisterNonRegisteredUserCommand.PasswordConfirm)));
     }
 }
 

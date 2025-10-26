@@ -21,17 +21,23 @@ public class CreateGymCreationRequestCommandValidator : AbstractValidator<Create
 {
     public CreateGymCreationRequestCommandValidator()
     {
-        RuleFor(v => v.CreateGymDTO.GymName).NotEmptyWithMaxLenghtAndMessage(MaxStringLengths.Name, "Gym name");
+        RuleFor(v => v.RequestDescription)
+            .NotEmptyWithMaxLenghtAndMessage(nameof(CreateGymCreationRequestCommand.RequestDescription), MaxStringLengths.Description);
 
-        RuleFor(v => v.CreateGymDTO.GymAddress).NotEmptyWithMaxLenghtAndMessage(MaxStringLengths.Address, "Gym address");
+        RuleFor(v => v.PriorityLevel).IsInEnumWithMessage();
 
-        RuleFor(v => v.CreateGymDTO.GymStatus).IsInEnumWithMessage("Gym status");
+        RuleFor(v => v.CreateGymDTO.GymName)
+            .NotEmptyWithMaxLenghtAndMessage(nameof(CreateGymCreationRequestCommand.CreateGymDTO.GymName), MaxStringLengths.Name);
 
-        RuleFor(v => v.CreateGymDTO.GymTier).IsInEnumWithMessage("Gym tier");
+        RuleFor(v => v.CreateGymDTO.GymAddress)
+            .NotEmptyWithMaxLenghtAndMessage(nameof(CreateGymCreationRequestCommand.CreateGymDTO.GymAddress), MaxStringLengths.Address);
+
+        RuleFor(v => v.CreateGymDTO.GymStatus).IsInEnumWithMessage();
+
+        RuleFor(v => v.CreateGymDTO.GymTier).IsInEnumWithMessage();
 
         RuleFor(v => v.CreateGymDTO.EscalationEmail)
-            .NotEmptyWithMaxLenghtAndMessage(MaxStringLengths.Email, "Escalation email")
-            .EmailAddress().WithMessage("An escalation email address from a higher-level contact than the gym administrator is required.");
+            .ValidEmailAddress(nameof(CreateGymCreationRequestCommand.CreateGymDTO.EscalationEmail));
     }
 }
 

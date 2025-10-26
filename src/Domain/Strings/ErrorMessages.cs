@@ -69,8 +69,48 @@ public static class ErrorMessages
         return "Password must contain at least one special character";
     }
 
-    public static string NotContainedByEnum(Enum e)
+    public static string NotContainedByEnum(string enumName)
     {
-        return $"Provided {nameof(e)} is not valid.";
+        return $"Provided {enumName} is not valid.";
+    }
+
+    public static string SingleUsePassTypeOnlyOneUse()
+    {
+        return "Single use pass type most only have one total use.";
+    }
+
+    public static string SingleUsePassCannotExpire()
+    {
+        return "Single use pass type cannot expire.";
+    }
+
+    public static string MultiUsePassTypeAtLeastTwoUses()
+    {
+        return "Multi use pass type must have at least two uses.";
+    }
+
+    public static string MultiUsePassCannotExpire()
+    {
+        return "Multi use pass type cannot expire.";
+    }
+
+    public static string UnlimitedPassTypeExpirationDayAtleastOne()
+    {
+        return "Unlimited use pass type must expire at least after 1 day from today.";
+    }
+
+    public static string UnlimitedPassTypeNoUses()
+    {
+        return "Unlimited use pass type cannot have total uses.";
+    }
+
+    public static string PriceMustBePositive(string pricePropertyName)
+    {
+        return $"'{pricePropertyName}' has to be a positive number";
+    }
+
+    public static string PropertyCannotBeNullIfAnotherIsNull(string propertyName, string anotherPropertyName)
+    {
+        return $"'{propertyName}' cannot be null if '{anotherPropertyName}' is null.";
     }
 }

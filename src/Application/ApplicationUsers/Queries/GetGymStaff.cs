@@ -13,7 +13,7 @@ public class GetGymStaffQueryValidator : AbstractValidator<GetGymStaffQuery>
 {
     public GetGymStaffQueryValidator()
     {
-        RuleFor(v => v.GymId).NotEmptyWithMessage("Gym id");
+        RuleFor(v => v.GymId).NotEmptyWithMessage(nameof(GetGymStaffQuery.GymId));
     }
 }
 

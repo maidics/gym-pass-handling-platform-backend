@@ -1,6 +1,7 @@
 using Fitpass.Application.Requests.DTOs;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Security;
+using FitPass.Application.Extensions;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Enums;
 
@@ -8,6 +9,22 @@ namespace Fitpass.Application.Requests.Queries;
 
 [Authorize(Roles = Roles.AppAdministrator)]
 public record GetRequestsQuery(RequestType? RequestType, RequestStatus? RequestStatus) : IRequest<List<RequestDto>>;
+
+public class GetRequestsQueryValidator : AbstractValidator<GetRequestsQuery>
+{
+    public GetRequestsQueryValidator()
+    {
+        When(v => v.RequestType != null, () =>
+        {
+            RuleFor(v => (RequestType)v.RequestType!).IsInEnumWithMessage();
+        });
+
+        When(v => v.RequestStatus != null, () =>
+        {
+            RuleFor(v => (RequestStatus)v.RequestStatus!).IsInEnumWithMessage();
+        });
+    }
+}
 
 public class GetRequestsQueryHandler : IRequestHandler<GetRequestsQuery, List<RequestDto>>
 {

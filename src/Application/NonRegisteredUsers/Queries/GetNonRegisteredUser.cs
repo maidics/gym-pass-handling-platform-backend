@@ -13,7 +13,7 @@ public class GetNonRegisteredUserQueryValidator : AbstractValidator<GetNonRegist
 {
     public GetNonRegisteredUserQueryValidator()
     {
-        RuleFor(v => v.NonRegisteredUserId).NotEmptyWithMessage("Non registered user id");
+        RuleFor(v => v.NonRegisteredUserId).NotEmptyWithMessage(nameof(GetNonRegisteredUserQuery.NonRegisteredUserId));
     }
 }
 

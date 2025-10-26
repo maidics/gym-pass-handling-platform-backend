@@ -13,7 +13,9 @@ public class UpdateMyGymStatusCommandValidator : AbstractValidator<UpdateMyGymSt
 {
     public UpdateMyGymStatusCommandValidator()
     {
-        RuleFor(v => v.NewGymStatus).NotEmptyWithMessage("New gym status");
+        RuleFor(v => v.NewGymStatus)
+            .NotEmptyWithMessage("New gym status")
+            .IsInEnumWithMessage();
     }
 }
 

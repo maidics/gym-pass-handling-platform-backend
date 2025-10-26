@@ -17,9 +17,9 @@ public class BuyPassForNonRegisteredUserCommandValidator : AbstractValidator<Buy
 {
     public BuyPassForNonRegisteredUserCommandValidator()
     {
-        RuleFor(v => v.NonRegisteredUserId).NotEmptyWithMessage("Non registered user id");
+        RuleFor(v => v.NonRegisteredUserId).NotEmptyWithMessage(nameof(BuyPassForNonRegisteredUserCommand.NonRegisteredUserId));
 
-        RuleFor(v => v.GymPassProductId).NotEmptyWithMessage("Gym pass product id");
+        RuleFor(v => v.GymPassProductId).NotEmptyWithMessage(nameof(BuyPassForNonRegisteredUserCommand.GymPassProductId));
     }
 }
 

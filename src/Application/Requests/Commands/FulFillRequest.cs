@@ -15,7 +15,7 @@ public class FulfillRequestCommandValidator : AbstractValidator<FulfillRequestCo
 {
     public FulfillRequestCommandValidator()
     {
-        RuleFor(v => v.RequestId).NotEmptyWithMessage("Request id");
+        RuleFor(v => v.RequestId).NotEmptyWithMessage(nameof(FulfillRequestCommand.RequestId));
     }
 }
 

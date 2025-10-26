@@ -13,7 +13,11 @@ public class UpdateGymStatusCommandValidator : AbstractValidator<UpdateGymStatus
 {
     public UpdateGymStatusCommandValidator()
     {
-        RuleFor(v => v.GymId).NotEmptyWithMessage("Gym id");
+        RuleFor(v => v.GymId).NotEmptyWithMessage(nameof(UpdateGymStatusCommand.GymId));
+
+        RuleFor(v => v.NewGymStatus)
+            .NotEmptyWithMessage(nameof(UpdateGymStatusCommand.NewGymStatus))
+            .IsInEnumWithMessage();
     }
 }
 

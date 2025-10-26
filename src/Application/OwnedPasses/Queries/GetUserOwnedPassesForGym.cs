@@ -15,7 +15,7 @@ public class GetUserOwnedPassesForGymQueryValidator : AbstractValidator<GetUserO
 {
     public GetUserOwnedPassesForGymQueryValidator()
     {
-        RuleFor(v => v.UserGymMembershipId).NotEmptyWithMessage("User gym membership id");
+        RuleFor(v => v.UserGymMembershipId).NotEmptyWithMessage(nameof(GetUserOwnedPassesForGymQuery.UserGymMembershipId));
     }
 }
 

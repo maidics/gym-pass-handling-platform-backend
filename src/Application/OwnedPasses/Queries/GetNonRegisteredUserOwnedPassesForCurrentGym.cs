@@ -13,7 +13,7 @@ public class GetNonRegisteredUserOwnedPassesForCurrentGymQueryValidator : Abstra
 {
     public GetNonRegisteredUserOwnedPassesForCurrentGymQueryValidator()
     {
-        RuleFor(v => v.NonRegisteredUserId).NotEmptyWithMessage("Non registered user id");
+        RuleFor(v => v.NonRegisteredUserId).NotEmptyWithMessage(nameof(GetNonRegisteredUserOwnedPassesForCurrentGymQuery.NonRegisteredUserId));
     }
 }
 

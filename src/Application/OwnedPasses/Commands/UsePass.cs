@@ -1,7 +1,9 @@
 using Fitpass.Application.Common.Exceptions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Security;
+using FitPass.Application.Extensions;
 using FitPass.Domain;
+using FitPass.Domain.Strings;
 
 namespace FitPass.Application;
 
@@ -13,7 +15,10 @@ public class ApplicationUserUsePassCommandValidator : AbstractValidator<Applicat
     public ApplicationUserUsePassCommandValidator()
     {
         RuleFor(v => v.QrCode)
-            .NotEmpty().WithMessage("A QR code must be provided for this.");
+            .NotEmptyWithMessage(nameof(ApplicationUserUsePassCommand.QrCode));
+
+        RuleFor(v => v.OwnedPassId)
+            .NotEmptyWithMessage(nameof(ApplicationUserUsePassCommand.OwnedPassId));
     }
 }
 

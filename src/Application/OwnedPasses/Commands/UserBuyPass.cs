@@ -13,7 +13,7 @@ public class ApplicationUserBuyPassCommandValidator : AbstractValidator<Applicat
 {
     public ApplicationUserBuyPassCommandValidator()
     {
-        RuleFor(v => v.GymPassProductId).NotEmptyWithMessage("Gym pass product id");
+        RuleFor(v => v.GymPassProductId).NotEmptyWithMessage(nameof(ApplicationUserBuyPassCommand.GymPassProductId));
     }
 }
 

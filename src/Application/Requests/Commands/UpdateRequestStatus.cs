@@ -14,16 +14,7 @@ public class UpdateRequestStatusCommandValidator : AbstractValidator<UpdateReque
 {
     public UpdateRequestStatusCommandValidator()
     {
-        List<RequestStatus> allowedStatuses = [
-            RequestStatus.InProgress,
-            RequestStatus.Cancelled,
-            RequestStatus.Rejected,
-            RequestStatus.Completed,
-        ];
-
-        RuleFor(v => v.NewRequestStatus)
-            .NotEmptyWithMessage("New request status")
-            .Must(allowedStatuses.Contains);
+        RuleFor(v => v.NewRequestStatus).IsInEnumWithMessage();
     }
 }
 

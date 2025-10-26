@@ -20,11 +20,11 @@ public class UpdateMyGymProfileCommandValidator : AbstractValidator<UpdateMyGymP
 {
     public UpdateMyGymProfileCommandValidator()
     {
-        RuleFor(v => v.GymId).NotEmptyWithMessage("Gym id");
+        RuleFor(v => v.GymId).NotEmptyWithMessage(nameof(UpdateMyGymProfileCommand.GymId));
 
-        RuleFor(v => v.GymName).NotEmptyWithMaxLenghtAndMessage(MaxStringLengths.Name, "Gym name");
+        RuleFor(v => v.GymName).NotEmptyWithMaxLenghtAndMessage(nameof(UpdateMyGymProfileCommand.GymName), MaxStringLengths.Name);
 
-        RuleFor(v => v.GymAddress).NotEmptyWithMaxLenghtAndMessage(MaxStringLengths.Address, "Gym address");
+        RuleFor(v => v.GymAddress).NotEmptyWithMaxLenghtAndMessage(nameof(UpdateMyGymProfileCommand.GymAddress), MaxStringLengths.Address);
     }
 }
 

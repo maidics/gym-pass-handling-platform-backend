@@ -6,6 +6,7 @@ using FitPass.Application.Extensions;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
+using FitPass.Domain.Strings;
 
 namespace Fitpass.Application.GymPassProductsTemplates.Commands;
 
@@ -23,27 +24,27 @@ public class CreateGymPassProductTemplateCommandValidator : AbstractValidator<Cr
 {
     public CreateGymPassProductTemplateCommandValidator()
     {
-        RuleFor(v => v.GymTier).NotEmptyWithMessage("Gym tier");
+        RuleFor(v => v.GymTier).NotEmptyWithMessage(nameof(CreateGymPassProductTemplateCommand.GymTier));
 
-        RuleFor(v => v.PassType).NotEmptyWithMessage("Pass type");
+        RuleFor(v => v.PassType).NotEmptyWithMessage(nameof(CreateGymPassProductTemplateCommand.PassType));
 
         When(v => v.PassType == PassType.SingleUse, () =>
         {
             RuleFor(v => v.TotalUses)
-                .NotEmptyWithMessage("Total uses")
-                .Equal(1).WithMessage("Single use pass type must only have one total use.");
+                .NotEmptyWithMessage(nameof(CreateGymPassProductTemplateCommand.TotalUses))
+                .Equal(1).WithMessage(ErrorMessages.SingleUsePassTypeOnlyOneUse());
 
             RuleFor(v => v.DaysAfterExpiring)
-                .Null().WithMessage("Multi use pass cannot expire.");
+                .Null().WithMessage(ErrorMessages.SingleUsePassCannotExpire());
         });
 
         When(v => v.PassType == PassType.MultiUse, () =>
         {
             RuleFor(v => v.TotalUses)
-                .NotEmptyWithMessage("Total uses")
-                .GreaterThan(1).WithMessage("Multi use pass type must have at least two total uses.");
+                .NotEmptyWithMessage(nameof(CreateGymPassProductTemplateCommand.TotalUses))
+                .GreaterThan(1).WithMessage(ErrorMessages.MultiUsePassTypeAtLeastTwoUses());
 
-            RuleFor(v => v.DaysAfterExpiring).Null().WithMessage("Multi use pass cannot expire.");
+            RuleFor(v => v.DaysAfterExpiring).Null().WithMessage(ErrorMessages.MultiUsePassCannotExpire());
         });
 
         When(v => v.PassType == PassType.Unlimited, () =>
@@ -51,14 +52,14 @@ public class CreateGymPassProductTemplateCommandValidator : AbstractValidator<Cr
             var now = DateTimeOffset.UtcNow;
 
             RuleFor(v => v.DaysAfterExpiring)
-                .NotEmptyWithMessage("Expiration date")
-                .GreaterThan(0).WithMessage("Pass must expire after at least 1 day.");
+                .NotEmptyWithMessage(nameof(CreateGymPassProductTemplateCommand.DaysAfterExpiring))
+                .GreaterThan(0).WithMessage(ErrorMessages.UnlimitedPassTypeExpirationDayAtleastOne());
 
-            RuleFor(v => v.TotalUses).Null().WithMessage("Subscription pass type cannot have total uses.");
+            RuleFor(v => v.TotalUses).Null().WithMessage(ErrorMessages.UnlimitedPassTypeNoUses());
         });
 
         RuleFor(v => v.EurPrice)
-            .GreaterThan(0).WithMessage("Eur price must be bigger than 0.");
+            .GreaterThan(0).WithMessage(ErrorMessages.PriceMustBePositive(nameof(CreateGymPassProductTemplateCommand.EurPrice)));
     }
 }
 

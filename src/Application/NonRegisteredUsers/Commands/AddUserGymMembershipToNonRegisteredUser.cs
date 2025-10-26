@@ -15,7 +15,7 @@ public class AddUserGymMembershipToNonRegisteredUserCommandValidator : AbstractV
 {
     public AddUserGymMembershipToNonRegisteredUserCommandValidator()
     {
-        RuleFor(v => v.NonRegisteredUserId).NotEmptyWithMessage("User id");
+        RuleFor(v => v.NonRegisteredUserId).NotEmptyWithMessage(nameof(AddUserGymMembershipToNonRegisteredUserCommand.NonRegisteredUserId));
     }
 }
 

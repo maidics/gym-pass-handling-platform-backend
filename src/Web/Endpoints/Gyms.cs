@@ -35,7 +35,7 @@ public class Gyms : EndpointGroupBase
 
     public async Task<Results<Ok<Result>, BadRequest>> RegisterGym(ISender sender, string requestId, [AsParameters] RegisterGymCommand command)
     {
-        if (requestId != command.gymCreationRequestId)
+        if (requestId != command.GymCreationRequestId)
         {
             return TypedResults.BadRequest();
         }

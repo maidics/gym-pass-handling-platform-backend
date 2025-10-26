@@ -57,14 +57,17 @@ public static class ValidationExtensions
             .Matches(@"^\+?[0-9]{7,15}$").WithMessage(ErrorMessages.InvalidPhoneNumber());
     }
 
-    public static IRuleBuilder<T, TEnum> IsInEnumWithMessage<T, TEnum>(this IRuleBuilder<T, TEnum> rule, Enum e) where TEnum : Enum
+    public static IRuleBuilder<T, TEnum> IsInEnumWithMessage<T, TEnum>(this IRuleBuilder<T, TEnum> rule) where TEnum : Enum
     {
         return rule
-            .IsInEnum().WithMessage(ErrorMessages.NotContainedByEnum(e));
+            .NotEmptyWithMessage(nameof(TEnum))
+            .IsInEnum().WithMessage(ErrorMessages.NotContainedByEnum(nameof(TEnum)));
     }
 
     public static IRuleBuilder<T, string> ValidEmailAddress<T>(this IRuleBuilder<T, string> rule, string emailPropertyName)
     {
-        return rule.EmailAddress().WithMessage(ErrorMessages.InvalidEmailAddress(emailPropertyName));
+        return rule
+            .NotEmptyWithMessage(emailPropertyName)
+            .EmailAddress().WithMessage(ErrorMessages.InvalidEmailAddress(emailPropertyName));
     }
 }

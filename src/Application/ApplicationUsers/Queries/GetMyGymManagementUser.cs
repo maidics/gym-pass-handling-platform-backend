@@ -13,7 +13,7 @@ public class GetMyGymManagementUserQueryValidator : AbstractValidator<GetMyGymMa
 {
     public GetMyGymManagementUserQueryValidator()
     {
-        RuleFor(v => v.GymManagementUserId).NotEmptyWithMessage("Gym management user id");
+        RuleFor(v => v.GymManagementUserId).NotEmptyWithMessage(nameof(GetMyGymManagementUserQuery.GymManagementUserId);
     }
 }
 

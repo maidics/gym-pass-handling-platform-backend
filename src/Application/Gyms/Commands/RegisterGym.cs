@@ -3,23 +3,20 @@ using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Security;
 using FitPass.Application.Extensions;
-using FitPass.Application.Requests.DTOs;
 using FitPass.Domain.Constants;
-using FitPass.Domain.Entities;
-using FitPass.Domain.Enums;
 
 namespace FitPass.Application.Gyms.Commands;
 
 [Authorize(Roles = Roles.AppAdministrator)]
 public record RegisterGymCommand(
-    string gymCreationRequestId
+    string GymCreationRequestId
 ) : IRequest<Result>;
 
 public class RegisterGymCommandValidator : AbstractValidator<RegisterGymCommand>
 {
     public RegisterGymCommandValidator()
     {
-        RuleFor(v => v.gymCreationRequestId).NotEmptyWithMessage("Gym creation request id");
+        RuleFor(v => v.GymCreationRequestId).NotEmptyWithMessage(nameof(RegisterGymCommand.GymCreationRequestId));
     }
 }
 

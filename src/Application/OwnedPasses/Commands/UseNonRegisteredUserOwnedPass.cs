@@ -18,9 +18,9 @@ public class UseNonRegisteredUserOwnedPassCommandValidator : AbstractValidator<U
 {
     public UseNonRegisteredUserOwnedPassCommandValidator()
     {
-        RuleFor(v => v.NonRegisteredUserId).NotEmptyWithMessage("Non registered user id.");
+        RuleFor(v => v.NonRegisteredUserId).NotEmptyWithMessage(nameof(UseNonRegisteredUserOwnedPassCommand.NonRegisteredUserId));
 
-        RuleFor(v => v.OwnedPassId).NotEmptyWithMessage("Owned pass id");
+        RuleFor(v => v.OwnedPassId).NotEmptyWithMessage(nameof(UseNonRegisteredUserOwnedPassCommand.OwnedPassId));
     }
 }
 

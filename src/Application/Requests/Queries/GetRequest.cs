@@ -13,7 +13,7 @@ public class GetRequestQueryValidator : AbstractValidator<GetRequestQuery>
 {
     public GetRequestQueryValidator()
     {
-        RuleFor(v => v.RequestId).NotEmptyWithMessage("Gym creation request id");
+        RuleFor(v => v.RequestId).NotEmptyWithMessage(nameof(GetRequestQuery.RequestId));
     }
 }
 

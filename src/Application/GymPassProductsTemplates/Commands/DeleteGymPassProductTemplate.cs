@@ -12,7 +12,7 @@ public class DeleteGymPassProductTemplateCommandValidator : AbstractValidator<De
 {
     public DeleteGymPassProductTemplateCommandValidator()
     {
-        RuleFor(v => v.GymPassProductTemplateId).NotEmptyWithMessage("Gym pass product template id");
+        RuleFor(v => v.GymPassProductTemplateId).NotEmptyWithMessage(nameof(DeleteGymPassProductTemplateCommand.GymPassProductTemplateId));
     }
 }
 
