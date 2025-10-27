@@ -32,7 +32,7 @@ public partial class ApplicationDbContextInitialiser
                     FirstName = "Gym",
                     LastName = "Admin",
                     UserGymMemberships = null,
-                    GymStaffAssignment = new GymStaffAssignment {
+                    GymStaffAssignment = new GymEmployment {
                         ApplicationUserId = "GymAdminLocalhostId",
                         GymId = gymId1,
                         EscalationEmail = "escalation@localhost",
@@ -52,7 +52,7 @@ public partial class ApplicationDbContextInitialiser
                     FirstName = "Gym",
                     LastName = "Staff",
                     UserGymMemberships = null,
-                    GymStaffAssignment = new GymStaffAssignment
+                    GymStaffAssignment = new GymEmployment
                     {
                         ApplicationUserId = "GymStaffLocalhostId",
                         GymId = gymId1,
@@ -111,15 +111,15 @@ public partial class ApplicationDbContextInitialiser
                     LastName = "GymAdmin",
                     Email = "pendinggymadmin@localhost",
                     UserGymMemberships = null,
-                    GymStaffAssignment = new GymStaffAssignment 
+                    GymStaffAssignment = new GymEmployment 
                     {
                         ApplicationUserId = "PendingGymAdmin",
                         GymId = null,
-                        Role = Roles.PendingGymManagement
+                        Role = Roles.PendingGymEmployee
                     },
                     PaymentProfile = null
                 },
-                Roles.PendingGymManagement,
+                Roles.PendingGymEmployee,
                 "Password123_"
             )
         ];

@@ -72,7 +72,7 @@ public class CreateNonRegisteredUserCommandHandler : IRequestHandler<CreateNonRe
 
     public async Task<NonRegisteredUserDto> Handle(CreateNonRegisteredUserCommand command, CancellationToken cancellationToken)
     {
-        var gymStaffAssignment = await _context.GymStaffAssigments
+        var gymStaffAssignment = await _context.GymEmployments
             .AsNoTracking()
             .FirstOrDefaultAsync(gsa => gsa.ApplicationUserId == _user.Id, cancellationToken);
 

@@ -5,7 +5,7 @@ public abstract class Roles
     public const string AppAdministrator = nameof(AppAdministrator);
     public const string GymAdministrator = nameof(GymAdministrator);
     public const string GymStaff = nameof(GymStaff);
-    public const string PendingGymManagement = nameof(PendingGymManagement);
+    public const string PendingGymEmployee = nameof(PendingGymEmployee);
     public const string User = nameof(User);
 
     public static string[] All =
@@ -13,7 +13,7 @@ public abstract class Roles
             nameof(AppAdministrator),
             nameof(GymAdministrator),
             nameof(GymStaff),
-            nameof(PendingGymManagement),
+            nameof(PendingGymEmployee),
             nameof(User)
         ];
 

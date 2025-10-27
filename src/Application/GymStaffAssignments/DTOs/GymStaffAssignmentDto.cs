@@ -15,7 +15,7 @@ public class GymStaffAssignmentDto
     {
         public Mapping()
         {
-            CreateMap<GymStaffAssignment, GymStaffAssignmentDto>();
+            CreateMap<GymEmployment, GymStaffAssignmentDto>();
         }
     }
 }

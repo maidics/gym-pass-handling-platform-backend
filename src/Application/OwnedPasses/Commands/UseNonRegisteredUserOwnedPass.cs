@@ -36,7 +36,7 @@ public class UseNonRegisteredUserOwnedPassCommandHandler : IRequestHandler<UseNo
     }
     public async Task Handle(UseNonRegisteredUserOwnedPassCommand command, CancellationToken cancellationToken)
     {
-        var gymStaffAssigment = await _context.GymStaffAssigments
+        var gymStaffAssigment = await _context.GymEmployments
             .AsNoTracking()
             .FirstOrDefaultAsync(gsa => gsa.ApplicationUserId == _user.Id, cancellationToken);
 

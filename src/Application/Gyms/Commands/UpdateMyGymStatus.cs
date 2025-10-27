@@ -31,7 +31,7 @@ public class UpdateMyGymStatusCommandHandler : IRequestHandler<UpdateMyGymStatus
     }
     public async Task Handle(UpdateMyGymStatusCommand command, CancellationToken cancellationToken)
     {
-        var gymStaffAssignment = await _context.GymStaffAssigments
+        var gymStaffAssignment = await _context.GymEmployments
             .AsNoTracking()
             .FirstOrDefaultAsync(gsa => gsa.ApplicationUserId == _user.Id, cancellationToken);
 

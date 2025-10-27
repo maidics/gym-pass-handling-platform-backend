@@ -93,7 +93,7 @@ public partial class Testing
 
     public static async Task<ApplicationUser> RunAsPendingGymManagementAsync()
     {
-        var user = await TestApplicationUserBuilder.WithRole(Roles.PendingGymManagement).BuildAsync();
+        var user = await TestApplicationUserBuilder.WithRole(Roles.PendingGymEmployee).BuildAsync();
 
         return await RunAsUserAsync(user);
     }
@@ -188,7 +188,7 @@ public partial class Testing
             new(Roles.AppAdministrator),
             new(Roles.GymAdministrator),
             new(Roles.GymStaff),
-            new(Roles.PendingGymManagement)
+            new(Roles.PendingGymEmployee)
         };
 
         foreach (var role in roles)

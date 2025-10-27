@@ -59,7 +59,7 @@ public class TestApplicationUserBuilder : TestEntityBuilderBase<ApplicationUser>
 
     public TestApplicationUserBuilder WithGymStaffAssignment(string role, string? gymId)
     {
-        _user.GymStaffAssignment = new GymStaffAssignment
+        _user.GymStaffAssignment = new GymEmployment
         {
             ApplicationUserId = _user.Id,
             GymId = gymId,
@@ -116,7 +116,7 @@ public class TestApplicationUserBuilder : TestEntityBuilderBase<ApplicationUser>
 
     public override void AssertEntity()
     {
-        if (_role == Roles.AppAdministrator || _role == Roles.PendingGymManagement)
+        if (_role == Roles.AppAdministrator || _role == Roles.PendingGymEmployee)
         {
             if (_user.UserPaymentProfileId != null || _user.PaymentProfile != null)
             {

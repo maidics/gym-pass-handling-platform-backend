@@ -49,7 +49,7 @@ public class BuyPassForNonRegisteredUserCommandHandler : IRequestHandler<BuyPass
 
         Guard.Against.NotFound(command.GymPassProductId, gymPassProduct, "Id");
 
-        var gymStaffAssignment = await _context.GymStaffAssigments
+        var gymStaffAssignment = await _context.GymEmployments
             .AsNoTracking()
             .FirstOrDefaultAsync(gsa => gsa.ApplicationUserId == _user.Id, cancellationToken);
 

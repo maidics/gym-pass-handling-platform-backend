@@ -22,7 +22,7 @@ public class GetMyGymManagementUsersQueryHandler : IRequestHandler<GetMyGymManag
     }
     public async Task<List<ApplicationUserDto>> Handle(GetMyGymManagementUsersQuery request, CancellationToken cancellationToken)
     {
-        var gymStaffManagement = await _context.GymStaffAssigments
+        var gymStaffManagement = await _context.GymEmployments
             .AsNoTracking()
             .FirstOrDefaultAsync(gsa => gsa.ApplicationUserId == _user.Id, cancellationToken);
 

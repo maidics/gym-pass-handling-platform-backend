@@ -43,7 +43,7 @@ public class GetMyGymManagementUserQueryHandler : IRequestHandler<GetMyGymManage
             throw new UnauthorizedAccessException();
         }
 
-        var gymStaffAssignment = await _context.GymStaffAssigments.AsNoTracking().FirstOrDefaultAsync(gsa => gsa.ApplicationUserId == _user!.Id, cancellationToken);
+        var gymStaffAssignment = await _context.GymEmployments.AsNoTracking().FirstOrDefaultAsync(gsa => gsa.ApplicationUserId == _user!.Id, cancellationToken);
 
         if (user.GymStaffAssignment.GymId != gymStaffAssignment!.GymId)
         {

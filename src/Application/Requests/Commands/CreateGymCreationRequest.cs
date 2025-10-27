@@ -10,7 +10,7 @@ using FitPass.Domain.Enums;
 
 namespace FitPass.Application.Requests.Commands;
 
-[Authorize(Roles = Roles.PendingGymManagement)]
+[Authorize(Roles = Roles.PendingGymEmployee)]
 public record CreateGymCreationRequestCommand(
     string RequestDescription,
     PriorityLevel PriorityLevel,

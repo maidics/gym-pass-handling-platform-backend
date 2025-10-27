@@ -44,7 +44,7 @@ public class NominateGymStaffCommandHandler : IRequestHandler<NominateGymStaffCo
     }
     public async Task Handle(NominateGymStaffCommand command, CancellationToken cancellationToken)
     {
-        var nominatorAssignment = await _context.GymStaffAssigments
+        var nominatorAssignment = await _context.GymEmployments
             .AsNoTracking()
             .FirstOrDefaultAsync(gsa => gsa.ApplicationUserId == _user.Id);
 
@@ -60,14 +60,14 @@ public class NominateGymStaffCommandHandler : IRequestHandler<NominateGymStaffCo
 
         var userToNominateRoles = await _identityService.GetRolesAsync(userToNominateId);
 
-        if (userToNominateRoles == null || userToNominateRoles.First() != Roles.PendingGymManagement)
+        if (userToNominateRoles == null || userToNominateRoles.First() != Roles.PendingGymEmployee)
         {
             throw new BadRequestException("Account with this email is not eligible for GymStaff nomination. Please register a new gym management account for this action");
         }
 
-        var roleResult = await _identityService.ReplaceUserRole(userToNominateId, Roles.PendingGymManagement, Roles.GymStaff);
+        var roleResult = await _identityService.ReplaceUserRole(userToNominateId, Roles.PendingGymEmployee, Roles.GymStaff);
 
-        var gymStaffGymStaffAssignment = new GymStaffAssignment
+        var gymStaffGymStaffAssignment = new GymEmployment
         {
             ApplicationUserId = userToNominateId,
             GymId = nominatorAssignment.GymId,

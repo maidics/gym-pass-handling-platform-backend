@@ -17,7 +17,7 @@ public class ApplicationUserConfiguration : IEntityTypeConfiguration<Application
         builder
             .HasOne(au => au.GymStaffAssignment)
             .WithOne(gsa => gsa.ApplicationUser)
-            .HasForeignKey<GymStaffAssignment>(gsa => gsa.ApplicationUserId)
+            .HasForeignKey<GymEmployment>(gsa => gsa.ApplicationUserId)
             .OnDelete(DeleteBehavior.Cascade);
 
         builder

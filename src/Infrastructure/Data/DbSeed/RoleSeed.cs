@@ -9,7 +9,7 @@ public partial class ApplicationDbContextInitialiser
             new IdentityRole(Roles.AppAdministrator),
             new IdentityRole(Roles.GymAdministrator),
             new IdentityRole(Roles.GymStaff),
-            new IdentityRole(Roles.PendingGymManagement)
+            new IdentityRole(Roles.PendingGymEmployee)
         ];
 
     private async Task SeedRolesAsync()

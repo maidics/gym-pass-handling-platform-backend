@@ -23,7 +23,7 @@ public class GetAllMyNonRegisteredUsersQueryHandler : IRequestHandler<GetAllMyNo
 
     public async Task<List<NonRegisteredUserDto>> Handle(GetAllMyNonRegisteredUsersQuery request, CancellationToken cancellationToken)
     {
-        var gymStaffAssignment = await _context.GymStaffAssigments
+        var gymStaffAssignment = await _context.GymEmployments
             .AsNoTracking()
             .FirstOrDefaultAsync(gsa => gsa.ApplicationUserId == _user.Id, cancellationToken);
 

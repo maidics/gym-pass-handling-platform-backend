@@ -5,9 +5,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace FitPass.Infrastructure.Data.Configurations;
 
-public class GymStaffAssignmentConfiguration : IEntityTypeConfiguration<GymStaffAssignment>
+public class GymStaffAssignmentConfiguration : IEntityTypeConfiguration<GymEmployment>
 {
-    public void Configure(EntityTypeBuilder<GymStaffAssignment> builder)
+    public void Configure(EntityTypeBuilder<GymEmployment> builder)
     {
         builder.HasKey(gsa => gsa.ApplicationUserId);
 

@@ -13,7 +13,7 @@ public class UpdateUserGymMembershipStatusCommandValidator : AbstractValidator<U
 {
     public UpdateUserGymMembershipStatusCommandValidator()
     {
-        RuleFor(v => v.UserGymMembershipId).NotEmptyWithMessage(nameof(UpdateUserGymMembershipStatusCommand));
+        RuleFor(v => v.UserGymMembershipId).NotEmptyWithMessage(nameof(UpdateUserGymMembershipStatusCommand.UserGymMembershipId));
 
         RuleFor(v => v.NewStatus).IsInEnumWithMessage();
     }
@@ -31,7 +31,7 @@ public class UpdateUserGymMembershipStatusCommandHandler : IRequestHandler<Updat
     }
     public async Task Handle(UpdateUserGymMembershipStatusCommand command, CancellationToken cancellationToken)
     {
-        var gymStaffAssigment = await _context.GymStaffAssigments
+        var gymStaffAssigment = await _context.GymEmployments
             .AsNoTracking()
             .FirstOrDefaultAsync(gsa => gsa.ApplicationUserId == _user.Id, cancellationToken);
 

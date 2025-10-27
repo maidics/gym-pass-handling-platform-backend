@@ -38,7 +38,7 @@ public class AddUserGymMembershipToNonRegisteredUserCommandHandler : IRequestHan
 
         Guard.Against.NotFound(command.NonRegisteredUserId, nonRegisteredUser, "Id");
 
-        var gymStaffAssignment = await _context.GymStaffAssigments
+        var gymStaffAssignment = await _context.GymEmployments
             .AsNoTracking()
             .FirstOrDefaultAsync(gsa => gsa.ApplicationUserId == _user.Id, cancellationToken);
 

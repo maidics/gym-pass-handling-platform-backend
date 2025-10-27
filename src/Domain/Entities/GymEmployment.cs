@@ -1,6 +1,6 @@
 namespace FitPass.Domain.Entities;
 
-public class GymStaffAssignment
+public class GymEmployment
 {
     public required string ApplicationUserId { get; set; }
     public string? GymId { get; set; }

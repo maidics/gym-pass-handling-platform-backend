@@ -80,7 +80,7 @@ public class RequestService : IRequestService
 
         if (user.GymStaffAssignment == null)
         {
-            var assigment = new GymStaffAssignment
+            var assigment = new GymEmployment
             {
                 ApplicationUserId = user.Id,
                 GymId = requestDto.GymId,
@@ -132,7 +132,7 @@ public class RequestService : IRequestService
 
         _context.Gyms.Add(gym);
 
-        var demotionResult = await _identityService.RemoveFromRoleAsync(userToNominate, Roles.PendingGymManagement);
+        var demotionResult = await _identityService.RemoveFromRoleAsync(userToNominate, Roles.PendingGymEmployee);
 
         if (!demotionResult.Succeeded)
         {

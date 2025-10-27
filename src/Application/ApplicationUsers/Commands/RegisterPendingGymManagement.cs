@@ -59,11 +59,11 @@ public class RegisterPendingGymManagementCommandHandler : IRequestHandler<Regist
             GymStaffAssignment = null
         };
 
-        user.GymStaffAssignment = new GymStaffAssignment
+        user.GymStaffAssignment = new GymEmployment
         {
             ApplicationUserId = user.Id,
             GymId = null,
-            Role = Roles.PendingGymManagement
+            Role = Roles.PendingGymEmployee
         };
 
         var result = await _identityService.CreateUserAsync(user, command.Password, cancellationToken);

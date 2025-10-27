@@ -72,7 +72,7 @@ public class IdentityService : IIdentityService
         return result.ToApplicationResult();
     }
 
-    public async Task<Result> CreateUserAsync(string email, string password, string firstName, string lastName, string role = Roles.User, CancellationToken cancellationToken = default)
+    public async Task<(Result result, string userId)> CreateUserAsync(string email, string password, string firstName, string lastName, string role = Roles.User, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
@@ -112,7 +112,7 @@ public class IdentityService : IIdentityService
 
             scope.Complete();
 
-            return Result.Success();
+            return (Result.Success(), user.Id);
         } catch (Exception ex)
         {
             _logger.LogError(ex, "Caught exception during user creation. User: {@User}", user);
@@ -134,34 +134,6 @@ public class IdentityService : IIdentityService
         }
 
         return Result.Success();
-    }
-
-    public async Task<Result> AddToRoleAsync(string userId, string role, CancellationToken cancellationToken = default)
-    {
-        var user = await _userManager.FindByIdAsync(userId);
-
-        if (user == null)
-        {
-            return Result.Failure([ErrorMessages.UserNotFound()]);
-        }
-
-        var result = await _userManager.AddToRoleAsync(user, role);
-
-        return result.ToApplicationResult();
-    }
-
-    public async Task<Result> RemoveFromRoleAsync(string userId, string role, CancellationToken cancellationToken = default)
-    {
-        var user = await _userManager.FindByIdAsync(userId);
-
-        if (user == null)
-        {
-            return Result.Failure([ErrorMessages.UserNotFound()]);
-        }
-
-        var result = await _userManager.RemoveFromRoleAsync(user, role);
-
-        return result.ToApplicationResult();
     }
 
     public async Task<string?> GeneratePasswordResetTokenAsync(string userId, CancellationToken cancellationToken = default)
@@ -256,71 +228,5 @@ public class IdentityService : IIdentityService
         var user = await _userManager.FindByEmailAsync(email);
 
         return user == null ? null : user.Email;
-    }
-
-    public async Task<Result> ReplaceUserRole(string userId, string currentRole, string newRole)
-    {
-        var user = await _userManager.FindByIdAsync(userId);
-
-        if (user == null)
-        {
-            return Result.Failure([ErrorMessages.UserNotFound()]);
-        }
-
-        var transactionOptions = new TransactionOptions
-        {
-            IsolationLevel = IsolationLevel.ReadCommitted,
-            Timeout = TimeSpan.FromSeconds(30)
-        };
-
-        using var scope = new TransactionScope(TransactionScopeOption.Required, transactionOptions, TransactionScopeAsyncFlowOption.Enabled);
-
-        try
-        {
-            var oldRoleRemoveResult = await _userManager.RemoveFromRoleAsync(user, currentRole);
-
-            if (!oldRoleRemoveResult.Succeeded)
-            {
-                _logger.LogError(
-                        "Failed to remove user from {CurrentRole} role during {MethodName}. IdentityResult: {IdentityResult}",
-                        currentRole,
-                        nameof(ReplaceUserRole),
-                        oldRoleRemoveResult
-                    );
-
-                throw new TransactionException($"Failed to remove user from {currentRole} role.");
-            }
-
-            var newRoleAddResult = await _userManager.AddToRoleAsync(user, newRole);
-
-            if (!newRoleAddResult.Succeeded)
-            {
-                _logger.LogError(
-                        "Failed to add user to {NewRole} role during {MethodName}. IdentityResult: {IdentityResult}",
-                        newRole,
-                        nameof(ReplaceUserRole),
-                        newRoleAddResult
-                    );
-
-                throw new TransactionException($"Failed to add user to {newRole} role.");
-            }
-
-            scope.Complete();
-
-            return Result.Success();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Caught exception during {MethodName}.", nameof(ReplaceUserRole));
-            throw;
-        }
-    }
-    
-    private ApplicationUser CreateApplicationUserByRole(string role)
-    {
-        if (role == Roles.AppAdministrator || role == Roles.PendingGymManagement)
-        {
-            
-        }
     }
 }

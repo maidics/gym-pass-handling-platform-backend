@@ -31,7 +31,7 @@ public class GetNonRegisteredUserOwnedPassesForCurrentGymQueryHandler : IRequest
     }
     public async Task<List<OwnedPassDto>> Handle(GetNonRegisteredUserOwnedPassesForCurrentGymQuery query, CancellationToken cancellationToken)
     {
-        var gymStaffAssigment = await _context.GymStaffAssigments
+        var gymStaffAssigment = await _context.GymEmployments
             .AsNoTracking()
             .FirstOrDefaultAsync(gsa => gsa.ApplicationUserId == _user.Id, cancellationToken);
 

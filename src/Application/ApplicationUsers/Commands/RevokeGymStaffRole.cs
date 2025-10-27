@@ -48,7 +48,7 @@ public class RevokeGymStaffRoleCommandHandler : IRequestHandler<RevokeGymStaffRo
             throw new Common.Exceptions.ValidationException("User role", "User is not in gym staff role.");
         }
 
-        var gymStaffAssigment = await _context.GymStaffAssigments.AsNoTracking().FirstOrDefaultAsync(gsa => gsa.ApplicationUserId == _user.Id!);
+        var gymStaffAssigment = await _context.GymEmployments.AsNoTracking().FirstOrDefaultAsync(gsa => gsa.ApplicationUserId == _user.Id!);
 
         if (user.GymStaffAssignment!.GymId != gymStaffAssigment!.GymId)
         {

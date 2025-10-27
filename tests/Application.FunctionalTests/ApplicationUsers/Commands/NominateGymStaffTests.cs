@@ -13,7 +13,7 @@ public class NominateGymStaffTests
     [Test]
     public async Task ShouldNominatePendingGymManagementUserToGymStaff()
     {
-        var pendingGymManagementUser = await TestApplicationUserBuilder.WithRole(Roles.PendingGymManagement).BuildAsync();
+        var pendingGymManagementUser = await TestApplicationUserBuilder.WithRole(Roles.PendingGymEmployee).BuildAsync();
 
         var gymBuilder = TestGymBuilder;
 

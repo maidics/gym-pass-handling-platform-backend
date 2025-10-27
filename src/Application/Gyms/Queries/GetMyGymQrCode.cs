@@ -23,7 +23,7 @@ public class GetMyGymQrCodeQueryHandler : IRequestHandler<GetMyGymQrCodeQuery, b
     public async Task<byte[]> Handle(GetMyGymQrCodeQuery query, CancellationToken cancellationToken)
     {
         var gymStaffAssigment = await _context
-            .GymStaffAssigments
+            .GymEmployments
             .AsNoTracking()
             .FirstOrDefaultAsync(gsa => gsa.ApplicationUserId == _user.Id, cancellationToken);
 
