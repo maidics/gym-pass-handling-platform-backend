@@ -64,7 +64,6 @@ public class IdentityService : IIdentityService
 
         if (user == null)
         {
-            _logger.LogError("Failed to delete user with '{UserId}' id: user not found.", userId);
             return Result.Failure([ErrorMessages.UserNotFound()]);
         }
 
@@ -248,5 +247,80 @@ public class IdentityService : IIdentityService
         }
 
         return result;
+    }
+
+    public async Task<string?> GetUserIdByEmail(string email, CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var user = await _userManager.FindByEmailAsync(email);
+
+        return user == null ? null : user.Email;
+    }
+
+    public async Task<Result> ReplaceUserRole(string userId, string currentRole, string newRole)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+
+        if (user == null)
+        {
+            return Result.Failure([ErrorMessages.UserNotFound()]);
+        }
+
+        var transactionOptions = new TransactionOptions
+        {
+            IsolationLevel = IsolationLevel.ReadCommitted,
+            Timeout = TimeSpan.FromSeconds(30)
+        };
+
+        using var scope = new TransactionScope(TransactionScopeOption.Required, transactionOptions, TransactionScopeAsyncFlowOption.Enabled);
+
+        try
+        {
+            var oldRoleRemoveResult = await _userManager.RemoveFromRoleAsync(user, currentRole);
+
+            if (!oldRoleRemoveResult.Succeeded)
+            {
+                _logger.LogError(
+                        "Failed to remove user from {CurrentRole} role during {MethodName}. IdentityResult: {IdentityResult}",
+                        currentRole,
+                        nameof(ReplaceUserRole),
+                        oldRoleRemoveResult
+                    );
+
+                throw new TransactionException($"Failed to remove user from {currentRole} role.");
+            }
+
+            var newRoleAddResult = await _userManager.AddToRoleAsync(user, newRole);
+
+            if (!newRoleAddResult.Succeeded)
+            {
+                _logger.LogError(
+                        "Failed to add user to {NewRole} role during {MethodName}. IdentityResult: {IdentityResult}",
+                        newRole,
+                        nameof(ReplaceUserRole),
+                        newRoleAddResult
+                    );
+
+                throw new TransactionException($"Failed to add user to {newRole} role.");
+            }
+
+            scope.Complete();
+
+            return Result.Success();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Caught exception during {MethodName}.", nameof(ReplaceUserRole));
+            throw;
+        }
+    }
+    
+    private ApplicationUser CreateApplicationUserByRole(string role)
+    {
+        if (role == Roles.AppAdministrator || role == Roles.PendingGymManagement)
+        {
+            
+        }
     }
 }

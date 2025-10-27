@@ -1,7 +1,9 @@
 using FitPass.Application.ApplicationUsers.DTOs;
+using FitPass.Application.Common.Exceptions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Extensions;
 using FitPass.Domain.Constants;
+using Microsoft.Extensions.Logging;
 
 namespace Fitpass.Application.ApplicationUsers.Commands;
 
@@ -29,22 +31,32 @@ public class LogInUserCommandHandler : IRequestHandler<LogInUserCommand, TokenRe
 {
     private readonly IIdentityService _identityService;
     private readonly IJwtTokenService _jwtTokenService;
+    private readonly ILogger<LogInUserCommandHandler> _logger;
 
-    public LogInUserCommandHandler(IIdentityService identityService, IJwtTokenService jwtTokenService)
+    public LogInUserCommandHandler(IIdentityService identityService, IJwtTokenService jwtTokenService, ILogger<LogInUserCommandHandler> logger)
     {
         _identityService = identityService;
         _jwtTokenService = jwtTokenService;
+        _logger = logger;
     }
     public async Task<TokenResponse> Handle(LogInUserCommand command, CancellationToken cancellationToken)
     {
         var result = await _identityService.AuthenticateUserAsync(command.Email, command.Password, cancellationToken);
 
-        if (!result.result.Succeeded)
+        if (!result.Succeeded)
         {
-            throw new UnauthorizedAccessException(string.Join(", ", result.result.Errors));
+            throw new UnauthorizedAccessException(string.Join(", ", result.Errors));
         }
 
-        var jwtResponse = await _jwtTokenService.GenerateTokenAsync(result.user!, cancellationToken);
+        var userId = await _identityService.GetUserIdByEmail(command.Email);
+
+        if (userId == null)
+        {
+            _logger.LogError("User authentication succeeded but failed to find user with '{UserEmail}' after.", command.Email);
+            throw new ForbiddenAccessException();
+        }
+
+        var jwtResponse = await _jwtTokenService.GenerateTokenAsync(userId, cancellationToken);
 
         return jwtResponse;
     }

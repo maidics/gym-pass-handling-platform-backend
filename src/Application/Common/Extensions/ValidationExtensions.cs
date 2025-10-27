@@ -1,3 +1,4 @@
+using System.Reflection;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Strings;
 
@@ -69,5 +70,12 @@ public static class ValidationExtensions
         return rule
             .NotEmptyWithMessage(emailPropertyName)
             .EmailAddress().WithMessage(ErrorMessages.InvalidEmailAddress(emailPropertyName));
+    }
+
+    public static IRuleBuilder<T, string>IsApplicationRole<T>(this IRuleBuilder<T, string> rule, string propertyName)
+    {
+        return rule
+            .NotEmptyWithMessage(ErrorMessages.PropertyIsRequired(propertyName))
+            .Must(Roles.IsValidRole).WithMessage((_, invalidRole) => ErrorMessages.InvalidRole(invalidRole));
     }
 }

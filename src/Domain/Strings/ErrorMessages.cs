@@ -118,4 +118,9 @@ public static class ErrorMessages
     {
         return "User not found.";
     }
+
+    public static string InvalidRole(string invalidRole)
+    {
+        return $"'{invalidRole}' is not a valid role.";
+    }
 }

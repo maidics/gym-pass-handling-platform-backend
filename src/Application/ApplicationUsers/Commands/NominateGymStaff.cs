@@ -3,8 +3,9 @@ using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Security;
 using FitPass.Application.Extensions;
 using FitPass.Domain.Constants;
-using FitPass.Domain.Events.Users;
+using FitPass.Domain.Entities;
 using FitPass.Domain.Strings;
+using Microsoft.Extensions.Logging;
 
 namespace FitPass.Application.ApplicationUsers.Commands;
 
@@ -32,12 +33,14 @@ public class NominateGymStaffCommandHandler : IRequestHandler<NominateGymStaffCo
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
     private readonly IIdentityService _identityService;
+    private readonly ILogger<NominateGymStaffCommandHandler> _logger;
 
-    public NominateGymStaffCommandHandler(IApplicationDbContext context, IUser user, IIdentityService identityService)
+    public NominateGymStaffCommandHandler(IApplicationDbContext context, IUser user, IIdentityService identityService, ILogger<NominateGymStaffCommandHandler> logger)
     {
         _context = context;
         _user = user;
         _identityService = identityService;
+        _logger = logger;
     }
     public async Task Handle(NominateGymStaffCommand command, CancellationToken cancellationToken)
     {
@@ -45,59 +48,32 @@ public class NominateGymStaffCommandHandler : IRequestHandler<NominateGymStaffCo
             .AsNoTracking()
             .FirstOrDefaultAsync(gsa => gsa.ApplicationUserId == _user.Id);
 
-        var userToNominate = await _context
-            .ApplicationUsers
-            .Include(au => au.GymStaffAssignment)
-            .FirstOrDefaultAsync(au => au.Email == command.UserEmailToNominate);
-
-        Guard.Against.NotFound(command.UserEmailToNominate, userToNominate, "Email");
-
-        var userToNominateRoles = await _identityService.GetRolesAsync(userToNominate);
-
-        if (userToNominateRoles != null && userToNominateRoles.Count > 1)
+        if (nominatorAssignment == null)
         {
-            throw new InvalidOperationException("There was an error handling specified user, please contact support: user has more than 1 role.");
+            _logger.LogCritical("CRITICAL ERROR: Logged in GymAdmin's GymStaffAssignment ({GymAdminId}) not found.", _user.Id);
+            throw new UnauthorizedAccessException();
         }
 
-        if (userToNominateRoles == null || (userToNominateRoles != null &&  (userToNominateRoles.Count == 0 || userToNominateRoles.First() != Roles.PendingGymManagement)))
+        var userToNominateId = await _identityService.GetUserIdByEmail(command.UserEmailToNominate);
+
+        Guard.Against.NotFound(command.UserEmailToNominate, userToNominateId, "User");
+
+        var userToNominateRoles = await _identityService.GetRolesAsync(userToNominateId);
+
+        if (userToNominateRoles == null || userToNominateRoles.First() != Roles.PendingGymManagement)
         {
             throw new BadRequestException("Account with this email is not eligible for GymStaff nomination. Please register a new gym management account for this action");
         }
 
-        var demotionResult = await _identityService.RemoveFromRoleAsync(userToNominate, Roles.PendingGymManagement);
+        var roleResult = await _identityService.ReplaceUserRole(userToNominateId, Roles.PendingGymManagement, Roles.GymStaff);
 
-        if (!demotionResult.Succeeded)
+        var gymStaffGymStaffAssignment = new GymStaffAssignment
         {
-            throw new Exception($"Failed to remove user from pending gym management role: {string.Join(", ", demotionResult.Errors)}.");
-        }
-
-        var nominationResult = await _identityService.AddToRoleAsync(userToNominate, Roles.GymStaff);
-
-        if (!nominationResult.Succeeded)
-        {
-            await _identityService.AddToRoleAsync(userToNominate, Roles.PendingGymManagement);
-
-            throw new Exception($"Failed to nominate user: {string.Join(", ", nominationResult.Errors)}");
-        }
-
-        if (userToNominate.GymStaffAssignment == null) //they could have been gym staff already but they were demoted
-        {
-            userToNominate.GymStaffAssignment = new()
-            {
-                ApplicationUserId = userToNominate.Id,
-                GymId = nominatorAssignment!.GymId,
-                Role = Roles.GymStaff,
-                EscalationEmail = command.EscalationEmail
-            };
-        } else
-        {
-            userToNominate.GymStaffAssignment.GymId = nominatorAssignment!.GymId;
-            userToNominate.GymStaffAssignment.Role = Roles.GymStaff;
-            userToNominate.GymStaffAssignment.EscalationEmail = command.EscalationEmail;
-        }
+            ApplicationUserId = userToNominateId,
+            GymId = nominatorAssignment.GymId,
+            Role = Roles.GymStaff
+        };
             
-        userToNominate.AddDomainEvent(new GymStaffNominatedEvent(userToNominate));
-
         await _context.SaveChangesAsync();
     }
 }

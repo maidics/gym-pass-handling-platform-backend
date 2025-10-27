@@ -3,7 +3,6 @@ using System.Security.Claims;
 using System.Text;
 using FitPass.Application.ApplicationUsers.DTOs;
 using FitPass.Application.Common.Interfaces;
-using FitPass.Domain.Entities;
 using FitPass.Infrastructure.Services.Jwt;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -20,17 +19,17 @@ public class JwtTokenService : IJwtTokenService
         _identityService = identityService;
         _settings = options.Value;
     }
-    public async Task<TokenResponse> GenerateTokenAsync(ApplicationUser user, CancellationToken cancellationToken)
+    public async Task<TokenResponse> GenerateTokenAsync(string userId, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
         var claims = new List<Claim>
         {
-            new(JwtRegisteredClaimNames.Sub, user.Id), //sub is the standard claim for user ID
+            new(JwtRegisteredClaimNames.Sub, userId), //sub is the standard claim for user ID
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()) //jti is a unique token identifier
         };
 
-        var userRoles = await _identityService.GetRolesAsync(user);
+        var userRoles = await _identityService.GetRolesAsync(userId);
 
         if (userRoles != null)
         {

@@ -7,4 +7,18 @@ public abstract class Roles
     public const string GymStaff = nameof(GymStaff);
     public const string PendingGymManagement = nameof(PendingGymManagement);
     public const string User = nameof(User);
+
+    public static string[] All =
+        [
+            nameof(AppAdministrator),
+            nameof(GymAdministrator),
+            nameof(GymStaff),
+            nameof(PendingGymManagement),
+            nameof(User)
+        ];
+
+    public static bool IsValidRole(string roleToCheck)
+    {
+        return All.Contains(roleToCheck);
+    }
 }

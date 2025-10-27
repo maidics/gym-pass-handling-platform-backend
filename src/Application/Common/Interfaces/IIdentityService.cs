@@ -15,4 +15,5 @@ public interface IIdentityService
     Task<Result> RemoveFromRoleAsync(string userId, string role, CancellationToken cancellationToken = default);
     Task<string?> GeneratePasswordResetTokenAsync(string userId, CancellationToken cancellationToken = default);
     Task<Result> ResetPasswordAsync(string userId, string resetToken, string newPassword, CancellationToken cancellationToken = default);
+    Task<string?> GetUserIdByEmail(string email, CancellationToken cancellationToken = default);
 }
