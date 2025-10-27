@@ -1,7 +1,8 @@
 using System.Transactions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Models;
-using FitPass.Domain.Entities;
+using FitPass.Domain.Constants;
+using FitPass.Domain.Strings;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
@@ -27,27 +28,21 @@ public class IdentityService : IIdentityService
         _logger = logger;
     }
 
-    public async Task<ApplicationUser?> FindUserByIdAsync(string userId, CancellationToken cancellationToken = default)
+    public async Task<bool> IsInRoleAsync(string userId, string role, CancellationToken cancellationToken = default)
     {
-        return await _userManager.FindByIdAsync(userId);
-    }
+        var user = await _userManager.FindByIdAsync(userId);
 
-    public async Task<ApplicationUser?> FindUserByEmailAsync(string email, CancellationToken cancellationToken = default)
-    {
-        return await _userManager.FindByEmailAsync(email);
-    }
-
-    public async Task<bool> IsInRoleAsync(ApplicationUser user, string role)
-    {
         return user != null && await _userManager.IsInRoleAsync(user, role);
     }
 
-    public async Task<List<string>?> GetRolesAsync(ApplicationUser user)
+    public async Task<List<string>?> GetRolesAsync(string userId, CancellationToken cancellationToken = default)
     {
-        return [.. await _userManager.GetRolesAsync(user)];
+        var user = await _userManager.FindByIdAsync(userId);
+
+        return user == null ? null : [.. await _userManager.GetRolesAsync(user)];
     }
 
-    public async Task<bool> AuthorizeAsync(string userId, string policyName)
+    public async Task<bool> AuthorizeAsync(string userId, string policyName, CancellationToken cancellationToken = default)
     {
         var user = await _userManager.FindByIdAsync(userId);
 
@@ -63,23 +58,70 @@ public class IdentityService : IIdentityService
         return result.Succeeded;
     }
 
-    public async Task<Result> DeleteUserAsync(ApplicationUser user)
+    public async Task<Result> DeleteUserAsync(string userId, CancellationToken cancellationToken = default)
     {
+        var user = await _userManager.FindByIdAsync(userId);
+
+        if (user == null)
+        {
+            _logger.LogError("Failed to delete user with '{UserId}' id: user not found.", userId);
+            return Result.Failure([ErrorMessages.UserNotFound()]);
+        }
+
         var result = await _userManager.DeleteAsync(user);
 
         return result.ToApplicationResult();
     }
 
-    public async Task<IdentityResult> CreateUserAsync(ApplicationUser user, string password, CancellationToken cancellationToken)
+    public async Task<Result> CreateUserAsync(string email, string password, string firstName, string lastName, string role = Roles.User, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var result = await _userManager.CreateAsync(user, password);
+        var user = new ApplicationUser
+        {
+            Email = email,
+            UserName = email,
+            FirstName = firstName,
+            LastName = lastName
+        };
 
-        return result;
+        var transactionOptions = new TransactionOptions
+        {
+            IsolationLevel = IsolationLevel.ReadCommitted,
+            Timeout = TimeSpan.FromSeconds(30)
+        };
+
+        using var scope = new TransactionScope(TransactionScopeOption.Required, transactionOptions, TransactionScopeAsyncFlowOption.Enabled);
+
+        try
+        {
+            var userCreationResult = await _userManager.CreateAsync(user, password);
+
+            if (!userCreationResult.Succeeded)
+            {
+                _logger.LogError("Failed to create user. IdentityResult: {@IdentityResult}\nUser: {@User}", userCreationResult, user);
+                throw new TransactionException($"Failed to create user with '{email}' email.");
+            }
+
+            var roleResult = await _userManager.AddToRoleAsync(user, role);
+
+            if (!roleResult.Succeeded)
+            {
+                _logger.LogError("Failed to add user with to {Role} role. IdentityResult: {@IdentityResult}\nUser: {@User}", role, user, roleResult);
+                throw new TransactionException($"Failed to add user with '{email}' to {role} role.");
+            }
+
+            scope.Complete();
+
+            return Result.Success();
+        } catch (Exception ex)
+        {
+            _logger.LogError(ex, "Caught exception during user creation. User: {@User}", user);
+            throw;
+        }
     }
 
-    public async Task<(Result result, ApplicationUser? user)> AuthenticateUserAsync(string email, string password, CancellationToken cancellationToken)
+    public async Task<Result> AuthenticateUserAsync(string email, string password, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
@@ -89,33 +131,56 @@ public class IdentityService : IIdentityService
 
         if (user == null || !await _userManager.CheckPasswordAsync(user, password))
         {
-            return (Result.Failure(["Invalid email or password"]), null);
+            return Result.Failure(["Invalid email or password"]);
         }
 
-        return (Result.Success(), user);
+        return Result.Success();
     }
 
-    public async Task<Result> AddToRoleAsync(ApplicationUser user, string role)
+    public async Task<Result> AddToRoleAsync(string userId, string role, CancellationToken cancellationToken = default)
     {
+        var user = await _userManager.FindByIdAsync(userId);
+
+        if (user == null)
+        {
+            return Result.Failure([ErrorMessages.UserNotFound()]);
+        }
+
         var result = await _userManager.AddToRoleAsync(user, role);
 
         return result.ToApplicationResult();
     }
 
-    public async Task<Result> RemoveFromRoleAsync(ApplicationUser user, string role)
+    public async Task<Result> RemoveFromRoleAsync(string userId, string role, CancellationToken cancellationToken = default)
     {
+        var user = await _userManager.FindByIdAsync(userId);
+
+        if (user == null)
+        {
+            return Result.Failure([ErrorMessages.UserNotFound()]);
+        }
+
         var result = await _userManager.RemoveFromRoleAsync(user, role);
 
         return result.ToApplicationResult();
     }
 
-    public Task<string> GeneratePasswordResetTokenAsync(ApplicationUser user)
+    public async Task<string?> GeneratePasswordResetTokenAsync(string userId, CancellationToken cancellationToken = default)
     {
-        return _userManager.GeneratePasswordResetTokenAsync(user);
+        var user = await _userManager.FindByIdAsync(userId);
+
+        return user == null ? null : await _userManager.GeneratePasswordResetTokenAsync(user);
     }
 
-    public async Task<Result> ResetPasswordAsync(ApplicationUser user, string resetToken, string newPassword)
+    public async Task<Result> ResetPasswordAsync(string userId, string resetToken, string newPassword, CancellationToken cancellationToken = default)
     {
+        var user = await _userManager.FindByIdAsync(userId);
+
+        if (user == null)
+        {
+            return Result.Failure([ErrorMessages.UserNotFound()]);
+        }
+
         var transactionOptions = new TransactionOptions
         {
             IsolationLevel = IsolationLevel.ReadCommitted,

@@ -1,7 +1,4 @@
-﻿using FitPass.Application.Common.Interfaces;
-using FitPass.Domain.Entities;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 
 namespace FitPass.Application.FunctionalTests.TestData.Common;
 
@@ -16,4 +13,6 @@ public abstract class TestEntityBuilderBase<TEntity> : ITestEntityBuilder<TEntit
 
     public abstract TEntity Build();
     public abstract Task<TEntity> BuildAsync();
+    public abstract TNavigationProperty GetNavigationProperty<TNavigationProperty>() where TNavigationProperty : class;
+    public abstract void AssertEntity();
 }

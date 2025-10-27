@@ -6,4 +6,5 @@ public abstract class Roles
     public const string GymAdministrator = nameof(GymAdministrator);
     public const string GymStaff = nameof(GymStaff);
     public const string PendingGymManagement = nameof(PendingGymManagement);
+    public const string User = nameof(User);
 }

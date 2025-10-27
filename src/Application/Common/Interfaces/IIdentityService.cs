@@ -1,21 +1,18 @@
 ﻿using FitPass.Application.Common.Models;
-using FitPass.Domain.Entities;
-using Microsoft.AspNetCore.Identity;
+using FitPass.Domain.Constants;
 
 namespace FitPass.Application.Common.Interfaces;
 
 public interface IIdentityService
 {
-    Task<ApplicationUser?> FindUserByIdAsync(string userId, CancellationToken cancellationToken = default);
-    Task<ApplicationUser?> FindUserByEmailAsync(string email, CancellationToken cancellationToken = default);
-    Task<bool> IsInRoleAsync(ApplicationUser user, string role);
-    Task<List<string>?> GetRolesAsync(ApplicationUser user);
-    Task<bool> AuthorizeAsync(string userId, string policyName);
-    Task<Result> DeleteUserAsync(ApplicationUser user);
-    Task<IdentityResult> CreateUserAsync(ApplicationUser user, string password, CancellationToken cancellationToken);
-    Task<(Result result, ApplicationUser? user)> AuthenticateUserAsync(string email, string password, CancellationToken cancellationToken);
-    Task<Result> AddToRoleAsync(ApplicationUser user, string role);
-    Task<Result> RemoveFromRoleAsync(ApplicationUser user, string role);
-    Task<string> GeneratePasswordResetTokenAsync(ApplicationUser user);
-    Task<Result> ResetPasswordAsync(ApplicationUser user, string resetToken, string newPassword);
+    Task<bool> IsInRoleAsync(string userId, string role, CancellationToken cancellationToken = default);
+    Task<List<string>?> GetRolesAsync(string userId, CancellationToken cancellationToken = default);
+    Task<bool> AuthorizeAsync(string userId, string policyName, CancellationToken cancellationToken = default);
+    Task<Result> DeleteUserAsync(string userId, CancellationToken cancellationToken = default);
+    Task<Result> CreateUserAsync(string email, string password, string firstName, string lastName, string role = Roles.User, CancellationToken cancellationToken = default);
+    Task<Result> AuthenticateUserAsync(string email, string password, CancellationToken cancellationToken);
+    Task<Result> AddToRoleAsync(string userId, string role, CancellationToken cancellationToken = default);
+    Task<Result> RemoveFromRoleAsync(string userId, string role, CancellationToken cancellationToken = default);
+    Task<string?> GeneratePasswordResetTokenAsync(string userId, CancellationToken cancellationToken = default);
+    Task<Result> ResetPasswordAsync(string userId, string resetToken, string newPassword, CancellationToken cancellationToken = default);
 }

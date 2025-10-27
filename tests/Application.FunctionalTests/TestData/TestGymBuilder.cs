@@ -3,24 +3,24 @@ using FitPass.Application.FunctionalTests.TestData.Common;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
-using FitPass.Infrastructure.Identity;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FitPass.Application.FunctionalTests.TestData;
 
 public class TestGymBuilder : TestEntityBuilderBase<Gym>
 {
+    private readonly TestApplicationUserBuilder _testApplicationUserBuilder;
     private readonly Gym _gym;
-
+    private bool _createGymAdmin = false;
+    private bool _createGymStaff = false;
     private ApplicationUser? _gymAdmin = null;
     private ApplicationUser? _gymStaff = null;
 
-    private string? _gymManagement = null;
-
     public TestGymBuilder(IServiceScopeFactory scopeFactory) : base(scopeFactory)
     {
-        _gym = new()
+        _testApplicationUserBuilder = new(scopeFactory);
+
+        _gym = new Gym
         {
             Name = "Test Gym",
             Address = "Test Gym Address",
@@ -47,23 +47,10 @@ public class TestGymBuilder : TestEntityBuilderBase<Gym>
         return this;
     }
 
-    public TestGymBuilder WithManagement()
+    public TestGymBuilder WithManagement(bool createGymAdmin = true, bool createGymStaff = true)
     {
-        _gymManagement = "both";
-
-        return this;
-    }
-
-    public TestGymBuilder WithGymAdmin()
-    {
-        _gymManagement = Roles.GymAdministrator;
-
-        return this;
-    }
-
-    public async Task<TestGymBuilder> WithGymStaff()
-    {
-        _gymManagement = Roles.GymStaff;
+        _createGymAdmin = createGymAdmin;
+        _createGymStaff = createGymStaff;
 
         return this;
     }
@@ -72,7 +59,7 @@ public class TestGymBuilder : TestEntityBuilderBase<Gym>
     {
         if (_gymAdmin == null)
         {
-            throw new InvalidOperationException($"Call ({nameof(WithManagement)} or {nameof(WithGymAdmin)}) and {nameof(BuildAsync)} before calling this method to create a Gym Admin user.");
+            throw new InvalidOperationException($"Call {nameof(WithManagement)} and {nameof(BuildAsync)} before calling this method to create a Gym Admin user.");
         }
 
         return _gymAdmin;
@@ -82,48 +69,29 @@ public class TestGymBuilder : TestEntityBuilderBase<Gym>
     {
         if (_gymStaff == null)
         {
-            throw new InvalidOperationException($"Call ({nameof(WithManagement)} or {nameof(WithGymStaff)}) and {nameof(BuildAsync)} before calling this method to create a Gym Staff user.");
+            throw new InvalidOperationException($"Call {nameof(WithManagement)} and {nameof(BuildAsync)} before calling this method to create a Gym Staff user.");
         }
 
         return _gymStaff;
     }
 
-    private async Task<ApplicationUser> CreateGymManagementUser(string role, UserManager<ApplicationUser> userManager)
+    private async Task CreateGymManagementIfNeeded()
     {
-        var gymManagementUserId = Guid.NewGuid().ToString();
-
-        var gymManagementUser = new ApplicationUser
+        if (_createGymAdmin)
         {
-            Id = gymManagementUserId,
-            FirstName = "Gym",
-            LastName = role,
-            Email = $"{role}_{gymManagementUserId}@localhost",
-            UserName = $"{role}_{gymManagementUserId}@localhost",
-            GymStaffAssignment = new GymStaffAssignment
-            {
-                ApplicationUserId = gymManagementUserId,
-                GymId = _gym.Id,
-                Role = role
-            },
-            UserGymMemberships = null,
-            PaymentProfile = null,
-        };
-
-        var creationResult = await userManager.CreateAsync(gymManagementUser, "Password123_");
-
-        if (!creationResult.Succeeded)
-        {
-            throw new InvalidOperationException($"Failed to create {role} user with {nameof(TestGymBuilder)}. Result: {creationResult.ToApplicationResult()}");
+            _gymAdmin = await _testApplicationUserBuilder
+                .WithRole(Roles.GymAdministrator)
+                .WithGymStaffAssignment(Roles.GymAdministrator, _gym.Id)
+                .BuildAsync();
         }
 
-        var roleResult = await userManager.AddToRoleAsync(gymManagementUser, role);
-
-        if (!roleResult.Succeeded)
+        if (_createGymStaff)
         {
-            throw new InvalidOperationException($"Failed to add user to {role} role {nameof(TestGymBuilder)}. Result: {creationResult.ToApplicationResult()}");
+            _gymStaff = await _testApplicationUserBuilder
+                .WithRole(Roles.GymStaff)
+                .WithGymStaffAssignment(Roles.GymStaff, _gym.Id)
+                .BuildAsync();
         }
-
-        return gymManagementUser;
     }
 
     public override Gym Build()
@@ -140,26 +108,7 @@ public class TestGymBuilder : TestEntityBuilderBase<Gym>
         await context.Gyms.AddAsync(_gym);
         await context.SaveChangesAsync();
 
-        if (_gymManagement != null)
-        {
-            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-
-            if (_gymManagement == "both")
-            {
-                _gymAdmin = await CreateGymManagementUser(Roles.GymAdministrator, userManager);
-                _gymStaff = await CreateGymManagementUser(Roles.GymStaff, userManager);
-            }
-
-            if (_gymManagement == Roles.GymAdministrator)
-            {
-                _gymAdmin = await CreateGymManagementUser(Roles.GymAdministrator, userManager);
-            }
-
-            if (_gymManagement == Roles.GymStaff)
-            {
-                _gymAdmin = await CreateGymManagementUser(Roles.GymStaff, userManager);
-            }
-        }
+        await CreateGymManagementIfNeeded();
 
         return _gym;
     }

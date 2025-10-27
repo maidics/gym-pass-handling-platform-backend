@@ -113,4 +113,9 @@ public static class ErrorMessages
     {
         return $"'{propertyName}' cannot be null if '{anotherPropertyName}' is null.";
     }
+
+    public static string UserNotFound()
+    {
+        return "User not found.";
+    }
 }

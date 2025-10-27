@@ -1,4 +1,5 @@
 ﻿using FitPass.Application.FunctionalTests.TestData.Common;
+using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
@@ -56,9 +57,14 @@ public class TestApplicationUserBuilder : TestEntityBuilderBase<ApplicationUser>
         return this;
     }
 
-    public TestApplicationUserBuilder WithGymStaffAssignment(GymStaffAssignment gymStaffAssignment)
+    public TestApplicationUserBuilder WithGymStaffAssignment(string role, string? gymId)
     {
-        _user.GymStaffAssignment = gymStaffAssignment;
+        _user.GymStaffAssignment = new GymStaffAssignment
+        {
+            ApplicationUserId = _user.Id,
+            GymId = gymId,
+            Role = role
+        };
 
         return this;
     }
@@ -106,5 +112,57 @@ public class TestApplicationUserBuilder : TestEntityBuilderBase<ApplicationUser>
         }
 
         return user;
+    }
+
+    public override void AssertEntity()
+    {
+        if (_role == Roles.AppAdministrator || _role == Roles.PendingGymManagement)
+        {
+            if (_user.UserPaymentProfileId != null || _user.PaymentProfile != null)
+            {
+                throw new InvalidOperationException($"{nameof(Roles.AppAdministrator)} cannot have UserPaymentProfile.");
+            }
+
+            if (_user.UserGymMemberships != null || _user.UserGymMemberships?.Count != 0)
+            {
+                throw new InvalidOperationException($"{nameof(Roles.AppAdministrator)} cannot have UserGymMemberships.");
+            }
+
+            if (_user.GymStaffAssignment != null)
+            {
+                throw new InvalidOperationException($"{nameof(Roles.AppAdministrator)} cannot have GymStaffAssignment.");
+            }
+        }
+
+        if (_role == Roles.GymAdministrator || _role == Roles.GymStaff)
+        {
+            if (_user.UserPaymentProfileId != null || _user.PaymentProfile != null)
+            {
+                throw new InvalidOperationException($"{nameof(Roles.GymAdministrator)} cannot have UserPaymentProfile.");
+            }
+
+            if (_user.UserGymMemberships != null || _user.UserGymMemberships?.Count != 0)
+            {
+                throw new InvalidOperationException($"{nameof(Roles.GymAdministrator)} cannot have UserGymMemberships.");
+            }
+
+            if (_user.GymStaffAssignment == null)
+            {
+                throw new InvalidOperationException($"{nameof(Roles.AppAdministrator)} must have GymStaffAssignment.");
+            }
+        }
+
+        if (_role == null)
+        {
+            if (_user.UserPaymentProfileId != null || _user.PaymentProfile != null)
+            {
+                throw new InvalidOperationException($"Default User must have UserPaymentProfile.");
+            }
+
+            if (_user.GymStaffAssignment != null)
+            {
+                throw new InvalidOperationException($"Default User cannot have GymStaffAssignment.");
+            }
+        }
     }
 }

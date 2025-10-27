@@ -1,8 +1,8 @@
-namespace FitPass.Domain;
+namespace FitPass.Domain.Entities;
 
 public class OwnedPass : BaseAuditableEntity
 {
-    public required string? UserGymMembershipId { get; set; }
+    public required string UserGymMembershipId { get; set; }
     public required PassType Type { get; set; }
     public required int? TotalUses { get; set; }
     public required int? RemainingUses { get; set; }
