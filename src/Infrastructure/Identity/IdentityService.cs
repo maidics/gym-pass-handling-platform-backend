@@ -1,7 +1,6 @@
 using System.Transactions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Models;
-using FitPass.Domain.Constants;
 using FitPass.Domain.Strings;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -14,18 +13,14 @@ public class IdentityService : IIdentityService
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IUserClaimsPrincipalFactory<ApplicationUser> _userClaimsPrincipalFactory;
     private readonly IAuthorizationService _authorizationService;
-    private readonly ILogger<IdentityService> _logger;
-
     public IdentityService(
         UserManager<ApplicationUser> userManager,
         IUserClaimsPrincipalFactory<ApplicationUser> userClaimsPrincipalFactory,
-        IAuthorizationService authorizationService,
-        ILogger<IdentityService> logger)
+        IAuthorizationService authorizationService)
     {
         _userManager = userManager;
         _userClaimsPrincipalFactory = userClaimsPrincipalFactory;
         _authorizationService = authorizationService;
-        _logger = logger;
     }
 
     public async Task<bool> IsInRoleAsync(string userId, string role, CancellationToken cancellationToken = default)
@@ -72,7 +67,7 @@ public class IdentityService : IIdentityService
         return result.ToApplicationResult();
     }
 
-    public async Task<(Result result, string userId)> CreateUserAsync(string email, string password, string firstName, string lastName, string role = Roles.User, CancellationToken cancellationToken = default)
+    public async Task<(Result result, string? userId)> CreateUserAsync(string email, string password, string firstName, string lastName, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
@@ -84,40 +79,9 @@ public class IdentityService : IIdentityService
             LastName = lastName
         };
 
-        var transactionOptions = new TransactionOptions
-        {
-            IsolationLevel = IsolationLevel.ReadCommitted,
-            Timeout = TimeSpan.FromSeconds(30)
-        };
+        var result = await _userManager.CreateAsync(user, password);
 
-        using var scope = new TransactionScope(TransactionScopeOption.Required, transactionOptions, TransactionScopeAsyncFlowOption.Enabled);
-
-        try
-        {
-            var userCreationResult = await _userManager.CreateAsync(user, password);
-
-            if (!userCreationResult.Succeeded)
-            {
-                _logger.LogError("Failed to create user. IdentityResult: {@IdentityResult}\nUser: {@User}", userCreationResult, user);
-                throw new TransactionException($"Failed to create user with '{email}' email.");
-            }
-
-            var roleResult = await _userManager.AddToRoleAsync(user, role);
-
-            if (!roleResult.Succeeded)
-            {
-                _logger.LogError("Failed to add user with to {Role} role. IdentityResult: {@IdentityResult}\nUser: {@User}", role, user, roleResult);
-                throw new TransactionException($"Failed to add user with '{email}' to {role} role.");
-            }
-
-            scope.Complete();
-
-            return (Result.Success(), user.Id);
-        } catch (Exception ex)
-        {
-            _logger.LogError(ex, "Caught exception during user creation. User: {@User}", user);
-            throw;
-        }
+        return (result.ToApplicationResult(), result.Succeeded ? user.Id : null);
     }
 
     public async Task<Result> AuthenticateUserAsync(string email, string password, CancellationToken cancellationToken)
@@ -228,5 +192,40 @@ public class IdentityService : IIdentityService
         var user = await _userManager.FindByEmailAsync(email);
 
         return user == null ? null : user.Email;
+    }
+
+    public async Task<Result> AddToRoleAsync(string userId, string role, CancellationToken cancellationToken)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+
+        if (user == null)
+        {
+            return Result.Failure([ErrorMessages.UserNotFound()]);
+        }
+
+        var result = await _userManager.AddToRoleAsync(user, role);
+
+        return result.ToApplicationResult(); 
+    }
+
+    public async Task<Result> RemoveFromRoleAsync(string userId, string role, CancellationToken cancellationToken)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+
+        if (user == null)
+        {
+            return Result.Failure([ErrorMessages.UserNotFound()]);
+        }
+
+        var result = await _userManager.RemoveFromRoleAsync(user, role);
+
+        return result.ToApplicationResult();
+    }
+    
+    public async Task<bool> IsEmailInUse(string email, CancellationToken cancellationToken = default)
+    {
+        var user = await _userManager.FindByEmailAsync(email);
+
+        return user != null;
     }
 }

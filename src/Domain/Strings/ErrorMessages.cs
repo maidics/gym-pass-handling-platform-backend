@@ -123,4 +123,19 @@ public static class ErrorMessages
     {
         return $"'{invalidRole}' is not a valid role.";
     }
+
+    public static string FailedToHandleRole(string role, bool add, IEnumerable<string>? resultErrors)
+    {
+        return $"Failed to {(add ? "add" : "remove")} {role} {(add ? "to" : "remove")} role.{(resultErrors == null ? "" : $" Result Errors: {string.Join(", ", resultErrors)}")}";
+    }
+
+    public static string FailedToCreateUser(string email, IEnumerable<string>? resultErrors)
+    {
+        return $"Failed to create user with '{email}' email.{(resultErrors == null ? "" : $"Result Errors: {string.Join(", ", resultErrors)}")}";
+    }
+
+    public static string PropertyIsAlreadyInUse(string property)
+    {
+        return $"{property} is already in use.";
+    }
 }

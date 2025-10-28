@@ -5,6 +5,7 @@ using FitPass.Application.Extensions;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Strings;
+using Microsoft.Extensions.Logging;
 
 namespace Fitpass.Application.ApplicationUsers.Commands;
 
@@ -41,43 +42,55 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, T
     private readonly IApplicationDbContext _context;
     private readonly IStripeCustomerService _stripeCustomerService;
     private readonly IJwtTokenService _jwtTokenService;
+    private readonly ILogger<RegisterUserCommand> _logger;
 
-    public RegisterUserCommandHandler(IIdentityService identityService, IApplicationDbContext context, IStripeCustomerService stripeCustomerService, IJwtTokenService jwtTokenService)
+    public RegisterUserCommandHandler(
+        IIdentityService identityService,
+        IApplicationDbContext context,
+        IStripeCustomerService stripeCustomerService,
+        IJwtTokenService jwtTokenService,
+        ILogger<RegisterUserCommand> logger)
     {
         _identityService = identityService;
         _context = context;
         _stripeCustomerService = stripeCustomerService;
         _jwtTokenService = jwtTokenService;
+        _logger = logger;
     }
     public async Task<TokenResponse> Handle(RegisterUserCommand command, CancellationToken cancellationToken)
     {
-        var existingUser = await _context
-            .ApplicationUsers
-            .AsNoTracking()
-            .FirstOrDefaultAsync(au => au.Email == command.Email);
-
-        if (existingUser != null)
+        if (await _identityService.IsEmailInUse(command.Email))
         {
-            throw new ConflictException("User with this email already exists.");
+            throw new ConflictException(ErrorMessages.PropertyIsAlreadyInUse(nameof(RegisterUserCommand.Email)));
         }
 
-        var user = new ApplicationUser
-        {
-            UserName = command.Email,
-            FirstName = command.FirstName,
-            LastName = command.LastName,
-            Email = command.Email,
-            UserGymMemberships = null,
-            GymStaffAssignment = null,
-            PaymentProfile = null //created in .CreateCustomer
-        };
+        using var transaction = await _context.BeginTransactionAsync();
 
-        var result = await _identityService.CreateUserAsync(user, command.Password, cancellationToken);
-
-        if (!result.Succeeded)
+        try
         {
-            throw new BadRequestException(string.Join(", ", result.Errors.Select(e => e.Description).ToList()));
+            var userCreationResult = await _identityService.CreateUserAsync(command.Email, command.Password, command.FirstName, command.LastName);
+
+            if (!userCreationResult.result.Succeeded)
+            {
+                await transaction.RollbackAsync();
+
+                _logger.LogError("{Role} registration failed");
+
+                throw new BadRequestException(string.Join(", ", userCreationResult.result.Errors));
+            }
+
+            var roleResult = await _identityService.AddToRoleAsync(userCreationResult.userId!, Roles.User);
+
+            if (!roleResult.Succeeded)
+            {
+                
+            }
+        } catch (Exception ex)
+        {
+            
         }
+
+        
 
         /*
         await _stripeCustomerService.CreateCustomer(user);

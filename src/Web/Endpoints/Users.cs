@@ -57,7 +57,7 @@ public class Users : EndpointGroupBase
         return TypedResults.Ok(result);
     }
 
-    public async Task<Ok<TokenResponse>> RegisterPendingGymManagement(ISender sender, [FromBody] RegisterPendingGymManagementCommand command, CancellationToken cancellationToken)
+    public async Task<Ok<TokenResponse>> RegisterPendingGymManagement(ISender sender, [FromBody] RegisterPendingGymEmployeeCommand command, CancellationToken cancellationToken)
     {
         var result = await sender.Send(command, cancellationToken);
 
