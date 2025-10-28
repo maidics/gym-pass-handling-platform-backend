@@ -29,7 +29,7 @@ public class TestGymBuilder : TestEntityBuilderBase<Gym>
         };
     }
 
-    public TestGymBuilder WithMember(UserGymMembership gymMembership)
+    public TestGymBuilder WithMember(GymMembership gymMembership)
     {
         _gym.UserGymMemberships.Add(gymMembership);
         return this;

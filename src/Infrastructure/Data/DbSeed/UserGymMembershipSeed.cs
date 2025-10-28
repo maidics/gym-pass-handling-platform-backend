@@ -8,14 +8,14 @@ public partial class ApplicationDbContextInitialiser
     private readonly string _userGymMembershipId2 = "UserGymMembership2";
     public async Task SeedUserGymMembershipsAsync()
     {
-        List<UserGymMembership> ugms = [
-                new UserGymMembership {
+        List<GymMembership> ugms = [
+                new GymMembership {
                     Id = _userGymMembership1Id,
                     ApplicationUserId = "User1",
                     NonRegisteredUserId = null,
                     GymId = gymId1
                 },
-                new UserGymMembership {
+                new GymMembership {
                     Id = _userGymMembershipId2,
                     ApplicationUserId = "User1",
                     NonRegisteredUserId = null,

@@ -138,4 +138,19 @@ public static class ErrorMessages
     {
         return $"{property} is already in use.";
     }
+
+    public static string FailedtoGeneratePasswordResetToken()
+    {
+        return "Failed to generate password reset token.";
+    }
+
+    public static string InvalidCredentials()
+    {
+        return "Invalid email or password";
+    }
+
+    public static string AuthenticatedUserNotFound()
+    {
+        return "Authenticated user not found.";
+    }
 }

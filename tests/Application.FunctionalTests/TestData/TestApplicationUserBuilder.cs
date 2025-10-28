@@ -36,7 +36,7 @@ public class TestApplicationUserBuilder : TestEntityBuilderBase<ApplicationUser>
         return this;
     }
 
-    public TestApplicationUserBuilder AddUserGymMembership(UserGymMembership gymMembership)
+    public TestApplicationUserBuilder AddUserGymMembership(GymMembership gymMembership)
     {
         if (_user.UserGymMemberships == null)
         {

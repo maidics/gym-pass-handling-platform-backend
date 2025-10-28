@@ -35,8 +35,9 @@ public class DeleteMyAccountCommandHandler : IRequestHandler<DeleteMyAccountComm
 
         if (!result.Succeeded)
         {
+            LogErrorMessages.IdentityServiceMethodFailed(_logger, nameof(IIdentityService.DeleteUserAsync), _user.Roles?[0], _user.Id, result);
             _logger.LogError("Failed to delete ({UserId}) user. IdentityResult: {IdentityResult}", _user.Id, result);
-            throw new InvalidOperationException($"Failed to delete user: '{_user.Id}'.");
+            throw new InvalidOperationException($"Failed to delete user.");
         }
 
         //await _stripeCustomerService.DeleteCustomer(user!);

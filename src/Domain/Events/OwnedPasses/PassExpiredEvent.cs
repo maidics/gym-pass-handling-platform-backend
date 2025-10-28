@@ -2,9 +2,9 @@ namespace FitPass.Domain.Events;
 
 public class PassExpiredEvent : BaseEvent
 {
-    public PassExpiredEvent(OwnedPass pass)
+    public PassExpiredEvent(GymMembershipPass pass)
     {
         Pass = pass;
     }
-    public OwnedPass Pass { get; }
+    public GymMembershipPass Pass { get; }
 }

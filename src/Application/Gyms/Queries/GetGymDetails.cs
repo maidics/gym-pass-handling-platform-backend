@@ -33,7 +33,7 @@ public class GetGymDetailsQueryHandler : IRequestHandler<GetGymDetailsQuery, Gym
         var gym = await _context
             .Gyms
             .AsNoTracking()
-            .Include(g => g.GymPassProducts)
+            .Include(g => g.PassProducts)
             .Include(g => g.UserGymMemberships)
             .FirstOrDefaultAsync(g => g.Id == query.GymId, cancellationToken);
 

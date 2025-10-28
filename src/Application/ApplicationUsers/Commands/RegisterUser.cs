@@ -1,6 +1,7 @@
 using Fitpass.Application.Common.Exceptions;
 using FitPass.Application.ApplicationUsers.DTOs;
 using FitPass.Application.Common.Interfaces;
+using FitPass.Application.Common.Logging;
 using FitPass.Application.Extensions;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Strings;
@@ -63,43 +64,53 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, T
             throw new ConflictException(ErrorMessages.PropertyIsAlreadyInUse(nameof(RegisterUserCommand.Email)));
         }
 
+        string userId;
+
         using var transaction = await _context.BeginTransactionAsync();
 
         try
         {
-            var userCreationResult = await _identityService.CreateUserAsync(command.Email, command.Password, command.FirstName, command.LastName);
+            var userCreationResultObj = await _identityService.CreateUserAsync(command.Email, command.Password, command.FirstName, command.LastName);
 
-            if (!userCreationResult.result.Succeeded)
+            if (!userCreationResultObj.result.Succeeded)
             {
                 await transaction.RollbackAsync();
 
-                _logger.LogError("{Role} registration failed");
+                LogErrorMessages.IdentityServiceMethodFailed(_logger, nameof(IIdentityService.CreateUserAsync), Roles.User, command.Email, userCreationResultObj.result);
 
-                throw new BadRequestException(string.Join(", ", userCreationResult.result.Errors));
+                throw new BadRequestException(string.Join(", ", userCreationResultObj.result.Errors));
             }
 
-            var roleResult = await _identityService.AddToRoleAsync(userCreationResult.userId!, Roles.User);
+            userId = userCreationResultObj.userId!;
+
+            var roleResult = await _identityService.AddToRoleAsync(userCreationResultObj.userId!, Roles.User);
 
             if (!roleResult.Succeeded)
             {
-                
+                await transaction.RollbackAsync();
+
+                LogErrorMessages.IdentityServiceMethodFailed(_logger, nameof(IIdentityService.AddToRoleAsync), Roles.User, userId, roleResult);
+
+                throw new Exception(ErrorMessages.FailedToHandleRole(Roles.User, true, roleResult.Errors));
             }
+
+            /*
+            await _stripeCustomerService.CreateCustomer(user);
+    
+            user.AddDomainEvent(new UserRegisteredEvent(user));
+            */
+    
+            await _context.SaveChangesAsync();
         } catch (Exception ex)
         {
-            
+            await transaction.RollbackAsync();
+
+            LogErrorMessages.UnhandledExceptionCaught(_logger, nameof(RegisterUserCommandHandler), ex);
+
+            throw;
         }
 
-        
-
-        /*
-        await _stripeCustomerService.CreateCustomer(user);
-
-        user.AddDomainEvent(new UserRegisteredEvent(user));
-        */
-
-        await _context.SaveChangesAsync();
-
-        var jwtResponse = await _jwtTokenService.GenerateTokenAsync(user, cancellationToken);
+        var jwtResponse = await _jwtTokenService.GenerateTokenAsync(userId, cancellationToken);
 
         return jwtResponse;
     }

@@ -8,9 +8,9 @@ public interface IApplicationDbContext
 {    DbSet<UserPaymentProfile> UserPaymentProfiles { get; }
     DbSet<NonRegisteredUser> NonRegisteredUsers { get; }
     DbSet<Gym> Gyms { get; }
-    DbSet<UserGymMembership> UserGymMemberships { get; }
+    DbSet<GymMembership> UserGymMemberships { get; }
     DbSet<GymEmployment> GymEmployments { get; }
-    DbSet<OwnedPass> OwnedPasses { get; }
+    DbSet<GymMembershipPass> OwnedPasses { get; }
     DbSet<Request> Requests { get; }
     DbSet<GymPassProduct> GymPassProducts { get; }
     DbSet<GymPassProductTemplate> GymPassProductTemplates { get; }

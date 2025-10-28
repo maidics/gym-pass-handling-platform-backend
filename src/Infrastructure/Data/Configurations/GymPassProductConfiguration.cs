@@ -10,7 +10,7 @@ public class GymPassProductConfiguration : IEntityTypeConfiguration<GymPassProdu
     {
         builder
             .HasOne(gpp => gpp.Gym)
-            .WithMany(g => g.GymPassProducts)
+            .WithMany(g => g.PassProducts)
             .HasForeignKey(gpp => gpp.GymId);
 
         builder.Property(gpp => gpp.HUFPrice).HasPrecision(18, 2);

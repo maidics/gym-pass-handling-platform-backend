@@ -94,7 +94,7 @@ public class IdentityService : IIdentityService
 
         if (user == null || !await _userManager.CheckPasswordAsync(user, password))
         {
-            return Result.Failure(["Invalid email or password"]);
+            return Result.Failure([ErrorMessages.InvalidCredentials()]);
         }
 
         return Result.Success();
@@ -221,11 +221,32 @@ public class IdentityService : IIdentityService
 
         return result.ToApplicationResult();
     }
-    
+
     public async Task<bool> IsEmailInUse(string email, CancellationToken cancellationToken = default)
     {
         var user = await _userManager.FindByEmailAsync(email);
 
         return user != null;
+    }
+    
+    public async Task<Result> UpdateUserFirstAndLastName(string userId, string firstName, string lastName, CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var user = await _userManager.FindByIdAsync(userId);
+
+        if (user == null)
+        {
+            return Result.Failure([ErrorMessages.UserNotFound()]);
+        }
+
+        user.FirstName = firstName;
+        user.LastName = lastName;
+
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var result = await _userManager.UpdateAsync(user);
+
+        return result.ToApplicationResult();
     }
 }

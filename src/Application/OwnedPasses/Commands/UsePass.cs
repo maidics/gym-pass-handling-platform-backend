@@ -37,12 +37,12 @@ public class ApplicationUserUsePassCommandHandler : IRequestHandler<ApplicationU
     {
         var ownedPass = await _context
             .OwnedPasses
-            .Include(op => op.UserGymMembership)
+            .Include(op => op.GymMembership)
             .FirstOrDefaultAsync(pass => pass.Id == command.OwnedPassId, cancellationToken);
 
         Guard.Against.NotFound(command.OwnedPassId, ownedPass, "Id");
         
-        if (_user.Id != ownedPass.UserGymMembership.ApplicationUserId)
+        if (_user.Id != ownedPass.GymMembership.ApplicationUserId)
         {
             throw new UnauthorizedAccessException("This pass does not belong to you.");
         }

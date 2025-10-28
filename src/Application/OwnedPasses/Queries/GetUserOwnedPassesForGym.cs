@@ -35,7 +35,7 @@ public class GetUserOwnedPassesForGymQueryHandler : IRequestHandler<GetUserOwned
     {
         var userGymMembership = await _context.UserGymMemberships
             .AsNoTracking()
-            .Include(ugm => ugm.OwnedPasses)
+            .Include(ugm => ugm.Passes)
             .FirstOrDefaultAsync(ugm => ugm.Id == query.UserGymMembershipId, cancellationToken);
 
         Guard.Against.Null(userGymMembership, query.UserGymMembershipId, "User is not a member of this gym.");
@@ -45,6 +45,6 @@ public class GetUserOwnedPassesForGymQueryHandler : IRequestHandler<GetUserOwned
             throw new UnauthorizedAccessException();
         }
 
-        return _mapper.Map<List<OwnedPassDto>>(userGymMembership.OwnedPasses);
+        return _mapper.Map<List<OwnedPassDto>>(userGymMembership.Passes);
     }
 }

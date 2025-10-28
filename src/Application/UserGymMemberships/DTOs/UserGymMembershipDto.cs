@@ -19,7 +19,7 @@ public class UserGymMembershipDto
     {
         public Mapping()
         {
-            CreateMap<UserGymMembership, UserGymMembershipDto>();
+            CreateMap<GymMembership, UserGymMembershipDto>();
         }
     }
 }

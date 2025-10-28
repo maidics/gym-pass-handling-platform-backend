@@ -7,9 +7,9 @@ namespace FitPass.Application.FunctionalTests.TestData;
 
 using static Testing;
 
-public class TestOwnedPassBuilder : TestEntityBuilderBase<OwnedPass>
+public class TestOwnedPassBuilder : TestEntityBuilderBase<GymMembershipPass>
 {
-    private UserGymMembership? _userGymMembership = null;
+    private GymMembership? _userGymMembership = null;
     private PassType? _passType = null;
     private int? _totalUses = null;
     private int? _remainingUses = null;
@@ -26,7 +26,7 @@ public class TestOwnedPassBuilder : TestEntityBuilderBase<OwnedPass>
         _testUserGymMembershipBuilder = new(scopeFactory);
     }
 
-    public TestOwnedPassBuilder ForUserGymMembership(UserGymMembership userGymMembership)
+    public TestOwnedPassBuilder ForUserGymMembership(GymMembership userGymMembership)
     {
         _userGymMembership = userGymMembership;
 

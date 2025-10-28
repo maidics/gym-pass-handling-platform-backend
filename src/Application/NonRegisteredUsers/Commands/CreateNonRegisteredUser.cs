@@ -116,7 +116,7 @@ public class CreateNonRegisteredUserCommandHandler : IRequestHandler<CreateNonRe
             LastName = command.LastName
         };
 
-        var userGymMembership = new UserGymMembership
+        var userGymMembership = new GymMembership
         {
             ApplicationUserId = null,
             NonRegisteredUserId = nonRegisteredUser.Id,

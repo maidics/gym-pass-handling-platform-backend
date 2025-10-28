@@ -1,6 +1,8 @@
 using FitPass.Application.Common.Interfaces;
+using FitPass.Application.Common.Logging;
 using FitPass.Application.Extensions;
 using FitPass.Domain.Strings;
+using Microsoft.Extensions.Logging;
 
 namespace FitPass.Application.ApplicationUsers.Commands;
 
@@ -31,25 +33,21 @@ public class ResetPasswordCommandValidator : AbstractValidator<ResetPasswordComm
 public class ResetPasswordCommandHandler : IRequestHandler<ResetPasswordCommand>
 {
     private readonly IIdentityService _identityService;
+    private readonly ILogger<ResetPasswordCommandHandler> _logger;
 
-    public ResetPasswordCommandHandler(IIdentityService identityService)
+    public ResetPasswordCommandHandler(IIdentityService identityService, ILogger<ResetPasswordCommandHandler> logger)
     {
         _identityService = identityService;
+        _logger = logger;
     }
 
     public async Task Handle(ResetPasswordCommand command, CancellationToken cancellationToken)
     {
-        var user = await _identityService.FindUserByIdAsync(command.UserId);
+        var result = await _identityService.ResetPasswordAsync(command.UserId, command.PasswordResetToken, command.NewPassword);
 
-        if (user == null)
+        if (!result.Succeeded)
         {
-            throw new UnauthorizedAccessException();
-        }
-
-        var passwordResetResult = await _identityService.ResetPasswordAsync(user, command.PasswordResetToken, command.NewPassword);
-
-        if (!passwordResetResult.Succeeded)
-        {
+            LogErrorMessages.IdentityServiceMethodFailed(_logger, nameof(IIdentityService.ResetPasswordAsync), null, command.UserId, result);
             throw new InvalidOperationException("Password reset returned with failure.");
         }
     }

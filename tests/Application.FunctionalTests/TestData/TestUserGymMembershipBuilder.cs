@@ -5,9 +5,9 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace FitPass.Application.FunctionalTests.TestData;
 
-public class TestUserGymMembershipBuilder : TestEntityBuilderBase<UserGymMembership>
+public class TestUserGymMembershipBuilder : TestEntityBuilderBase<GymMembership>
 {
-    private readonly UserGymMembership _userGymMembership;
+    private readonly GymMembership _userGymMembership;
     private readonly TestApplicationUserBuilder _testApplicationUserBuilder;
     private readonly TestGymBuilder _testGymBuilder;
     private bool _createApplicationUser = false;
@@ -22,7 +22,7 @@ public class TestUserGymMembershipBuilder : TestEntityBuilderBase<UserGymMembers
         _testApplicationUserBuilder = new(scopeFactory);
         _testGymBuilder = new(scopeFactory);
 
-        _userGymMembership = new UserGymMembership
+        _userGymMembership = new GymMembership
         {
             ApplicationUserId = null,
             NonRegisteredUserId = null,
@@ -103,14 +103,14 @@ public class TestUserGymMembershipBuilder : TestEntityBuilderBase<UserGymMembers
         return this;
     }
 
-    public TestUserGymMembershipBuilder AddOwnedPass(params IEnumerable<OwnedPass> passes)
+    public TestUserGymMembershipBuilder AddOwnedPass(params IEnumerable<GymMembershipPass> passes)
     {
-        _userGymMembership.OwnedPasses.Concat(passes);
+        _userGymMembership.Passes.Concat(passes);
 
         return this;
     }
 
-    public override UserGymMembership Build()
+    public override GymMembership Build()
     {
         if (_userGymMembership.Gym == null || _userGymMembership.GymId == null)
         {
@@ -125,7 +125,7 @@ public class TestUserGymMembershipBuilder : TestEntityBuilderBase<UserGymMembers
         return _userGymMembership;
     }
 
-    public override async Task<UserGymMembership> BuildAsync()
+    public override async Task<GymMembership> BuildAsync()
     {
         await CreateNavigationPropertiesIfNeeded();
 

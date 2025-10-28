@@ -59,7 +59,7 @@ public class BuyPassForNonRegisteredUserCommandHandler : IRequestHandler<BuyPass
 
         if (userGymMembership == null)
         {
-            userGymMembership = new UserGymMembership
+            userGymMembership = new GymMembership
             {
                 ApplicationUserId = null,
                 NonRegisteredUserId = nonRegisteredUser.Id,
@@ -71,10 +71,10 @@ public class BuyPassForNonRegisteredUserCommandHandler : IRequestHandler<BuyPass
 
         var utcNow = DateTimeOffset.UtcNow;
 
-        var ownedPass = new OwnedPass
+        var ownedPass = new GymMembershipPass
         {
             Id = Guid.NewGuid().ToString(),
-            UserGymMembershipId = userGymMembership.Id,
+            GymMembershipId = userGymMembership.Id,
             Type = gymPassProduct.Type,
             TotalUses = gymPassProduct.TotalUses,
             RemainingUses = gymPassProduct.TotalUses,

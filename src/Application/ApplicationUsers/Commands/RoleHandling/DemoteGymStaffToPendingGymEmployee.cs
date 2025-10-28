@@ -78,7 +78,7 @@ public class DemoteGymStaffToPendingGymEmployeeCommandHandler : IRequestHandler<
                     throw new NotFoundException(command.UserId, "User");
                 } else
                 {
-                    LogErrorMessages.FailedToRemoveUserFromTheirRole(_logger, Roles.GymStaff, command.UserId, demotionResult, null);
+                    LogErrorMessages.IdentityServiceMethodFailed(_logger, nameof(IIdentityService.RemoveFromRoleAsync), Roles.GymStaff, command.UserId, demotionResult);
 
                     throw new Exception(ErrorMessages.FailedToHandleRole(Roles.GymStaff, false, demotionResult.Errors));
                 }
@@ -90,7 +90,7 @@ public class DemoteGymStaffToPendingGymEmployeeCommandHandler : IRequestHandler<
             {
                 await transaction.RollbackAsync();
 
-                LogErrorMessages.FailedToAddUserToRole(_logger, command.UserId, Roles.PendingGymEmployee, promotionResult, null);
+                LogErrorMessages.IdentityServiceMethodFailed(_logger, nameof(IIdentityService.AddToRoleAsync), Roles.PendingGymEmployee, command.UserId, promotionResult);
 
                 throw new Exception(ErrorMessages.FailedToHandleRole(Roles.PendingGymEmployee, true, promotionResult.Errors));
             }

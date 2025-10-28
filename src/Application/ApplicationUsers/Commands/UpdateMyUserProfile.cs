@@ -1,7 +1,10 @@
 using FitPass.Application.Common.Interfaces;
+using FitPass.Application.Common.Logging;
 using FitPass.Application.Common.Security;
 using FitPass.Application.Extensions;
 using FitPass.Domain.Constants;
+using FitPass.Domain.Strings;
+using Microsoft.Extensions.Logging;
 
 namespace FitPass.Application.ApplicationUsers.Commands;
 
@@ -26,26 +29,34 @@ public class UpdateMyUserProfileCommandHandler : IRequestHandler<UpdateMyUserPro
     private readonly IIdentityService _identityService;
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
+    private readonly ILogger<UpdateMyUserProfileCommandHandler> _logger;
 
-    public UpdateMyUserProfileCommandHandler(IIdentityService identityService, IApplicationDbContext context, IUser user)
+    public UpdateMyUserProfileCommandHandler(
+        IIdentityService identityService,
+        IApplicationDbContext context,
+        IUser user,
+        ILogger<UpdateMyUserProfileCommandHandler> logger)
     {
         _identityService = identityService;
         _context = context;
         _user = user;
+        _logger = logger;
     }
     
     public async Task Handle(UpdateMyUserProfileCommand command, CancellationToken cancellationToken) //TODO: test if this saves
     {
-        var user = await _identityService.FindUserByIdAsync(_user.Id!);
+        var result = await _identityService.UpdateUserFirstAndLastName(_user.Id!, command.FirstName, command.LastName);
 
-        if (user == null)
+        if (result.IsUserNotFoundFailure())
         {
-            throw new UnauthorizedAccessException();
+            LogCriticalMessages.AuthenticatedUserNotFound(_logger, _user.Roles, _user.Id, null);
+            throw new Exception(ErrorMessages.AuthenticatedUserNotFound());
         }
 
-        user.FirstName = command.FirstName;
-        user.LastName = command.LastName;
-
-        await _context.SaveChangesAsync();
+        if (!result.Succeeded)
+        {
+            LogErrorMessages.IdentityServiceMethodFailed(_logger, nameof(IIdentityService.UpdateUserFirstAndLastName), _user.Roles?[0], _user.Id, result);
+            throw new Exception("Failed to update user's first and last name.");
+        }
     }
 }

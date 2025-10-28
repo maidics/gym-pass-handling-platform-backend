@@ -54,7 +54,7 @@ public class ApplicationUserBuyPassCommandHandler : IRequestHandler<ApplicationU
 
         if (userGymMembership == null)
         {
-            userGymMembership = new UserGymMembership
+            userGymMembership = new GymMembership
             {
                 ApplicationUserId = user.Id,
                 NonRegisteredUserId = null,
@@ -64,9 +64,9 @@ public class ApplicationUserBuyPassCommandHandler : IRequestHandler<ApplicationU
             user.UserGymMemberships!.Add(userGymMembership);
         }
 
-        userGymMembership.OwnedPasses.Add(new OwnedPass
+        userGymMembership.OwnedPasses.Add(new GymMembershipPass
         {
-            UserGymMembershipId = userGymMembership.Id,
+            GymMembershipId = userGymMembership.Id,
             Type = gymPassProduct.Type,
             TotalUses = gymPassProduct.TotalUses,
             RemainingUses = gymPassProduct.TotalUses,

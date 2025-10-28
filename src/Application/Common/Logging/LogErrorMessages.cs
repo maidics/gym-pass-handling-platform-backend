@@ -5,23 +5,13 @@ namespace FitPass.Application.Common.Logging;
 
 public partial class LogErrorMessages
 {
-    public static void FailedToRemoveUserFromTheirRole(ILogger logger, string userRole, string userId, Result result, Exception? exception)
+    public static void IdentityServiceMethodFailed(ILogger logger, string methodName, string? userRole, string? userIdOrEmail, Result result)
     {
-        _failedToRemoveUserFromTheirRole(logger, userRole, userId, result, exception);
-    }
-
-    public static void FailedToAddUserToRole(ILogger logger, string userId, string role, Result result, Exception? exception)
-    {
-        _failedToAddUserToRole(logger, userId, role, result, exception);
+        _identityServiceMethodFailed(logger, methodName, userRole, userIdOrEmail, result, null);
     }
 
     public static void UnhandledExceptionCaught(ILogger logger, string context, Exception exception)
     {
         _unhandledExceptionCaught(logger, context, exception);
-    }
-
-    public static void RegistrationFailed(ILogger logger, string userRole, Result result, Exception? exception)
-    {
-        _registrationFailed(logger, userRole, result, exception);
     }
 }

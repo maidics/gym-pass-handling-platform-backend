@@ -49,7 +49,7 @@ public class AddUserGymMembershipToNonRegisteredUserCommandHandler : IRequestHan
             return _mapper.Map<NonRegisteredUserDto>(nonRegisteredUser);
         }
 
-        nonRegisteredUser.UserGymMemberships.Add(new UserGymMembership
+        nonRegisteredUser.UserGymMemberships.Add(new GymMembership
         {
             ApplicationUserId = null,
             NonRegisteredUserId = nonRegisteredUser.Id,

@@ -14,9 +14,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
     public DbSet<UserPaymentProfile> UserPaymentProfiles => Set<UserPaymentProfile>();
     public DbSet<NonRegisteredUser> NonRegisteredUsers => Set<NonRegisteredUser>();
     public DbSet<Gym> Gyms => Set<Gym>();
-    public DbSet<UserGymMembership> UserGymMemberships => Set<UserGymMembership>();
+    public DbSet<GymMembership> UserGymMemberships => Set<GymMembership>();
     public DbSet<GymEmployment> GymEmployments => Set<GymEmployment>();
-    public DbSet<OwnedPass> OwnedPasses => Set<OwnedPass>();
+    public DbSet<GymMembershipPass> OwnedPasses => Set<GymMembershipPass>();
     public DbSet<GymPassProduct> GymPassProducts => Set<GymPassProduct>();
     public DbSet<GymPassProductTemplate> GymPassProductTemplates => Set<GymPassProductTemplate>();
     public DbSet<Request> Requests => Set<Request>();

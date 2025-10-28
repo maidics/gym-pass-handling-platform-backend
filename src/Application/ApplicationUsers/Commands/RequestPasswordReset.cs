@@ -1,5 +1,6 @@
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Extensions;
+using FitPass.Domain.Strings;
 
 namespace Fitpass.Application.ApplicationUsers.Commands;
 
@@ -26,15 +27,20 @@ public class RequestPasswordResetEmailCommandHandler : IRequestHandler<RequestPa
 
     public async Task Handle(RequestPasswordResetEmailCommand command, CancellationToken cancellationToken)
     {
-        var user = await _identityService.FindUserByEmailAsync(command.Email);
+        var userId = await _identityService.GetUserIdByEmail(command.Email);
 
-        if (user == null)
+        if (userId == null)
         {
-            return;
+            throw new UnauthorizedAccessException();
         }
 
-        var passwordResetToken = await _identityService.GeneratePasswordResetTokenAsync(user);
+        var passwordResetToken = await _identityService.GeneratePasswordResetTokenAsync(userId);
 
-        await _emailService.SendPasswordResetEmailAsync(user.Email!, passwordResetToken, user.Id);
+        if (passwordResetToken == null)
+        {
+            throw new Exception(ErrorMessages.FailedtoGeneratePasswordResetToken());
+        }
+
+        await _emailService.SendPasswordResetEmailAsync(command.Email, passwordResetToken, userId);
     }
 }

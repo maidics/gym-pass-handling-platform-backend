@@ -1,11 +1,12 @@
 namespace FitPass.Domain.Entities;
 
-public class GymEmployment
+public class GymEmployment : BaseEntity
 {
-    public required string ApplicationUserId { get; set; }
+    public required string? ApplicationUserId { get; set; } //User's id is detached when employment ends => record is still in db
     public string? GymId { get; set; }
     public string? EscalationEmail { get; set; }
     public required string Role { get; set; }
-    public ApplicationUser ApplicationUser { get; set; } = null!;
-    public Gym Gym { get; set; } = null!;
+    public DateTimeOffset EmploymentStart = DateTimeOffset.UtcNow;
+    public DateTimeOffset? EmploymentEnd = null;
+    public Gym? Gym { get; set; }
 }

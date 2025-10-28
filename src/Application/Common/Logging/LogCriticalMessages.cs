@@ -5,7 +5,7 @@ namespace FitPass.Application.Common.Logging;
 
 public partial class LogCriticalMessages
 {
-    public static void AuthenticatedGymEmployeeGymEmploymentNotFound(ILogger logger, string gymEmployeeRole, string? gymEmployeeUserId, Exception? exception)
+    public static void AuthenticatedGymEmployeeGymEmploymentNotFound(ILogger logger, IEnumerable<string>? gymEmployeeRoles, string? gymEmployeeUserId, Exception? exception)
     {
         _authenticatedGymEmployeeGymEmploymentNotFound(logger, gymEmployeeRole, gymEmployeeUserId, exception);
     }

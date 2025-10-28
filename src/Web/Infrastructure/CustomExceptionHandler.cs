@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Security.Authentication;
+using System.Text.Json;
 using Fitpass.Application.Common.Exceptions;
 using Fitpass.Infrastructure.Common.Exceptions;
 using FitPass.Application.Common.Exceptions;
@@ -23,7 +24,8 @@ public class CustomExceptionHandler : IExceptionHandler
                 { typeof(ConflictException), HandleConflictException },
                 { typeof(BadRequestException), HandleBadRequestException },
                 { typeof(PaymentRequiredException), HandlePaymentRequiredException },
-                { typeof(ServiceUnavailableException), HandleServiceUnavailableException }
+                { typeof(ServiceUnavailableException), HandleServiceUnavailableException },
+                { typeof(InvalidCredentialException), HandleInvalidCredentialException}
             };
     }
 
@@ -159,6 +161,18 @@ public class CustomExceptionHandler : IExceptionHandler
             Title = "Service unavailable",
             Type = "https://datatracker.ietf.org/doc/html/rfc7231#section-6.6.4",
             Detail = ex.Message
+        });
+    }
+
+    private async Task HandleInvalidCredentialException(HttpContext httpContext, Exception ex)
+    {
+        httpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
+
+        await httpContext.Response.WriteAsJsonAsync(new ProblemDetails
+        {
+            Status = StatusCodes.Status401Unauthorized,
+            Title = "Invalid credentials",
+            Type = "https://tools.ietf.org/html/rfc7235#section-3.1"
         });
     }
 }

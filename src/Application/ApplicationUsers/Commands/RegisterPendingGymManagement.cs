@@ -62,26 +62,26 @@ public class RegisterPendingGymEmployeeCommandHandler : IRequestHandler<Register
 
         try
         {
-            var result = await _identityService.CreateUserAsync(command.Email, command.Password, command.FirstName, command.LastName);
+            var resultObj = await _identityService.CreateUserAsync(command.Email, command.Password, command.FirstName, command.LastName);
 
-            if (!result.result.Succeeded)
+            if (!resultObj.result.Succeeded)
             {
                 await transaction.RollbackAsync();
 
-                LogErrorMessages.RegistrationFailed(_logger, Roles.PendingGymEmployee, result.result, null);
+                LogErrorMessages.IdentityServiceMethodFailed(_logger, nameof(_identityService.CreateUserAsync), Roles.PendingGymEmployee, resultObj.userId, resultObj.result);
 
-                throw new BadRequestException(string.Join(", ", result.result.Errors));
+                throw new BadRequestException(string.Join(", ", resultObj.result.Errors));
             }
 
-            userId = result.userId!;
+            userId = resultObj.userId!;
 
-            var roleResult = await _identityService.AddToRoleAsync(result.userId!, Roles.GymAdministrator);
+            var roleResult = await _identityService.AddToRoleAsync(resultObj.userId!, Roles.PendingGymEmployee);
 
             if (!roleResult.Succeeded)
             {
                 await transaction.RollbackAsync();
 
-                LogErrorMessages.FailedToAddUserToRole(_logger, userId, Roles.PendingGymEmployee, roleResult, null);
+                LogErrorMessages.IdentityServiceMethodFailed(_logger, nameof(_identityService.AddToRoleAsync), Roles.PendingGymEmployee, userId, roleResult);
 
                 throw new BadRequestException(string.Join(", ", roleResult.Errors));
             }

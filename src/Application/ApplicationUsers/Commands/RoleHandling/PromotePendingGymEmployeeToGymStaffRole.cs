@@ -47,7 +47,7 @@ public class PromotePendingGymEmployeeToGymStaffRoleCommandHandler : IRequestHan
 
         if (promoterGymAdminEmployment == null)
         {
-            LogCriticalMessages.AuthenticatedGymEmployeeGymEmploymentNotFound(_logger, Roles.GymAdministrator, _user.Id, null);
+            LogCriticalMessages.AuthenticatedGymEmployeeGymEmploymentNotFound(_logger, _user.Roles, _user.Id, null);
             throw new UnauthorizedAccessException();
         }
 
@@ -66,7 +66,7 @@ public class PromotePendingGymEmployeeToGymStaffRoleCommandHandler : IRequestHan
                     throw new NotFoundException(command.UserId, "User");
                 } else
                 {
-                    LogErrorMessages.FailedToRemoveUserFromTheirRole(_logger, Roles.PendingGymEmployee, command.UserId, demotionResult, null);
+                    LogErrorMessages.IdentityServiceMethodFailed(_logger, nameof(IIdentityService.RemoveFromRoleAsync), Roles.PendingGymEmployee, command.UserId, demotionResult);
                     
                     throw new Exception(ErrorMessages.FailedToHandleRole(Roles.PendingGymEmployee, false, demotionResult.Errors));
                 }
@@ -78,7 +78,7 @@ public class PromotePendingGymEmployeeToGymStaffRoleCommandHandler : IRequestHan
             {
                 await transaction.RollbackAsync();
 
-                LogErrorMessages.FailedToAddUserToRole(_logger, command.UserId, Roles.GymStaff, promotionResult, null);
+                LogErrorMessages.IdentityServiceMethodFailed(_logger, nameof(IIdentityService.AddToRoleAsync), Roles.GymStaff, command.UserId, promotionResult);
 
                 throw new Exception(ErrorMessages.FailedToHandleRole(Roles.GymStaff, true, promotionResult.Errors));
             }

@@ -29,7 +29,7 @@ public class GetMyGymDetailsQueryHandler : IRequestHandler<GetMyGymDetailsQuery,
         var gym = await _context
             .Gyms
             .AsNoTracking()
-            .Include(g => g.GymPassProducts)
+            .Include(g => g.PassProducts)
             .FirstOrDefaultAsync(g => g.Id == gymStaffAssigment!.GymId, cancellationToken);
 
         Guard.Against.Null(gym, "Id", "Failed to find gym for the current Gym Admin or Gym Staff member.");
