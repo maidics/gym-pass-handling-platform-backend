@@ -1,7 +1,11 @@
 using Fitpass.Application.Gyms.DTOs;
 using FitPass.Application.Common.Interfaces;
+using FitPass.Application.Common.Logging;
 using FitPass.Application.Common.Security;
 using FitPass.Domain.Constants;
+using FitPass.Domain.Entities;
+using FitPass.Domain.Strings;
+using Microsoft.Extensions.Logging;
 
 namespace FitPass.Application.Gyms.Queries;
 
@@ -13,26 +17,34 @@ public class GetMyGymDetailsQueryHandler : IRequestHandler<GetMyGymDetailsQuery,
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
     private readonly IMapper _mapper;
+    private readonly ILogger<GetMyGymDetailsQueryHandler> _logger;
 
-    public GetMyGymDetailsQueryHandler(IApplicationDbContext context, IUser user, IMapper mapper)
+    public GetMyGymDetailsQueryHandler(IApplicationDbContext context, IUser user, IMapper mapper, ILogger<GetMyGymDetailsQueryHandler> logger)
     {
         _context = context;
         _user = user;
         _mapper = mapper;
+        _logger = logger;
     }
     public async Task<GymDto> Handle(GetMyGymDetailsQuery query, CancellationToken cancellationToken)
     {
-        var gymStaffAssigment = await _context.GymEmployments
+        var gymEmployment = await _context.GymEmployments
             .AsNoTracking()
             .FirstOrDefaultAsync(gsa => gsa.ApplicationUserId == _user.Id, cancellationToken);
+
+        if (gymEmployment == null)
+        {
+            LogCriticalMessages.AuthenticatedUserRelatedEntityNotFound(_logger, _user.Roles, _user.Id, nameof(GymEmployment));
+
+            throw new Exception(ErrorMessages.AuthenticatedUserRelatedEntityNotFound(nameof(GymEmployment)));
+        }
 
         var gym = await _context
             .Gyms
             .AsNoTracking()
-            .Include(g => g.PassProducts)
-            .FirstOrDefaultAsync(g => g.Id == gymStaffAssigment!.GymId, cancellationToken);
+            .FirstOrDefaultAsync(g => g.Id == gymEmployment.GymId, cancellationToken);
 
-        Guard.Against.Null(gym, "Id", "Failed to find gym for the current Gym Admin or Gym Staff member.");
+        Guard.Against.Null(gym, "Id", "No gym found for authenticated gym employee.");
 
         return _mapper.Map<GymDto>(gym);
     }

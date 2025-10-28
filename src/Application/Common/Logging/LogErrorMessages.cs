@@ -14,4 +14,9 @@ public partial class LogErrorMessages
     {
         _unhandledExceptionCaught(logger, context, exception);
     }
+
+    public static void JsonSerilaizationFailure(ILogger logger, string serializationType, string methodName, string? ownerEntityName, string? ownerEntityId, string? jsonString, Exception exception)
+    {
+        _jsonSerilaizationFailure(logger, serializationType, methodName, ownerEntityName, ownerEntityId, jsonString, exception);
+    }
 }

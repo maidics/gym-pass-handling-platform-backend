@@ -16,4 +16,10 @@ public partial class LogErrorMessages
             logLevel: LogLevel.Error,
             eventId: new EventId(),
             formatString: "IdentityService {MethodName} method failed for {UserRole} user ({UserIdOrEmail}). Result: {Result}");
+
+    private static readonly Action<ILogger, string, string, string?, string?, string?, Exception?> _jsonSerilaizationFailure =
+        LoggerMessage.Define<string, string, string?, string?, string?>(
+            logLevel: LogLevel.Error,
+            eventId: new EventId(),
+            formatString: "JSON {SerializationType} failed in {MethodName}, Owner entity: {OwnerEntityType} ({OwnerEntityId}), Json: {JsonString}");
 }

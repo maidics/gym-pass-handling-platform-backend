@@ -33,8 +33,6 @@ public class GetGymDetailsQueryHandler : IRequestHandler<GetGymDetailsQuery, Gym
         var gym = await _context
             .Gyms
             .AsNoTracking()
-            .Include(g => g.PassProducts)
-            .Include(g => g.UserGymMemberships)
             .FirstOrDefaultAsync(g => g.Id == query.GymId, cancellationToken);
 
         Guard.Against.NotFound(query.GymId, gym, "Id");
