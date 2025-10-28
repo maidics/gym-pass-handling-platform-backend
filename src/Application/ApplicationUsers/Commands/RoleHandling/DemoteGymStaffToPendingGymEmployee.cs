@@ -3,6 +3,7 @@ using FitPass.Application.Common.Logging;
 using FitPass.Application.Common.Security;
 using FitPass.Application.Extensions;
 using FitPass.Domain.Constants;
+using FitPass.Domain.Entities;
 using FitPass.Domain.Strings;
 using Microsoft.Extensions.Logging;
 
@@ -46,7 +47,7 @@ public class DemoteGymStaffToPendingGymEmployeeCommandHandler : IRequestHandler<
 
         if (demoterGymAdminEmployment == null)
         {
-            LogCriticalMessages.AuthenticatedGymEmployeeGymEmploymentNotFound(_logger, Roles.GymAdministrator, _user.Id, null);
+            LogCriticalMessages.AuthenticatedUserRelatedEntityNotFound(_logger, _user.Roles, _user.Id, nameof(GymEmployment));
             throw new UnauthorizedAccessException();
         }
 
@@ -73,7 +74,7 @@ public class DemoteGymStaffToPendingGymEmployeeCommandHandler : IRequestHandler<
 
                 if (demotionResult.IsUserNotFoundFailure())
                 {
-                    LogCriticalMessages.FailedToFindGymEmployeeButHasGymEmployment(_logger, Roles.GymStaff, command.UserId, gymStaffGymEmployment, null);
+                    LogCriticalMessages.FailedToFindGymEmployeeButHasGymEmployment(_logger, [Roles.GymStaff], command.UserId, gymStaffGymEmployment, null);
 
                     throw new NotFoundException(command.UserId, "User");
                 } else

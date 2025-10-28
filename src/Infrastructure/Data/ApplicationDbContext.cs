@@ -12,11 +12,11 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
     public DbSet<UserPaymentProfile> UserPaymentProfiles => Set<UserPaymentProfile>();
-    public DbSet<NonRegisteredUser> NonRegisteredUsers => Set<NonRegisteredUser>();
+    public DbSet<UserProfile> UserProfiles => Set<UserProfile>();
     public DbSet<Gym> Gyms => Set<Gym>();
-    public DbSet<GymMembership> UserGymMemberships => Set<GymMembership>();
+    public DbSet<GymMembership> GymMemberships => Set<GymMembership>();
     public DbSet<GymEmployment> GymEmployments => Set<GymEmployment>();
-    public DbSet<GymMembershipPass> OwnedPasses => Set<GymMembershipPass>();
+    public DbSet<GymMembershipPass> GymMembershipPasses => Set<GymMembershipPass>();
     public DbSet<GymPassProduct> GymPassProducts => Set<GymPassProduct>();
     public DbSet<GymPassProductTemplate> GymPassProductTemplates => Set<GymPassProductTemplate>();
     public DbSet<Request> Requests => Set<Request>();

@@ -5,12 +5,13 @@ using Microsoft.EntityFrameworkCore.Storage;
 namespace FitPass.Application.Common.Interfaces;
 
 public interface IApplicationDbContext
-{    DbSet<UserPaymentProfile> UserPaymentProfiles { get; }
-    DbSet<NonRegisteredUser> NonRegisteredUsers { get; }
+{    
+    DbSet<UserPaymentProfile> UserPaymentProfiles { get; }
+    DbSet<UserProfile> UserProfiles { get; }
     DbSet<Gym> Gyms { get; }
-    DbSet<GymMembership> UserGymMemberships { get; }
+    DbSet<GymMembership> GymMemberships { get; }
     DbSet<GymEmployment> GymEmployments { get; }
-    DbSet<GymMembershipPass> OwnedPasses { get; }
+    DbSet<GymMembershipPass> GymMembershipPasses { get; }
     DbSet<Request> Requests { get; }
     DbSet<GymPassProduct> GymPassProducts { get; }
     DbSet<GymPassProductTemplate> GymPassProductTemplates { get; }

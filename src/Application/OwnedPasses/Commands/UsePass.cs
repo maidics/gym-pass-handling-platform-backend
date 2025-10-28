@@ -36,7 +36,7 @@ public class ApplicationUserUsePassCommandHandler : IRequestHandler<ApplicationU
     public async Task Handle(ApplicationUserUsePassCommand command, CancellationToken cancellationToken)
     {
         var ownedPass = await _context
-            .OwnedPasses
+            .GymMembershipPasses
             .Include(op => op.GymMembership)
             .FirstOrDefaultAsync(pass => pass.Id == command.OwnedPassId, cancellationToken);
 

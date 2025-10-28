@@ -47,7 +47,7 @@ public class PromotePendingGymEmployeeToGymStaffRoleCommandHandler : IRequestHan
 
         if (promoterGymAdminEmployment == null)
         {
-            LogCriticalMessages.AuthenticatedGymEmployeeGymEmploymentNotFound(_logger, _user.Roles, _user.Id, null);
+            LogCriticalMessages.AuthenticatedUserRelatedEntityNotFound(_logger, _user.Roles, _user.Id, nameof(GymEmployment));
             throw new UnauthorizedAccessException();
         }
 
@@ -91,9 +91,9 @@ public class PromotePendingGymEmployeeToGymStaffRoleCommandHandler : IRequestHan
             };
 
             await _context.GymEmployments.AddAsync(gymEmployment);
+
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();
-
         } catch (Exception ex)
         {
             LogErrorMessages.UnhandledExceptionCaught(_logger, nameof(PromotePendingGymEmployeeToGymStaffRoleCommandHandler), ex);

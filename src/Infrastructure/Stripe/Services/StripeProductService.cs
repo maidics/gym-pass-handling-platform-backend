@@ -43,7 +43,7 @@ public class StripeProductService : IStripeProductService
             gymPassProduct.IsCreatedOnStripe = true;
         } catch (StripeException ex)
         {
-            ex.LogAndThrowApplicationException<StripeProductService>(_logger);
+            ex.LogAndGetApplicationException<StripeProductService>(_logger);
         }
     }
 }

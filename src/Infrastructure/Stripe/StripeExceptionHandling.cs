@@ -1,7 +1,7 @@
 using System.Net;
 using System.Runtime.CompilerServices;
 using Fitpass.Application.Common.Exceptions;
-using Fitpass.Infrastructure.Common.Exceptions;
+using FitPass.Domain.Strings;
 using Microsoft.Extensions.Logging;
 using Stripe;
 
@@ -24,7 +24,7 @@ public static class StripeExceptionClassifier
         string devMadeErrorMessage = $"Stripe configuration or request error occured. Please contact support.";
         string userMadeErrorMessage = "The payment was declined by the bank. Please check card info or try another card.";
         string temporalErrorMessage = "A temporary issue occured while processing your request. Please try again shortly.";
-        string unexpectedErrorMessage = "An unexpected error occured, Please contact support.";
+        string unhandledErrorMessage = ErrorMessages.UnhandledErrorOccuredExternalService();
 
         return ex.HttpStatusCode switch
         {
@@ -37,11 +37,11 @@ public static class StripeExceptionClassifier
             HttpStatusCode.Forbidden or
             HttpStatusCode.NotFound => new StripeFailureDetails(StripeFailureType.InvalidRequest, devMadeErrorMessage, ex),
 
-            _ => new StripeFailureDetails(StripeFailureType.UnexpectedError, unexpectedErrorMessage, ex),
+            _ => new StripeFailureDetails(StripeFailureType.UnexpectedError, unhandledErrorMessage, ex),
         };
     }
 
-    public static void LogAndThrowApplicationException<T>(this StripeException ex, ILogger<T> logger, [CallerMemberName] string memberName = "", [CallerFilePath] string callerFilePath = "", [CallerLineNumber] int callerLineNumber = -1) where T : class
+    public static Exception LogAndGetApplicationException<T>(this StripeException ex, ILogger<T> logger, [CallerMemberName] string memberName = "", [CallerFilePath] string callerFilePath = "", [CallerLineNumber] int callerLineNumber = -1) where T : class
     {
         var failureDetails = ex.Classify();
 
@@ -55,10 +55,10 @@ public static class StripeExceptionClassifier
             callerLineNumber
         );
 
-        throw failureDetails.Type switch
+        return failureDetails.Type switch
         {
             StripeFailureType.PaymentDeclined => new PaymentRequiredException(failureDetails.UserErrorMessage),
-            StripeFailureType.Retryable => new ServiceUnavailableException(failureDetails.UserErrorMessage),
+            StripeFailureType.Retryable => new ExternalServiceUnavailableException(failureDetails.UserErrorMessage),
             _ => new Exception(failureDetails.UserErrorMessage)
         };
     }

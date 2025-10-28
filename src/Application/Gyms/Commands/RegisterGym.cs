@@ -1,4 +1,3 @@
-using System.Text.Json;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Security;

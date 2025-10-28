@@ -12,91 +12,45 @@ public class StripeCustomerService : IStripeCustomerService
     private readonly StripeSettings _settings;
     private readonly ILogger<StripeCustomerService> _logger;
     private readonly CustomerService _customerService;
-    private readonly IApplicationDbContext _context;
-
-    public StripeCustomerService(IOptions<StripeSettings> options, ILogger<StripeCustomerService> logger, CustomerService customerService, IApplicationDbContext context)
+    public StripeCustomerService(
+        IOptions<StripeSettings> options,
+        ILogger<StripeCustomerService> logger,
+        CustomerService customerService)
     {
         _settings = options.Value;
         _logger = logger;
         _customerService = customerService;
-        _context = context;
     }
 
-    public async Task CreateCustomer(ApplicationUser user)
+    public async Task<string> CreateStripeCustomer(UserProfile userProfile, string email)
     {
         try
         {
             var customerOptions = new CustomerCreateOptions
             {
-                Name = $"{user.FirstName} {user.LastName}",
-                Email = user.Email,
+                Name = $"{userProfile.FirstName} {userProfile.LastName}",
+                Email = email,
             };
 
             var customer = await _customerService.CreateAsync(customerOptions, null);
 
-            var paymentProfile = new UserPaymentProfile
-            {
-                ApplicationUserId = user.Id,
-                NonRegisteredUserId = null,
-                StripeCustomerId = customer.Id
-            };
-
-            await _context.UserPaymentProfiles.AddAsync(paymentProfile);
-
-            user.UserPaymentProfileId = paymentProfile.Id;
+            return customer.Id;
         }
         catch (StripeException ex)
         {
-            ex.LogAndThrowApplicationException<StripeCustomerService>(_logger);
+            throw ex.LogAndGetApplicationException(_logger);
         }
     }
 
-    public async Task DeleteCustomer(ApplicationUser user)
+    public async Task DeleteCustomerFromStripe(string stripecustomerId)
     {
         try
         {
-            if (user.PaymentProfile == null || user.PaymentProfile.StripeCustomerId == null)
-            {
-                _logger.LogWarning("Attempted to delete customer with '{UserId}' id from Stripe but they have no Stripe customer id.", user.Id);
-            }
-
-            await _customerService.DeleteAsync(user.PaymentProfile!.StripeCustomerId);
-
-            user.PaymentProfile.StripeCustomerId = null;
+            await _customerService.DeleteAsync(stripecustomerId);
         }
         catch (StripeException ex)
         {
-            ex.LogAndThrowApplicationException<StripeCustomerService>(_logger);
-        }
-    }
-
-    public async Task CreateCustomer(NonRegisteredUser user)
-    {
-        try
-        {
-            var customerOptions = new CustomerCreateOptions
-            {
-                Name = $"{user.FirstName} {user.LastName}",
-                Email = user.Email,
-                Phone = user.PhoneNumber
-            };
-
-            var customer = await _customerService.CreateAsync(customerOptions, null);
-
-            var paymentProfile = new UserPaymentProfile
-            {
-                ApplicationUserId = null,
-                NonRegisteredUserId = user.Id,
-                StripeCustomerId = customer.Id
-            };
-
-            await _context.UserPaymentProfiles.AddAsync(paymentProfile);
-
-            user.UserPaymentProfileId = paymentProfile.Id;
-        }
-        catch (StripeException ex)
-        {
-            ex.LogAndThrowApplicationException<StripeCustomerService>(_logger);
+            throw ex.LogAndGetApplicationException(_logger);
         }
     }
 }

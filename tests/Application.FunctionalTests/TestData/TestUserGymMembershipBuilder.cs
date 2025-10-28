@@ -133,7 +133,7 @@ public class TestUserGymMembershipBuilder : TestEntityBuilderBase<GymMembership>
 
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-        await context.UserGymMemberships.AddAsync(_userGymMembership);
+        await context.GymMemberships.AddAsync(_userGymMembership);
         await context.SaveChangesAsync();
 
         return _userGymMembership;

@@ -33,7 +33,7 @@ public class GetUserOwnedPassesForGymQueryHandler : IRequestHandler<GetUserOwned
     }
     public async Task<List<OwnedPassDto>> Handle(GetUserOwnedPassesForGymQuery query, CancellationToken cancellationToken)
     {
-        var userGymMembership = await _context.UserGymMemberships
+        var userGymMembership = await _context.GymMemberships
             .AsNoTracking()
             .Include(ugm => ugm.Passes)
             .FirstOrDefaultAsync(ugm => ugm.Id == query.UserGymMembershipId, cancellationToken);

@@ -5,17 +5,13 @@ namespace FitPass.Application.Common.Logging;
 
 public partial class LogCriticalMessages
 {
-    public static void AuthenticatedGymEmployeeGymEmploymentNotFound(ILogger logger, IEnumerable<string>? gymEmployeeRoles, string? gymEmployeeUserId, Exception? exception)
+    public static void FailedToFindGymEmployeeButHasGymEmployment(ILogger logger, IEnumerable<string>? gymEmployeeRoles, string userId, GymEmployment gymEmployment, Exception? exception)
     {
-        _authenticatedGymEmployeeGymEmploymentNotFound(logger, gymEmployeeRole, gymEmployeeUserId, exception);
-    }
-    public static void FailedToFindGymEmployeeButHasGymEmployment(ILogger logger, string gymEmployeeRole, string userId, GymEmployment gymEmployment, Exception? exception)
-    {
-        _failedToFindGymEmployeeButOwnsGymEmployment(logger, gymEmployeeRole, userId, gymEmployment, exception);
+        _failedToFindGymEmployeeButOwnsGymEmployment(logger, gymEmployeeRoles, userId, gymEmployment, exception);
     }
 
-    public static void AuthenticatedUserNotFound(ILogger logger, IEnumerable<string>? userRole, string? userId, Exception? exception)
+    public static void AuthenticatedUserRelatedEntityNotFound(ILogger logger, IEnumerable<string>? userRole, string? userId, string entityType)
     {
-        _authenticatedUserNotFound(logger, userRole, userId, exception);
+        _authenticatedUserRelatedEntityNotFound(logger, userRole, userId, entityType, null);
     }
 }

@@ -1,9 +1,11 @@
 using Fitpass.Application.Common.Exceptions;
 using FitPass.Application.ApplicationUsers.DTOs;
+using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Logging;
 using FitPass.Application.Extensions;
 using FitPass.Domain.Constants;
+using FitPass.Domain.Entities;
 using FitPass.Domain.Strings;
 using Microsoft.Extensions.Logging;
 
@@ -94,16 +96,37 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, T
                 throw new Exception(ErrorMessages.FailedToHandleRole(Roles.User, true, roleResult.Errors));
             }
 
-            /*
-            await _stripeCustomerService.CreateCustomer(user);
-    
-            user.AddDomainEvent(new UserRegisteredEvent(user));
-            */
-    
+            var userProfile = new UserProfile
+            {
+                ApplicationUserId = userId,
+                FirstName = command.FirstName,
+                LastName = command.LastName
+            };
+
+            await _context.UserProfiles.AddAsync(userProfile);
+
+            var stripeCustomerId = await _stripeCustomerService.CreateStripeCustomer(userProfile, command.Email);
+
+            var paymentProfile = new UserPaymentProfile
+            {
+                ApplicationUserId = userId,
+                StripeCustomerId = stripeCustomerId
+            };
+
+            await _context.UserPaymentProfiles.AddAsync(paymentProfile);
+
+            //user.AddDomainEvent(new UserRegisteredEvent(user));
+
             await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
         } catch (Exception ex)
         {
             await transaction.RollbackAsync();
+
+            if (ex.IsStripeServiceException())
+            {
+                throw;
+            }
 
             LogErrorMessages.UnhandledExceptionCaught(_logger, nameof(RegisterUserCommandHandler), ex);
 

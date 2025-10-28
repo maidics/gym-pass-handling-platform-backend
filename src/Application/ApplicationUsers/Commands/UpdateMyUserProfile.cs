@@ -26,18 +26,15 @@ public class UpdateMyUserProfileCommandValidator : AbstractValidator<UpdateMyUse
 
 public class UpdateMyUserProfileCommandHandler : IRequestHandler<UpdateMyUserProfileCommand>
 {
-    private readonly IIdentityService _identityService;
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
     private readonly ILogger<UpdateMyUserProfileCommandHandler> _logger;
 
     public UpdateMyUserProfileCommandHandler(
-        IIdentityService identityService,
         IApplicationDbContext context,
         IUser user,
         ILogger<UpdateMyUserProfileCommandHandler> logger)
     {
-        _identityService = identityService;
         _context = context;
         _user = user;
         _logger = logger;
@@ -45,18 +42,19 @@ public class UpdateMyUserProfileCommandHandler : IRequestHandler<UpdateMyUserPro
     
     public async Task Handle(UpdateMyUserProfileCommand command, CancellationToken cancellationToken) //TODO: test if this saves
     {
-        var result = await _identityService.UpdateUserFirstAndLastName(_user.Id!, command.FirstName, command.LastName);
+        var userProfile = await _context
+            .UserProfiles
+            .FindAsync(_user.Id!);
 
-        if (result.IsUserNotFoundFailure())
+        if (userProfile == null)
         {
-            LogCriticalMessages.AuthenticatedUserNotFound(_logger, _user.Roles, _user.Id, null);
-            throw new Exception(ErrorMessages.AuthenticatedUserNotFound());
+            LogCriticalMessages.AuthenticatedUserRelatedEntityNotFound(_logger, _user.Roles, _user.Id, nameof(userProfile));
+            throw new Exception(ErrorMessages.AuthenticatedUserRelatedEntityNotFound(nameof(userProfile)));
         }
 
-        if (!result.Succeeded)
-        {
-            LogErrorMessages.IdentityServiceMethodFailed(_logger, nameof(IIdentityService.UpdateUserFirstAndLastName), _user.Roles?[0], _user.Id, result);
-            throw new Exception("Failed to update user's first and last name.");
-        }
+        userProfile.FirstName = command.FirstName;
+        userProfile.LastName = command.LastName;
+
+        await _context.SaveChangesAsync();
     }
 }

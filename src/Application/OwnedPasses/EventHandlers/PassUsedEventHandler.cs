@@ -14,7 +14,7 @@ public class PassExpiredEventHandler : INotificationHandler<PassExpiredEvent>
     public async Task Handle(PassExpiredEvent notification, CancellationToken cancellationToken)
     {
         var pass = await _context
-            .OwnedPasses
+            .GymMembershipPasses
             .FirstOrDefaultAsync(op => op.Id == notification.Pass.Id);
 
         if (pass == null)
@@ -22,7 +22,7 @@ public class PassExpiredEventHandler : INotificationHandler<PassExpiredEvent>
             return;
         }
 
-        _context.OwnedPasses.Remove(pass);
+        _context.GymMembershipPasses.Remove(pass);
         await _context.SaveChangesAsync();
     }
 }

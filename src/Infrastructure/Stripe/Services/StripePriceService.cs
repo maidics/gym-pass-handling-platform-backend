@@ -40,7 +40,7 @@ public class StripePriceService : IStripePriceService
             gymPassProduct.StripePriceId = price.Id;
         } catch (StripeException ex)
         {
-            ex.LogAndThrowApplicationException<StripePriceService>(_logger);
+            ex.LogAndGetApplicationException<StripePriceService>(_logger);
         }
     }
 
@@ -65,7 +65,7 @@ public class StripePriceService : IStripePriceService
             gymPassProduct.StripePriceId = null;
         } catch (StripeException ex)
         {
-            ex.LogAndThrowApplicationException<StripePriceService>(_logger);
+            ex.LogAndGetApplicationException<StripePriceService>(_logger);
         }
     }
 }

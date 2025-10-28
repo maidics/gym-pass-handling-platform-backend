@@ -1,7 +1,6 @@
 ﻿using System.Security.Authentication;
 using System.Text.Json;
 using Fitpass.Application.Common.Exceptions;
-using Fitpass.Infrastructure.Common.Exceptions;
 using FitPass.Application.Common.Exceptions;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
@@ -24,7 +23,7 @@ public class CustomExceptionHandler : IExceptionHandler
                 { typeof(ConflictException), HandleConflictException },
                 { typeof(BadRequestException), HandleBadRequestException },
                 { typeof(PaymentRequiredException), HandlePaymentRequiredException },
-                { typeof(ServiceUnavailableException), HandleServiceUnavailableException },
+                { typeof(ExternalServiceUnavailableException), HandleServiceUnavailableException },
                 { typeof(InvalidCredentialException), HandleInvalidCredentialException}
             };
     }

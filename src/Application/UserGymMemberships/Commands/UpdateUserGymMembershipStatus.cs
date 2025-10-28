@@ -37,7 +37,7 @@ public class UpdateUserGymMembershipStatusCommandHandler : IRequestHandler<Updat
 
         Guard.Against.Null(gymStaffAssigment, "Id", "Failed to find currently logged in Gym Admin or Gym Staff member.");
 
-        var userGymMembership = await _context.UserGymMemberships.FindAsync(command.UserGymMembershipId, cancellationToken);
+        var userGymMembership = await _context.GymMemberships.FindAsync(command.UserGymMembershipId, cancellationToken);
 
         Guard.Against.NotFound(command.UserGymMembershipId, userGymMembership, "Id");
 
