@@ -52,8 +52,8 @@ public class LogInUserCommandHandler : IRequestHandler<LogInUserCommand, TokenRe
 
         if (userId == null)
         {
-            _logger.LogError("User authentication succeeded but failed to find user with '{UserEmail}' after.", command.Email);
-            throw new ForbiddenAccessException();
+            _logger.LogError("User authentication succeeded but failed to find user with '{UserEmail}' email after.", command.Email);
+            throw new UnauthorizedAccessException();
         }
 
         var jwtResponse = await _jwtTokenService.GenerateTokenAsync(userId, cancellationToken);

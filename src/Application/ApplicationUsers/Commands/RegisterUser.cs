@@ -3,7 +3,6 @@ using FitPass.Application.ApplicationUsers.DTOs;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Extensions;
 using FitPass.Domain.Constants;
-using FitPass.Domain.Entities;
 using FitPass.Domain.Strings;
 using Microsoft.Extensions.Logging;
 

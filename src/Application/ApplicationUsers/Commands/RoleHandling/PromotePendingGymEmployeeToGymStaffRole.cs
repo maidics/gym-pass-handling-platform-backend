@@ -1,5 +1,5 @@
 using FitPass.Application.Common.Interfaces;
-using FitPass.Application.Common.Models;
+using FitPass.Application.Common.Logging;
 using FitPass.Application.Common.Security;
 using FitPass.Application.Extensions;
 using FitPass.Domain.Constants;
@@ -47,7 +47,7 @@ public class PromotePendingGymEmployeeToGymStaffRoleCommandHandler : IRequestHan
 
         if (promoterGymAdminEmployment == null)
         {
-            _logger.LogError("Promoter GymAdmin's GymEmployment (currently logged in) not found ({GymAdminId})", _user.Id);
+            LogCriticalMessages.AuthenticatedGymEmployeeGymEmploymentNotFound(_logger, Roles.GymAdministrator, _user.Id, null);
             throw new UnauthorizedAccessException();
         }
 
@@ -63,17 +63,10 @@ public class PromotePendingGymEmployeeToGymStaffRoleCommandHandler : IRequestHan
 
                 if (demotionResult.IsUserNotFoundFailure())
                 {
-                    _logger.LogError("IdentityService failed to find ({UserId}) user", command.UserId);
                     throw new NotFoundException(command.UserId, "User");
                 } else
                 {
-                    _logger.LogError(
-                        "Failed to remove {OldRole} ({UserId}) from {Role} role. Result: {Result}",
-                        Roles.PendingGymEmployee,
-                        command.UserId,
-                        Roles.PendingGymEmployee,
-                        demotionResult
-                    );
+                    LogErrorMessages.FailedToRemoveUserFromTheirRole(_logger, Roles.PendingGymEmployee, command.UserId, demotionResult, null);
                     
                     throw new Exception(ErrorMessages.FailedToHandleRole(Roles.PendingGymEmployee, false, demotionResult.Errors));
                 }
@@ -81,26 +74,13 @@ public class PromotePendingGymEmployeeToGymStaffRoleCommandHandler : IRequestHan
 
             var promotionResult = await _identityService.AddToRoleAsync(command.UserId, Roles.GymStaff);
 
-            if (!promotionResult.Succeeded)
+            if (!promotionResult.Succeeded) //cannot be user not found if demotion succeeds
             {
                 await transaction.RollbackAsync();
 
-                if (promotionResult.IsUserNotFoundFailure())
-                {
-                    _logger.LogError("Previously removed {OldRole} not found when adding them to role.", Roles.PendingGymEmployee);
-                    throw new NotFoundException(command.UserId, "User");
-                } else
-                {
-                    _logger.LogError(
-                        "Failed to add previous {OldRole} ({UserId}) to {NewRole} role. Result: {Result}",
-                        Roles.PendingGymEmployee,
-                        command.UserId,
-                        Roles.GymStaff,
-                        promotionResult
-                    );
+                LogErrorMessages.FailedToAddUserToRole(_logger, command.UserId, Roles.GymStaff, promotionResult, null);
 
-                    throw new Exception(ErrorMessages.FailedToHandleRole(Roles.GymStaff, true, promotionResult.Errors));
-                }
+                throw new Exception(ErrorMessages.FailedToHandleRole(Roles.GymStaff, true, promotionResult.Errors));
             }
 
             var gymEmployment = new GymEmployment
@@ -116,7 +96,7 @@ public class PromotePendingGymEmployeeToGymStaffRoleCommandHandler : IRequestHan
 
         } catch (Exception ex)
         {
-            _logger.LogError(ex, "Unhandled exception caught.");
+            LogErrorMessages.UnhandledExceptionCaught(_logger, nameof(PromotePendingGymEmployeeToGymStaffRoleCommandHandler), ex);
 
             await transaction.RollbackAsync();
 

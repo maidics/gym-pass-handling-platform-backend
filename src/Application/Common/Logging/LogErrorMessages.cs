@@ -19,4 +19,9 @@ public partial class LogErrorMessages
     {
         _unhandledExceptionCaught(logger, context, exception);
     }
+
+    public static void RegistrationFailed(ILogger logger, string userRole, Result result, Exception? exception)
+    {
+        _registrationFailed(logger, userRole, result, exception);
+    }
 }

@@ -1,6 +1,7 @@
 ﻿using Fitpass.Application.Common.Exceptions;
 using FitPass.Application.ApplicationUsers.DTOs;
 using FitPass.Application.Common.Interfaces;
+using FitPass.Application.Common.Logging;
 using FitPass.Application.Extensions;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Strings;
@@ -67,10 +68,12 @@ public class RegisterPendingGymEmployeeCommandHandler : IRequestHandler<Register
             {
                 await transaction.RollbackAsync();
 
-                _logger.LogError("{Role} registration failed. Result: {Result}", Roles.PendingGymEmployee, result);
+                LogErrorMessages.RegistrationFailed(_logger, Roles.PendingGymEmployee, result.result, null);
 
                 throw new BadRequestException(string.Join(", ", result.result.Errors));
             }
+
+            userId = result.userId!;
 
             var roleResult = await _identityService.AddToRoleAsync(result.userId!, Roles.GymAdministrator);
 
@@ -78,17 +81,15 @@ public class RegisterPendingGymEmployeeCommandHandler : IRequestHandler<Register
             {
                 await transaction.RollbackAsync();
 
-                _logger.LogError("Failed to add ({UserId}) user to {Role}. Result: {Result}", result.userId, Roles.PendingGymEmployee, roleResult);
+                LogErrorMessages.FailedToAddUserToRole(_logger, userId, Roles.PendingGymEmployee, roleResult, null);
 
                 throw new BadRequestException(string.Join(", ", roleResult.Errors));
             }
 
             await transaction.CommitAsync();
-
-            userId = result.userId!;
         } catch (Exception ex)
         {
-            _logger.LogError(ex, "Unhandled exception caught.");
+            LogErrorMessages.UnhandledExceptionCaught(_logger, nameof(RegisterPendingGymEmployeeCommandHandler), ex);
 
             await transaction.RollbackAsync();
 

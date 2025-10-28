@@ -1,7 +1,6 @@
-using Fitpass.Application.Common.Exceptions;
 using FitPass.Application.Common.Interfaces;
+using FitPass.Application.Common.Logging;
 using FitPass.Application.Common.Security;
-using FitPass.Domain.Strings;
 using Microsoft.Extensions.Logging;
 
 namespace FitPass.Application.ApplicationUsers.Commands;
@@ -30,7 +29,7 @@ public class DeleteMyAccountCommandHandler : IRequestHandler<DeleteMyAccountComm
 
         if (result.IsUserNotFoundFailure())
         {
-            _logger.LogError("Authenticated [{Roles}] user ({UserId}) not found.", _user.Roles, _user.Id);
+            LogCriticalMessages.AuthenticatedUserNotFound(_logger, _user.Roles, _user.Id, null);
             throw new UnauthorizedAccessException();
         }
 

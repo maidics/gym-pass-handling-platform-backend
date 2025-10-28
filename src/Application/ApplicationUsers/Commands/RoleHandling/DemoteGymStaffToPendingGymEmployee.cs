@@ -46,7 +46,7 @@ public class DemoteGymStaffToPendingGymEmployeeCommandHandler : IRequestHandler<
 
         if (demoterGymAdminEmployment == null)
         {
-            LogCriticalMessages.GymEmployeeGymEmploymentNotFound(_logger, Roles.GymAdministrator, _user.Id!, null);
+            LogCriticalMessages.AuthenticatedGymEmployeeGymEmploymentNotFound(_logger, Roles.GymAdministrator, _user.Id, null);
             throw new UnauthorizedAccessException();
         }
 
@@ -86,22 +86,13 @@ public class DemoteGymStaffToPendingGymEmployeeCommandHandler : IRequestHandler<
 
             var promotionResult = await _identityService.AddToRoleAsync(command.UserId, Roles.PendingGymEmployee);
 
-            if (!promotionResult.Succeeded)
+            if (!promotionResult.Succeeded) //cannot be user not found if demotion succeeds
             {
                 await transaction.RollbackAsync();
 
-                if (promotionResult.IsUserNotFoundFailure())
-                {
-                    LogCriticalMessages.FailedToFindGymEmployeeButHasGymEmployment(_logger, Roles.GymStaff, command.UserId, gymStaffGymEmployment, null);
+                LogErrorMessages.FailedToAddUserToRole(_logger, command.UserId, Roles.PendingGymEmployee, promotionResult, null);
 
-                    throw new NotFoundException(command.UserId, "User");
-                }
-                else
-                {
-                    LogErrorMessages.FailedToAddUserToRole(_logger, command.UserId, Roles.PendingGymEmployee, promotionResult, null);
-
-                    throw new Exception(ErrorMessages.FailedToHandleRole(Roles.PendingGymEmployee, true, promotionResult.Errors));
-                }
+                throw new Exception(ErrorMessages.FailedToHandleRole(Roles.PendingGymEmployee, true, promotionResult.Errors));
             }
 
             _context.GymEmployments.Remove(gymStaffGymEmployment);
