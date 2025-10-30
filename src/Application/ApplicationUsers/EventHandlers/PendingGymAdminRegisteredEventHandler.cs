@@ -1,9 +1,9 @@
 ﻿using FitPass.Application.Common.Interfaces;
-using FitPass.Domain.Events.Users;
 using FitPass.Domain.Strings;
 
 namespace FitPass.Application.ApplicationUsers.EventHandlers;
 
+/*
 public class PendingGymAdminRegisteredEventHandler : INotificationHandler<PendingGymAdminRegisteredEvent>
 {
     private readonly ILocalDevEmailService _localDevEmailService;
@@ -16,3 +16,4 @@ public class PendingGymAdminRegisteredEventHandler : INotificationHandler<Pendin
         await _localDevEmailService.SendEmailAsync(notification.User.Email!, EmailBodies.Placeholder(), EmailBodies.Placeholder());
     }
 }
+*/

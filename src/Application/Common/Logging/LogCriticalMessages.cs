@@ -10,8 +10,8 @@ public partial class LogCriticalMessages
         _failedToFindGymEmployeeButOwnsGymEmployment(logger, gymEmployeeRoles, userId, gymEmployment, exception);
     }
 
-    public static void AuthenticatedUserRelatedEntityNotFound(ILogger logger, IEnumerable<string>? userRole, string? userId, string entityType)
+    public static void AuthenticatedUserRelatedEntityNotFound(ILogger logger, IEnumerable<string>? userRoles, string? userId, string entityType)
     {
-        _authenticatedUserRelatedEntityNotFound(logger, userRole, userId, entityType, null);
+        _authenticatedUserRelatedEntityNotFound(logger, userRoles, userId, entityType, null);
     }
 }

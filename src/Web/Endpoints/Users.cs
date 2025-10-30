@@ -87,7 +87,7 @@ public class Users : EndpointGroupBase
 
     public async Task<Ok<List<ApplicationUserDto>>> GetGymManagementUsers(ISender sender, [FromRoute] string gymId, CancellationToken cancellationToken)
     {
-        var result = await sender.Send(new GetGymStaffQuery(gymId), cancellationToken);
+        var result = await sender.Send(new GetGymEmploymentsByGymIdQuery(gymId), cancellationToken);
 
         return TypedResults.Ok(result);
     }
@@ -101,7 +101,7 @@ public class Users : EndpointGroupBase
 
     public async Task<Ok<ApplicationUserProfileDataDto>> GetMyUserProfileData(ISender sender, CancellationToken cancellationToken)
     {
-        var result = await sender.Send(new GetMyUserProfileDataQuery(), cancellationToken);
+        var result = await sender.Send(new GetMyUserProfileQuery(), cancellationToken);
 
         return TypedResults.Ok(result);
     }

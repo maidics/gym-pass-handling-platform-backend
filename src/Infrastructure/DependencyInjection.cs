@@ -9,6 +9,7 @@ using FitPass.Domain.Entities;
 using FitPass.Infrastructure.Data;
 using FitPass.Infrastructure.Data.DbSeed;
 using FitPass.Infrastructure.Data.Interceptors;
+using FitPass.Infrastructure.Data.Queries;
 using FitPass.Infrastructure.Identity;
 using FitPass.Infrastructure.Services;
 using FitPass.Infrastructure.Services.Email;
@@ -81,6 +82,8 @@ public static class DependencyInjection
         builder.Services.AddScoped<IStripeCustomerService, StripeCustomerService>();
         builder.Services.AddScoped<IStripeProductService, StripeProductService>();
         builder.Services.AddScoped<IStripePriceService, StripePriceService>();
+
+        builder.Services.AddScoped<IQueryService, QueryService>();
 
         builder.Services.AddAuthentication(options =>
         {

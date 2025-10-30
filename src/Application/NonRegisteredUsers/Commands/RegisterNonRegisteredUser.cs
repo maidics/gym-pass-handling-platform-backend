@@ -1,11 +1,10 @@
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Extensions;
 using FitPass.Domain.Constants;
-using FitPass.Domain.Entities;
 using FitPass.Domain.Strings;
 
 namespace FitPass.Application.NonRegisteredUsers.Commands;
-
+/*
 public record RegisterNonRegisteredUserCommand
 (
     string? NonRegisteredUserEmail,
@@ -114,3 +113,4 @@ public class RegisterNonRegisteredUserCommandHandler : IRequestHandler<RegisterN
         await _context.SaveChangesAsync();
     }
 }
+*/

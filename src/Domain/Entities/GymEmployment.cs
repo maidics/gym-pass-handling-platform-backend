@@ -9,4 +9,5 @@ public class GymEmployment : BaseEntity
     public DateTimeOffset EmploymentStart = DateTimeOffset.UtcNow;
     public DateTimeOffset? EmploymentEnd = null;
     public Gym? Gym { get; set; }
+    public UserProfile? UserProfile { get; set; }
 }
