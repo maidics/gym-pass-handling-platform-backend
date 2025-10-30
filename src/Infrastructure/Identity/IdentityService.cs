@@ -13,14 +13,18 @@ public class IdentityService : IIdentityService
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IUserClaimsPrincipalFactory<ApplicationUser> _userClaimsPrincipalFactory;
     private readonly IAuthorizationService _authorizationService;
+    private readonly ILogger<IdentityService> _logger;
+
     public IdentityService(
         UserManager<ApplicationUser> userManager,
         IUserClaimsPrincipalFactory<ApplicationUser> userClaimsPrincipalFactory,
-        IAuthorizationService authorizationService)
+        IAuthorizationService authorizationService,
+        ILogger<IdentityService> logger)
     {
         _userManager = userManager;
         _userClaimsPrincipalFactory = userClaimsPrincipalFactory;
         _authorizationService = authorizationService;
+        _logger = logger;
     }
 
     public async Task<bool> IsInRoleAsync(string userId, string role, CancellationToken cancellationToken = default)
@@ -67,7 +71,7 @@ public class IdentityService : IIdentityService
         return result.ToApplicationResult();
     }
 
-    public async Task<(Result result, string? userId)> CreateUserAsync(string email, string password, string firstName, string lastName, CancellationToken cancellationToken = default)
+    public async Task<(Result result, string? userId)> CreateUserAsync(string email, string password, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
@@ -75,11 +79,24 @@ public class IdentityService : IIdentityService
         {
             Email = email,
             UserName = email,
-            FirstName = firstName,
-            LastName = lastName
         };
 
         var result = await _userManager.CreateAsync(user, password);
+
+        return (result.ToApplicationResult(), result.Succeeded ? user.Id : null);
+    }
+
+    public async Task<(Result result, string? userId)> CreateUserAsync(string email, CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var user = new ApplicationUser
+        {
+            Email = email,
+            UserName = email,
+        };
+
+        var result = await _userManager.CreateAsync(user);
 
         return (result.ToApplicationResult(), result.Succeeded ? user.Id : null);
     }
@@ -185,7 +202,7 @@ public class IdentityService : IIdentityService
         return result;
     }
 
-    public async Task<string?> GetUserIdByEmail(string email, CancellationToken cancellationToken = default)
+    public async Task<string?> GetUserIdByEmailAsync(string email, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
@@ -222,10 +239,48 @@ public class IdentityService : IIdentityService
         return result.ToApplicationResult();
     }
 
-    public async Task<bool> IsEmailInUse(string email, CancellationToken cancellationToken = default)
+    public async Task<bool> IsEmailInUseAsync(string email, CancellationToken cancellationToken = default)
     {
         var user = await _userManager.FindByEmailAsync(email);
 
         return user != null;
+    }
+
+    public async Task<bool> DoesUserExist(string userId, CancellationToken cancellationToken = default)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+
+        return user != null;
+    }
+
+    public async Task<Result> AddPasswordToUserWithNoPasswordAsync(string userId, string password)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+
+        if (user == null)
+        {
+            return Result.Failure([ErrorMessages.UserNotFound()]);
+        }
+
+        if (user.PasswordHash != null)
+        {
+            return Result.Failure([ResultErrorMessages.UserAlreadyHasPassword()]);
+        }
+
+        var result = await _userManager.AddPasswordAsync(user, password);
+
+        return result.ToApplicationResult();
+    }
+    
+    public async Task<string?> GenerateEmailConfirmationTokenAsync(string userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+
+        if (user == null)
+        {
+            return null;
+        }
+
+        return await _userManager.GenerateEmailConfirmationTokenAsync(user);
     }
 }

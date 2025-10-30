@@ -56,7 +56,7 @@ public class LogInUserCommandHandler : IRequestHandler<LogInUserCommand, TokenRe
             throw new Exception("Failed to authenticate user.");
         }
 
-        var userId = await _identityService.GetUserIdByEmail(command.Email);
+        var userId = await _identityService.GetUserIdByEmailAsync(command.Email);
 
         if (userId == null)
         {

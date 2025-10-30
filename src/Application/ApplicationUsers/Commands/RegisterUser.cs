@@ -61,7 +61,7 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, T
     }
     public async Task<TokenResponse> Handle(RegisterUserCommand command, CancellationToken cancellationToken)
     {
-        if (await _identityService.IsEmailInUse(command.Email))
+        if (await _identityService.IsEmailInUseAsync(command.Email))
         {
             throw new ConflictException(ErrorMessages.PropertyIsAlreadyInUse(nameof(RegisterUserCommand.Email)));
         }

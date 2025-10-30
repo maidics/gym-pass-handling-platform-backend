@@ -22,14 +22,4 @@ public class Result
     {
         return new Result(false, errors);
     }
-
-    public bool IsUserNotFoundFailure()
-    {
-        return !Succeeded && Errors.Length == 1 && Errors.First() == ErrorMessages.UserNotFound();
-    }
-
-    public bool IsInvalidCredentialsFailure()
-    {
-        return !Succeeded && Errors.Length == 1 && Errors.First() == ErrorMessages.InvalidCredentials();
-    }
 }

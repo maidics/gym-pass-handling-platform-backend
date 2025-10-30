@@ -68,7 +68,7 @@ public static class ValidationExtensions
     public static IRuleBuilder<T, string> ValidEmailAddress<T>(this IRuleBuilder<T, string> rule, string emailPropertyName)
     {
         return rule
-            .NotEmptyWithMessage(emailPropertyName)
+            .NotEmptyWithMaxLenghtAndMessage(emailPropertyName, MaxStringLengths.Email)
             .EmailAddress().WithMessage(ErrorMessages.InvalidEmailAddress(emailPropertyName));
     }
 

@@ -15,7 +15,7 @@ public class GymWithMembersDto
     public required DateTimeOffset CreationDate { get; set; }
     public string? OwnerName { get; set; }
     public required List<GymPassProductDto>? GymPassProducts { get; set; }
-    public required List<UserGymMembershipDto> UserGymMemberships { get; set; }
+    public required List<GymMembershipDto> UserGymMemberships { get; set; }
 
     private class Mapping : Profile
     {

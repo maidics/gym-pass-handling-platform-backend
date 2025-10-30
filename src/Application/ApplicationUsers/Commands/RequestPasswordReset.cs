@@ -27,7 +27,7 @@ public class RequestPasswordResetEmailCommandHandler : IRequestHandler<RequestPa
 
     public async Task Handle(RequestPasswordResetEmailCommand command, CancellationToken cancellationToken)
     {
-        var userId = await _identityService.GetUserIdByEmail(command.Email);
+        var userId = await _identityService.GetUserIdByEmailAsync(command.Email);
 
         if (userId == null)
         {

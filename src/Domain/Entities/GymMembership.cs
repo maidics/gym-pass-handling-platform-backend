@@ -1,6 +1,6 @@
 namespace FitPass.Domain.Entities;
 
-public class GymMembership : BaseEntity
+public class GymMembership : BaseAuditableEntity
 {
     public required string? ApplicationUserId { get; set; }
     public required string? GymId { get; set; }
