@@ -43,21 +43,21 @@ public class Users : EndpointGroupBase
         groupBuilder.MapGet(GetMyGymManagementUser, "GymManagement/My/{gymManagementUserId}").RequireAuthorization();
     }
 
-    public async Task<Ok<TokenResponse>> RegisterUser(ISender sender, [FromBody] RegisterUserCommand command, CancellationToken cancellationToken)
+    public async Task<Ok<JwtToken>> RegisterUser(ISender sender, [FromBody] RegisterUserCommand command, CancellationToken cancellationToken)
     {
         var result = await sender.Send(command, cancellationToken);
 
         return TypedResults.Ok(result);
     }
 
-    public async Task<Ok<TokenResponse>> LogInUser(ISender sender, [FromBody] LogInUserCommand command, CancellationToken cancellationToken)
+    public async Task<Ok<JwtToken>> LogInUser(ISender sender, [FromBody] LogInUserCommand command, CancellationToken cancellationToken)
     {
         var result = await sender.Send(command, cancellationToken);
 
         return TypedResults.Ok(result);
     }
 
-    public async Task<Ok<TokenResponse>> RegisterPendingGymManagement(ISender sender, [FromBody] RegisterPendingGymEmployeeCommand command, CancellationToken cancellationToken)
+    public async Task<Ok<JwtToken>> RegisterPendingGymManagement(ISender sender, [FromBody] RegisterPendingGymEmployeeCommand command, CancellationToken cancellationToken)
     {
         var result = await sender.Send(command, cancellationToken);
 

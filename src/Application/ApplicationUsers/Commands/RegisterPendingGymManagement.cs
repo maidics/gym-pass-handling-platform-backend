@@ -16,7 +16,7 @@ public record RegisterPendingGymEmployeeCommand
         string Email,
         string Password,
         string PasswordConfirm
-    ): IRequest<TokenResponse>;
+    ): IRequest<JwtToken>;
 
 public class RegisterPendingGymEmployeeCommandValidator : AbstractValidator<RegisterPendingGymEmployeeCommand>
 {
@@ -36,7 +36,7 @@ public class RegisterPendingGymEmployeeCommandValidator : AbstractValidator<Regi
     }
 }
 
-public class RegisterPendingGymEmployeeCommandHandler : IRequestHandler<RegisterPendingGymEmployeeCommand, TokenResponse>
+public class RegisterPendingGymEmployeeCommandHandler : IRequestHandler<RegisterPendingGymEmployeeCommand, JwtToken>
 {
     private readonly IIdentityService _identityService;
     private readonly IJwtTokenService _jwtTokenService;
@@ -54,7 +54,7 @@ public class RegisterPendingGymEmployeeCommandHandler : IRequestHandler<Register
         _context = context;
         _logger = logger;
     }
-    public async Task<TokenResponse> Handle(RegisterPendingGymEmployeeCommand command, CancellationToken cancellationToken)
+    public async Task<JwtToken> Handle(RegisterPendingGymEmployeeCommand command, CancellationToken cancellationToken)
     {
         using var transaction = await _context.BeginTransactionAsync();
 

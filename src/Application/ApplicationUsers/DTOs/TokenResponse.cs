@@ -1,6 +1,6 @@
 ﻿namespace FitPass.Application.ApplicationUsers.DTOs;
 
-public record TokenResponse
+public record JwtToken
 {
     public required string AccessToken { get; init; }
     public required int ExpiresIn { get; init; }

@@ -4,5 +4,5 @@ namespace FitPass.Application.Common.Interfaces;
 
 public interface IJwtTokenService
 {
-    public Task<TokenResponse> GenerateTokenAsync(string userId, CancellationToken cancellationToken);
+    public Task<JwtToken> GenerateTokenAsync(string userId, CancellationToken cancellationToken);
 }

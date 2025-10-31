@@ -4,6 +4,7 @@ using System.Text;
 using Fitpass.Infrastructure.Data.Interceptors;
 using Fitpass.Infrastructure.Services.Email;
 using Fitpass.Infrastructure.Stripe.Services;
+using FitPass.Application.Common.Configuration;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Domain.Entities;
 using FitPass.Infrastructure.Data;
@@ -51,8 +52,7 @@ public static class DependencyInjection
 
         builder.Services.AddScoped<ApplicationDbContextInitialiser>();
 
-        builder.Services.AddAuthentication()
-            .AddBearerToken(IdentityConstants.BearerScheme);
+        builder.Services.AddAuthentication().AddBearerToken(IdentityConstants.BearerScheme);
 
         builder.Services.AddAuthorizationBuilder();
 
@@ -65,15 +65,15 @@ public static class DependencyInjection
         builder.Services.AddSingleton(TimeProvider.System);
         builder.Services.AddTransient<IIdentityService, FitPass.Infrastructure.Identity.IdentityService>();
 
-        builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));
+        builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection(ConfigurationSections.Jwt));
         builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 
-        builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("Email"));
+        builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection(ConfigurationSections.Email));
         builder.Services.AddTransient<ILocalDevEmailService, LocalDevEmailService>();
 
         builder.Services.AddTransient<IQrCodeService, QrCodeService>();
 
-        builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection(StripeSettings.SectionName));
+        builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection(ConfigurationSections.Stripe));
 
         builder.Services.AddScoped<CustomerService>();
         builder.Services.AddScoped<ProductService>();
@@ -93,12 +93,11 @@ public static class DependencyInjection
         })
             .AddJwtBearer(options =>
             {
-                string jwtSectionKey = "Jwt"; 
-                var jwtSettings = builder.Configuration.GetSection(jwtSectionKey).Get<JwtSettings>();
+                var jwtSettings = builder.Configuration.GetSection(ConfigurationSections.Jwt).Get<JwtSettings>();
 
                 if (jwtSettings == null)
                 {
-                    throw new ArgumentException($"Jwt section not found with '{jwtSectionKey}' key.");
+                    throw new ArgumentException($"Jwt section not found with '{ConfigurationSections.Jwt}' key.");
                 }
 
                 options.TokenValidationParameters = new TokenValidationParameters

@@ -7,8 +7,8 @@ using Microsoft.Extensions.Logging;
 namespace FitPass.Application.ApplicationUsers.Commands;
 
 public record ResetPasswordCommand(
-    string UserId,
-    string PasswordResetToken,
+    string EncodedUserId,
+    string EncodedPasswordResetToken,
     string NewPassword,
     string NewPasswordConfirm
 ) : IRequest;
@@ -17,9 +17,9 @@ public class ResetPasswordCommandValidator : AbstractValidator<ResetPasswordComm
 {
     public ResetPasswordCommandValidator()
     {
-        RuleFor(v => v.UserId).NotEmptyWithMessage(nameof(ResetPasswordCommand.UserId));
+        RuleFor(v => v.EncodedUserId).NotEmptyWithMessage(nameof(ResetPasswordCommand.EncodedUserId));
 
-        RuleFor(v => v.PasswordResetToken).NotEmptyWithMessage(nameof(ResetPasswordCommand.PasswordResetToken));
+        RuleFor(v => v.EncodedPasswordResetToken).NotEmptyWithMessage(nameof(ResetPasswordCommand.EncodedPasswordResetToken));
 
         RuleFor(v => v.NewPassword).StrongPassword();
 
@@ -43,11 +43,20 @@ public class ResetPasswordCommandHandler : IRequestHandler<ResetPasswordCommand>
 
     public async Task Handle(ResetPasswordCommand command, CancellationToken cancellationToken)
     {
-        var result = await _identityService.ResetPasswordAsync(command.UserId, command.PasswordResetToken, command.NewPassword);
+        var userId = Uri.UnescapeDataString(command.EncodedUserId);
+        var passwordResetToken = Uri.UnescapeDataString(command.EncodedPasswordResetToken);
+
+        var result = await _identityService.ResetPasswordAsync(userId, passwordResetToken, command.NewPassword);
 
         if (!result.Succeeded)
         {
-            LogErrorMessages.IdentityServiceMethodFailed(_logger, nameof(IIdentityService.ResetPasswordAsync), null, command.UserId, result);
+            LogErrorMessages.IdentityServiceMethodFailed(
+                _logger,
+                nameof(IIdentityService.ResetPasswordAsync),
+                null,
+                userId,
+                result);
+                
             throw new InvalidOperationException("Password reset returned with failure.");
         }
     }

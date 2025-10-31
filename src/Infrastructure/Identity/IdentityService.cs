@@ -107,9 +107,19 @@ public class IdentityService : IIdentityService
 
         var user = await _userManager.FindByEmailAsync(email);
 
+        if (user == null)
+        {
+            return Result.Failure([ErrorMessages.InvalidCredentials()]);
+        }
+
+        if (user.PasswordHash == null)
+        {
+            return Result.Failure([ErrorMessages.UserAccountIsNotActivated()]);
+        }
+
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (user == null || !await _userManager.CheckPasswordAsync(user, password))
+        if (!await _userManager.CheckPasswordAsync(user, password))
         {
             return Result.Failure([ErrorMessages.InvalidCredentials()]);
         }
@@ -253,9 +263,9 @@ public class IdentityService : IIdentityService
         return user != null;
     }
 
-    public async Task<Result> AddPasswordToUserWithNoPasswordAsync(string userId, string password)
+    public async Task<Result> AddPasswordToUserWithNoPasswordAsync(string email, string password)
     {
-        var user = await _userManager.FindByIdAsync(userId);
+        var user = await _userManager.FindByEmailAsync(email);
 
         if (user == null)
         {
@@ -271,7 +281,7 @@ public class IdentityService : IIdentityService
 
         return result.ToApplicationResult();
     }
-    
+
     public async Task<string?> GenerateEmailConfirmationTokenAsync(string userId)
     {
         var user = await _userManager.FindByIdAsync(userId);
@@ -282,5 +292,24 @@ public class IdentityService : IIdentityService
         }
 
         return await _userManager.GenerateEmailConfirmationTokenAsync(user);
+    }
+    
+    public async Task<Result> ConfirmEmailAsync(string email, string emailConfirmationToken)
+    {
+        var user = await _userManager.FindByEmailAsync(email);
+
+        if (user == null)
+        {
+            return Result.Failure([ErrorMessages.UserNotFound()]);
+        }
+
+        var result = await _userManager.ConfirmEmailAsync(user, emailConfirmationToken);
+
+        if (!result.Succeeded && result.Errors.Any(e => e.Code == "Invalidtoken"))
+        {
+            return Result.Failure([ErrorMessages.TokenIsInvalid("Error confirmation")]);
+        }
+
+        return result.ToApplicationResult();
     }
 }

@@ -18,7 +18,7 @@ public record RegisterUserCommand
         string Email,
         string Password,
         string PasswordConfirm
-    ) : IRequest<TokenResponse>;
+    ) : IRequest<JwtToken>;
 
 public class RegisterUserCommandValidator : AbstractValidator<RegisterUserCommand>
 {
@@ -38,7 +38,7 @@ public class RegisterUserCommandValidator : AbstractValidator<RegisterUserComman
     }
 }
 
-public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, TokenResponse>
+public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, JwtToken>
 {
     private readonly IIdentityService _identityService;
     private readonly IApplicationDbContext _context;
@@ -59,7 +59,7 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, T
         _jwtTokenService = jwtTokenService;
         _logger = logger;
     }
-    public async Task<TokenResponse> Handle(RegisterUserCommand command, CancellationToken cancellationToken)
+    public async Task<JwtToken> Handle(RegisterUserCommand command, CancellationToken cancellationToken)
     {
         if (await _identityService.IsEmailInUseAsync(command.Email))
         {

@@ -19,7 +19,7 @@ public class JwtTokenService : IJwtTokenService
         _identityService = identityService;
         _settings = options.Value;
     }
-    public async Task<TokenResponse> GenerateTokenAsync(string userId, CancellationToken cancellationToken)
+    public async Task<JwtToken> GenerateTokenAsync(string userId, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
@@ -61,7 +61,7 @@ public class JwtTokenService : IJwtTokenService
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        return new TokenResponse
+        return new JwtToken
         {
             AccessToken = accessToken,
             ExpiresIn = expiryMinutes * 60

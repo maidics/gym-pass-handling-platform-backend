@@ -1,4 +1,5 @@
 using Fitpass.Application.Common.Exceptions;
+using FitPass.Application.ApplicationUsers.Commands.Emails;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Logging;
 using FitPass.Application.Common.Security;
@@ -32,6 +33,7 @@ public class GymEmployeeRegisterUserCommandHandler : IRequestHandler<GymEmployee
     private readonly IUser _user;
     private readonly ILogger<GymEmployeeRegisterUserCommand> _logger;
     private readonly IIdentityService _identityService;
+    private readonly ISender _sender;
     private readonly IMapper _mapper;
 
     public GymEmployeeRegisterUserCommandHandler(
@@ -39,12 +41,14 @@ public class GymEmployeeRegisterUserCommandHandler : IRequestHandler<GymEmployee
         IUser user,
         ILogger<GymEmployeeRegisterUserCommand> logger,
         IIdentityService identityService,
+        ISender sender,
         IMapper mapper)
     {
         _context = context;
         _user = user;
         _logger = logger;
         _identityService = identityService;
+        _sender = sender;
         _mapper = mapper;
     }
     public async Task<GymMembershipDto> Handle(GymEmployeeRegisterUserCommand command, CancellationToken cancellationToken)
@@ -117,9 +121,11 @@ public class GymEmployeeRegisterUserCommandHandler : IRequestHandler<GymEmployee
             };
 
             await _context.GymMemberships.AddAsync(gymMembership);
-
             await _context.SaveChangesAsync();
+
             await transaction.CommitAsync();
+
+            await _sender.Send(new SendEmailConfirmationEmailCommand(command.Email)); //fire and forget?
 
             return _mapper.Map<GymMembershipDto>(gymMembership);
         } catch (Exception ex)

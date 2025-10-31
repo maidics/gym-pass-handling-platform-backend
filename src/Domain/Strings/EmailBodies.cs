@@ -22,4 +22,9 @@ public static class EmailBodies
         "\n\nBest Regards," +
         $"\n\nThe {CommonStrings.AppName} Team";
     }
+
+    public static string EmailConfirmation(string emailConfirmUrl)
+    {
+        return $"Click this link to activate Your {CommonStrings.AppName} account: {emailConfirmUrl}";
+    }
 }

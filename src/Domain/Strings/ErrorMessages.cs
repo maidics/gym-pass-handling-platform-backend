@@ -163,4 +163,24 @@ public static class ErrorMessages
     {
         return "Unhandled error occured with an external service.";
     }
+
+    public static string FailedtoGenerateEmailConfirmationToken()
+    {
+        return "Failed to generate email confirmation token.";
+    }
+
+    public static string TokenIsInvalid(string tokenName)
+    {
+        return $"{tokenName} token is not valid.";
+    }
+
+    public static string FailedToActiveAccount()
+    {
+        return "Failed to activate user account.";
+    }
+
+    public static string UserAccountIsNotActivated()
+    {
+        return "User account is not activated";
+    }
 }

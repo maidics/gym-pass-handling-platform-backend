@@ -1,10 +1,13 @@
 using System.Security.Authentication;
+using Fitpass.Application.Common.Exceptions;
 using FitPass.Application.ApplicationUsers.DTOs;
 using FitPass.Application.Common.Exceptions;
+using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Logging;
 using FitPass.Application.Extensions;
 using FitPass.Domain.Constants;
+using FitPass.Domain.Strings;
 using Microsoft.Extensions.Logging;
 
 namespace Fitpass.Application.ApplicationUsers.Commands;
@@ -13,7 +16,7 @@ public record LogInUserCommand
     (
         string Email,
         string Password
-    ) : IRequest<TokenResponse>;
+    ) : IRequest<JwtToken>;
 
 public class LogInUserCommandValidator : AbstractValidator<LogInUserCommand>
 {
@@ -29,7 +32,7 @@ public class LogInUserCommandValidator : AbstractValidator<LogInUserCommand>
     }
 }
 
-public class LogInUserCommandHandler : IRequestHandler<LogInUserCommand, TokenResponse>
+public class LogInUserCommandHandler : IRequestHandler<LogInUserCommand, JwtToken>
 {
     private readonly IIdentityService _identityService;
     private readonly IJwtTokenService _jwtTokenService;
@@ -41,11 +44,16 @@ public class LogInUserCommandHandler : IRequestHandler<LogInUserCommand, TokenRe
         _jwtTokenService = jwtTokenService;
         _logger = logger;
     }
-    public async Task<TokenResponse> Handle(LogInUserCommand command, CancellationToken cancellationToken)
+    public async Task<JwtToken> Handle(LogInUserCommand command, CancellationToken cancellationToken)
     {
         var result = await _identityService.AuthenticateUserAsync(command.Email, command.Password, cancellationToken);
 
-        if (result.IsInvalidCredentialsFailure())
+        if (result.IsResultFailureWithOneErrorMessage(ErrorMessages.UserAccountIsNotActivated()))
+        {
+            throw new BadRequestException(ErrorMessages.UserAccountIsNotActivated());
+        }
+
+        if (result.IsResultFailureWithOneErrorMessage(ErrorMessages.InvalidCredentials()))
         {
             throw new InvalidCredentialException();
         }

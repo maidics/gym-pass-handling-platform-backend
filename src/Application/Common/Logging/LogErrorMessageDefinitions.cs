@@ -11,8 +11,8 @@ public partial class LogErrorMessages
             eventId: new EventId(),
             formatString: "Unhandled error caught in {Context}.");
 
-    private static readonly Action<ILogger, string, string?, string?, Result, Exception?> _identityServiceMethodFailed =
-        LoggerMessage.Define<string, string?, string?, Result>(
+    private static readonly Action<ILogger, string, string?, string?, Result?, Exception?> _identityServiceMethodFailed =
+        LoggerMessage.Define<string, string?, string?, Result?>(
             logLevel: LogLevel.Error,
             eventId: new EventId(),
             formatString: "IdentityService {MethodName} method failed for {UserRole} user ({UserIdOrEmail}). Result: {Result}");

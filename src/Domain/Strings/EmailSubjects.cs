@@ -11,4 +11,9 @@ public static class EmailSubjects
     {
         return "Welcome To Fitpass!";
     }
+
+    public static string EmailConfirmation()
+    {
+        return $"Activate Your {CommonStrings.AppName} Account!";
+    }
 }
