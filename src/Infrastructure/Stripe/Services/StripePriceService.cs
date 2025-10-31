@@ -31,7 +31,7 @@ public class StripePriceService : IStripePriceService
             {
                 Product = gymPassProduct.Id,
                 Currency = _settings.Currency,
-                UnitAmountDecimal = gymPassProduct.HUFPrice
+                UnitAmountDecimal = gymPassProduct.HufPrice
             };
 
             var price = await _priceService.CreateAsync(priceOptions, null);

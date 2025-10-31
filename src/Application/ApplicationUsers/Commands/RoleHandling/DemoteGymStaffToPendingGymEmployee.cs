@@ -1,3 +1,4 @@
+using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Logging;
 using FitPass.Application.Common.Security;
@@ -72,7 +73,7 @@ public class DemoteGymStaffToPendingGymEmployeeCommandHandler : IRequestHandler<
             {
                 await transaction.RollbackAsync();
 
-                if (demotionResult.IsUserNotFoundFailure())
+                if (demotionResult.IsResultFailureWithOneErrorMessage(ErrorMessages.UserNotFound()))
                 {
                     LogCriticalMessages.FailedToFindGymEmployeeButHasGymEmployment(_logger, [Roles.GymStaff], command.UserId, gymStaffGymEmployment, null);
 

@@ -72,7 +72,7 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, J
 
         try
         {
-            var userCreationResultObj = await _identityService.CreateUserAsync(command.Email, command.Password, command.FirstName, command.LastName);
+            var userCreationResultObj = await _identityService.CreateUserAsync(command.Email, command.Password);
 
             if (!userCreationResultObj.result.Succeeded)
             {

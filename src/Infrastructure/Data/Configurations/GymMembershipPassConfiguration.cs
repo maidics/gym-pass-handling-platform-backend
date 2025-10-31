@@ -13,6 +13,6 @@ public class OwnedPassConfiguration : IEntityTypeConfiguration<GymMembershipPass
             .WithMany(gm => gm.Passes)
             .HasForeignKey(gmp => gmp.GymMembershipId);
 
-        builder.Property(op => op.EurPrice).HasPrecision(18, 2);
+        builder.Property(op => op.HufPrice).HasPrecision(18, 2);
     }
 }

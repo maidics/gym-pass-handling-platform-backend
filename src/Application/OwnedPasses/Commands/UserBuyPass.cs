@@ -1,86 +1,100 @@
 using FitPass.Application.Common.Interfaces;
+using FitPass.Application.Common.Logging;
 using FitPass.Application.Common.Security;
 using FitPass.Application.Extensions;
-using FitPass.Domain;
+using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
+using Microsoft.Extensions.Logging;
 
 namespace FitPass.Application.Passes.Commands;
 
-[Authorize]
-public record ApplicationUserBuyPassCommand(string GymPassProductId) : IRequest;
+[Authorize(Roles = Roles.User)]
+public record UserBuyPassCommand(string GymPassProductId) : IRequest;
 
-public class ApplicationUserBuyPassCommandValidator : AbstractValidator<ApplicationUserBuyPassCommand>
+public class UserBuyPassCommandValidator : AbstractValidator<UserBuyPassCommand>
 {
-    public ApplicationUserBuyPassCommandValidator()
+    public UserBuyPassCommandValidator()
     {
-        RuleFor(v => v.GymPassProductId).NotEmptyWithMessage(nameof(ApplicationUserBuyPassCommand.GymPassProductId));
+        RuleFor(v => v.GymPassProductId).NotEmptyWithMessage(nameof(UserBuyPassCommand.GymPassProductId));
     }
 }
 
-public class ApplicationUserBuyPassCommandHandler : IRequestHandler<ApplicationUserBuyPassCommand>
+public class UserBuyPassCommandHandler : IRequestHandler<UserBuyPassCommand>
 {
     private readonly IUser _user;
     private readonly IApplicationDbContext _context;
-    private readonly IIdentityService _identityService;
-    public ApplicationUserBuyPassCommandHandler(IUser user, IApplicationDbContext context, IIdentityService identityService)
+    private readonly ILogger<UserBuyPassCommandHandler> _logger;
+
+    public UserBuyPassCommandHandler(IUser user, IApplicationDbContext context, ILogger<UserBuyPassCommandHandler> logger)
     {
         _user = user;
         _context = context;
-        _identityService = identityService;
+        _logger = logger;
     }
 
-    public async Task Handle(ApplicationUserBuyPassCommand command, CancellationToken cancellationToken)
+    public async Task Handle(UserBuyPassCommand command, CancellationToken cancellationToken)
     {
-        cancellationToken = CancellationToken.None;
-
-        if (_user.Roles!.Count > 0)
-        {
-            throw new UnauthorizedAccessException("You are not allowed to buy passes on this account.");
-        }
-
         var gymPassProduct = await _context
             .GymPassProducts
             .AsNoTracking()
             .Include(gpp => gpp.Gym)
             .FirstOrDefaultAsync(gpp => gpp.Id == command.GymPassProductId);
 
-        Guard.Against.NotFound(command.GymPassProductId, gymPassProduct, "Id");
+        Guard.Against.NotFound(command.GymPassProductId, gymPassProduct, "Pass");
 
-        var user = await _identityService.FindUserByIdAsync(_user.Id!);
+        var userGymMembership = await _context
+            .GymMemberships
+            .AsNoTracking()
+            .FirstOrDefaultAsync(ge =>
+                ge.ApplicationUserId != null &&
+                ge.ApplicationUserId == _user.Id &&
+                ge.GymId == gymPassProduct.GymId
+            );
 
-        Guard.Against.Null(user, "Id", "Failed to find currently logged in user.");
+        using var transaction = await _context.BeginTransactionAsync();
 
-        var userGymMembership = user.UserGymMemberships!.FirstOrDefault(ugm => ugm.GymId == gymPassProduct.GymId);
-
-        if (userGymMembership == null)
+        try
         {
-            userGymMembership = new GymMembership
+            if (userGymMembership == null)
             {
-                ApplicationUserId = user.Id,
-                NonRegisteredUserId = null,
-                GymId = gymPassProduct.GymId
+                userGymMembership = new GymMembership
+                {
+                    ApplicationUserId = _user.Id,
+                    GymId = gymPassProduct.GymId
+                };
+
+                await _context.GymMemberships.AddAsync(userGymMembership);
+            }
+
+            var pass = new GymMembershipPass
+            {
+                GymMembershipId = userGymMembership.Id,
+                Type = gymPassProduct.Type,
+                TotalUses = gymPassProduct.TotalUses,
+                RemainingUses = gymPassProduct.TotalUses,
+                ExpirationDate = gymPassProduct.GetExpirationDate(),
+                HufPrice = gymPassProduct.HufPrice
             };
 
-            user.UserGymMemberships!.Add(userGymMembership);
+            await _context.GymMembershipPasses.AddAsync(pass);
+
+            var receipt = new PurchaseReceipt
+            {
+                UserPaymentProfileId = userGymMembership.Id,
+                GymPassProduct = gymPassProduct
+            };
+
+            await _context.PurchaseReceipts.AddAsync(receipt);
+            await _context.SaveChangesAsync();
+
+            await transaction.CommitAsync();
+        } catch (Exception ex)
+        {
+            await transaction.RollbackAsync();
+
+            LogErrorMessages.UnhandledExceptionCaught(_logger, nameof(UserBuyPassCommandHandler), ex);
+
+            throw;
         }
-
-        userGymMembership.OwnedPasses.Add(new GymMembershipPass
-        {
-            GymMembershipId = userGymMembership.Id,
-            Type = gymPassProduct.Type,
-            TotalUses = gymPassProduct.TotalUses,
-            RemainingUses = gymPassProduct.TotalUses,
-            ExpirationDate = gymPassProduct.GetExpirationDate(),
-            EurPrice = gymPassProduct.HUFPrice
-        });
-
-        var receipt = new PurchaseReceipt
-        {
-            UserPaymentProfileId = userGymMembership.Id,
-            GymPassProduct = gymPassProduct
-        };
-
-        await _context.PurchaseReceipts.AddAsync(receipt);
-        await _context.SaveChangesAsync();
     }
 }

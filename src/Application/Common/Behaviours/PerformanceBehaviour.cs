@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics;
 using FitPass.Application.Common.Interfaces;
-using FitPass.Domain.Entities;
 using Microsoft.Extensions.Logging;
 
 namespace FitPass.Application.Common.Behaviours;
@@ -11,18 +10,15 @@ public class PerformanceBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequ
     private readonly Stopwatch _timer;
     private readonly ILogger<TRequest> _logger;
     private readonly IUser _user;
-    private readonly IIdentityService _identityService;
 
     public PerformanceBehaviour(
         ILogger<TRequest> logger,
-        IUser user,
-        IIdentityService identityService)
+        IUser user)
     {
         _timer = new Stopwatch();
 
         _logger = logger;
         _user = user;
-        _identityService = identityService;
     }
 
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
@@ -38,15 +34,9 @@ public class PerformanceBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequ
         if (elapsedMilliseconds > 500)
         {
             var requestName = typeof(TRequest).Name;
-            ApplicationUser? user = null;
 
-            if (!string.IsNullOrEmpty(_user.Id))
-            {
-                user = await _identityService.FindUserByIdAsync(_user.Id);
-            }
-
-            _logger.LogWarning("FitPass Long Running Request: {Name} ({ElapsedMilliseconds} milliseconds) {@UserId} {@UserName} {@Request}",
-                requestName, elapsedMilliseconds, user?.Id, user?.Email, request);
+            _logger.LogWarning("FitPass Long Running Request: {Name} ({ElapsedMilliseconds} milliseconds) {@UserId} {@Request}",
+                requestName, elapsedMilliseconds, _user?.Id, request);
         }
 
         return response;

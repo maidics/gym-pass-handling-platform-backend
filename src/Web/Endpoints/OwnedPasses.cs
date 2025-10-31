@@ -33,7 +33,7 @@ public class OwnedPasses : EndpointGroupBase
 
     public async Task<Ok> ApplicationUserBuyPass(ISender sender, string gymPassProductId, CancellationToken cancellationToken)
     {
-        await sender.Send(new ApplicationUserBuyPassCommand(gymPassProductId), cancellationToken);
+        await sender.Send(new UserBuyPassCommand(gymPassProductId), cancellationToken);
 
         return TypedResults.Ok();
     }

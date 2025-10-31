@@ -21,4 +21,5 @@ public interface IIdentityService
     Task<Result> AddPasswordToUserWithNoPasswordAsync(string email, string password);
     Task<string?> GenerateEmailConfirmationTokenAsync(string userId);
     Task<Result> ConfirmEmailAsync(string email, string emailConfirmationToken);
+    Task<string?> GetEmailByIdAsync(string userId);
 }

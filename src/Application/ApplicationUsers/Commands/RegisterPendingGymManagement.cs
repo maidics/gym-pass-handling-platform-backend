@@ -4,6 +4,7 @@ using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Logging;
 using FitPass.Application.Extensions;
 using FitPass.Domain.Constants;
+using FitPass.Domain.Entities;
 using FitPass.Domain.Strings;
 using Microsoft.Extensions.Logging;
 
@@ -62,7 +63,7 @@ public class RegisterPendingGymEmployeeCommandHandler : IRequestHandler<Register
 
         try
         {
-            var resultObj = await _identityService.CreateUserAsync(command.Email, command.Password, command.FirstName, command.LastName);
+            var resultObj = await _identityService.CreateUserAsync(command.Email, command.Password, CancellationToken.None);
 
             if (!resultObj.result.Succeeded)
             {
@@ -86,6 +87,16 @@ public class RegisterPendingGymEmployeeCommandHandler : IRequestHandler<Register
                 throw new BadRequestException(string.Join(", ", roleResult.Errors));
             }
 
+            var userProfile = new UserProfile
+            {
+                ApplicationUserId = userId,
+                FirstName = command.FirstName,
+                LastName = command.LastName
+            };
+
+            await _context.UserProfiles.AddAsync(userProfile);
+
+            await _context.SaveChangesAsync();
             await transaction.CommitAsync();
         } catch (Exception ex)
         {

@@ -1,5 +1,5 @@
-﻿using FitPass.Application.GymPassProducts.DTOs;
-using FitPass.Application.UserGymMemberships.DTOs;
+﻿using FitPass.Application.GymMemberships.DTOs;
+using FitPass.Application.GymPassProducts.DTOs;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
 

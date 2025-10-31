@@ -16,7 +16,7 @@ public partial class ApplicationDbContextInitialiser
                     Type = PassType.SingleUse,
                     TotalUses = 1,
                     DaysAfterExpiring = 365,
-                    HUFPrice = 2,
+                    HufPrice = 2,
                     IsActive = true
                 },
                 new GymPassProduct {
@@ -27,7 +27,7 @@ public partial class ApplicationDbContextInitialiser
                     Type = PassType.MultiUse,
                     TotalUses = 2,
                     DaysAfterExpiring = 365,
-                    HUFPrice = 3,
+                    HufPrice = 3,
                     IsActive = true
                 },
                 new GymPassProduct {
@@ -38,7 +38,7 @@ public partial class ApplicationDbContextInitialiser
                     Type = PassType.Unlimited,
                     TotalUses = null,
                     DaysAfterExpiring = 30,
-                    HUFPrice = 4,
+                    HufPrice = 4,
                     IsActive = true
                 },
                 new GymPassProduct {
@@ -49,7 +49,7 @@ public partial class ApplicationDbContextInitialiser
                     Type = PassType.SingleUse,
                     TotalUses = 1,
                     DaysAfterExpiring = 365,
-                    HUFPrice = 2,
+                    HufPrice = 2,
                     IsActive = false
                 }
             ];

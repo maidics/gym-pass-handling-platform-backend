@@ -8,7 +8,8 @@ namespace Fitpass.Application.OwnedPasses.Queries;
 [Authorize]
 public record GetUserOwnedPassesForGymQuery
     (
-        string UserGymMembershipId
+        string UserId, //currently logged in
+        string GymId //gym id from scanned qr code or gym's profile
     ) : IRequest<List<OwnedPassDto>>;
 
 public class GetUserOwnedPassesForGymQueryValidator : AbstractValidator<GetUserOwnedPassesForGymQuery>

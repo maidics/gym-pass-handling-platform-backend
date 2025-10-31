@@ -3,7 +3,6 @@ using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Security;
 using FitPass.Application.Extensions;
 using FitPass.Domain;
-using FitPass.Domain.Strings;
 
 namespace FitPass.Application;
 

@@ -1,3 +1,4 @@
+using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Logging;
 using FitPass.Application.Common.Security;
@@ -61,7 +62,7 @@ public class PromotePendingGymEmployeeToGymStaffRoleCommandHandler : IRequestHan
             {
                 await transaction.RollbackAsync();
 
-                if (demotionResult.IsUserNotFoundFailure())
+                if (demotionResult.IsResultFailureWithOneErrorMessage(ErrorMessages.UserNotFound()))
                 {
                     throw new NotFoundException(command.UserId, "User");
                 } else

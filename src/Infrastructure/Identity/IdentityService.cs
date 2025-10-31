@@ -293,7 +293,7 @@ public class IdentityService : IIdentityService
 
         return await _userManager.GenerateEmailConfirmationTokenAsync(user);
     }
-    
+
     public async Task<Result> ConfirmEmailAsync(string email, string emailConfirmationToken)
     {
         var user = await _userManager.FindByEmailAsync(email);
@@ -311,5 +311,12 @@ public class IdentityService : IIdentityService
         }
 
         return result.ToApplicationResult();
+    }
+    
+    public async Task<string?> GetEmailByIdAsync(string userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+
+        return user == null ? null : user.Email; 
     }
 }

@@ -3,6 +3,7 @@ using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Logging;
 using FitPass.Application.Common.Security;
 using FitPass.Domain.Entities;
+using FitPass.Domain.Strings;
 using Microsoft.Extensions.Logging;
 
 namespace FitPass.Application.ApplicationUsers.Commands;
@@ -40,7 +41,7 @@ public class DeleteMyAccountCommandHandler : IRequestHandler<DeleteMyAccountComm
         {
             var result = await _identityService.DeleteUserAsync(_user.Id!);
 
-            if (result.IsUserNotFoundFailure())
+            if (result.IsResultFailureWithOneErrorMessage(ErrorMessages.UserNotFound()))
             {
                 await transaction.RollbackAsync();
 
