@@ -1,9 +1,10 @@
 ﻿using System.Reflection;
 using FitPass.Application.Common.Behaviours;
 using FitPass.Application.Common.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace Microsoft.Extensions.DependencyInjection;
+namespace FitPass.Application;
 
 public static class DependencyInjection
 {

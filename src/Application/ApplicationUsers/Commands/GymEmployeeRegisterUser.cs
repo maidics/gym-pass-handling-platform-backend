@@ -1,9 +1,9 @@
 using Fitpass.Application.Common.Exceptions;
 using FitPass.Application.ApplicationUsers.Commands.Emails;
+using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Logging;
 using FitPass.Application.Common.Security;
-using FitPass.Application.Extensions;
 using FitPass.Application.GymMemberships.DTOs;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
@@ -116,8 +116,8 @@ public class GymEmployeeRegisterUserCommandHandler : IRequestHandler<GymEmployee
 
             var gymMembership = new GymMembership
             {
-                ApplicationUserId = creationResultObj.userId,
-                GymId = gymEmployment.GymId
+                ApplicationUserId = creationResultObj.userId!,
+                GymId = gymEmployment.GymId!
             };
 
             await _context.GymMemberships.AddAsync(gymMembership);

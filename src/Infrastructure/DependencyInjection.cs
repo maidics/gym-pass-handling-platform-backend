@@ -6,7 +6,6 @@ using Fitpass.Infrastructure.Services.Email;
 using Fitpass.Infrastructure.Stripe.Services;
 using FitPass.Application.Common.Configuration;
 using FitPass.Application.Common.Interfaces;
-using FitPass.Domain.Entities;
 using FitPass.Infrastructure.Data;
 using FitPass.Infrastructure.Data.DbSeed;
 using FitPass.Infrastructure.Data.Interceptors;
@@ -21,6 +20,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Http.Resilience;
 using Microsoft.Extensions.Logging;
@@ -28,7 +28,7 @@ using Microsoft.IdentityModel.Tokens;
 using Polly;
 using Stripe;
 
-namespace Microsoft.Extensions.DependencyInjection;
+namespace FitPass.Infrastructure;
 
 public static class DependencyInjection
 {
@@ -63,7 +63,7 @@ public static class DependencyInjection
             .AddApiEndpoints();
 
         builder.Services.AddSingleton(TimeProvider.System);
-        builder.Services.AddTransient<IIdentityService, FitPass.Infrastructure.Identity.IdentityService>();
+        builder.Services.AddTransient<IIdentityService, Identity.IdentityService>();
 
         builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection(ConfigurationSections.Jwt));
         builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();

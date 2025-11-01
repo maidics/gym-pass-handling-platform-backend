@@ -1,9 +1,6 @@
-using Fitpass.Application.ApplicationUsers.Queries;
 using Fitpass.Application.Gyms.Commands;
 using Fitpass.Application.Gyms.DTOs;
 using Fitpass.Application.Gyms.Queries;
-using FitPass.Application.ApplicationUsers.DTOs;
-using FitPass.Application.Common.Models;
 using FitPass.Application.Gyms.Commands;
 using FitPass.Application.Gyms.Queries;
 using FitPass.Domain.Enums;
@@ -33,7 +30,7 @@ public class Gyms : EndpointGroupBase
         groupBuilder.MapGet(GetMyGymDetails, "My/Details").RequireAuthorization();
     }
 
-    public async Task<Results<Ok<Result>, BadRequest>> RegisterGym(ISender sender, string requestId, [AsParameters] RegisterGymCommand command)
+    public async Task<Results<Ok<GymDto>, BadRequest>> RegisterGym(ISender sender, string requestId, [AsParameters] RegisterGymCommand command)
     {
         if (requestId != command.GymCreationRequestId)
         {

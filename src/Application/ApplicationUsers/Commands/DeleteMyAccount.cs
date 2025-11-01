@@ -23,7 +23,7 @@ public class DeleteMyAccountCommandHandler : IRequestHandler<DeleteMyAccountComm
         IIdentityService identityService,
         IUser user,
         IStripeCustomerService stripeCustomerService,
-        Logger<DeleteMyAccountCommandHandler> logger,
+        ILogger<DeleteMyAccountCommandHandler> logger,
         IApplicationDbContext context)
     {
         _identityService = identityService;

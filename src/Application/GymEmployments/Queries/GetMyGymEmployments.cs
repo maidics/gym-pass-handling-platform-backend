@@ -2,7 +2,7 @@ using FitPass.Application.Common.Exceptions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Logging;
 using FitPass.Application.Common.Security;
-using FitPass.Application.GymStaffAssignments.DTOs;
+using FitPass.Application.GymEmployments.DTOs;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Strings;

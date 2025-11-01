@@ -1,5 +1,8 @@
+using FitPass.Application;
+using FitPass.Infrastructure;
 using FitPass.Infrastructure.Data;
 using FitPass.Infrastructure.Stripe;
+using FitPass.Web;
 using Stripe;
 
 var builder = WebApplication.CreateBuilder(args);

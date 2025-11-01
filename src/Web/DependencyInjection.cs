@@ -4,11 +4,10 @@ using FitPass.Application.Common.Interfaces;
 using FitPass.Infrastructure.Data;
 using FitPass.Web.Services;
 using Microsoft.AspNetCore.Mvc;
-
 using NSwag;
 using NSwag.Generation.Processors.Security;
 
-namespace Microsoft.Extensions.DependencyInjection;
+namespace FitPass.Web;
 
 public static class DependencyInjection
 {
@@ -32,7 +31,7 @@ public static class DependencyInjection
         builder.Services.AddEndpointsApiExplorer();
 
         //Json - Enum converter
-        builder.Services.Configure<AspNetCore.Http.Json.JsonOptions>(options =>
+        builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options =>
         {
             options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
         });

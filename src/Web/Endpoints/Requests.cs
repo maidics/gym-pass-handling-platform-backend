@@ -1,4 +1,3 @@
-using Fitpass.Application.Requests.Commands;
 using Fitpass.Application.Requests.DTOs;
 using Fitpass.Application.Requests.Queries;
 using FitPass.Application.Common.Models;
@@ -22,8 +21,6 @@ public class Requests : EndpointGroupBase
         groupBuilder.MapPost(CreateGymCreationRequest, "/GymCreation");
 
         groupBuilder.MapPost(CreateGymAdminNominationRequest, "GymAdminNomination").RequireAuthorization();
-
-        groupBuilder.MapPut(FulFillRequest, "Fulfill").RequireAuthorization();
     }
 
     public async Task<Ok<RequestDto>> GetRequest(ISender sender, string requestId, CancellationToken cancellationToken)
@@ -71,12 +68,5 @@ public class Requests : EndpointGroupBase
         }
 
         return TypedResults.Ok(result);
-    }
-
-    public async Task<NoContent> FulFillRequest(ISender sender, string requestId)
-    {
-        await sender.Send(new FulfillRequestCommand(requestId));
-
-        return TypedResults.NoContent();
     }
 }

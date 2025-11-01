@@ -1,5 +1,5 @@
 using FitPass.Application.Common.Interfaces;
-using FitPass.Application.GymStaffAssignments.DTOs;
+using FitPass.Application.GymEmployments.DTOs;
 using FitPass.Application.UserProfiles.DTOs;
 using Microsoft.EntityFrameworkCore;
 

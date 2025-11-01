@@ -2,8 +2,8 @@ namespace FitPass.Domain.Entities;
 
 public class GymMembership : BaseAuditableEntity
 {
-    public required string? ApplicationUserId { get; set; }
-    public required string? GymId { get; set; }
+    public required string ApplicationUserId { get; set; }
+    public required string GymId { get; set; }
     public GymMembershipStatus GymMembershipStatus { get; set; } = GymMembershipStatus.Member;
     public DateTimeOffset? MemberSince { get; set; } = DateTimeOffset.UtcNow;
     public Gym? Gym { get; set; }

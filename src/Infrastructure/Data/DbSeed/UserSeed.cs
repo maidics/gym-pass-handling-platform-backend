@@ -1,5 +1,6 @@
 ﻿using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
+using FitPass.Infrastructure.Identity;
 
 namespace FitPass.Infrastructure.Data.DbSeed;
 
@@ -13,12 +14,7 @@ public partial class ApplicationDbContextInitialiser
                 new ApplicationUser {
                     Id = "AppAdminLocalhostId",
                     Email = "appadmin@localhost",
-                    UserName = "AppAdmin",
-                    FirstName = "App",
-                    LastName = "Admin",
-                    UserGymMemberships = null,
-                    GymStaffAssignment = null,
-                    PaymentProfile = null
+                    UserName = "AppAdmin"
                 },
                 Roles.AppAdministrator,
                 "Password123_"
@@ -28,17 +24,7 @@ public partial class ApplicationDbContextInitialiser
                 {
                     Id = "GymAdminLocalhostId",
                     Email = "gymadmin@localhost",
-                    UserName = "GymAdmin",
-                    FirstName = "Gym",
-                    LastName = "Admin",
-                    UserGymMemberships = null,
-                    GymStaffAssignment = new GymEmployment {
-                        ApplicationUserId = "GymAdminLocalhostId",
-                        GymId = gymId1,
-                        EscalationEmail = "escalation@localhost",
-                        Role = Roles.GymAdministrator
-                    },
-                    PaymentProfile = null
+                    UserName = "GymAdmin"
                 },
                 Roles.GymAdministrator,
                 "Password123_"
@@ -48,18 +34,7 @@ public partial class ApplicationDbContextInitialiser
                 {
                     Id = "GymStaffLocalhostId",
                     UserName = "GymStaff",
-                    Email = "gymstaff@localhost",
-                    FirstName = "Gym",
-                    LastName = "Staff",
-                    UserGymMemberships = null,
-                    GymStaffAssignment = new GymEmployment
-                    {
-                        ApplicationUserId = "GymStaffLocalhostId",
-                        GymId = gymId1,
-                        EscalationEmail = "escalation@localhost",
-                        Role = Roles.GymStaff
-                    },
-                    PaymentProfile = null
+                    Email = "gymstaff@localhost"
                 },
                 Roles.GymStaff,
                 "Password123_"
@@ -69,16 +44,7 @@ public partial class ApplicationDbContextInitialiser
                 {
                     Id = "User1",
                     UserName = "User1",
-                    Email = "user1@localhost",
-                    FirstName = "Localhost",
-                    LastName = "User1",
-                    UserGymMemberships = [],
-                    GymStaffAssignment = null,
-                    PaymentProfile = new UserPaymentProfile 
-                    {
-                        ApplicationUserId = "User1",
-                        NonRegisteredUserId = null
-                    }
+                    Email = "user1@localhost"
                 },
                 string.Empty,
                 "Password123_"
@@ -88,16 +54,7 @@ public partial class ApplicationDbContextInitialiser
                 {
                     Id = "User2",
                     UserName = "User2",
-                    Email = "user2@localhost",
-                    FirstName = "Localhost",
-                    LastName = "User2",
-                    UserGymMemberships = [],
-                    GymStaffAssignment = null,
-                    PaymentProfile = new UserPaymentProfile 
-                    {
-                        ApplicationUserId = "User2",
-                        NonRegisteredUserId = null
-                    }
+                    Email = "user2@localhost"
                 },
                 string.Empty,
                 "Password123_"
@@ -106,18 +63,7 @@ public partial class ApplicationDbContextInitialiser
                 new ApplicationUser 
                 {
                     Id = "PendingGymAdmin",
-                    UserName = "PendingGymAdmin1",
-                    FirstName = "Pending",
-                    LastName = "GymAdmin",
-                    Email = "pendinggymadmin@localhost",
-                    UserGymMemberships = null,
-                    GymStaffAssignment = new GymEmployment 
-                    {
-                        ApplicationUserId = "PendingGymAdmin",
-                        GymId = null,
-                        Role = Roles.PendingGymEmployee
-                    },
-                    PaymentProfile = null
+                    UserName = "PendingGymAdmin1"
                 },
                 Roles.PendingGymEmployee,
                 "Password123_"
@@ -143,7 +89,7 @@ public partial class ApplicationDbContextInitialiser
 
                     if (!roleResult.Succeeded)
                     {
-                        throw new ArgumentException($"Failed to add {obj.user.FirstName} user to {obj.role} role: {roleResult.Errors}");
+                        throw new ArgumentException($"Failed to add {obj.user.Id} user to {obj.role} role: {roleResult.Errors}");
                     }
                 }
             }

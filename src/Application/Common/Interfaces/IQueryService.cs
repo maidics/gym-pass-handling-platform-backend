@@ -1,4 +1,4 @@
-using FitPass.Application.GymStaffAssignments.DTOs;
+using FitPass.Application.GymEmployments.DTOs;
 using FitPass.Application.UserProfiles.DTOs;
 
 namespace FitPass.Application.Common.Interfaces;

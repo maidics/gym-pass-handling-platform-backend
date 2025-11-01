@@ -1,7 +1,7 @@
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Logging;
 using FitPass.Application.Common.Security;
-using FitPass.Application.GymStaffAssignments.DTOs;
+using FitPass.Application.GymEmployments.DTOs;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Strings;
 using Microsoft.Extensions.Logging;

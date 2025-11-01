@@ -1,38 +1,45 @@
+using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Logging;
 using FitPass.Application.Common.Security;
-using FitPass.Application.Extensions;
+using FitPass.Application.GymMembershipPasses.DTOs;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using Microsoft.Extensions.Logging;
 
-namespace FitPass.Application.Passes.Commands;
+namespace FitPass.Application.GymMembershipPasses.Commands;
 
 [Authorize(Roles = Roles.User)]
-public record UserBuyPassCommand(string GymPassProductId) : IRequest;
+public record UserBuyGymMembershipPassCommand(string GymPassProductId) : IRequest<GymMembershipPassDto>;
 
-public class UserBuyPassCommandValidator : AbstractValidator<UserBuyPassCommand>
+public class UserBuyGymMembershipPassCommandValidator : AbstractValidator<UserBuyGymMembershipPassCommand>
 {
-    public UserBuyPassCommandValidator()
+    public UserBuyGymMembershipPassCommandValidator()
     {
-        RuleFor(v => v.GymPassProductId).NotEmptyWithMessage(nameof(UserBuyPassCommand.GymPassProductId));
+        RuleFor(v => v.GymPassProductId).NotEmptyWithMessage(nameof(UserBuyGymMembershipPassCommand.GymPassProductId));
     }
 }
 
-public class UserBuyPassCommandHandler : IRequestHandler<UserBuyPassCommand>
+public class UserBuyGymMembershipPassCommandHandler : IRequestHandler<UserBuyGymMembershipPassCommand, GymMembershipPassDto>
 {
     private readonly IUser _user;
     private readonly IApplicationDbContext _context;
-    private readonly ILogger<UserBuyPassCommandHandler> _logger;
+    private readonly ILogger<UserBuyGymMembershipPassCommandHandler> _logger;
+    private readonly IMapper _mapper;
 
-    public UserBuyPassCommandHandler(IUser user, IApplicationDbContext context, ILogger<UserBuyPassCommandHandler> logger)
+    public UserBuyGymMembershipPassCommandHandler(
+        IUser user, 
+        IApplicationDbContext context, 
+        ILogger<UserBuyGymMembershipPassCommandHandler> logger,
+        IMapper mapper)
     {
         _user = user;
         _context = context;
         _logger = logger;
+        _mapper = mapper;
     }
 
-    public async Task Handle(UserBuyPassCommand command, CancellationToken cancellationToken)
+    public async Task<GymMembershipPassDto> Handle(UserBuyGymMembershipPassCommand command, CancellationToken cancellationToken)
     {
         var gymPassProduct = await _context
             .GymPassProducts
@@ -59,7 +66,7 @@ public class UserBuyPassCommandHandler : IRequestHandler<UserBuyPassCommand>
             {
                 userGymMembership = new GymMembership
                 {
-                    ApplicationUserId = _user.Id,
+                    ApplicationUserId = _user.Id!,
                     GymId = gymPassProduct.GymId
                 };
 
@@ -88,11 +95,13 @@ public class UserBuyPassCommandHandler : IRequestHandler<UserBuyPassCommand>
             await _context.SaveChangesAsync();
 
             await transaction.CommitAsync();
+
+            return _mapper.Map<GymMembershipPassDto>(pass);
         } catch (Exception ex)
         {
             await transaction.RollbackAsync();
 
-            LogErrorMessages.UnhandledExceptionCaught(_logger, nameof(UserBuyPassCommandHandler), ex);
+            LogErrorMessages.UnhandledExceptionCaught(_logger, nameof(UserBuyGymMembershipPassCommandHandler), ex);
 
             throw;
         }

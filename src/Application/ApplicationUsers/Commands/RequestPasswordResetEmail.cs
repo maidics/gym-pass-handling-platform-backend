@@ -1,5 +1,5 @@
+using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
-using FitPass.Application.Extensions;
 using FitPass.Domain.Strings;
 
 namespace Fitpass.Application.ApplicationUsers.Commands;

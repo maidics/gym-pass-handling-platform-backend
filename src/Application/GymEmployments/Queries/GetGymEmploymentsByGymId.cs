@@ -1,7 +1,7 @@
+using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Security;
-using FitPass.Application.Extensions;
-using FitPass.Application.GymStaffAssignments.DTOs;
+using FitPass.Application.GymEmployments.DTOs;
 using FitPass.Domain.Constants;
 
 namespace Fitpass.Application.GymEmployments.Queries;

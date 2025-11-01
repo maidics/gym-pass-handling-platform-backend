@@ -3,11 +3,10 @@ using System.Security.Claims;
 using System.Text;
 using FitPass.Application.ApplicationUsers.DTOs;
 using FitPass.Application.Common.Interfaces;
-using FitPass.Infrastructure.Services.Jwt;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
-namespace FitPass.Infrastructure.Services;
+namespace FitPass.Infrastructure.Services.Jwt;
 
 public class JwtTokenService : IJwtTokenService
 {

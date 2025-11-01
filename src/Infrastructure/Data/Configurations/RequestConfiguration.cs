@@ -1,5 +1,6 @@
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
+using FitPass.Infrastructure.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -15,7 +16,7 @@ public class RequestConfiguration : IEntityTypeConfiguration<Request>
 
         builder
             .HasOne<ApplicationUser>()
-            .WithMany(au => au.Requests)
+            .WithMany()
             .HasForeignKey(r => r.CreatedBy);
     }
 }

@@ -1,7 +1,7 @@
 using FitPass.Application.Common.Interfaces;
-using FitPass.Domain.Events;
+using FitPass.Domain.Events.GymMembershipPasses;
 
-namespace FitPass.Application.OwnedPasses.EventHandlers;
+namespace FitPass.Application.GymMembershipPasses.EventHandlers;
 
 public class PassExpiredEventHandler : INotificationHandler<PassExpiredEvent>
 {

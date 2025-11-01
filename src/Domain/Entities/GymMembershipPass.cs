@@ -1,3 +1,5 @@
+using FitPass.Domain.Events.GymMembershipPasses;
+
 namespace FitPass.Domain.Entities;
 
 public class GymMembershipPass : BaseAuditableEntity

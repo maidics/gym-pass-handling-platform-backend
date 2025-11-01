@@ -1,7 +1,7 @@
+using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Security;
-using FitPass.Application.Extensions;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Enums;
 

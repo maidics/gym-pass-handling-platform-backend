@@ -1,9 +1,6 @@
 ﻿using Fitpass.Infrastructure.Data.Interceptors;
-using FitPass.Domain.Constants;
-using FitPass.Domain.Entities;
-using FitPass.Domain.Enums;
+using FitPass.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace FitPass.Infrastructure.Data.DbSeed;
@@ -58,7 +55,6 @@ public partial class ApplicationDbContextInitialiser
             await SeedOwnedPassesAsync();
             await SeedRequestAsync();
             await SeedGymPassProductsAsync();
-            await SeedNonRegisteredUsersAsync();
 
             await _context.SaveChangesAsync();
 

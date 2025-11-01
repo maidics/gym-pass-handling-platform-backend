@@ -1,13 +1,13 @@
+using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Logging;
 using FitPass.Application.Common.Security;
-using FitPass.Application.Extensions;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Strings;
 using Microsoft.Extensions.Logging;
 
-namespace FitPass.Application.UserGymMemberships.Commands;
+namespace FitPass.Application.GymMemberships.Commands;
 
 [Authorize(Roles = $"{Roles.GymAdministrator},{Roles.GymStaff}")]
 public record AddUserGymMembershipToUserCommand(string UserId) : IRequest;
@@ -65,7 +65,7 @@ public class AddUserGymMembershipToUserCommandHandler : IRequestHandler<AddUserG
         var gymMembership = new GymMembership
         {
             ApplicationUserId = command.UserId,
-            GymId = gymEmployment.GymId
+            GymId = gymEmployment.GymId!
         };
 
         await _context.GymMemberships.AddAsync(gymMembership);

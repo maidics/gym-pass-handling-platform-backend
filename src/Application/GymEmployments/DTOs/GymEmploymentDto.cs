@@ -1,8 +1,7 @@
-﻿using Fitpass.Application.Gyms.DTOs;
-using FitPass.Application.UserProfiles.DTOs;
+﻿using FitPass.Application.UserProfiles.DTOs;
 using FitPass.Domain.Entities;
 
-namespace FitPass.Application.GymStaffAssignments.DTOs;
+namespace FitPass.Application.GymEmployments.DTOs;
 
 public class GymEmploymentDto
 {

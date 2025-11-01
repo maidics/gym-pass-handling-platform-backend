@@ -1,19 +1,22 @@
 using System.Text.Json;
 using Fitpass.Application.Requests.DTOs;
+using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
+using FitPass.Application.Common.Logging;
 using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Security;
-using FitPass.Application.Extensions;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
+using FitPass.Domain.Strings;
+using Microsoft.Extensions.Logging;
 
 namespace FitPass.Application.Requests.Commands;
 
 [Authorize(Roles = Roles.GymAdministrator)]
 public record CreateGymAdminNominationRequestCommand
 (
-    string UserEmailToNominate,
+    string UserIdToNominate,
     string RequestDescription,
     PriorityLevel RequestPriorityLevel,
     string EscalationEmail
@@ -23,8 +26,7 @@ public class CreateGymAdminNominationRequestCommandValidator : AbstractValidator
 {
     public CreateGymAdminNominationRequestCommandValidator()
     {
-        RuleFor(v => v.UserEmailToNominate)
-            .ValidEmailAddress(nameof(CreateGymAdminNominationRequestCommand.UserEmailToNominate));
+        RuleFor(v => v.UserIdToNominate).NotEmptyWithMessage(nameof(CreateGymAdminNominationRequestCommand.UserIdToNominate));
 
         RuleFor(v => v.RequestDescription!)
             .NotEmptyWithMaxLenghtAndMessage(nameof(CreateGymAdminNominationRequestCommand.RequestDescription), MaxStringLengths.Description);
@@ -39,40 +41,42 @@ public class CreateGymAdminNominationRequestCommandHandler : IRequestHandler<Cre
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
+    private readonly ILogger<CreateGymAdminNominationRequestCommandHandler> _logger;
+    private readonly IIdentityService _identityService;
 
-    public CreateGymAdminNominationRequestCommandHandler(IApplicationDbContext context, IUser user)
+    public CreateGymAdminNominationRequestCommandHandler(
+        IApplicationDbContext context, 
+        IUser user,
+        ILogger<CreateGymAdminNominationRequestCommandHandler> logger, 
+        IIdentityService identityService)
     {
         _context = context;
         _user = user;
+        _logger = logger;
+        _identityService = identityService;
     }
     public async Task<Result> Handle(CreateGymAdminNominationRequestCommand command, CancellationToken cancellationToken)
     {
-        var userToNominate = await _context
-            .ApplicationUsers
+        var requesterGymEmployment = await _context
+            .GymEmployments
             .AsNoTracking()
-            .FirstOrDefaultAsync(au => au.Email == command.UserEmailToNominate, cancellationToken);
+            .FirstOrDefaultAsync(ge => ge.ApplicationUserId != null && ge.ApplicationUserId == _user.Id);
 
-        Guard.Against.NotFound(command.UserEmailToNominate, userToNominate, "Email");
-
-        if (_user.Roles!.Contains(Roles.GymAdministrator))
+        if (requesterGymEmployment == null)
         {
-            return Result.Failure([$"User associated with '{command.UserEmailToNominate}' is already a Gym Administrator."]);
+            LogCriticalMessages.AuthenticatedUserRelatedEntityNotFound(
+                _logger,
+                _user.Roles,
+                _user.Id,
+                nameof(GymEmployment));
+
+            throw new Exception(ErrorMessages.AuthenticatedUserRelatedEntityNotFound(nameof(GymEmployment)));
         }
 
-        if (userToNominate.UserGymMemberships != null && userToNominate.UserGymMemberships.Count > 0)
+        if (!await _identityService.DoesUserExist(command.UserIdToNominate))
         {
-            return Result.Failure([$"User associated with '{command.UserEmailToNominate}' has purchased passes before and cannot be nominated to Gym Administrator. Please register a new account for nomination."]);
+            throw new NotFoundException(command.UserIdToNominate, "User to nominate");
         }
-
-        var requester = await _context
-            .ApplicationUsers
-            .Include(au => au.GymStaffAssignment)
-            .FirstOrDefaultAsync(au => au.Id == _user.Id, cancellationToken);
-
-        var gym = await _context
-            .Gyms
-            .AsNoTracking()
-            .FirstOrDefaultAsync(g => g.Id == requester!.GymStaffAssignment!.GymId, cancellationToken);
 
         var request = new Request
         {
@@ -83,16 +87,13 @@ public class CreateGymAdminNominationRequestCommandHandler : IRequestHandler<Cre
             Type = RequestType.GymAdminNomination,
             Payload = JsonSerializer.Serialize(new GymAdminNominationDto
             {
-                GymId = gym!.Id,
-                UserIdToNominate = userToNominate.Id,
+                GymId = requesterGymEmployment.GymId!,
+                UserIdToNominate = command.UserIdToNominate,
                 EscalationEmail = command.EscalationEmail
             })
         };
 
         await _context.Requests.AddAsync(request);
-
-        requester!.Requests.Add(request);
-
         await _context.SaveChangesAsync();
 
         return Result.Success();

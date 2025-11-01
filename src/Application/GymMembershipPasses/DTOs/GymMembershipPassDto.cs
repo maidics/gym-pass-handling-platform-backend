@@ -1,9 +1,9 @@
-﻿using FitPass.Domain;
+﻿using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
 
-namespace FitPass.Application.OwnedPasses.DTOs;
+namespace FitPass.Application.GymMembershipPasses.DTOs;
 
-public class OwnedPassDto
+public class GymMembershipPassDto
 {
     public required string Id { get; set; }
     public required string? UserGymMembershipId { get; set; }
@@ -17,7 +17,7 @@ public class OwnedPassDto
     {
         public Mapping()
         {
-            CreateMap<OwnedPass, OwnedPassDto>();
+            CreateMap<GymMembershipPass, GymMembershipPassDto>();
         }
     }
 }

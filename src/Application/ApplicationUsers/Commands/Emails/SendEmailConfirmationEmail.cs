@@ -1,9 +1,9 @@
 using System.Text.Encodings.Web;
 using FitPass.Application.Common.Configuration;
+using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Logging;
 using FitPass.Application.Common.Models;
-using FitPass.Application.Extensions;
 using FitPass.Domain.Strings;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;

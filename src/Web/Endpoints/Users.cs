@@ -1,14 +1,13 @@
 using Fitpass.Application.ApplicationUsers.Commands;
-using Fitpass.Application.ApplicationUsers.DTOs;
-using Fitpass.Application.ApplicationUsers.Queries;
 using FitPass.Application.ApplicationUsers.Commands;
+using FitPass.Application.ApplicationUsers.Commands.Emails;
+using FitPass.Application.ApplicationUsers.Commands.RoleHandling;
 using FitPass.Application.ApplicationUsers.DTOs;
-using FitPass.Application.ApplicationUsers.Queries;
-using FitPass.Application.Gyms.Queries;
+using FitPass.Application.GymMemberships.DTOs;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Fitpass.Web.Endpoints.Users;
+namespace Fitpass.Web.Endpoints;
 
 public class Users : EndpointGroupBase
 {
@@ -20,17 +19,11 @@ public class Users : EndpointGroupBase
 
         groupBuilder.MapPost(RegisterPendingGymManagement, "Register/PendingGymManagement");
 
-        groupBuilder.MapGet(GetAllMyGymStaff, "GymManagement/My").RequireAuthorization();
+        groupBuilder.MapPut(PromotePendingGymEmployeeToGymStaffRole, "Promote/GymStaff").RequireAuthorization();
 
-        groupBuilder.MapPut(NominateGymStaff, "Nominate/GymStaff").RequireAuthorization();
-
-        groupBuilder.MapGet(GetMyGymManagementUsers, "GymManagement/My/GymMembers").RequireAuthorization();
-
-        groupBuilder.MapGet(GetGymManagementUsers, "Management/{gymId}").RequireAuthorization();
+        groupBuilder.MapPut(DemoteGymStaffToPendingGymEmployee, "Demote/GymStaff").RequireAuthorization();
 
         groupBuilder.MapDelete(DeleteMyAccount, "My/Delete").RequireAuthorization();
-
-        groupBuilder.MapGet(GetMyUserProfileData, "My/Profile").RequireAuthorization();
 
         groupBuilder.MapPut(UpdateMyUserProfile, "My/Profile").RequireAuthorization();
 
@@ -38,9 +31,11 @@ public class Users : EndpointGroupBase
 
         groupBuilder.MapPost(ResetPassword, "ResetPassword");
 
-        groupBuilder.MapPut(RevokeGymStaffRole, "RevokeGymStaffRole/{gymStaffMemberId}").RequireAuthorization();
+        groupBuilder.MapPut(SendEmailConfirmationEmail, "EmailConfirmationEmail").RequireAuthorization();
 
-        groupBuilder.MapGet(GetMyGymManagementUser, "GymManagement/My/{gymManagementUserId}").RequireAuthorization();
+        groupBuilder.MapPut(ActivateUserAccount, "ActivateAccount");
+
+        groupBuilder.MapPost(GymEmployeeRegisterUser, "Register/ByGymEmployee").RequireAuthorization();
     }
 
     public async Task<Ok<JwtToken>> RegisterUser(ISender sender, [FromBody] RegisterUserCommand command, CancellationToken cancellationToken)
@@ -64,32 +59,11 @@ public class Users : EndpointGroupBase
         return TypedResults.Ok(result);
     }
 
-    public async Task<Ok<List<ApplicationUserDto>>> GetAllMyGymStaff(ISender sender, CancellationToken cancellationToken)
-    {
-        var result = await sender.Send(new GetAllMyGymStaffQuery(), cancellationToken);
-
-        return TypedResults.Ok(result);
-    }
-
-    public async Task<Ok> NominateGymStaff(ISender sender, [FromBody] NominateGymStaffCommand command, CancellationToken cancellationToken)
+    public async Task<NoContent> PromotePendingGymEmployeeToGymStaffRole(ISender sender, [FromBody] PromotePendingGymEmployeeToGymStaffRoleCommand command, CancellationToken cancellationToken)
     {
         await sender.Send(command, cancellationToken);
 
-        return TypedResults.Ok();
-    }
-
-    public async Task<Ok<List<ApplicationUserDto>>> GetMyGymManagementUsers(ISender sender, CancellationToken cancellationToken)
-    {
-        var result = await sender.Send(new GetMyGymManagementUsersQuery(), cancellationToken);
-
-        return TypedResults.Ok(result);
-    }
-
-    public async Task<Ok<List<ApplicationUserDto>>> GetGymManagementUsers(ISender sender, [FromRoute] string gymId, CancellationToken cancellationToken)
-    {
-        var result = await sender.Send(new GetGymEmploymentsByGymIdQuery(gymId), cancellationToken);
-
-        return TypedResults.Ok(result);
+        return TypedResults.NoContent();
     }
 
     public async Task<Ok> DeleteMyAccount(ISender sender)
@@ -97,13 +71,6 @@ public class Users : EndpointGroupBase
         await sender.Send(new DeleteMyAccountCommand());
 
         return TypedResults.Ok();
-    }
-
-    public async Task<Ok<ApplicationUserProfileDataDto>> GetMyUserProfileData(ISender sender, CancellationToken cancellationToken)
-    {
-        var result = await sender.Send(new GetMyUserProfileQuery(), cancellationToken);
-
-        return TypedResults.Ok(result);
     }
 
     public async Task<NoContent> UpdateMyUserProfile(ISender sender, UpdateMyUserProfileCommand command, CancellationToken cancellationToken)
@@ -127,16 +94,35 @@ public class Users : EndpointGroupBase
         return TypedResults.NoContent();
     }
 
-    public async Task<NoContent> RevokeGymStaffRole(ISender sender, string gymStaffMemberId, [FromBody] string? message)
+    public async Task<NoContent> DemoteGymStaffToPendingGymEmployee(ISender sender, [FromBody] DemoteGymStaffToPendingGymEmployeeCommand command, CancellationToken cancellationToken)
     {
-        await sender.Send(new RevokeGymStaffRoleCommand(gymStaffMemberId, message));
+        await sender.Send(command);
 
         return TypedResults.NoContent();
     }
 
-    public async Task<Ok<ApplicationUserDto>> GetMyGymManagementUser(ISender sender, string gymManagementUserId, CancellationToken cancellationToken)
+    public async Task<Results<InternalServerError, NoContent>> SendEmailConfirmationEmail(ISender sender, [FromBody] SendEmailConfirmationEmailCommand command, CancellationToken cancellationToken)
     {
-        var result = await sender.Send(new GetMyGymManagementUserQuery(gymManagementUserId), cancellationToken);
+        var result = await sender.Send(command);
+
+        if (!result.Succeeded)
+        {
+            return TypedResults.InternalServerError();
+        }
+
+        return TypedResults.NoContent();
+    }
+
+    public async Task<Ok<JwtToken>> ActivateUserAccount(ISender sender, [FromBody] ActivateUserAccountCommand command, CancellationToken cancellationToken)
+    {
+        var result = await sender.Send(command);
+
+        return TypedResults.Ok(result);
+    }
+
+    public async Task<Ok<GymMembershipDto>> GymEmployeeRegisterUser(ISender sender, [FromBody] GymEmployeeRegisterUserCommand command, CancellationToken cancellationToken)
+    {
+        var result = await sender.Send(command);
 
         return TypedResults.Ok(result);
     }

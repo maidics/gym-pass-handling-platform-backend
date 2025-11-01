@@ -1,10 +1,10 @@
+using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Security;
-using FitPass.Application.Extensions;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Enums;
 
-namespace Fitpass.Application.UserGymMemberships.Commands;
+namespace FitPass.Application.GymMemberships.Commands;
 
 [Authorize(Roles = $"{Roles.GymAdministrator},{Roles.GymStaff}")]
 public record UpdateUserGymMembershipStatusCommand(string UserGymMembershipId, GymMembershipStatus NewStatus) : IRequest;

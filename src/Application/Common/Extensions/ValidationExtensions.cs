@@ -2,7 +2,7 @@ using System.Reflection;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Strings;
 
-namespace FitPass.Application.Extensions;
+namespace FitPass.Application.Common.Extensions;
 
 public static class ValidationExtensions
 {

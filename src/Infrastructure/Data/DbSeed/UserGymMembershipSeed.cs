@@ -12,13 +12,11 @@ public partial class ApplicationDbContextInitialiser
                 new GymMembership {
                     Id = _userGymMembership1Id,
                     ApplicationUserId = "User1",
-                    NonRegisteredUserId = null,
                     GymId = gymId1
                 },
                 new GymMembership {
                     Id = _userGymMembershipId2,
                     ApplicationUserId = "User1",
-                    NonRegisteredUserId = null,
                     GymId = gymId2
                 }
             ];
