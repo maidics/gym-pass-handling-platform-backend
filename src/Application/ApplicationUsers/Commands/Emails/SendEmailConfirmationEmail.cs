@@ -4,12 +4,14 @@ using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Logging;
 using FitPass.Application.Common.Models;
+using FitPass.Application.Common.Security;
 using FitPass.Domain.Strings;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace FitPass.Application.ApplicationUsers.Commands.Emails;
 
+[Authorize]
 public record SendEmailConfirmationEmailCommand(string Email) : IRequest<Result>;
 //instead of throwing exceptions it will return a result => user can always request a new email confirmation email
 //in case of just solely sending email confirmation email the minimal api method will check the result and return a http result accordingly

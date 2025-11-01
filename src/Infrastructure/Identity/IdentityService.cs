@@ -218,7 +218,7 @@ public class IdentityService : IIdentityService
 
         var user = await _userManager.FindByEmailAsync(email);
 
-        return user == null ? null : user.Email;
+        return user is null ? null : user.Id;
     }
 
     public async Task<Result> AddToRoleAsync(string userId, string role, CancellationToken cancellationToken)

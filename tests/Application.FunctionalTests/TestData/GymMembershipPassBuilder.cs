@@ -7,7 +7,8 @@ namespace FitPass.Application.FunctionalTests.TestData;
 
 using static Testing;
 
-public class TestOwnedPassBuilder : TestEntityBuilderBase<GymMembershipPass>
+/*
+public class GymMembershipPassBuilder : TestEntityBuilderBase<GymMembershipPass>
 {
     private GymMembership? _userGymMembership = null;
     private PassType? _passType = null;
@@ -19,21 +20,21 @@ public class TestOwnedPassBuilder : TestEntityBuilderBase<GymMembershipPass>
     private NonRegisteredUser? _nonRegisteredUser = null;
     private Gym? _gym = null;
 
-    private readonly TestUserGymMembershipBuilder _testUserGymMembershipBuilder;
+    private readonly GymMembershipBuilder _testUserGymMembershipBuilder;
 
-    public TestOwnedPassBuilder(IServiceScopeFactory scopeFactory) : base(scopeFactory)
+    public GymMembershipPassBuilder(IServiceScopeFactory scopeFactory) : base(scopeFactory)
     {
         _testUserGymMembershipBuilder = new(scopeFactory);
     }
 
-    public TestOwnedPassBuilder ForUserGymMembership(GymMembership userGymMembership)
+    public GymMembershipPassBuilder ForUserGymMembership(GymMembership userGymMembership)
     {
         _userGymMembership = userGymMembership;
 
         return this;
     }
 
-    public TestOwnedPassBuilder WithUserGymMembership(bool forNonRegisteredUser = false)
+    public GymMembershipPassBuilder WithUserGymMembership(bool forNonRegisteredUser = false)
     {
         if (forNonRegisteredUser)
         {
@@ -43,7 +44,7 @@ public class TestOwnedPassBuilder : TestEntityBuilderBase<GymMembershipPass>
         }
     }
 
-    public TestOwnedPassBuilder UseBased(int totalUses, int remainingUses)
+    public GymMembershipPassBuilder UseBased(int totalUses, int remainingUses)
     {
         if (totalUses < 1)
         {
@@ -82,7 +83,7 @@ public class TestOwnedPassBuilder : TestEntityBuilderBase<GymMembershipPass>
         }
     }
 
-    public TestOwnedPassBuilder WithPrice(decimal hufPrice)
+    public GymMembershipPassBuilder WithPrice(decimal hufPrice)
     {
         _hufPrice = hufPrice;
 
@@ -91,3 +92,4 @@ public class TestOwnedPassBuilder : TestEntityBuilderBase<GymMembershipPass>
     
 
 }
+*/

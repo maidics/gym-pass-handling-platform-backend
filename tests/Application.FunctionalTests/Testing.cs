@@ -1,7 +1,6 @@
 ﻿using System.Linq.Expressions;
 using FitPass.Application.FunctionalTests.TestData;
 using FitPass.Domain.Constants;
-using FitPass.Domain.Entities;
 using FitPass.Infrastructure.Data;
 using FitPass.Infrastructure.Identity;
 using MediatR;
@@ -20,8 +19,7 @@ public partial class Testing
     private static string? _userId;
     private static List<string>? _roles;
 
-    public static TestApplicationUserBuilder TestApplicationUserBuilder => new(_scopeFactory);
-    public static TestGymBuilder TestGymBuilder => new(_scopeFactory);
+    public static ApplicationUserBuilder ApplicationUserBuilder => new(_scopeFactory);
 
     [OneTimeSetUp]
     public async Task RunBeforeAnyTests()
@@ -65,35 +63,35 @@ public partial class Testing
 
     public static async Task<ApplicationUser> RunAsDefaultUserAsync()
     {
-        var user = await TestApplicationUserBuilder.BuildAsync();
+        var user = await ApplicationUserBuilder.BuildAsync();
 
         return await RunAsUserAsync(user);
     }
 
     public static async Task<ApplicationUser> RunAsAppAdminAsync()
     {
-        var user = await TestApplicationUserBuilder.WithRole(Roles.AppAdministrator).BuildAsync();
+        var user = await ApplicationUserBuilder.WithRole(Roles.AppAdministrator).BuildAsync();
 
         return await RunAsUserAsync(user);
     }
 
     public static async Task<ApplicationUser> RunAsGymAdminAsync()
     {
-        var user = await TestApplicationUserBuilder.WithRole(Roles.GymAdministrator).BuildAsync();
+        var user = await ApplicationUserBuilder.WithRole(Roles.GymAdministrator).BuildAsync();
 
         return await RunAsUserAsync(user);
     }
 
     public static async Task<ApplicationUser> RunAsGymStaffAsync()
     {
-        var user = await TestApplicationUserBuilder.WithRole(Roles.GymStaff).BuildAsync();
+        var user = await ApplicationUserBuilder.WithRole(Roles.GymStaff).BuildAsync();
 
         return await RunAsUserAsync(user);
     }
 
     public static async Task<ApplicationUser> RunAsPendingGymManagementAsync()
     {
-        var user = await TestApplicationUserBuilder.WithRole(Roles.PendingGymEmployee).BuildAsync();
+        var user = await ApplicationUserBuilder.WithRole(Roles.PendingGymEmployee).BuildAsync();
 
         return await RunAsUserAsync(user);
     }
@@ -185,6 +183,7 @@ public partial class Testing
 
         var roles = new List<IdentityRole>()
         {
+            new(Roles.User),
             new(Roles.AppAdministrator),
             new(Roles.GymAdministrator),
             new(Roles.GymStaff),

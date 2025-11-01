@@ -14,5 +14,5 @@ public abstract class TestEntityBuilderBase<TEntity> : ITestEntityBuilder<TEntit
     public abstract TEntity Build();
     public abstract Task<TEntity> BuildAsync();
     public abstract TNavigationProperty GetNavigationProperty<TNavigationProperty>() where TNavigationProperty : class;
-    public abstract void AssertEntity();
+    protected abstract void AssertEntity();
 }

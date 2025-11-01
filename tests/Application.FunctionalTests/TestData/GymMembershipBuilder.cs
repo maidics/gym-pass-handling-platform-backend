@@ -5,11 +5,12 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace FitPass.Application.FunctionalTests.TestData;
 
-public class TestUserGymMembershipBuilder : TestEntityBuilderBase<GymMembership>
+/*
+public class GymMembershipBuilder : TestEntityBuilderBase<GymMembership>
 {
     private readonly GymMembership _userGymMembership;
-    private readonly TestApplicationUserBuilder _testApplicationUserBuilder;
-    private readonly TestGymBuilder _testGymBuilder;
+    private readonly ApplicationUserBuilder _testApplicationUserBuilder;
+    private readonly GymBuilder _testGymBuilder;
     private bool _createApplicationUser = false;
     private bool _createNonRegisteredUser = false;
     private bool _createGym = false;
@@ -17,7 +18,7 @@ public class TestUserGymMembershipBuilder : TestEntityBuilderBase<GymMembership>
     private NonRegisteredUser? _nonRegisteredUser;
     private Gym? _gym;
 
-    public TestUserGymMembershipBuilder(IServiceScopeFactory scopeFactory) : base(scopeFactory)
+    public GymMembershipBuilder(IServiceScopeFactory scopeFactory) : base(scopeFactory)
     {
         _testApplicationUserBuilder = new(scopeFactory);
         _testGymBuilder = new(scopeFactory);
@@ -30,7 +31,7 @@ public class TestUserGymMembershipBuilder : TestEntityBuilderBase<GymMembership>
         };
     }
 
-    public TestUserGymMembershipBuilder ForApplicationUser(ApplicationUser user)
+    public GymMembershipBuilder ForApplicationUser(ApplicationUser user)
     {
         _userGymMembership.ApplicationUserId = user.Id;
         _userGymMembership.ApplicationUser = user;
@@ -38,7 +39,7 @@ public class TestUserGymMembershipBuilder : TestEntityBuilderBase<GymMembership>
         return this;
     }
 
-    public TestUserGymMembershipBuilder ForNonRegisteredUser(NonRegisteredUser user)
+    public GymMembershipBuilder ForNonRegisteredUser(NonRegisteredUser user)
     {
         _userGymMembership.NonRegisteredUserId = user.Id;
         _userGymMembership.NonRegisteredUser = user;
@@ -46,7 +47,7 @@ public class TestUserGymMembershipBuilder : TestEntityBuilderBase<GymMembership>
         return this;
     }
 
-    public TestUserGymMembershipBuilder WithNavigationProperties(bool createApplicationUser, bool createNonRegisteredUser, bool createGym)
+    public GymMembershipBuilder WithNavigationProperties(bool createApplicationUser, bool createNonRegisteredUser, bool createGym)
     {
         if (createApplicationUser && createNonRegisteredUser)
         {
@@ -90,12 +91,12 @@ public class TestUserGymMembershipBuilder : TestEntityBuilderBase<GymMembership>
         }
     }
 
-    public TestUserGymMembershipBuilder WithOwnedPass()
+    public GymMembershipBuilder WithOwnedPass()
     {
         
     }
 
-    public TestUserGymMembershipBuilder ForGym(Gym gym)
+    public GymMembershipBuilder ForGym(Gym gym)
     {
         _userGymMembership.GymId = gym.Id;
         _userGymMembership.Gym = gym;
@@ -103,7 +104,7 @@ public class TestUserGymMembershipBuilder : TestEntityBuilderBase<GymMembership>
         return this;
     }
 
-    public TestUserGymMembershipBuilder AddOwnedPass(params IEnumerable<GymMembershipPass> passes)
+    public GymMembershipBuilder AddOwnedPass(params IEnumerable<GymMembershipPass> passes)
     {
         _userGymMembership.Passes.Concat(passes);
 
@@ -119,7 +120,7 @@ public class TestUserGymMembershipBuilder : TestEntityBuilderBase<GymMembership>
 
         if (_createApplicationUser || _createNonRegisteredUser || _createGym)
         {
-            throw new InvalidOperationException($"{nameof(TestUserGymMembershipBuilder)}.{nameof(Build)} cannot create navigation properties, please use BuildAsync.");
+            throw new InvalidOperationException($"{nameof(GymMembershipBuilder)}.{nameof(Build)} cannot create navigation properties, please use BuildAsync.");
         }
 
         return _userGymMembership;
@@ -149,3 +150,4 @@ public class TestUserGymMembershipBuilder : TestEntityBuilderBase<GymMembership>
         if ()
     }
 }
+*/

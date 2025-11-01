@@ -7,16 +7,17 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace FitPass.Application.FunctionalTests.TestData;
 
-public class TestGymBuilder : TestEntityBuilderBase<Gym>
+/*
+public class GymBuilder : TestEntityBuilderBase<Gym>
 {
-    private readonly TestApplicationUserBuilder _testApplicationUserBuilder;
+    private readonly ApplicationUserBuilder _testApplicationUserBuilder;
     private readonly Gym _gym;
     private bool _createGymAdmin = false;
     private bool _createGymStaff = false;
     private ApplicationUser? _gymAdmin = null;
     private ApplicationUser? _gymStaff = null;
 
-    public TestGymBuilder(IServiceScopeFactory scopeFactory) : base(scopeFactory)
+    public GymBuilder(IServiceScopeFactory scopeFactory) : base(scopeFactory)
     {
         _testApplicationUserBuilder = new(scopeFactory);
 
@@ -29,25 +30,25 @@ public class TestGymBuilder : TestEntityBuilderBase<Gym>
         };
     }
 
-    public TestGymBuilder WithMember(GymMembership gymMembership)
+    public GymBuilder WithMember(GymMembership gymMembership)
     {
         _gym.UserGymMemberships.Add(gymMembership);
         return this;
     }
 
-    public TestGymBuilder WithStatus(GymStatus gymStatus)
+    public GymBuilder WithStatus(GymStatus gymStatus)
     {
         _gym.Status = gymStatus;
         return this;
     }
 
-    public TestGymBuilder WithOwnerName(string ownerName)
+    public GymBuilder WithOwnerName(string ownerName)
     {
         _gym.OwnerName = ownerName;
         return this;
     }
 
-    public TestGymBuilder WithManagement(bool createGymAdmin = true, bool createGymStaff = true)
+    public GymBuilder WithManagement(bool createGymAdmin = true, bool createGymStaff = true)
     {
         _createGymAdmin = createGymAdmin;
         _createGymStaff = createGymStaff;
@@ -113,3 +114,4 @@ public class TestGymBuilder : TestEntityBuilderBase<Gym>
         return _gym;
     }
 }
+*/

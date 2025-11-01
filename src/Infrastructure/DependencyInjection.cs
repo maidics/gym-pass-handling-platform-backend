@@ -60,6 +60,7 @@ public static class DependencyInjection
             .AddIdentityCore<ApplicationUser>()
             .AddRoles<IdentityRole>()
             .AddEntityFrameworkStores<ApplicationDbContext>()
+            .AddDefaultTokenProviders()
             .AddApiEndpoints();
 
         builder.Services.AddSingleton(TimeProvider.System);

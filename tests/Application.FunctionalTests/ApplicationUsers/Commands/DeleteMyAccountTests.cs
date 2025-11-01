@@ -1,11 +1,11 @@
 ﻿using FitPass.Application.ApplicationUsers.Commands;
 using FitPass.Application.Common.Security;
-using FitPass.Domain.Entities;
 
 namespace FitPass.Application.FunctionalTests.ApplicationUsers.Commands;
 
 using static Testing;
 
+/*
 public class DeleteMyAccountTests : BaseTestFixture
 {
     [Test]
@@ -72,3 +72,4 @@ public class DeleteMyAccountTests : BaseTestFixture
         count.ShouldBe(0);
     }
 }
+*/

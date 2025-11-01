@@ -11,7 +11,7 @@ public class LogInUserTests : BaseTestFixture
     [Test]
     public async Task ShouldLogInUserWithValidCredentials()
     {
-        var user = await TestApplicationUserBuilder.BuildAsync();
+        var user = await ApplicationUserBuilder.BuildAsync();
 
         var tokenResponse = await SendAsync(new LogInUserCommand(user.Email!, "Password123_"));
 
@@ -80,7 +80,7 @@ public class LogInUserTests : BaseTestFixture
     [Test]
     public async Task ShouldBeCaseInsensitiveForEmail()
     {
-        var user = await TestApplicationUserBuilder.BuildAsync();
+        var user = await ApplicationUserBuilder.BuildAsync();
 
         var command = new LogInUserCommand(user.Email!.ToUpperInvariant(), "Password123_");
 
