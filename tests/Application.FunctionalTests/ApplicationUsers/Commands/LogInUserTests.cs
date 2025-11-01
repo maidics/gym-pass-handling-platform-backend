@@ -88,4 +88,9 @@ public class LogInUserTests : BaseTestFixture
 
         await action.ShouldNotThrowAsync();
     }
+
+    public override Task AuthorizeAttributeCheck()
+    {
+        throw new NotImplementedException();
+    }
 }

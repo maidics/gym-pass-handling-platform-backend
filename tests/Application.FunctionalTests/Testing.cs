@@ -1,4 +1,6 @@
 ﻿using System.Linq.Expressions;
+using System.Reflection;
+using FitPass.Application.Common.Security;
 using FitPass.Application.FunctionalTests.TestData;
 using FitPass.Domain.Constants;
 using FitPass.Infrastructure.Data;
@@ -89,7 +91,7 @@ public partial class Testing
         return await RunAsUserAsync(user);
     }
 
-    public static async Task<ApplicationUser> RunAsPendingGymManagementAsync()
+    public static async Task<ApplicationUser> RunAsPendingGymEmployeeAsync()
     {
         var user = await ApplicationUserBuilder.WithRole(Roles.PendingGymEmployee).BuildAsync();
 
@@ -263,5 +265,10 @@ public partial class Testing
         var lambda = Expression.Lambda<Func<TEntity, bool>>(predicate, parameter);
 
         return await query.FirstOrDefaultAsync(lambda);
+    }
+
+    public static bool HasAuthorizeAttribute(Type type)
+    {
+        return type.GetCustomAttribute<AuthorizeAttribute>() != null;
     }
 }

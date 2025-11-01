@@ -1,6 +1,7 @@
 ﻿using FitPass.Application.ApplicationUsers.Commands.Emails;
 using FitPass.Application.Common.Exceptions;
 using FitPass.Application.Common.Security;
+using FitPass.Domain.Strings;
 
 namespace FitPass.Application.FunctionalTests.ApplicationUsers.Commands;
 
@@ -57,8 +58,8 @@ public class SendEmailConfirmationEmailTests : BaseTestFixture
     [Test]
     public override async Task AuthorizeAttributeCheck()
     {
-        var command = new SendEmailConfirmationEmailCommand("email@localhost");
+        var hasAuthorizeAttribute = HasAuthorizeAttribute(typeof(SendEmailConfirmationEmailCommand));
 
-        command.GetType().ShouldSatisfyAllConditions(type => type.ShouldBeDecoratedWith<AuthorizeAttribute>());
+        hasAuthorizeAttribute.ShouldBeTrue();
     }
 }
