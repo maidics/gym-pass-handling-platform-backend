@@ -12,7 +12,7 @@ public class GymConfiguration : IEntityTypeConfiguration<Gym>
         builder
             .HasMany(g => g.PassProducts)
             .WithOne(gp => gp.Gym)
-            .HasForeignKey(g => g.GymId);
+            .HasForeignKey(gpp => gpp.GymId);
 
         builder.HasIndex(g => g.Name).IsUnique();
 

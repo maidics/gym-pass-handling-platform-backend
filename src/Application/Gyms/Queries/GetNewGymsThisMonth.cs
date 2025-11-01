@@ -28,7 +28,7 @@ public class GetNewGymsThisMonthHandler : IRequestHandler<GetNewGymsThisMonthQue
         var newGyms = await _context
             .Gyms
             .AsNoTracking()
-            .Where(g => g.CreationDate >= startOfThisMonth && g.CreationDate < startOfNextMonth)
+            .Where(g => g.CreatedOn >= startOfThisMonth && g.CreatedOn < startOfNextMonth)
             .ToListAsync(cancellationToken);
 
         return _mapper.Map<List<GymDto>>(newGyms);

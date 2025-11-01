@@ -6,7 +6,7 @@ public class Gym : BaseEntity
     public required string Address { get; set; }
     public required GymStatus Status { get; set; }
     public required GymTier Tier { get; set; }
-    public DateTimeOffset CreationDate { get; set; } = DateTimeOffset.UtcNow;
+    public DateTimeOffset CreatedOn { get; set; } = DateTimeOffset.UtcNow;
     public string? OwnerName { get; set; }
     public ICollection<GymPassProduct> PassProducts { get; set; } = [];
 }

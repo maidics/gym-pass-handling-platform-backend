@@ -22,12 +22,6 @@ public class GymEmploymentConfiguration : IEntityTypeConfiguration<GymEmployment
             .HasForeignKey<GymEmployment>(ge => ge.GymId)
             .OnDelete(DeleteBehavior.SetNull);
 
-        builder
-            .HasOne(ge => ge.UserProfile)
-            .WithOne()
-            .HasForeignKey<GymEmployment>(ge => ge.ApplicationUserId)
-            .OnDelete(DeleteBehavior.SetNull);
-
         builder.Property(gsa => gsa.EscalationEmail).HasMaxLength(MaxStringLengths.Email);
     }
 }
