@@ -5,6 +5,7 @@ using FitPass.Application.ApplicationUsers.Commands;
 using FitPass.Application.ApplicationUsers.DTOs;
 using FitPass.Application.Common.Exceptions;
 using FitPass.Domain.Strings;
+using FitPass.Infrastructure.Identity;
 using static Testing;
 
 public class ActivateUserAccountTests : BaseTestFixture
@@ -55,6 +56,10 @@ public class ActivateUserAccountTests : BaseTestFixture
         var jwtToken = await SendAsync(command);
 
         jwtToken.ShouldBeOfType<JwtToken>();
+
+        var updateUser = await FindAsync<ApplicationUser>(user.Id);
+
+        updateUser!.EmailConfirmed.ShouldBeTrue();
     }
 
     [Test]
@@ -83,5 +88,10 @@ public class ActivateUserAccountTests : BaseTestFixture
         var jwtToken = await SendAsync(command);
 
         jwtToken.ShouldBeOfType<JwtToken>();
+
+        var updateUser = await FindAsync<ApplicationUser>(user.Id);
+
+        updateUser!.EmailConfirmed.ShouldBeTrue();
+        updateUser!.PasswordHash.ShouldNotBeNull();
     }
 }

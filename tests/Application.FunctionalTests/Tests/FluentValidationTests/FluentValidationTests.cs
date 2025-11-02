@@ -34,8 +34,6 @@ public class FluentValidationTests : BaseTestFixture
 
         var ex = action.ShouldThrow<ValidationException>();
 
-        TestContext.WriteLine($"Keys: {string.Join(", ", ex.Errors.Keys)}");
-
         ex.Errors.ShouldContainKey(nameof(CreateGymCreationRequestCommand.RequestDescription));
         ex.Errors[nameof(CreateGymCreationRequestCommand.RequestDescription)].ShouldContain(ErrorMessages.PropertyIsRequired(nameof(CreateGymCreationRequestCommand.RequestDescription)));
 

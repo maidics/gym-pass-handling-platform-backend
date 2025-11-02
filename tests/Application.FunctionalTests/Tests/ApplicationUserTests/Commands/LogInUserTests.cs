@@ -73,8 +73,6 @@ public class LogInUserTests : BaseTestFixture
         var action = () => SendAsync(command);
 
         var ex = await action.ShouldThrowAsync<UnauthorizedAccessException>();
-
-        TestContext.WriteLine($"UnauthorizedAccessException message: {ex.Message}. Exception: {ex.ToString()}");
     }
 
     [Test]
