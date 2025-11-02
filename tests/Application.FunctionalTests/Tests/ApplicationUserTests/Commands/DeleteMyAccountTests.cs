@@ -1,7 +1,7 @@
 ﻿using FitPass.Application.ApplicationUsers.Commands;
 using FitPass.Application.Common.Security;
 
-namespace FitPass.Application.FunctionalTests.ApplicationUsers.Commands;
+namespace FitPass.Application.FunctionalTests.Tests.ApplicationUserTests.Commands;
 
 using static Testing;
 

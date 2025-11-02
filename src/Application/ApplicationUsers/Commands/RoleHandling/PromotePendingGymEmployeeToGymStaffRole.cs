@@ -1,3 +1,4 @@
+using FitPass.Application.Common.Exceptions;
 using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Logging;
@@ -49,6 +50,16 @@ public class PromotePendingGymEmployeeToGymStaffRoleCommandHandler : IRequestHan
         {
             LogCriticalMessages.AuthenticatedUserRelatedEntityNotFound(_logger, _user.Roles, _user.Id, nameof(GymEmployment));
             throw new UnauthorizedAccessException();
+        }
+
+        if (!await _identityService.DoesUserExist(command.UserId))
+        {
+            throw new NotFoundException(command.UserId, "User");
+        }
+
+        if (!await _identityService.IsInRoleAsync(command.UserId, Roles.PendingGymEmployee))
+        {
+            throw new ForbiddenAccessException();
         }
 
         using var transaction = await _context.BeginTransactionAsync();

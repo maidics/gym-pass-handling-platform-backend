@@ -1,28 +1,24 @@
-﻿using System.ComponentModel.DataAnnotations;
-using FitPass.Application.FunctionalTests.TestData.Common;
+﻿using FitPass.Application.FunctionalTests.TestData.Common;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Strings;
 using FitPass.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace FitPass.Application.FunctionalTests.TestData;
+namespace FitPass.Application.FunctionalTests.TestData.EntityBuilders;
 
 public class ApplicationUserBuilder : TestEntityBuilderBase<ApplicationUser>
 {
     private string _id = Guid.NewGuid().ToString();
-    private string? _email;
+    private string _email = $"user-{Guid.NewGuid()}@localhost";
     private string _role = Roles.User;
-    private string _password = "Password123_";
+    private string? _password;
 
     public ApplicationUserBuilder(IServiceScopeFactory serviceScopeFactory) : base(serviceScopeFactory) { }
 
     public ApplicationUserBuilder WithId(string id)
     {
-        if (string.Empty == id || string.IsNullOrWhiteSpace(id))
-        {
-            throw new InvalidOperationException($"Given id '{id}' is not valid.");
-        }
+        AssertId(id);
 
         _id = id;
 
@@ -31,12 +27,7 @@ public class ApplicationUserBuilder : TestEntityBuilderBase<ApplicationUser>
 
     public ApplicationUserBuilder WithEmail(string email)
     {
-        var emailAttribute = new EmailAddressAttribute();
-
-        if (!emailAttribute.IsValid(email))
-        {
-            throw new InvalidOperationException($"'{email}' email is not valid.");
-        }
+        AssertEmail(email);
 
         _email = email;
 
@@ -99,11 +90,6 @@ public class ApplicationUserBuilder : TestEntityBuilderBase<ApplicationUser>
 
     public override ApplicationUser Build()
     {
-        if (_email is null)
-        {
-            _email = $"{_id}@localhost";
-        }
-
         var user = new ApplicationUser
         {
             Id = _id,
@@ -121,25 +107,26 @@ public class ApplicationUserBuilder : TestEntityBuilderBase<ApplicationUser>
 
         var user = Build();
 
-        var creationResult = await userManager.CreateAsync(user, _password);
-
-        if (!creationResult.Succeeded)
+        if (_password is null)
         {
-            throw new InvalidOperationException($"Failed to create user: {string.Join(", ", creationResult.Errors.Select(e => e.Description))}");
-        }
+            var creationResult = await userManager.CreateAsync(user);
 
+            AssertIdentityResult(creationResult, nameof(userManager.CreateAsync));
+        } else
+        {
+            var creationResult = await userManager.CreateAsync(user, _password);
+
+            AssertIdentityResult(creationResult, nameof(userManager.CreateAsync));
+        }
+        
         var roleResult = await userManager.AddToRoleAsync(user, _role);
 
-        if (!roleResult.Succeeded)
-        {
-            throw new InvalidOperationException($"Failed to add user to '{_role}' role: {string.Join(", ", roleResult.Errors)}");
-        }
+        AssertIdentityResult(roleResult, nameof(userManager.AddToRoleAsync));
 
-        return user;
-    }
+        var createdUser = await userManager.FindByIdAsync(user.Id);
 
-    public override TNavigationProperty GetNavigationProperty<TNavigationProperty>()
-    {
-        throw new NotImplementedException();
+        Guard.Against.NotFound(user.Id, createdUser);
+
+        return createdUser;
     }
 }

@@ -2,7 +2,7 @@
 using FitPass.Application.Common.Exceptions;
 using FitPass.Domain.Constants;
 
-namespace FitPass.Application.FunctionalTests.ApplicationUsers.Commands;
+namespace FitPass.Application.FunctionalTests.Tests.ApplicationUserTests.Commands;
 
 using static Testing;
 
@@ -89,7 +89,7 @@ public class LogInUserTests : BaseTestFixture
         await action.ShouldNotThrowAsync();
     }
 
-    public override Task AuthorizeAttributeCheck()
+    public override void AuthorizeAttributeCheck()
     {
         throw new NotImplementedException();
     }

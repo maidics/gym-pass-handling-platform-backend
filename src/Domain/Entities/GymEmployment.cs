@@ -6,7 +6,7 @@ public class GymEmployment : BaseEntity
     public string? GymId { get; set; }
     public string? EscalationEmail { get; set; }
     public required string Role { get; set; }
-    public DateTimeOffset EmploymentStart { get; } = DateTimeOffset.UtcNow;
+    public DateTimeOffset EmploymentStart { get; set; } = DateTimeOffset.UtcNow;
     public DateTimeOffset? EmploymentEnd { get; set; } = null;
     public Gym? Gym { get; set; }
 }

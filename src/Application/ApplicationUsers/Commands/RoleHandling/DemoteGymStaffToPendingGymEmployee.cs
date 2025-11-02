@@ -53,11 +53,11 @@ public class DemoteGymStaffToPendingGymEmployeeCommandHandler : IRequestHandler<
 
         var gymStaffGymEmployment = await _context
             .GymEmployments
-            .FindAsync(command.UserId);
+            .FirstOrDefaultAsync(ge => ge.ApplicationUserId == command.UserId);
 
         Guard.Against.NotFound(command.UserId, gymStaffGymEmployment, "GymEmployment");
 
-        if (gymStaffGymEmployment.GymId != demoterGymAdminEmployment.GymId)
+        if (gymStaffGymEmployment.GymId != demoterGymAdminEmployment.GymId || gymStaffGymEmployment.Role != Roles.GymStaff)
         {
             throw new UnauthorizedAccessException();
         }
@@ -97,6 +97,7 @@ public class DemoteGymStaffToPendingGymEmployeeCommandHandler : IRequestHandler<
             }
 
             _context.GymEmployments.Remove(gymStaffGymEmployment);
+
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();
         } catch (Exception ex)

@@ -1,4 +1,3 @@
-using System.Text.Encodings.Web;
 using FitPass.Application.Common.Configuration;
 using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;

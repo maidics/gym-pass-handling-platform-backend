@@ -5,7 +5,7 @@ using FitPass.Domain.Constants;
 using FitPass.Domain.Enums;
 using FitPass.Domain.Strings;
 
-namespace FitPass.Application.FunctionalTests.FluentValidation;
+namespace FitPass.Application.FunctionalTests.Tests.FluentValidationTests;
 
 using static Testing;
 
@@ -47,7 +47,7 @@ public class FluentValidationTests : BaseTestFixture
         ex.Errors["CreateGymDTO.EscalationEmail"].ShouldContain(ErrorMessages.InvalidEmailAddress(nameof(CreateGymCreationRequestCommand.CreateGymDTO.EscalationEmail)));        
     }
 
-    public override Task AuthorizeAttributeCheck()
+    public override void AuthorizeAttributeCheck()
     {
         throw new InvalidOperationException();
     }

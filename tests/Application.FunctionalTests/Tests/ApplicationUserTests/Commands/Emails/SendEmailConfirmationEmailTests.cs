@@ -1,9 +1,7 @@
 ﻿using FitPass.Application.ApplicationUsers.Commands.Emails;
 using FitPass.Application.Common.Exceptions;
-using FitPass.Application.Common.Security;
-using FitPass.Domain.Strings;
 
-namespace FitPass.Application.FunctionalTests.ApplicationUsers.Commands;
+namespace FitPass.Application.FunctionalTests.Tests.ApplicationUserTests.Commands.Emails;
 
 using static Testing;
 
@@ -40,7 +38,7 @@ public class SendEmailConfirmationEmailTests : BaseTestFixture
 
         var action = () => SendAsync(command);
 
-        action.ShouldThrow<NotFoundException>();
+        await action.ShouldThrowAsync<NotFoundException>();
     }
 
     [Test]
@@ -56,9 +54,9 @@ public class SendEmailConfirmationEmailTests : BaseTestFixture
     }
 
     [Test]
-    public override async Task AuthorizeAttributeCheck()
+    public override void AuthorizeAttributeCheck()
     {
-        var hasAuthorizeAttribute = HasAuthorizeAttribute(typeof(SendEmailConfirmationEmailCommand));
+        var hasAuthorizeAttribute = HasAuthorizeAttribute<SendEmailConfirmationEmailCommand>();
 
         hasAuthorizeAttribute.ShouldBeTrue();
     }

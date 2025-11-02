@@ -11,5 +11,5 @@ public abstract class BaseTestFixture
         await ResetState();
     }
 
-    public abstract Task AuthorizeAttributeCheck();
+    public abstract void AuthorizeAttributeCheck();
 }

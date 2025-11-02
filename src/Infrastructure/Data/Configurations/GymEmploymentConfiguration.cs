@@ -18,8 +18,8 @@ public class GymEmploymentConfiguration : IEntityTypeConfiguration<GymEmployment
 
         builder
             .HasOne(ge => ge.Gym)
-            .WithOne()
-            .HasForeignKey<GymEmployment>(ge => ge.GymId)
+            .WithMany()
+            .HasForeignKey(ge => ge.GymId)
             .OnDelete(DeleteBehavior.SetNull);
 
         builder.Property(gsa => gsa.EscalationEmail).HasMaxLength(MaxStringLengths.Email);

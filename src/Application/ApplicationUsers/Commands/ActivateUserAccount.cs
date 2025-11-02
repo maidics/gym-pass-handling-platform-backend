@@ -55,6 +55,10 @@ public class ActivateUserAccountCommandHandler : IRequestHandler<ActivateUserAcc
     {
         var email = Uri.UnescapeDataString(command.EncodedEmail);
 
+        var userId = await _identityService.GetUserIdByEmailAsync(email);
+
+        Guard.Against.NotFound(email, userId, "User");
+
         var emailConfirmationToken = Uri.UnescapeDataString(command.EncodedEmailConfirmationToken);
 
         var emailResult = await _identityService.ConfirmEmailAsync(email, emailConfirmationToken);
@@ -104,10 +108,6 @@ public class ActivateUserAccountCommandHandler : IRequestHandler<ActivateUserAcc
                 throw new Exception("Failed to set password for user.");
             }
         }
-
-        var userId = await _identityService.GetUserIdByEmailAsync(email);
-
-        Guard.Against.NotFound(email, userId, "User id");
 
         var token = await _jwtTokenService.GenerateTokenAsync(userId, CancellationToken.None);
 
