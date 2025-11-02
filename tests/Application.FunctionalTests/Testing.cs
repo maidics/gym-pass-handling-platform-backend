@@ -20,6 +20,8 @@ public partial class Testing
     public static ApplicationUserBuilder ApplicationUserBuilder => new(_scopeFactory);
     public static GymEmploymentBuilder GymEmploymentBuilder => new(_scopeFactory);
     public static GymBuilder GymBuilder => new(_scopeFactory);
+    public static UserProfileBuilder UserProfileBuilder => new(_scopeFactory);
+    public static UserPaymentProfileBuilder UserPaymentProfileBuilder => new(_scopeFactory);
 
     [OneTimeSetUp]
     public async Task RunBeforeAnyTests()

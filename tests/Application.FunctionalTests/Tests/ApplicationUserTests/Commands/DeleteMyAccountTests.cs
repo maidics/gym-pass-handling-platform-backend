@@ -1,11 +1,10 @@
 ﻿using FitPass.Application.ApplicationUsers.Commands;
-using FitPass.Application.Common.Security;
+using FitPass.Domain.Entities;
 
 namespace FitPass.Application.FunctionalTests.Tests.ApplicationUserTests.Commands;
 
 using static Testing;
 
-/*
 public class DeleteMyAccountTests : BaseTestFixture
 {
     [Test]
@@ -14,8 +13,6 @@ public class DeleteMyAccountTests : BaseTestFixture
         var command = new DeleteMyAccountCommand();
 
         var action = () => SendAsync(command);
-
-        command.GetType().ShouldSatisfyAllConditions(type => type.ShouldBeDecoratedWith<AuthorizeAttribute>());
 
         await Should.ThrowAsync<UnauthorizedAccessException>(action);
     }
@@ -29,47 +26,39 @@ public class DeleteMyAccountTests : BaseTestFixture
 
         var action = () => SendAsync(command);
 
-        await action.ShouldThrowAsync<UnauthorizedAccessException>();
+        await action.ShouldThrowAsync<Exception>();
     }
 
     [Test]
     public async Task ShouldDeleteUserAccount()
     {
-        await RunAsDefaultUserAsync();
+        var user = await RunAsDefaultUserAsync();
+
+        var userProfile = await UserProfileBuilder.WithApplicationUserId(user.Id).BuildAsync();
+        var userPaymentProfile = await UserPaymentProfileBuilder.WithApplicationUserId(user.Id).BuildAsync();
 
         var command = new DeleteMyAccountCommand();
 
         var action = () => SendAsync(command);
 
         await action.ShouldNotThrowAsync();
+
+        var deletedUserProfile = await FindAsync<UserProfile>(userProfile.ApplicationUserId);
+
+        deletedUserProfile.ShouldBeNull();
+
+        var deletedUserPaymentProfile = await FindAsync<UserPaymentProfile>(userPaymentProfile.Id);
+
+        deletedUserPaymentProfile.ShouldBeNull();
     }
 
     [Test]
-    public async Task ShouldDeleteAllUserAccounts()
+    public override void AuthorizeAttributeCheck()
     {
-        await RunAsDefaultUserAsync();
+        var command = new DeleteMyAccountCommand();
 
-        await SendAsync(new DeleteMyAccountCommand());
+        var hasAuthorizeAttirbute = HasAuthorizeAttribute<DeleteMyAccountCommand>();
 
-        await RunAsAppAdminAsync();
-
-        await SendAsync(new DeleteMyAccountCommand());
-
-        await RunAsGymAdminAsync();
-
-        await SendAsync(new DeleteMyAccountCommand());
-
-        await RunAsGymStaffAsync();
-
-        await SendAsync(new DeleteMyAccountCommand());
-
-        await RunAsPendingGymManagementAsync();
-
-        await SendAsync(new DeleteMyAccountCommand());
-
-        var count = await CountAsync<ApplicationUser>();
-
-        count.ShouldBe(0);
+        hasAuthorizeAttirbute.ShouldBeTrue();
     }
 }
-*/

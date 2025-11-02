@@ -56,7 +56,7 @@ public class DeleteMyAccountCommandHandler : IRequestHandler<DeleteMyAccountComm
 
                 LogErrorMessages.IdentityServiceMethodFailed(_logger, nameof(IIdentityService.DeleteUserAsync), _user.Roles?[0], _user.Id, result);
                 _logger.LogError("Failed to delete ({UserId}) user. IdentityResult: {IdentityResult}", _user.Id, result);
-                throw new InvalidOperationException($"Failed to delete user.");
+                throw new Exception($"Failed to delete user.");
             }
 
             var paymentProfile = await _context

@@ -5,7 +5,7 @@ public class UserPaymentProfile : BaseEntity
 {
     public required string? ApplicationUserId { get; set; }
     public string? StripeCustomerId { get; set; }
-    List<PurchaseReceipt> PurchaseReceipts { get; set; } = [];
+    public ICollection<PurchaseReceipt> PurchaseReceipts { get; set; } = [];
     /*
     public required string PhoneNumber { get; set; }
     public string? BusinessName { get; set; }
