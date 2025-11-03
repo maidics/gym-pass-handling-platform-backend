@@ -46,7 +46,7 @@ public class UpdateUserGymMembershipStatusCommandHandler : IRequestHandler<Updat
             throw new UnauthorizedAccessException();
         }
 
-        userGymMembership.GymMembershipStatus = command.NewStatus;
+        userGymMembership.Status = command.NewStatus;
 
         await _context.SaveChangesAsync(cancellationToken);
     }

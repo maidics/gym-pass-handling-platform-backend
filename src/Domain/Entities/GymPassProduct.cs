@@ -1,6 +1,6 @@
 namespace FitPass.Domain.Entities;
 
-public class GymPassProduct : BaseEntity
+public class GymPassProduct : BaseAuditableEntity
 {
     public required string GymId { get; set; }
     public required string Name { get; set; }
@@ -17,7 +17,6 @@ public class GymPassProduct : BaseEntity
     public required bool IsActive { get; set; }
     public bool IsCreatedOnStripe { get; set; } = false;
     public string? StripePriceId { get; set; } 
-    public bool HasPriceOnStripe { get; set; } = false;
     public Gym Gym { get; set; } = null!;
 
     public DateOnly? GetExpirationDate()
