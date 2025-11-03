@@ -1,3 +1,4 @@
+using FitPass.Application.Common.Exceptions;
 using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Logging;
@@ -72,6 +73,13 @@ public class UserBuyGymMembershipPassCommandHandler : IRequestHandler<UserBuyGym
 
                 await _context.GymMemberships.AddAsync(userGymMembership);
             }
+
+            /* TODO: handle gym member & gym statuses to prevent user from buying passes in those cases
+            if (userGymMembership.Status == Domain.Enums.GymMembershipStatus.Banned)
+            {
+                throw new ForbiddenAccessException();
+            }
+            */
 
             var pass = new GymMembershipPass
             {

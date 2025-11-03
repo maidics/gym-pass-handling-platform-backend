@@ -2,22 +2,18 @@ using FitPass.Application.Common.Interfaces;
 using FitPass.Domain.Entities;
 using FitPass.Infrastructure.Stripe;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Stripe;
 
 namespace Fitpass.Infrastructure.Stripe.Services;
 
 public class StripeCustomerService : IStripeCustomerService
 {
-    private readonly StripeSettings _settings;
     private readonly ILogger<StripeCustomerService> _logger;
     private readonly CustomerService _customerService;
     public StripeCustomerService(
-        IOptions<StripeSettings> options,
         ILogger<StripeCustomerService> logger,
         CustomerService customerService)
     {
-        _settings = options.Value;
         _logger = logger;
         _customerService = customerService;
     }

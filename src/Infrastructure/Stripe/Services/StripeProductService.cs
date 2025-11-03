@@ -1,5 +1,4 @@
 using FitPass.Application.Common.Interfaces;
-using FitPass.Application.Common.Models;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
 using FitPass.Infrastructure.Stripe;

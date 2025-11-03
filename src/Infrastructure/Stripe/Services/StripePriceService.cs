@@ -1,5 +1,4 @@
 using FitPass.Application.Common.Interfaces;
-using FitPass.Application.Common.Models;
 using FitPass.Domain.Entities;
 using FitPass.Infrastructure.Stripe;
 using Microsoft.Extensions.Logging;
@@ -40,7 +39,7 @@ public class StripePriceService : IStripePriceService
             gymPassProduct.StripePriceId = price.Id;
         } catch (StripeException ex)
         {
-            ex.LogAndGetApplicationException<StripePriceService>(_logger);
+            throw ex.LogAndGetApplicationException(_logger);
         }
     }
 
@@ -65,7 +64,7 @@ public class StripePriceService : IStripePriceService
             gymPassProduct.StripePriceId = null;
         } catch (StripeException ex)
         {
-            ex.LogAndGetApplicationException<StripePriceService>(_logger);
+            ex.LogAndGetApplicationException(_logger);
         }
     }
 }

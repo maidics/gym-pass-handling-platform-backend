@@ -2,7 +2,6 @@
 using FitPass.Application.Common.Interfaces;
 using FitPass.Domain.Entities;
 using FitPass.Infrastructure.Identity;
-using FitPass.Infrastructure.Stripe.Entities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -12,7 +11,7 @@ namespace FitPass.Infrastructure.Data;
 public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplicationDbContext
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
-    public DbSet<UserPaymentProfile> UserPaymentProfiles => Set<UserPaymentProfile>();
+    
     public DbSet<UserProfile> UserProfiles => Set<UserProfile>();
     public DbSet<Gym> Gyms => Set<Gym>();
     public DbSet<GymMembership> GymMemberships => Set<GymMembership>();
@@ -21,10 +20,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
     public DbSet<GymPassProduct> GymPassProducts => Set<GymPassProduct>();
     public DbSet<Request> Requests => Set<Request>();
     public DbSet<PurchaseReceipt> PurchaseReceipts => Set<PurchaseReceipt>();
-
-    public DbSet<StripeCustomer> StripeCustomers => Set<StripeCustomer>();
-    public DbSet<StripePrice> StripePrices => Set<StripePrice>();
-    public DbSet<StripeProduct> StripeProducts => Set<StripeProduct>();
+    public DbSet<PaymentCustomer> PaymentCustomers => Set<PaymentCustomer>();
+    public DbSet<PaymentPrice> PaymentPrices => Set<PaymentPrice>();
+    public DbSet<PaymentProduct> PaymentProducts => Set<PaymentProduct>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

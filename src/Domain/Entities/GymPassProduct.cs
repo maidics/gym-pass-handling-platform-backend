@@ -1,3 +1,5 @@
+using FitPass.Domain.ValueObjects;
+
 namespace FitPass.Domain.Entities;
 
 public class GymPassProduct : BaseAuditableEntity
@@ -14,6 +16,7 @@ public class GymPassProduct : BaseAuditableEntity
     public required int? TotalUses { get; set; }
     public required int? DaysAfterExpiring { get; set; }
     public required bool IsActive { get; set; }
+    public required Money Price { get; set; }
     public Gym Gym { get; set; } = null!;
 
     public DateOnly? GetExpirationDate()

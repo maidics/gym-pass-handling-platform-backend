@@ -6,7 +6,6 @@ namespace FitPass.Application.Common.Interfaces;
 
 public interface IApplicationDbContext
 {    
-    DbSet<UserPaymentProfile> UserPaymentProfiles { get; }
     DbSet<UserProfile> UserProfiles { get; }
     DbSet<Gym> Gyms { get; }
     DbSet<GymMembership> GymMemberships { get; }
@@ -15,6 +14,9 @@ public interface IApplicationDbContext
     DbSet<Request> Requests { get; }
     DbSet<GymPassProduct> GymPassProducts { get; }
     DbSet<PurchaseReceipt> PurchaseReceipts { get; }
+    DbSet<PaymentCustomer> PaymentCustomers { get; }
+    DbSet<PaymentPrice> PaymentPrices { get; }
+    DbSet<PaymentProduct> PaymentProducts { get; }
     Task<int> SaveChangesAsync();
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
     Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default);
