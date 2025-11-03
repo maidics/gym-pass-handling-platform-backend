@@ -2,6 +2,7 @@
 using FitPass.Application.Common.Interfaces;
 using FitPass.Domain.Entities;
 using FitPass.Infrastructure.Identity;
+using FitPass.Infrastructure.Stripe.Entities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -18,9 +19,12 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
     public DbSet<GymEmployment> GymEmployments => Set<GymEmployment>();
     public DbSet<GymMembershipPass> GymMembershipPasses => Set<GymMembershipPass>();
     public DbSet<GymPassProduct> GymPassProducts => Set<GymPassProduct>();
-    public DbSet<GymPassProductTemplate> GymPassProductTemplates => Set<GymPassProductTemplate>();
     public DbSet<Request> Requests => Set<Request>();
     public DbSet<PurchaseReceipt> PurchaseReceipts => Set<PurchaseReceipt>();
+
+    public DbSet<StripeCustomer> StripeCustomers => Set<StripeCustomer>();
+    public DbSet<StripePrice> StripePrices => Set<StripePrice>();
+    public DbSet<StripeProduct> StripeProducts => Set<StripeProduct>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

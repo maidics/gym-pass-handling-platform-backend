@@ -12,7 +12,5 @@ public class OwnedPassConfiguration : IEntityTypeConfiguration<GymMembershipPass
             .HasOne(gmp => gmp.GymMembership)
             .WithMany(gm => gm.Passes)
             .HasForeignKey(gmp => gmp.GymMembershipId);
-
-        builder.Property(op => op.HufPrice).HasPrecision(18, 2);
     }
 }

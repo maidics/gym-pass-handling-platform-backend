@@ -9,7 +9,6 @@ public class GymMembershipPass : BaseAuditableEntity
     public required int? TotalUses { get; set; }
     public required int? RemainingUses { get; set; }
     public required DateOnly? ExpirationDate { get; set; }
-    public required decimal HufPrice { get; set; }
     public GymMembership GymMembership { get; set; } = null!;
 
     private bool IsExpired()

@@ -16,7 +16,6 @@ public partial class ApplicationDbContextInitialiser
                     TotalUses = 1,
                     RemainingUses = 1,
                     ExpirationDate = null,
-                    HufPrice = 200,
                 },
                 new GymMembershipPass {
                     GymMembershipId = _userGymMembershipId2,
@@ -24,7 +23,6 @@ public partial class ApplicationDbContextInitialiser
                     TotalUses = 1,
                     RemainingUses = 0,
                     ExpirationDate = null,
-                    HufPrice = 100,
                 }
             ];
 

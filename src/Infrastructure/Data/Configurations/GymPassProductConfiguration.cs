@@ -12,7 +12,5 @@ public class GymPassProductConfiguration : IEntityTypeConfiguration<GymPassProdu
             .HasOne(gpp => gpp.Gym)
             .WithMany(g => g.PassProducts)
             .HasForeignKey(gpp => gpp.GymId);
-
-        builder.Property(gpp => gpp.HufPrice).HasPrecision(18, 2);
     }
 }

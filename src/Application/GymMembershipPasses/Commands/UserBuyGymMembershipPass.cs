@@ -79,8 +79,7 @@ public class UserBuyGymMembershipPassCommandHandler : IRequestHandler<UserBuyGym
                 Type = gymPassProduct.Type,
                 TotalUses = gymPassProduct.TotalUses,
                 RemainingUses = gymPassProduct.TotalUses,
-                ExpirationDate = gymPassProduct.GetExpirationDate(),
-                HufPrice = gymPassProduct.HufPrice
+                ExpirationDate = gymPassProduct.GetExpirationDate()
             };
 
             await _context.GymMembershipPasses.AddAsync(pass);

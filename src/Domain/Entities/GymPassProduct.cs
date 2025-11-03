@@ -13,10 +13,7 @@ public class GymPassProduct : BaseAuditableEntity
     public required PassType Type { get; set; }
     public required int? TotalUses { get; set; }
     public required int? DaysAfterExpiring { get; set; }
-    public required decimal HufPrice { get; set; }
     public required bool IsActive { get; set; }
-    public bool IsCreatedOnStripe { get; set; } = false;
-    public string? StripePriceId { get; set; } 
     public Gym Gym { get; set; } = null!;
 
     public DateOnly? GetExpirationDate()
