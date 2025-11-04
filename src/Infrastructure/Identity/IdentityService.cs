@@ -312,11 +312,18 @@ public class IdentityService : IIdentityService
 
         return result.ToApplicationResult();
     }
-    
+
     public async Task<string?> GetEmailByIdAsync(string userId)
     {
         var user = await _userManager.FindByIdAsync(userId);
 
-        return user == null ? null : user.Email; 
+        return user == null ? null : user.Email;
+    }
+    
+    public async Task<bool> IsUserEmailConfirmed(string userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+
+        return user != null && user.EmailConfirmed;
     }
 }

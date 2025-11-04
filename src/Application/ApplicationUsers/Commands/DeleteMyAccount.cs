@@ -2,7 +2,6 @@ using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Logging;
 using FitPass.Application.Common.Security;
-using FitPass.Domain.Entities;
 using FitPass.Domain.Strings;
 using Microsoft.Extensions.Logging;
 
@@ -15,20 +14,17 @@ public class DeleteMyAccountCommandHandler : IRequestHandler<DeleteMyAccountComm
 {
     private readonly IIdentityService _identityService;
     private readonly IUser _user;
-    private readonly IStripeCustomerService _stripeCustomerService;
     private readonly ILogger<DeleteMyAccountCommandHandler> _logger;
     private readonly IApplicationDbContext _context;
 
     public DeleteMyAccountCommandHandler(
         IIdentityService identityService,
         IUser user,
-        IStripeCustomerService stripeCustomerService,
         ILogger<DeleteMyAccountCommandHandler> logger,
         IApplicationDbContext context)
     {
         _identityService = identityService;
         _user = user;
-        _stripeCustomerService = stripeCustomerService;
         _logger = logger;
         _context = context;
     }
@@ -59,36 +55,11 @@ public class DeleteMyAccountCommandHandler : IRequestHandler<DeleteMyAccountComm
                 throw new Exception($"Failed to delete user.");
             }
 
-            var paymentProfile = await _context
-                .UserPaymentProfiles
-                .FirstOrDefaultAsync(upp => upp.ApplicationUserId == _user.Id);
-
-            if (paymentProfile == null)
-            {
-                await transaction.RollbackAsync();
-
-                LogCriticalMessages.AuthenticatedUserRelatedEntityNotFound(_logger, _user.Roles, _user.Id, nameof(UserPaymentProfile));
-
-                throw new Exception("Authenticated user's UserPaymentProfile not found.");
-            }
-
-            if (paymentProfile.StripeCustomerId != null)
-            {
-                await _stripeCustomerService.DeleteCustomerFromStripe(paymentProfile.StripeCustomerId);
-            }
-
-            _context.UserPaymentProfiles.Remove(paymentProfile);
-
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();
         } catch (Exception ex)
         {
             await transaction.RollbackAsync();
-
-            if (ex.IsStripeServiceException())
-            {
-                throw;
-            }
 
             LogErrorMessages.UnhandledExceptionCaught(_logger, nameof(DeleteMyAccountCommandHandler), ex);
 

@@ -10,23 +10,23 @@ using Microsoft.Extensions.Logging;
 namespace FitPass.Application.Gyms.Queries;
 
 [Authorize(Roles = $"{Roles.GymAdministrator},{Roles.GymStaff}")]
-public record GetMyGymDetailsQuery : IRequest<GymDto>;
+public record GetMyGymQuery : IRequest<GymDto>;
 
-public class GetMyGymDetailsQueryHandler : IRequestHandler<GetMyGymDetailsQuery, GymDto>
+public class GetMyGymQueryHandler : IRequestHandler<GetMyGymQuery, GymDto>
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
     private readonly IMapper _mapper;
-    private readonly ILogger<GetMyGymDetailsQueryHandler> _logger;
+    private readonly ILogger<GetMyGymQueryHandler> _logger;
 
-    public GetMyGymDetailsQueryHandler(IApplicationDbContext context, IUser user, IMapper mapper, ILogger<GetMyGymDetailsQueryHandler> logger)
+    public GetMyGymQueryHandler(IApplicationDbContext context, IUser user, IMapper mapper, ILogger<GetMyGymQueryHandler> logger)
     {
         _context = context;
         _user = user;
         _mapper = mapper;
         _logger = logger;
     }
-    public async Task<GymDto> Handle(GetMyGymDetailsQuery query, CancellationToken cancellationToken)
+    public async Task<GymDto> Handle(GetMyGymQuery query, CancellationToken cancellationToken)
     {
         var gymEmployment = await _context.GymEmployments
             .AsNoTracking()

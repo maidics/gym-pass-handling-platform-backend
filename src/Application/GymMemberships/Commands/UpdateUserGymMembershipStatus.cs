@@ -1,47 +1,65 @@
 using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
+using FitPass.Application.Common.Logging;
 using FitPass.Application.Common.Security;
 using FitPass.Domain.Constants;
+using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
+using FitPass.Domain.Strings;
+using Microsoft.Extensions.Logging;
 
 namespace FitPass.Application.GymMemberships.Commands;
 
 [Authorize(Roles = $"{Roles.GymAdministrator},{Roles.GymStaff}")]
-public record UpdateUserGymMembershipStatusCommand(string UserGymMembershipId, GymMembershipStatus NewStatus) : IRequest;
+public record UpdateGymMembershipStatusCommand(string GymMembershipId, GymMembershipStatus NewStatus) : IRequest;
 
-public class UpdateUserGymMembershipStatusCommandValidator : AbstractValidator<UpdateUserGymMembershipStatusCommand>
+public class UpdateGymMembershipStatusCommandValidator : AbstractValidator<UpdateGymMembershipStatusCommand>
 {
-    public UpdateUserGymMembershipStatusCommandValidator()
+    public UpdateGymMembershipStatusCommandValidator()
     {
-        RuleFor(v => v.UserGymMembershipId).NotEmptyWithMessage(nameof(UpdateUserGymMembershipStatusCommand.UserGymMembershipId));
+        RuleFor(v => v.GymMembershipId).NotEmptyWithMessage(nameof(UpdateGymMembershipStatusCommand.GymMembershipId));
 
         RuleFor(v => v.NewStatus).IsInEnumWithMessage();
     }
 }
 
-public class UpdateUserGymMembershipStatusCommandHandler : IRequestHandler<UpdateUserGymMembershipStatusCommand>
+public class UpdateGymMembershipStatusCommandHandler : IRequestHandler<UpdateGymMembershipStatusCommand>
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
+    private readonly ILogger<UpdateGymMembershipStatusCommand> _logger;
 
-    public UpdateUserGymMembershipStatusCommandHandler(IApplicationDbContext context, IUser user)
+    public UpdateGymMembershipStatusCommandHandler(
+        IApplicationDbContext context,
+        IUser user,
+        ILogger<UpdateGymMembershipStatusCommand> logger)
     {
         _context = context;
         _user = user;
+        _logger = logger;
     }
-    public async Task Handle(UpdateUserGymMembershipStatusCommand command, CancellationToken cancellationToken)
+    public async Task Handle(UpdateGymMembershipStatusCommand command, CancellationToken cancellationToken)
     {
-        var gymStaffAssigment = await _context.GymEmployments
+        var gymEmployment = await _context.GymEmployments
             .AsNoTracking()
             .FirstOrDefaultAsync(gsa => gsa.ApplicationUserId == _user.Id, cancellationToken);
 
-        Guard.Against.Null(gymStaffAssigment, "Id", "Failed to find currently logged in Gym Admin or Gym Staff member.");
+        if (gymEmployment is null)
+        {
+            LogCriticalMessages.AuthenticatedUserRelatedEntityNotFound(
+                _logger,
+                _user.Roles,
+                _user.Id,
+                nameof(GymEmployment));
 
-        var userGymMembership = await _context.GymMemberships.FindAsync(command.UserGymMembershipId, cancellationToken);
+            throw new Exception(ErrorMessages.AuthenticatedUserRelatedEntityNotFound(nameof(GymEmployment)));
+        }
 
-        Guard.Against.NotFound(command.UserGymMembershipId, userGymMembership, "Id");
+        var userGymMembership = await _context.GymMemberships.FindAsync(command.GymMembershipId, cancellationToken);
 
-        if (userGymMembership.GymId != gymStaffAssigment.GymId)
+        Guard.Against.NotFound(command.GymMembershipId, userGymMembership, "Id");
+
+        if (userGymMembership.GymId != gymEmployment.GymId)
         {
             throw new UnauthorizedAccessException();
         }

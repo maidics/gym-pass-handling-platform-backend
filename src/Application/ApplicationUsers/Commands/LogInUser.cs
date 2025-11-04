@@ -1,7 +1,6 @@
 using System.Security.Authentication;
 using Fitpass.Application.Common.Exceptions;
 using FitPass.Application.ApplicationUsers.DTOs;
-using FitPass.Application.Common.Exceptions;
 using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Logging;

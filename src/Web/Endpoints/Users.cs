@@ -1,4 +1,5 @@
 using Fitpass.Application.ApplicationUsers.Commands;
+using Fitpass.Application.ApplicationUsers.Commands.Emails;
 using FitPass.Application.ApplicationUsers.Commands;
 using FitPass.Application.ApplicationUsers.Commands.Emails;
 using FitPass.Application.ApplicationUsers.Commands.RoleHandling;
@@ -24,8 +25,6 @@ public class Users : EndpointGroupBase
         groupBuilder.MapPut(DemoteGymStaffToPendingGymEmployee, "Demote/GymStaff").RequireAuthorization();
 
         groupBuilder.MapDelete(DeleteMyAccount, "My/Delete").RequireAuthorization();
-
-        groupBuilder.MapPut(UpdateMyUserProfile, "My/Profile").RequireAuthorization();
 
         groupBuilder.MapPost(RequestPasswordResetEmail, "RequestPasswordResetEmail");
 
@@ -71,13 +70,6 @@ public class Users : EndpointGroupBase
         await sender.Send(new DeleteMyAccountCommand());
 
         return TypedResults.Ok();
-    }
-
-    public async Task<NoContent> UpdateMyUserProfile(ISender sender, UpdateMyUserProfileCommand command, CancellationToken cancellationToken)
-    {
-        await sender.Send(command);
-
-        return TypedResults.NoContent();
     }
 
     public async Task<NoContent> RequestPasswordResetEmail(ISender sender, [FromBody] RequestPasswordResetEmailCommand command, CancellationToken cancellationToken)

@@ -106,14 +106,6 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, J
 
             var stripeCustomerId = await _stripeCustomerService.CreateStripeCustomer(userProfile, command.Email);
 
-            var paymentProfile = new UserPaymentProfile
-            {
-                ApplicationUserId = userId,
-                StripeCustomerId = stripeCustomerId
-            };
-
-            await _context.UserPaymentProfiles.AddAsync(paymentProfile);
-
             //user.AddDomainEvent(new UserRegisteredEvent(user));
 
             await _context.SaveChangesAsync();

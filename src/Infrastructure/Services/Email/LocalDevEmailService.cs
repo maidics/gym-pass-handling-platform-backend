@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Fitpass.Infrastructure.Services.Email;
-public class LocalDevEmailService : ILocalDevEmailService
+public class LocalDevEmailService : IEmailService
 {
     private readonly string _pickupDirectory;
     private readonly EmailSettings _settings;

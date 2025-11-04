@@ -10,32 +10,33 @@ using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
 using Microsoft.Extensions.Logging;
 
-namespace FitPass.Application.Gyms.Commands;
+namespace FitPass.Application.Requests.Commands;
 
 [Authorize(Roles = Roles.AppAdministrator)]
-public record RegisterGymCommand(
-    string GymCreationRequestId
-) : IRequest<GymDto>;
+public record HandleGymCreationRequestCommand(
+    string GymCreationRequestId,
+    RequestStatus NewStatus
+) : IRequest<GymDto?>;
 
-public class RegisterGymCommandValidator : AbstractValidator<RegisterGymCommand>
+public class HandleGymCreationRequestCommandValidator : AbstractValidator<HandleGymCreationRequestCommand>
 {
-    public RegisterGymCommandValidator()
+    public HandleGymCreationRequestCommandValidator()
     {
-        RuleFor(v => v.GymCreationRequestId).NotEmptyWithMessage(nameof(RegisterGymCommand.GymCreationRequestId));
+        RuleFor(v => v.GymCreationRequestId).NotEmptyWithMessage(nameof(HandleGymCreationRequestCommand.GymCreationRequestId));
     }
 }
 
-public class RegisterGymCommandHandler : IRequestHandler<RegisterGymCommand, GymDto>
+public class HandleGymCreationRequestCommandHandler : IRequestHandler<HandleGymCreationRequestCommand, GymDto?>
 {
     private readonly IIdentityService _identityService;
     private readonly IApplicationDbContext _context;
-    private readonly ILogger<RegisterGymCommandHandler> _logger;
+    private readonly ILogger<HandleGymCreationRequestCommandHandler> _logger;
     private readonly IMapper _mapper;
 
-    public RegisterGymCommandHandler(
+    public HandleGymCreationRequestCommandHandler(
         IIdentityService identityService,
         IApplicationDbContext context,
-        ILogger<RegisterGymCommandHandler> logger,
+        ILogger<HandleGymCreationRequestCommandHandler> logger,
         IMapper mapper)
     {
         _identityService = identityService;
@@ -44,7 +45,7 @@ public class RegisterGymCommandHandler : IRequestHandler<RegisterGymCommand, Gym
         _mapper = mapper;
     }
 
-    public async Task<GymDto> Handle(RegisterGymCommand command, CancellationToken cancellationToken)
+    public async Task<GymDto?> Handle(HandleGymCreationRequestCommand command, CancellationToken cancellationToken)
     {
         var request = await _context
             .Requests
@@ -120,18 +121,18 @@ public class RegisterGymCommandHandler : IRequestHandler<RegisterGymCommand, Gym
 
             await _context.GymEmployments.AddAsync(gymEmployment);
 
-            request.Status = RequestStatus.Completed;
+            request.Status = RequestStatus.Completed; //TODO handle accordingly
 
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();
 
-            return _mapper.Map<GymDto>(gym);
+            return _mapper.Map<GymDto>(gym); //if rejected return null
         }
         catch(Exception ex)
         {
             await transaction.RollbackAsync();
 
-            LogErrorMessages.UnhandledExceptionCaught(_logger, nameof(RegisterGymCommandHandler), ex);
+            LogErrorMessages.UnhandledExceptionCaught(_logger, nameof(HandleGymCreationRequestCommandHandler), ex);
 
             throw;
         }

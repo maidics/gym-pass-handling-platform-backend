@@ -6,7 +6,7 @@ using FitPass.Domain.Constants;
 using FitPass.Domain.Strings;
 using Microsoft.Extensions.Logging;
 
-namespace FitPass.Application.ApplicationUsers.Commands;
+namespace FitPass.Application.UserProfiles.Commands;
 
 [Authorize]
 public record UpdateMyUserProfileCommand(

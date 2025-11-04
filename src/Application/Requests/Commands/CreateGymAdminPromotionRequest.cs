@@ -14,7 +14,7 @@ using Microsoft.Extensions.Logging;
 namespace FitPass.Application.Requests.Commands;
 
 [Authorize(Roles = Roles.GymAdministrator)]
-public record CreateGymAdminNominationRequestCommand
+public record CreateGymAdminPromotionRequestCommand
 (
     string UserIdToNominate,
     string RequestDescription,
@@ -22,32 +22,32 @@ public record CreateGymAdminNominationRequestCommand
     string EscalationEmail
 ) : IRequest<Result>;
 
-public class CreateGymAdminNominationRequestCommandValidator : AbstractValidator<CreateGymAdminNominationRequestCommand>
+public class CreateGymAdminPromotionRequestCommandValidator : AbstractValidator<CreateGymAdminPromotionRequestCommand>
 {
-    public CreateGymAdminNominationRequestCommandValidator()
+    public CreateGymAdminPromotionRequestCommandValidator()
     {
-        RuleFor(v => v.UserIdToNominate).NotEmptyWithMessage(nameof(CreateGymAdminNominationRequestCommand.UserIdToNominate));
+        RuleFor(v => v.UserIdToNominate).NotEmptyWithMessage(nameof(CreateGymAdminPromotionRequestCommand.UserIdToNominate));
 
         RuleFor(v => v.RequestDescription!)
-            .NotEmptyWithMaxLenghtAndMessage(nameof(CreateGymAdminNominationRequestCommand.RequestDescription), MaxStringLengths.Description);
+            .NotEmptyWithMaxLenghtAndMessage(nameof(CreateGymAdminPromotionRequestCommand.RequestDescription), MaxStringLengths.Description);
 
         RuleFor(v => v.RequestPriorityLevel).IsInEnumWithMessage();
 
-        RuleFor(v => v.EscalationEmail).ValidEmailAddress(nameof(CreateGymAdminNominationRequestCommand.EscalationEmail));
+        RuleFor(v => v.EscalationEmail).ValidEmailAddress(nameof(CreateGymAdminPromotionRequestCommand.EscalationEmail));
     }
 }
 
-public class CreateGymAdminNominationRequestCommandHandler : IRequestHandler<CreateGymAdminNominationRequestCommand, Result>
+public class CreateGymAdminPromotionRequestCommandHandler : IRequestHandler<CreateGymAdminPromotionRequestCommand, Result>
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
-    private readonly ILogger<CreateGymAdminNominationRequestCommandHandler> _logger;
+    private readonly ILogger<CreateGymAdminPromotionRequestCommandHandler> _logger;
     private readonly IIdentityService _identityService;
 
-    public CreateGymAdminNominationRequestCommandHandler(
+    public CreateGymAdminPromotionRequestCommandHandler(
         IApplicationDbContext context, 
         IUser user,
-        ILogger<CreateGymAdminNominationRequestCommandHandler> logger, 
+        ILogger<CreateGymAdminPromotionRequestCommandHandler> logger, 
         IIdentityService identityService)
     {
         _context = context;
@@ -55,7 +55,7 @@ public class CreateGymAdminNominationRequestCommandHandler : IRequestHandler<Cre
         _logger = logger;
         _identityService = identityService;
     }
-    public async Task<Result> Handle(CreateGymAdminNominationRequestCommand command, CancellationToken cancellationToken)
+    public async Task<Result> Handle(CreateGymAdminPromotionRequestCommand command, CancellationToken cancellationToken)
     {
         var requesterGymEmployment = await _context
             .GymEmployments

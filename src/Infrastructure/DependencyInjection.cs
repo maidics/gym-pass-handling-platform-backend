@@ -70,7 +70,7 @@ public static class DependencyInjection
         builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 
         builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection(ConfigurationSections.Email));
-        builder.Services.AddTransient<ILocalDevEmailService, LocalDevEmailService>();
+        builder.Services.AddTransient<IEmailService, LocalDevEmailService>();
 
         builder.Services.AddTransient<IQrCodeService, QrCodeService>();
 

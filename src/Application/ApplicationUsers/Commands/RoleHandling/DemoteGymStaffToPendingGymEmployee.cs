@@ -1,3 +1,4 @@
+using FitPass.Application.Common.Exceptions;
 using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Logging;
@@ -48,7 +49,7 @@ public class DemoteGymStaffToPendingGymEmployeeCommandHandler : IRequestHandler<
         if (demoterGymAdminEmployment == null)
         {
             LogCriticalMessages.AuthenticatedUserRelatedEntityNotFound(_logger, _user.Roles, _user.Id, nameof(GymEmployment));
-            throw new UnauthorizedAccessException();
+            throw new Exception(ErrorMessages.AuthenticatedUserRelatedEntityNotFound(nameof(GymEmployment)));
         }
 
         var gymStaffGymEmployment = await _context
@@ -59,7 +60,7 @@ public class DemoteGymStaffToPendingGymEmployeeCommandHandler : IRequestHandler<
 
         if (gymStaffGymEmployment.GymId != demoterGymAdminEmployment.GymId || gymStaffGymEmployment.Role != Roles.GymStaff)
         {
-            throw new UnauthorizedAccessException();
+            throw new ForbiddenAccessException();
         }
 
         using var transaction = await _context.BeginTransactionAsync();
@@ -76,7 +77,7 @@ public class DemoteGymStaffToPendingGymEmployeeCommandHandler : IRequestHandler<
                 {
                     LogCriticalMessages.FailedToFindGymEmployeeButHasGymEmployment(_logger, [Roles.GymStaff], command.UserId, gymStaffGymEmployment, null);
 
-                    throw new NotFoundException(command.UserId, "User");
+                    throw new Exception("Gym staff related GymEmployment not found.");
                 } else
                 {
                     LogErrorMessages.IdentityServiceMethodFailed(_logger, nameof(IIdentityService.RemoveFromRoleAsync), Roles.GymStaff, command.UserId, demotionResult);

@@ -1,6 +1,10 @@
 using FitPass.Application.Common.Interfaces;
+using FitPass.Application.Common.Logging;
 using FitPass.Application.Common.Security;
 using FitPass.Domain.Constants;
+using FitPass.Domain.Entities;
+using FitPass.Domain.Strings;
+using Microsoft.Extensions.Logging;
 
 namespace FitPass.Application.Gyms.Queries;
 
@@ -11,24 +15,39 @@ public class GetMyGymQrCodeQueryHandler : IRequestHandler<GetMyGymQrCodeQuery, b
 {
     private readonly IUser _user;
     private readonly IApplicationDbContext _context;
+    private readonly ILogger<GetMyGymQrCodeQuery> _logger;
     private readonly IQrCodeService _qrCodeService;
 
-    public GetMyGymQrCodeQueryHandler(IUser user, IApplicationDbContext context, IQrCodeService qrCodeService)
+    public GetMyGymQrCodeQueryHandler(
+        IUser user,
+        IApplicationDbContext context,
+        ILogger<GetMyGymQrCodeQuery> logger,
+        IQrCodeService qrCodeService)
     {
         _user = user;
         _context = context;
+        _logger = logger;
         _qrCodeService = qrCodeService;
     }
 
     public async Task<byte[]> Handle(GetMyGymQrCodeQuery query, CancellationToken cancellationToken)
     {
-        var gymStaffAssigment = await _context
+        var gymEmployment = await _context
             .GymEmployments
             .AsNoTracking()
             .FirstOrDefaultAsync(gsa => gsa.ApplicationUserId == _user.Id, cancellationToken);
 
-        Guard.Against.Null(gymStaffAssigment);
+        if (gymEmployment is null)
+        {
+            LogCriticalMessages.AuthenticatedUserRelatedEntityNotFound(
+                _logger,
+                _user.Roles,
+                _user.Id,
+                nameof(GymEmployment));
 
-        return _qrCodeService.GetQrCode(gymStaffAssigment.GymId!);
+            throw new Exception(ErrorMessages.AuthenticatedUserRelatedEntityNotFound(nameof(GymEmployment)));
+        }
+
+        return _qrCodeService.GetQrCode(gymEmployment.GymId!);
     }
 }

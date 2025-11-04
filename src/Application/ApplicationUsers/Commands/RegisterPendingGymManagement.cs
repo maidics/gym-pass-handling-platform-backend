@@ -57,6 +57,11 @@ public class RegisterPendingGymEmployeeCommandHandler : IRequestHandler<Register
     }
     public async Task<JwtToken> Handle(RegisterPendingGymEmployeeCommand command, CancellationToken cancellationToken)
     {
+        if (await _identityService.IsEmailInUseAsync(command.Email))
+        {
+            throw new ConflictException(ErrorMessages.PropertyIsAlreadyInUse(nameof(RegisterPendingGymEmployeeCommand.Email)));
+        }
+
         using var transaction = await _context.BeginTransactionAsync();
 
         string userId;
@@ -84,7 +89,7 @@ public class RegisterPendingGymEmployeeCommandHandler : IRequestHandler<Register
 
                 LogErrorMessages.IdentityServiceMethodFailed(_logger, nameof(_identityService.AddToRoleAsync), Roles.PendingGymEmployee, userId, roleResult);
 
-                throw new BadRequestException(string.Join(", ", roleResult.Errors));
+                throw new Exception(string.Join(", ", roleResult.Errors));
             }
 
             var userProfile = new UserProfile

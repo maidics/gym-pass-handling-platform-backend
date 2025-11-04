@@ -1,9 +1,12 @@
+using Fitpass.Application.Common.Exceptions;
 using FitPass.Application.Common.Configuration;
+using FitPass.Application.Common.Exceptions;
 using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Logging;
 using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Security;
+using FitPass.Domain.Constants;
 using FitPass.Domain.Strings;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -26,17 +29,20 @@ public class SendEmailConfirmationEmailCommandValidator : AbstractValidator<Send
 public class SendEmailConfirmationEmailCommandHandler : IRequestHandler<SendEmailConfirmationEmailCommand, Result>
 {
     private readonly IIdentityService _identityService;
+    private readonly IUser _user;
     private readonly ILogger<SendEmailConfirmationEmailCommandHandler> _logger;
-    private readonly ILocalDevEmailService _emailService;
+    private readonly IEmailService _emailService;
     private readonly FrontendSettings _frontendSettings;
 
     public SendEmailConfirmationEmailCommandHandler(
         IIdentityService identityService,
-        ILocalDevEmailService emailService,
+        IUser user,
+        IEmailService emailService,
         ILogger<SendEmailConfirmationEmailCommandHandler> logger,
         IOptions<FrontendSettings> options)
     {
         _identityService = identityService;
+        _user = user;
         _emailService = emailService;
         _logger = logger;
         _frontendSettings = options.Value;
@@ -47,6 +53,16 @@ public class SendEmailConfirmationEmailCommandHandler : IRequestHandler<SendEmai
         var userId = await _identityService.GetUserIdByEmailAsync(command.Email);
 
         Guard.Against.NotFound(command.Email, userId, "User");
+
+        if (_user.Id! != userId && _user.Roles!.First() != Roles.GymAdministrator)
+        {
+            throw new ForbiddenAccessException();
+        }
+
+        if (await _identityService.IsUserEmailConfirmed(userId))
+        {
+            throw new BadRequestException("User email is already confirmed.");
+        }
 
         var token = await _identityService.GenerateEmailConfirmationTokenAsync(userId);
 

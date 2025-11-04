@@ -12,11 +12,11 @@ public class GymMemberships : EndpointGroupBase
         groupBuilder.MapPut(UpdateUserMembershipStatus, "/{gymMembership}").RequireAuthorization();
     }
 
-    public async Task<Ok> UpdateUserMembershipStatus(ISender sender, string gymMembership, [FromBody] GymMembershipStatus newGymMembershipStatus, CancellationToken cancellationToken)
+    public async Task<NoContent> UpdateUserMembershipStatus(ISender sender, string gymMembership, [FromBody] GymMembershipStatus newGymMembershipStatus, CancellationToken cancellationToken)
     {
-        await sender.Send(new UpdateUserGymMembershipStatusCommand(gymMembership, newGymMembershipStatus), cancellationToken);
+        await sender.Send(new UpdateGymMembershipStatusCommand(gymMembership, newGymMembershipStatus), cancellationToken);
 
-        return TypedResults.Ok();
+        return TypedResults.NoContent();
     }
 
     public async Task<NoContent> AddUserGymMembershipToUser(ISender sender, [FromBody] AddUserGymMembershipToUserCommand command,  CancellationToken cancellationToken)

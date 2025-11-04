@@ -49,7 +49,7 @@ public class PromotePendingGymEmployeeToGymStaffRoleCommandHandler : IRequestHan
         if (promoterGymAdminEmployment == null)
         {
             LogCriticalMessages.AuthenticatedUserRelatedEntityNotFound(_logger, _user.Roles, _user.Id, nameof(GymEmployment));
-            throw new UnauthorizedAccessException();
+            throw new Exception(ErrorMessages.AuthenticatedUserRelatedEntityNotFound(nameof(GymEmployment)));
         }
 
         if (!await _identityService.DoesUserExist(command.UserId))

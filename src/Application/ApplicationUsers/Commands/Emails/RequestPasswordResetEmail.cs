@@ -2,7 +2,7 @@ using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Domain.Strings;
 
-namespace Fitpass.Application.ApplicationUsers.Commands;
+namespace Fitpass.Application.ApplicationUsers.Commands.Emails;
 
 public record RequestPasswordResetEmailCommand(string Email) : IRequest; 
 
@@ -17,9 +17,9 @@ public class RequestPasswordResetEmailCommandValidator : AbstractValidator<Reque
 public class RequestPasswordResetEmailCommandHandler : IRequestHandler<RequestPasswordResetEmailCommand>
 {
     private readonly IIdentityService _identityService;
-    private readonly ILocalDevEmailService _emailService;
+    private readonly IEmailService _emailService;
 
-    public RequestPasswordResetEmailCommandHandler(IIdentityService identityService, ILocalDevEmailService emailService)
+    public RequestPasswordResetEmailCommandHandler(IIdentityService identityService, IEmailService emailService)
     {
         _identityService = identityService;
         _emailService = emailService;
@@ -31,7 +31,7 @@ public class RequestPasswordResetEmailCommandHandler : IRequestHandler<RequestPa
 
         if (userId == null)
         {
-            throw new UnauthorizedAccessException();
+            return;
         }
 
         var passwordResetToken = await _identityService.GeneratePasswordResetTokenAsync(userId);

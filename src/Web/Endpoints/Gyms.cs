@@ -13,8 +13,6 @@ public class Gyms : EndpointGroupBase
 {
     public override void Map(RouteGroupBuilder groupBuilder)
     {
-        groupBuilder.MapPost(RegisterGym, "Register/{requestId}").RequireAuthorization();
-
         groupBuilder.MapGet(GetMyGymQrCode, "My/QrCode").RequireAuthorization();
 
         groupBuilder.MapPut(UpdateMyGymProfile, "My/Profile").RequireAuthorization();
@@ -28,18 +26,6 @@ public class Gyms : EndpointGroupBase
         groupBuilder.MapPut(UpdateGymStatus, "{gymId}/Status").RequireAuthorization();
 
         groupBuilder.MapGet(GetMyGymDetails, "My/Details").RequireAuthorization();
-    }
-
-    public async Task<Results<Ok<GymDto>, BadRequest>> RegisterGym(ISender sender, string requestId, [AsParameters] RegisterGymCommand command)
-    {
-        if (requestId != command.GymCreationRequestId)
-        {
-            return TypedResults.BadRequest();
-        }
-
-        var result = await sender.Send(command);
-
-        return TypedResults.Ok(result);
     }
 
     public async Task<IResult> GetMyGymQrCode(ISender sender, CancellationToken cancellationToken)
@@ -58,7 +44,7 @@ public class Gyms : EndpointGroupBase
 
     public async Task<Ok<List<GymDto>>> GetAllGyms(ISender sender, CancellationToken cancellationToken)
     {
-        var result = await sender.Send(new GetAllGymsQuery { }, cancellationToken);
+        var result = await sender.Send(new GetAllGymsQuery(), cancellationToken);
 
         return TypedResults.Ok(result);
     }
@@ -86,7 +72,7 @@ public class Gyms : EndpointGroupBase
 
     public async Task<Ok<GymDto>> GetMyGymDetails(ISender sender, CancellationToken cancellationToken)
     {
-        var result = await sender.Send(new GetMyGymDetailsQuery(), cancellationToken);
+        var result = await sender.Send(new GetMyGymQuery(), cancellationToken);
 
         return TypedResults.Ok(result);
     }

@@ -1,3 +1,4 @@
+using Fitpass.Application.Gyms.DTOs;
 using Fitpass.Application.Requests.DTOs;
 using Fitpass.Application.Requests.Queries;
 using FitPass.Application.Common.Models;
@@ -20,7 +21,9 @@ public class Requests : EndpointGroupBase
 
         groupBuilder.MapPost(CreateGymCreationRequest, "/GymCreation");
 
-        groupBuilder.MapPost(CreateGymAdminNominationRequest, "GymAdminNomination").RequireAuthorization();
+        groupBuilder.MapPost(CreateGymAdminPromotionRequest, "GymAdminNomination").RequireAuthorization();
+
+        groupBuilder.MapPut(HandleGymCreationRequest, "GymCreation/{requestId}").RequireAuthorization();
     }
 
     public async Task<Ok<RequestDto>> GetRequest(ISender sender, string requestId, CancellationToken cancellationToken)
@@ -51,7 +54,7 @@ public class Requests : EndpointGroupBase
         return TypedResults.Ok();
     }
 
-    public async Task<Results<Ok<Result>, ProblemHttpResult>> CreateGymAdminNominationRequest(ISender sender, [FromBody] CreateGymAdminNominationRequestCommand command)
+    public async Task<Results<Ok<Result>, ProblemHttpResult>> CreateGymAdminPromotionRequest(ISender sender, [FromBody] CreateGymAdminPromotionRequestCommand command)
     {
         var result = await sender.Send(command);
 
@@ -66,6 +69,13 @@ public class Requests : EndpointGroupBase
 
             return TypedResults.Problem(problem);
         }
+
+        return TypedResults.Ok(result);
+    }
+
+    public async Task<Ok<GymDto>> HandleGymCreationRequest(ISender sender, [FromQuery] string requestId, [FromBody] RequestStatus newStatus, CancellationToken cancellationToken)
+    {
+        var result = await sender.Send(new HandleGymCreationRequestCommand(requestId, newStatus));
 
         return TypedResults.Ok(result);
     }
