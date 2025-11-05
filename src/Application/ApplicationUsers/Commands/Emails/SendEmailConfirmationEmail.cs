@@ -81,7 +81,9 @@ public class SendEmailConfirmationEmailCommandHandler : IRequestHandler<SendEmai
         var encodedToken = Uri.EscapeDataString(token);
         var encodedEmail = Uri.EscapeDataString(command.Email);
 
-        var url = $"{_frontendSettings.BaseUrl}{_frontendSettings.EmailConfirmationPath}?token={encodedToken}&user={encodedEmail}";
+        var setPassword = !await _identityService.DoesUserHavePassword(userId);
+
+        var url = $"{_frontendSettings.BaseUrl}{_frontendSettings.EmailConfirmationPath}?token={encodedToken}&user={encodedEmail}&=flag{(setPassword ? 1 : 0)}";
 
         await _emailService.SendEmailAsync(command.Email, EmailSubjects.EmailConfirmation(), EmailBodies.EmailConfirmation(url));
 

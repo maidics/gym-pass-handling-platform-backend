@@ -326,4 +326,11 @@ public class IdentityService : IIdentityService
 
         return user != null && user.EmailConfirmed;
     }
+
+    public async Task<bool> DoesUserHavePassword(string userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+
+        return user != null && user.PasswordHash != null;
+    }
 }
