@@ -80,9 +80,11 @@ public static class DependencyInjection
         builder.Services.AddScoped<ProductService>();
         builder.Services.AddScoped<PriceService>();
 
+        /*
         builder.Services.AddScoped<IStripeCustomerService, StripeCustomerService>();
         builder.Services.AddScoped<IStripeProductService, StripeProductService>();
         builder.Services.AddScoped<IStripePriceService, StripePriceService>();
+        */
 
         builder.Services.AddScoped<IQueryService, QueryService>();
 

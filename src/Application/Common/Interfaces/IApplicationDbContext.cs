@@ -13,10 +13,11 @@ public interface IApplicationDbContext
     DbSet<GymMembershipPass> GymMembershipPasses { get; }
     DbSet<Request> Requests { get; }
     DbSet<GymPassProduct> GymPassProducts { get; }
-    DbSet<PurchaseReceipt> PurchaseReceipts { get; }
+    /*
     DbSet<PaymentCustomer> PaymentCustomers { get; }
     DbSet<PaymentPrice> PaymentPrices { get; }
     DbSet<PaymentProduct> PaymentProducts { get; }
+    */
     Task<int> SaveChangesAsync();
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
     Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default);

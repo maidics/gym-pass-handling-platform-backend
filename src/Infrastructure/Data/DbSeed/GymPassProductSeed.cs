@@ -1,5 +1,6 @@
 ﻿using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
+using FitPass.Domain.ValueObjects;
 
 namespace FitPass.Infrastructure.Data.DbSeed;
 
@@ -16,7 +17,8 @@ public partial class ApplicationDbContextInitialiser
                     Type = PassType.SingleUse,
                     TotalUses = 1,
                     DaysAfterExpiring = 365,
-                    IsActive = true
+                    IsActive = true,
+                    Price = Money.Eur(10)
                 },
                 new GymPassProduct {
                     Id = "Product2",
@@ -26,7 +28,8 @@ public partial class ApplicationDbContextInitialiser
                     Type = PassType.MultiUse,
                     TotalUses = 2,
                     DaysAfterExpiring = 365,
-                    IsActive = true
+                    IsActive = true,
+                    Price = Money.Eur(10)
                 },
                 new GymPassProduct {
                     Id = "Product3",
@@ -36,7 +39,8 @@ public partial class ApplicationDbContextInitialiser
                     Type = PassType.Unlimited,
                     TotalUses = null,
                     DaysAfterExpiring = 30,
-                    IsActive = true
+                    IsActive = true,
+                    Price = Money.Eur(10)
                 },
                 new GymPassProduct {
                     Id = "Product4",
@@ -46,7 +50,8 @@ public partial class ApplicationDbContextInitialiser
                     Type = PassType.SingleUse,
                     TotalUses = 1,
                     DaysAfterExpiring = 365,
-                    IsActive = false
+                    IsActive = false,
+                    Price = Money.Eur(10)
                 }
             ];
 

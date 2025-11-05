@@ -36,137 +36,7 @@
           "x-position": 2
         },
         "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "JWT": []
-          }
-        ]
-      }
-    },
-    "/api/GymPassProductTemplates": {
-      "post": {
-        "tags": [
-          "GymPassProductTemplates"
-        ],
-        "operationId": "CreateGymPassProductTemplate",
-        "requestBody": {
-          "x-name": "command",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateGymPassProductTemplateCommand"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "JWT": []
-          }
-        ]
-      },
-      "get": {
-        "tags": [
-          "GymPassProductTemplates"
-        ],
-        "operationId": "GetAllGymPassProductTemplates",
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/GymPassProductTemplateDto"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "JWT": []
-          }
-        ]
-      }
-    },
-    "/api/GymPassProductTemplates/{gymPassProductTemplateId}": {
-      "delete": {
-        "tags": [
-          "GymPassProductTemplates"
-        ],
-        "operationId": "DeleteGymPassProductTemplate",
-        "parameters": [
-          {
-            "name": "gymPassProductTemplateId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "x-position": 1
-          }
-        ],
-        "responses": {
           "204": {
-            "description": ""
-          },
-          "400": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "JWT": []
-          }
-        ]
-      },
-      "put": {
-        "tags": [
-          "GymPassProductTemplates"
-        ],
-        "operationId": "UpdateGymPassProductTemplate",
-        "parameters": [
-          {
-            "name": "gymPassProductTemplateId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "x-position": 1
-          }
-        ],
-        "requestBody": {
-          "x-name": "command",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateGymPassProductTemplateCommand"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 2
-        },
-        "responses": {
-          "204": {
-            "description": ""
-          },
-          "400": {
             "description": ""
           }
         },
@@ -313,10 +183,56 @@
           "x-position": 1
         },
         "responses": {
-          "200": {
+          "204": {
             "description": ""
           }
         }
+      },
+      "put": {
+        "tags": [
+          "Requests"
+        ],
+        "operationId": "HandleGymCreationRequest",
+        "parameters": [
+          {
+            "name": "requestId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "x-name": "newStatus",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestStatus"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 2
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GymDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
       }
     },
     "/api/Requests/GymAdminNomination": {
@@ -324,13 +240,13 @@
         "tags": [
           "Requests"
         ],
-        "operationId": "CreateGymAdminNominationRequest",
+        "operationId": "CreateGymAdminPromotionRequest",
         "requestBody": {
           "x-name": "command",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CreateGymAdminNominationRequestCommand"
+                "$ref": "#/components/schemas/CreateGymAdminPromotionRequestCommand"
               }
             }
           },
@@ -520,36 +436,6 @@
         "operationId": "DeleteMyAccount",
         "responses": {
           "200": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "JWT": []
-          }
-        ]
-      }
-    },
-    "/api/Users/My/Profile": {
-      "put": {
-        "tags": [
-          "Users"
-        ],
-        "operationId": "UpdateMyUserProfile",
-        "requestBody": {
-          "x-name": "command",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateMyUserProfileCommand"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
-        "responses": {
-          "204": {
             "description": ""
           }
         },
@@ -833,42 +719,6 @@
         ]
       }
     },
-    "/api/GymMembershipPasses/Buy/Gym": {
-      "post": {
-        "tags": [
-          "GymMembershipPasses"
-        ],
-        "operationId": "UserBuyGymMembershipPass",
-        "parameters": [
-          {
-            "name": "gymPassProductId",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "x-position": 1
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GymMembershipPassDto"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "JWT": []
-          }
-        ]
-      }
-    },
     "/api/GymMembershipPasses/My": {
       "get": {
         "tags": [
@@ -899,55 +749,6 @@
                 }
               }
             }
-          }
-        },
-        "security": [
-          {
-            "JWT": []
-          }
-        ]
-      }
-    },
-    "/api/Gyms/Register/{requestId}": {
-      "post": {
-        "tags": [
-          "Gyms"
-        ],
-        "operationId": "RegisterGym",
-        "parameters": [
-          {
-            "name": "requestId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "x-position": 1
-          },
-          {
-            "name": "GymCreationRequestId",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "nullable": true
-            },
-            "x-position": 2
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GymDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": ""
           }
         },
         "security": [
@@ -1189,6 +990,36 @@
           }
         ]
       }
+    },
+    "/api/UserProfiles/My/Update": {
+      "put": {
+        "tags": [
+          "UserProfiles"
+        ],
+        "operationId": "UpdateMyUserProfile",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateMyUserProfileCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
     }
   },
   "components": {
@@ -1204,117 +1035,6 @@
           "Member",
           "Banned"
         ]
-      },
-      "CreateGymPassProductTemplateCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "gymTier": {
-            "$ref": "#/components/schemas/GymTier"
-          },
-          "passType": {
-            "$ref": "#/components/schemas/PassType"
-          },
-          "totalUses": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "daysAfterExpiring": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "eurPrice": {
-            "type": "number",
-            "format": "decimal"
-          }
-        }
-      },
-      "GymTier": {
-        "type": "string",
-        "description": "",
-        "x-enumNames": [
-          "Local",
-          "MidRange",
-          "Premium",
-          "Elite"
-        ],
-        "enum": [
-          "Local",
-          "MidRange",
-          "Premium",
-          "Elite"
-        ]
-      },
-      "PassType": {
-        "type": "string",
-        "description": "",
-        "x-enumNames": [
-          "SingleUse",
-          "MultiUse",
-          "Unlimited"
-        ],
-        "enum": [
-          "SingleUse",
-          "MultiUse",
-          "Unlimited"
-        ]
-      },
-      "GymPassProductTemplateDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "passType": {
-            "$ref": "#/components/schemas/PassType"
-          },
-          "totalUses": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "daysAfterExpiring": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "eurPrice": {
-            "type": "number",
-            "format": "decimal"
-          }
-        }
-      },
-      "UpdateGymPassProductTemplateCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "gymPassProductTemplateId": {
-            "type": "string"
-          },
-          "gymTier": {
-            "$ref": "#/components/schemas/GymTier"
-          },
-          "passType": {
-            "$ref": "#/components/schemas/PassType"
-          },
-          "totalUses": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "daysAfterExpiring": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "eurPrice": {
-            "type": "number",
-            "format": "decimal"
-          }
-        }
       },
       "RequestDto": {
         "type": "object",
@@ -1483,6 +1203,22 @@
           "Suspended"
         ]
       },
+      "GymTier": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "Local",
+          "MidRange",
+          "Premium",
+          "Elite"
+        ],
+        "enum": [
+          "Local",
+          "MidRange",
+          "Premium",
+          "Elite"
+        ]
+      },
       "Result": {
         "type": "object",
         "additionalProperties": false,
@@ -1498,7 +1234,7 @@
           }
         }
       },
-      "CreateGymAdminNominationRequestCommand": {
+      "CreateGymAdminPromotionRequestCommand": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -1515,6 +1251,85 @@
             "type": "string"
           }
         }
+      },
+      "GymDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/GymStatus"
+          },
+          "tier": {
+            "$ref": "#/components/schemas/GymTier"
+          },
+          "creationDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "ownerName": {
+            "type": "string",
+            "nullable": true
+          },
+          "gymPassProducts": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/GymPassProductDto"
+            }
+          }
+        }
+      },
+      "GymPassProductDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "gymId": {
+            "type": "string"
+          },
+          "type": {
+            "$ref": "#/components/schemas/PassType"
+          },
+          "totalUses": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "daysAfterExpiring": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "hufPrice": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "isActive": {
+            "type": "boolean"
+          }
+        }
+      },
+      "PassType": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "SingleUse",
+          "MultiUse",
+          "Unlimited"
+        ],
+        "enum": [
+          "SingleUse",
+          "MultiUse",
+          "Unlimited"
+        ]
       },
       "JwtToken": {
         "type": "object",
@@ -1608,18 +1423,6 @@
           }
         }
       },
-      "UpdateMyUserProfileCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "firstName": {
-            "type": "string"
-          },
-          "lastName": {
-            "type": "string"
-          }
-        }
-      },
       "RequestPasswordResetEmailCommand": {
         "type": "object",
         "additionalProperties": false,
@@ -1707,71 +1510,6 @@
             "items": {
               "$ref": "#/components/schemas/GymMembershipPassDto"
             }
-          }
-        }
-      },
-      "GymDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "address": {
-            "type": "string"
-          },
-          "status": {
-            "$ref": "#/components/schemas/GymStatus"
-          },
-          "tier": {
-            "$ref": "#/components/schemas/GymTier"
-          },
-          "creationDate": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "ownerName": {
-            "type": "string",
-            "nullable": true
-          },
-          "gymPassProducts": {
-            "type": "array",
-            "nullable": true,
-            "items": {
-              "$ref": "#/components/schemas/GymPassProductDto"
-            }
-          }
-        }
-      },
-      "GymPassProductDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "gymId": {
-            "type": "string"
-          },
-          "type": {
-            "$ref": "#/components/schemas/PassType"
-          },
-          "totalUses": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "daysAfterExpiring": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "hufPrice": {
-            "type": "number",
-            "format": "decimal"
-          },
-          "isActive": {
-            "type": "boolean"
           }
         }
       },
@@ -1892,6 +1630,18 @@
           "gymOwnerName": {
             "type": "string",
             "nullable": true
+          }
+        }
+      },
+      "UpdateMyUserProfileCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
           }
         }
       }

@@ -12,8 +12,6 @@ public class GymMembershipPasses : EndpointGroupBase
     {
         groupBuilder.MapPut(UseGymMembershipPass, "Use/{gymMembershipPassId}").RequireAuthorization();
 
-        groupBuilder.MapPost(UserBuyGymMembershipPass, "Buy/Gym/{gymPassProductId}").RequireAuthorization();
-
         groupBuilder.MapGet(GetGymMembershipPassesForGym, "My/{gymId}").RequireAuthorization();
     }
 
@@ -22,13 +20,6 @@ public class GymMembershipPasses : EndpointGroupBase
         await sender.Send(new UseGymMembershipPassCommand(gymMembershipPassId));
 
         return TypedResults.NoContent();
-    }
-
-    public async Task<Ok<GymMembershipPassDto>> UserBuyGymMembershipPass(ISender sender, [FromQuery] string gymPassProductId, CancellationToken cancellationToken)
-    {
-        var result = await sender.Send(new UserBuyGymMembershipPassCommand(gymPassProductId));
-
-        return TypedResults.Ok(result);
     }
 
     public async Task<Ok<List<GymMembershipPassDto>>> GetGymMembershipPassesForGym(ISender sender, [FromQuery] string gymId, CancellationToken cancellationToken)

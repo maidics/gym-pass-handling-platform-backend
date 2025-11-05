@@ -1,4 +1,4 @@
-using FitPass.Application.Common.Exceptions;
+/*
 using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Logging;
@@ -79,7 +79,6 @@ public class UserBuyGymMembershipPassCommandHandler : IRequestHandler<UserBuyGym
             {
                 throw new ForbiddenAccessException();
             }
-            */
 
             var pass = new GymMembershipPass
             {
@@ -114,3 +113,4 @@ public class UserBuyGymMembershipPassCommandHandler : IRequestHandler<UserBuyGym
         }
     }
 }
+*/

@@ -7,6 +7,7 @@ using Stripe;
 
 namespace Fitpass.Infrastructure.Stripe.Services;
 
+/*
 public class StripePriceService : IStripePriceService
 {
     private readonly StripeSettings _settings;
@@ -68,3 +69,4 @@ public class StripePriceService : IStripePriceService
         }
     }
 }
+*/

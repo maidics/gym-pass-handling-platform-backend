@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 using Stripe;
 
 namespace Fitpass.Infrastructure.Stripe.Services;
-
+/*
 public class StripeCustomerService : IStripeCustomerService
 {
     private readonly ILogger<StripeCustomerService> _logger;
@@ -50,3 +50,4 @@ public class StripeCustomerService : IStripeCustomerService
         }
     }
 }
+*/
