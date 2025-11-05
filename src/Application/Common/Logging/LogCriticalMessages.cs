@@ -14,4 +14,9 @@ public partial class LogCriticalMessages
     {
         _authenticatedUserRelatedEntityNotFound(logger, userRoles, userId, entityType, null);
     }
+
+    public static void UserRequestedToUseAnAlreadyExpiredPass(ILogger logger, string? userId, string passId)
+    {
+        _userRequestedToUseAnAlreadyExpiredPass(logger, userId, passId, null);
+    }
 }

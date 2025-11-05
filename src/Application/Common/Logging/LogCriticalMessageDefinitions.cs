@@ -16,4 +16,10 @@ public static partial class LogCriticalMessages
             LogLevel.Critical,
             eventId: new EventId(),
             formatString: "Authenticated {UserRoles} user's ({UserId}) {EntityType} entity not found.");
+
+    private static readonly Action<ILogger, string?, string, Exception?> _userRequestedToUseAnAlreadyExpiredPass =
+        LoggerMessage.Define<string?, string>(
+            LogLevel.Critical,
+            eventId: new EventId(),
+            formatString: "'{UserId}' user requested to use an already expired pass ({PassId}).");
 }
