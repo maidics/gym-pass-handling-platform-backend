@@ -1,4 +1,6 @@
 using FitPass.Application.GymMemberships.Commands;
+using FitPass.Application.GymMemberships.DTOs;
+using FitPass.Application.GymMemberships.Queries;
 using FitPass.Domain.Enums;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -10,6 +12,8 @@ public class GymMemberships : EndpointGroupBase
     public override void Map(RouteGroupBuilder groupBuilder)
     {
         groupBuilder.MapPut(UpdateUserMembershipStatus, "/{gymMembership}").RequireAuthorization();
+
+        groupBuilder.MapGet(GetGymMembershipsQueryToMyGym, "/MyGym").RequireAuthorization();
     }
 
     public async Task<NoContent> UpdateUserMembershipStatus(ISender sender, string gymMembership, [FromBody] GymMembershipStatus newGymMembershipStatus, CancellationToken cancellationToken)
@@ -19,10 +23,10 @@ public class GymMemberships : EndpointGroupBase
         return TypedResults.NoContent();
     }
 
-    public async Task<NoContent> AddUserGymMembershipToUser(ISender sender, [FromBody] AddUserGymMembershipToUserCommand command,  CancellationToken cancellationToken)
+    public async Task<Ok<List<GymMembershipWithUserProfileAndEmailDto>>> GetGymMembershipsQueryToMyGym(ISender sender, [FromBody] GetGymMembershipsQueryToMyGymQuery query, CancellationToken cancellationToken)
     {
-        await sender.Send(command);
+        var result = await sender.Send(query, cancellationToken);
 
-        return TypedResults.NoContent();
+        return TypedResults.Ok(result);
     }
 }

@@ -12,7 +12,7 @@ public class GymMembershipBuilder : TestAuditableEntityBuilder<GymMembershipBuil
     private string _id = Guid.NewGuid().ToString();
     private string _applicationUserId = string.Empty;
     private string? _gymId;
-    private GymMembershipStatus _status = GymMembershipStatus.Member;
+    private GymMembershipStatus _status = GymMembershipStatus.Active;
     private Gym? _gym;
     ICollection<GymMembershipPass> _passes = [];
 

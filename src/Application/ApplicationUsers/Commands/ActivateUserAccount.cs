@@ -1,6 +1,5 @@
 using FitPass.Application.Common.Exceptions;
 using FitPass.Application.ApplicationUsers.DTOs;
-using FitPass.Application.Common.Exceptions;
 using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Logging;
@@ -99,7 +98,7 @@ public class ActivateUserAccountCommandHandler : IRequestHandler<ActivateUserAcc
 
         if (command.SetPassword)
         {
-            var passwordResult = await _identityService.AddPasswordToUserWithNoPasswordAsync(email, command.Password);
+            var passwordResult = await _identityService.AddPasswordToUserWithNoPasswordAsync(email, command.Password!);
 
             if (passwordResult.IsResultFailureWithOneErrorMessage(ErrorMessages.UserNotFound()))
             {

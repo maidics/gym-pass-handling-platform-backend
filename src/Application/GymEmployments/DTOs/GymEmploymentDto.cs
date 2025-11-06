@@ -1,5 +1,4 @@
 ﻿using FitPass.Application.UserProfiles.DTOs;
-using FitPass.Domain.Entities;
 
 namespace FitPass.Application.GymEmployments.DTOs;
 
@@ -11,13 +10,5 @@ public class GymEmploymentDto
     public required string Role { get; set; }
     public DateTimeOffset EmploymentStart = DateTimeOffset.UtcNow;
     public DateTimeOffset? EmploymentEnd = null;
-    public UserProfileWithEmailDto? UserProfile { get; set; }
-
-    private class Mapping : Profile
-    {
-        public Mapping()
-        {
-            CreateMap<GymEmployment, GymEmploymentDto>();
-        }
-    }
+    public required UserProfileWithEmailDto UserProfile { get; set; }
 }
