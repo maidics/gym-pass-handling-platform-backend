@@ -23,28 +23,24 @@ public class GymMembershipPass : BaseAuditableEntity
 
     public PassUseResult Use()
     {
-        if (IsExpired()) //do not want exception thrown: compuationally more expensive, needs a (custom exception +) handler
+        if (IsExpired() || HasNoUsesLeft())
         {
             AddDomainEvent(new PassExpiredEvent(this));
-            return PassUseResult.Expired;
-        }
-
-        if (HasNoUsesLeft())
-        {
-            AddDomainEvent(new PassExpiredEvent(this));
-            return PassUseResult.NoUsesLeft;
+            
+            return PassUseResult.AlreadyExpired;
         }
 
         if (Type != PassType.Unlimited)
         {
             RemainingUses--;
+
+            if (HasNoUsesLeft())
+            {
+                AddDomainEvent(new PassExpiredEvent(this));
+                return PassUseResult.Expired;
+            }
         }
 
         return PassUseResult.Success;
     }
 }
-/*
-    Why not abstract pass entity? 
-        - new pass types are less likely to be added
-        - querying is more complex => has to be casted again
-*/

@@ -15,22 +15,18 @@ export module apiClient {
 
 export interface IApiClient {
     updateUserMembershipStatus(gymMembership: string, newGymMembershipStatus: GymMembershipStatus): Promise<void>;
-    createGymPassProductTemplate(command: CreateGymPassProductTemplateCommand): Promise<void>;
-    getAllGymPassProductTemplates(): Promise<GymPassProductTemplateDto[]>;
-    deleteGymPassProductTemplate(gymPassProductTemplateId: string): Promise<void>;
-    updateGymPassProductTemplate(gymPassProductTemplateId: string, command: UpdateGymPassProductTemplateCommand): Promise<void>;
     getRequest(requestId: string): Promise<RequestDto>;
     getRequests(query: GetRequestsQuery): Promise<RequestDto[]>;
     updateRequestStatus(requestId: string, newRequestStatus: RequestStatus): Promise<void>;
     createGymCreationRequest(command: CreateGymCreationRequestCommand): Promise<void>;
-    createGymAdminNominationRequest(command: CreateGymAdminNominationRequestCommand): Promise<Result>;
+    handleGymCreationRequest(requestId: string, newStatus: RequestStatus): Promise<GymDto>;
+    createGymAdminPromotionRequest(command: CreateGymAdminPromotionRequestCommand): Promise<Result>;
     registerUser(command: RegisterUserCommand): Promise<JwtToken>;
     logInUser(command: LogInUserCommand): Promise<JwtToken>;
     registerPendingGymManagement(command: RegisterPendingGymEmployeeCommand): Promise<JwtToken>;
     promotePendingGymEmployeeToGymStaffRole(command: PromotePendingGymEmployeeToGymStaffRoleCommand): Promise<void>;
     demoteGymStaffToPendingGymEmployee(command: DemoteGymStaffToPendingGymEmployeeCommand): Promise<void>;
     deleteMyAccount(): Promise<void>;
-    updateMyUserProfile(command: UpdateMyUserProfileCommand): Promise<void>;
     requestPasswordResetEmail(command: RequestPasswordResetEmailCommand): Promise<void>;
     resetPassword(command: ResetPasswordCommand): Promise<void>;
     sendEmailConfirmationEmail(command: SendEmailConfirmationEmailCommand): Promise<void>;
@@ -40,9 +36,7 @@ export interface IApiClient {
     getMyGymEmployment(): Promise<GymEmploymentDto>;
     getGymEmploymentsByGymId(gymId: string): Promise<GymEmploymentDto[]>;
     useGymMembershipPass(gymMembershipPassId: string): Promise<void>;
-    userBuyGymMembershipPass(gymPassProductId: string): Promise<GymMembershipPassDto>;
     getGymMembershipPassesForGym(gymId: string): Promise<GymMembershipPassDto[]>;
-    registerGym(requestId: string, gymCreationRequestId: string | null): Promise<GymDto>;
     getMyGymQrCode(): Promise<void>;
     updateMyGymProfile(command: UpdateMyGymProfileCommand): Promise<GymDto>;
     getAllGyms(): Promise<GymDto[]>;
@@ -51,6 +45,7 @@ export interface IApiClient {
     updateGymStatus(gymId: string, newGymStatus: GymStatus): Promise<void>;
     getMyGymDetails(): Promise<GymDto>;
     getMyUserProfile(): Promise<UserProfileWithEmailDto>;
+    updateMyUserProfile(command: UpdateMyUserProfileCommand): Promise<void>;
 }
 
 export class ApiClient implements IApiClient {
@@ -106,218 +101,9 @@ export class ApiClient implements IApiClient {
                 }
             }
         }
-        if (status === 200) {
-            const _responseText = response.data;
-            return Promise.resolve<void>(null as any);
-
-        } else if (status !== 200 && status !== 204) {
-            const _responseText = response.data;
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-        }
-        return Promise.resolve<void>(null as any);
-    }
-
-    createGymPassProductTemplate(command: CreateGymPassProductTemplateCommand, cancelToken?: CancelToken): Promise<void> {
-        let url_ = this.baseUrl + "/api/GymPassProductTemplates";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(command);
-
-        let options_: AxiosRequestConfig = {
-            data: content_,
-            method: "POST",
-            url: url_,
-            headers: {
-                "Content-Type": "application/json",
-            },
-            cancelToken
-        };
-
-        return this.instance.request(options_).catch((_error: any) => {
-            if (isAxiosError(_error) && _error.response) {
-                return _error.response;
-            } else {
-                throw _error;
-            }
-        }).then((_response: AxiosResponse) => {
-            return this.processCreateGymPassProductTemplate(_response);
-        });
-    }
-
-    protected processCreateGymPassProductTemplate(response: AxiosResponse): Promise<void> {
-        const status = response.status;
-        let _headers: any = {};
-        if (response.headers && typeof response.headers === "object") {
-            for (const k in response.headers) {
-                if (response.headers.hasOwnProperty(k)) {
-                    _headers[k] = response.headers[k];
-                }
-            }
-        }
-        if (status === 200) {
-            const _responseText = response.data;
-            return Promise.resolve<void>(null as any);
-
-        } else if (status !== 200 && status !== 204) {
-            const _responseText = response.data;
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-        }
-        return Promise.resolve<void>(null as any);
-    }
-
-    getAllGymPassProductTemplates( cancelToken?: CancelToken): Promise<GymPassProductTemplateDto[]> {
-        let url_ = this.baseUrl + "/api/GymPassProductTemplates";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_: AxiosRequestConfig = {
-            method: "GET",
-            url: url_,
-            headers: {
-                "Accept": "application/json"
-            },
-            cancelToken
-        };
-
-        return this.instance.request(options_).catch((_error: any) => {
-            if (isAxiosError(_error) && _error.response) {
-                return _error.response;
-            } else {
-                throw _error;
-            }
-        }).then((_response: AxiosResponse) => {
-            return this.processGetAllGymPassProductTemplates(_response);
-        });
-    }
-
-    protected processGetAllGymPassProductTemplates(response: AxiosResponse): Promise<GymPassProductTemplateDto[]> {
-        const status = response.status;
-        let _headers: any = {};
-        if (response.headers && typeof response.headers === "object") {
-            for (const k in response.headers) {
-                if (response.headers.hasOwnProperty(k)) {
-                    _headers[k] = response.headers[k];
-                }
-            }
-        }
-        if (status === 200) {
-            const _responseText = response.data;
-            let result200: any = null;
-            let resultData200  = _responseText;
-            if (Array.isArray(resultData200)) {
-                result200 = [] as any;
-                for (let item of resultData200)
-                    result200!.push(GymPassProductTemplateDto.fromJS(item));
-            }
-            else {
-                result200 = <any>null;
-            }
-            return Promise.resolve<GymPassProductTemplateDto[]>(result200);
-
-        } else if (status !== 200 && status !== 204) {
-            const _responseText = response.data;
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-        }
-        return Promise.resolve<GymPassProductTemplateDto[]>(null as any);
-    }
-
-    deleteGymPassProductTemplate(gymPassProductTemplateId: string, cancelToken?: CancelToken): Promise<void> {
-        let url_ = this.baseUrl + "/api/GymPassProductTemplates/{gymPassProductTemplateId}";
-        if (gymPassProductTemplateId === undefined || gymPassProductTemplateId === null)
-            throw new Error("The parameter 'gymPassProductTemplateId' must be defined.");
-        url_ = url_.replace("{gymPassProductTemplateId}", encodeURIComponent("" + gymPassProductTemplateId));
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_: AxiosRequestConfig = {
-            method: "DELETE",
-            url: url_,
-            headers: {
-            },
-            cancelToken
-        };
-
-        return this.instance.request(options_).catch((_error: any) => {
-            if (isAxiosError(_error) && _error.response) {
-                return _error.response;
-            } else {
-                throw _error;
-            }
-        }).then((_response: AxiosResponse) => {
-            return this.processDeleteGymPassProductTemplate(_response);
-        });
-    }
-
-    protected processDeleteGymPassProductTemplate(response: AxiosResponse): Promise<void> {
-        const status = response.status;
-        let _headers: any = {};
-        if (response.headers && typeof response.headers === "object") {
-            for (const k in response.headers) {
-                if (response.headers.hasOwnProperty(k)) {
-                    _headers[k] = response.headers[k];
-                }
-            }
-        }
         if (status === 204) {
             const _responseText = response.data;
             return Promise.resolve<void>(null as any);
-
-        } else if (status === 400) {
-            const _responseText = response.data;
-            return throwException("A server side error occurred.", status, _responseText, _headers);
-
-        } else if (status !== 200 && status !== 204) {
-            const _responseText = response.data;
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-        }
-        return Promise.resolve<void>(null as any);
-    }
-
-    updateGymPassProductTemplate(gymPassProductTemplateId: string, command: UpdateGymPassProductTemplateCommand, cancelToken?: CancelToken): Promise<void> {
-        let url_ = this.baseUrl + "/api/GymPassProductTemplates/{gymPassProductTemplateId}";
-        if (gymPassProductTemplateId === undefined || gymPassProductTemplateId === null)
-            throw new Error("The parameter 'gymPassProductTemplateId' must be defined.");
-        url_ = url_.replace("{gymPassProductTemplateId}", encodeURIComponent("" + gymPassProductTemplateId));
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(command);
-
-        let options_: AxiosRequestConfig = {
-            data: content_,
-            method: "PUT",
-            url: url_,
-            headers: {
-                "Content-Type": "application/json",
-            },
-            cancelToken
-        };
-
-        return this.instance.request(options_).catch((_error: any) => {
-            if (isAxiosError(_error) && _error.response) {
-                return _error.response;
-            } else {
-                throw _error;
-            }
-        }).then((_response: AxiosResponse) => {
-            return this.processUpdateGymPassProductTemplate(_response);
-        });
-    }
-
-    protected processUpdateGymPassProductTemplate(response: AxiosResponse): Promise<void> {
-        const status = response.status;
-        let _headers: any = {};
-        if (response.headers && typeof response.headers === "object") {
-            for (const k in response.headers) {
-                if (response.headers.hasOwnProperty(k)) {
-                    _headers[k] = response.headers[k];
-                }
-            }
-        }
-        if (status === 204) {
-            const _responseText = response.data;
-            return Promise.resolve<void>(null as any);
-
-        } else if (status === 400) {
-            const _responseText = response.data;
-            return throwException("A server side error occurred.", status, _responseText, _headers);
 
         } else if (status !== 200 && status !== 204) {
             const _responseText = response.data;
@@ -524,7 +310,7 @@ export class ApiClient implements IApiClient {
                 }
             }
         }
-        if (status === 200) {
+        if (status === 204) {
             const _responseText = response.data;
             return Promise.resolve<void>(null as any);
 
@@ -535,7 +321,63 @@ export class ApiClient implements IApiClient {
         return Promise.resolve<void>(null as any);
     }
 
-    createGymAdminNominationRequest(command: CreateGymAdminNominationRequestCommand, cancelToken?: CancelToken): Promise<Result> {
+    handleGymCreationRequest(requestId: string, newStatus: RequestStatus, cancelToken?: CancelToken): Promise<GymDto> {
+        let url_ = this.baseUrl + "/api/Requests/GymCreation?";
+        if (requestId === undefined || requestId === null)
+            throw new Error("The parameter 'requestId' must be defined and cannot be null.");
+        else
+            url_ += "requestId=" + encodeURIComponent("" + requestId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(newStatus);
+
+        let options_: AxiosRequestConfig = {
+            data: content_,
+            method: "PUT",
+            url: url_,
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+            cancelToken
+        };
+
+        return this.instance.request(options_).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processHandleGymCreationRequest(_response);
+        });
+    }
+
+    protected processHandleGymCreationRequest(response: AxiosResponse): Promise<GymDto> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (const k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 200) {
+            const _responseText = response.data;
+            let result200: any = null;
+            let resultData200  = _responseText;
+            result200 = GymDto.fromJS(resultData200);
+            return Promise.resolve<GymDto>(result200);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<GymDto>(null as any);
+    }
+
+    createGymAdminPromotionRequest(command: CreateGymAdminPromotionRequestCommand, cancelToken?: CancelToken): Promise<Result> {
         let url_ = this.baseUrl + "/api/Requests/GymAdminNomination";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -559,11 +401,11 @@ export class ApiClient implements IApiClient {
                 throw _error;
             }
         }).then((_response: AxiosResponse) => {
-            return this.processCreateGymAdminNominationRequest(_response);
+            return this.processCreateGymAdminPromotionRequest(_response);
         });
     }
 
-    protected processCreateGymAdminNominationRequest(response: AxiosResponse): Promise<Result> {
+    protected processCreateGymAdminPromotionRequest(response: AxiosResponse): Promise<Result> {
         const status = response.status;
         let _headers: any = {};
         if (response.headers && typeof response.headers === "object") {
@@ -873,54 +715,6 @@ export class ApiClient implements IApiClient {
             }
         }
         if (status === 200) {
-            const _responseText = response.data;
-            return Promise.resolve<void>(null as any);
-
-        } else if (status !== 200 && status !== 204) {
-            const _responseText = response.data;
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-        }
-        return Promise.resolve<void>(null as any);
-    }
-
-    updateMyUserProfile(command: UpdateMyUserProfileCommand, cancelToken?: CancelToken): Promise<void> {
-        let url_ = this.baseUrl + "/api/Users/My/Profile";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(command);
-
-        let options_: AxiosRequestConfig = {
-            data: content_,
-            method: "PUT",
-            url: url_,
-            headers: {
-                "Content-Type": "application/json",
-            },
-            cancelToken
-        };
-
-        return this.instance.request(options_).catch((_error: any) => {
-            if (isAxiosError(_error) && _error.response) {
-                return _error.response;
-            } else {
-                throw _error;
-            }
-        }).then((_response: AxiosResponse) => {
-            return this.processUpdateMyUserProfile(_response);
-        });
-    }
-
-    protected processUpdateMyUserProfile(response: AxiosResponse): Promise<void> {
-        const status = response.status;
-        let _headers: any = {};
-        if (response.headers && typeof response.headers === "object") {
-            for (const k in response.headers) {
-                if (response.headers.hasOwnProperty(k)) {
-                    _headers[k] = response.headers[k];
-                }
-            }
-        }
-        if (status === 204) {
             const _responseText = response.data;
             return Promise.resolve<void>(null as any);
 
@@ -1392,58 +1186,6 @@ export class ApiClient implements IApiClient {
         return Promise.resolve<void>(null as any);
     }
 
-    userBuyGymMembershipPass(gymPassProductId: string, cancelToken?: CancelToken): Promise<GymMembershipPassDto> {
-        let url_ = this.baseUrl + "/api/GymMembershipPasses/Buy/Gym?";
-        if (gymPassProductId === undefined || gymPassProductId === null)
-            throw new Error("The parameter 'gymPassProductId' must be defined and cannot be null.");
-        else
-            url_ += "gymPassProductId=" + encodeURIComponent("" + gymPassProductId) + "&";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_: AxiosRequestConfig = {
-            method: "POST",
-            url: url_,
-            headers: {
-                "Accept": "application/json"
-            },
-            cancelToken
-        };
-
-        return this.instance.request(options_).catch((_error: any) => {
-            if (isAxiosError(_error) && _error.response) {
-                return _error.response;
-            } else {
-                throw _error;
-            }
-        }).then((_response: AxiosResponse) => {
-            return this.processUserBuyGymMembershipPass(_response);
-        });
-    }
-
-    protected processUserBuyGymMembershipPass(response: AxiosResponse): Promise<GymMembershipPassDto> {
-        const status = response.status;
-        let _headers: any = {};
-        if (response.headers && typeof response.headers === "object") {
-            for (const k in response.headers) {
-                if (response.headers.hasOwnProperty(k)) {
-                    _headers[k] = response.headers[k];
-                }
-            }
-        }
-        if (status === 200) {
-            const _responseText = response.data;
-            let result200: any = null;
-            let resultData200  = _responseText;
-            result200 = GymMembershipPassDto.fromJS(resultData200);
-            return Promise.resolve<GymMembershipPassDto>(result200);
-
-        } else if (status !== 200 && status !== 204) {
-            const _responseText = response.data;
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-        }
-        return Promise.resolve<GymMembershipPassDto>(null as any);
-    }
-
     getGymMembershipPassesForGym(gymId: string, cancelToken?: CancelToken): Promise<GymMembershipPassDto[]> {
         let url_ = this.baseUrl + "/api/GymMembershipPasses/My?";
         if (gymId === undefined || gymId === null)
@@ -1501,65 +1243,6 @@ export class ApiClient implements IApiClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
         }
         return Promise.resolve<GymMembershipPassDto[]>(null as any);
-    }
-
-    registerGym(requestId: string, gymCreationRequestId: string | null, cancelToken?: CancelToken): Promise<GymDto> {
-        let url_ = this.baseUrl + "/api/Gyms/Register/{requestId}?";
-        if (requestId === undefined || requestId === null)
-            throw new Error("The parameter 'requestId' must be defined.");
-        url_ = url_.replace("{requestId}", encodeURIComponent("" + requestId));
-        if (gymCreationRequestId === undefined)
-            throw new Error("The parameter 'gymCreationRequestId' must be defined.");
-        else if(gymCreationRequestId !== null)
-            url_ += "GymCreationRequestId=" + encodeURIComponent("" + gymCreationRequestId) + "&";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_: AxiosRequestConfig = {
-            method: "POST",
-            url: url_,
-            headers: {
-                "Accept": "application/json"
-            },
-            cancelToken
-        };
-
-        return this.instance.request(options_).catch((_error: any) => {
-            if (isAxiosError(_error) && _error.response) {
-                return _error.response;
-            } else {
-                throw _error;
-            }
-        }).then((_response: AxiosResponse) => {
-            return this.processRegisterGym(_response);
-        });
-    }
-
-    protected processRegisterGym(response: AxiosResponse): Promise<GymDto> {
-        const status = response.status;
-        let _headers: any = {};
-        if (response.headers && typeof response.headers === "object") {
-            for (const k in response.headers) {
-                if (response.headers.hasOwnProperty(k)) {
-                    _headers[k] = response.headers[k];
-                }
-            }
-        }
-        if (status === 200) {
-            const _responseText = response.data;
-            let result200: any = null;
-            let resultData200  = _responseText;
-            result200 = GymDto.fromJS(resultData200);
-            return Promise.resolve<GymDto>(result200);
-
-        } else if (status === 400) {
-            const _responseText = response.data;
-            return throwException("A server side error occurred.", status, _responseText, _headers);
-
-        } else if (status !== 200 && status !== 204) {
-            const _responseText = response.data;
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-        }
-        return Promise.resolve<GymDto>(null as any);
     }
 
     getMyGymQrCode( cancelToken?: CancelToken): Promise<void> {
@@ -1965,173 +1648,57 @@ export class ApiClient implements IApiClient {
         }
         return Promise.resolve<UserProfileWithEmailDto>(null as any);
     }
+
+    updateMyUserProfile(command: UpdateMyUserProfileCommand, cancelToken?: CancelToken): Promise<void> {
+        let url_ = this.baseUrl + "/api/UserProfiles/My/Update";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: AxiosRequestConfig = {
+            data: content_,
+            method: "PUT",
+            url: url_,
+            headers: {
+                "Content-Type": "application/json",
+            },
+            cancelToken
+        };
+
+        return this.instance.request(options_).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processUpdateMyUserProfile(_response);
+        });
+    }
+
+    protected processUpdateMyUserProfile(response: AxiosResponse): Promise<void> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (const k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 204) {
+            const _responseText = response.data;
+            return Promise.resolve<void>(null as any);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<void>(null as any);
+    }
 }
 
 export type GymMembershipStatus = "Member" | "Banned";
-
-export class CreateGymPassProductTemplateCommand implements ICreateGymPassProductTemplateCommand {
-    gymTier?: GymTier;
-    passType?: PassType;
-    totalUses?: number | undefined;
-    daysAfterExpiring?: number | undefined;
-    eurPrice?: number;
-
-    constructor(data?: ICreateGymPassProductTemplateCommand) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.gymTier = _data["gymTier"];
-            this.passType = _data["passType"];
-            this.totalUses = _data["totalUses"];
-            this.daysAfterExpiring = _data["daysAfterExpiring"];
-            this.eurPrice = _data["eurPrice"];
-        }
-    }
-
-    static fromJS(data: any): CreateGymPassProductTemplateCommand {
-        data = typeof data === 'object' ? data : {};
-        let result = new CreateGymPassProductTemplateCommand();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["gymTier"] = this.gymTier;
-        data["passType"] = this.passType;
-        data["totalUses"] = this.totalUses;
-        data["daysAfterExpiring"] = this.daysAfterExpiring;
-        data["eurPrice"] = this.eurPrice;
-        return data;
-    }
-}
-
-export interface ICreateGymPassProductTemplateCommand {
-    gymTier?: GymTier;
-    passType?: PassType;
-    totalUses?: number | undefined;
-    daysAfterExpiring?: number | undefined;
-    eurPrice?: number;
-}
-
-export type GymTier = "Local" | "MidRange" | "Premium" | "Elite";
-
-export type PassType = "SingleUse" | "MultiUse" | "Unlimited";
-
-export class GymPassProductTemplateDto implements IGymPassProductTemplateDto {
-    id?: string;
-    passType?: PassType;
-    totalUses?: number | undefined;
-    daysAfterExpiring?: number | undefined;
-    eurPrice?: number;
-
-    constructor(data?: IGymPassProductTemplateDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.passType = _data["passType"];
-            this.totalUses = _data["totalUses"];
-            this.daysAfterExpiring = _data["daysAfterExpiring"];
-            this.eurPrice = _data["eurPrice"];
-        }
-    }
-
-    static fromJS(data: any): GymPassProductTemplateDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new GymPassProductTemplateDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["passType"] = this.passType;
-        data["totalUses"] = this.totalUses;
-        data["daysAfterExpiring"] = this.daysAfterExpiring;
-        data["eurPrice"] = this.eurPrice;
-        return data;
-    }
-}
-
-export interface IGymPassProductTemplateDto {
-    id?: string;
-    passType?: PassType;
-    totalUses?: number | undefined;
-    daysAfterExpiring?: number | undefined;
-    eurPrice?: number;
-}
-
-export class UpdateGymPassProductTemplateCommand implements IUpdateGymPassProductTemplateCommand {
-    gymPassProductTemplateId?: string;
-    gymTier?: GymTier;
-    passType?: PassType;
-    totalUses?: number | undefined;
-    daysAfterExpiring?: number | undefined;
-    eurPrice?: number;
-
-    constructor(data?: IUpdateGymPassProductTemplateCommand) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.gymPassProductTemplateId = _data["gymPassProductTemplateId"];
-            this.gymTier = _data["gymTier"];
-            this.passType = _data["passType"];
-            this.totalUses = _data["totalUses"];
-            this.daysAfterExpiring = _data["daysAfterExpiring"];
-            this.eurPrice = _data["eurPrice"];
-        }
-    }
-
-    static fromJS(data: any): UpdateGymPassProductTemplateCommand {
-        data = typeof data === 'object' ? data : {};
-        let result = new UpdateGymPassProductTemplateCommand();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["gymPassProductTemplateId"] = this.gymPassProductTemplateId;
-        data["gymTier"] = this.gymTier;
-        data["passType"] = this.passType;
-        data["totalUses"] = this.totalUses;
-        data["daysAfterExpiring"] = this.daysAfterExpiring;
-        data["eurPrice"] = this.eurPrice;
-        return data;
-    }
-}
-
-export interface IUpdateGymPassProductTemplateCommand {
-    gymPassProductTemplateId?: string;
-    gymTier?: GymTier;
-    passType?: PassType;
-    totalUses?: number | undefined;
-    daysAfterExpiring?: number | undefined;
-    eurPrice?: number;
-}
 
 export class RequestDto implements IRequestDto {
     id?: string;
@@ -2357,6 +1924,8 @@ export interface ICreateGymDto {
 
 export type GymStatus = "Active" | "Inactive" | "Suspended";
 
+export type GymTier = "Local" | "MidRange" | "Premium" | "Elite";
+
 export class Result implements IResult {
     succeeded?: boolean;
     errors?: string[];
@@ -2405,13 +1974,13 @@ export interface IResult {
     errors?: string[];
 }
 
-export class CreateGymAdminNominationRequestCommand implements ICreateGymAdminNominationRequestCommand {
+export class CreateGymAdminPromotionRequestCommand implements ICreateGymAdminPromotionRequestCommand {
     userIdToNominate?: string;
     requestDescription?: string;
     requestPriorityLevel?: PriorityLevel;
     escalationEmail?: string;
 
-    constructor(data?: ICreateGymAdminNominationRequestCommand) {
+    constructor(data?: ICreateGymAdminPromotionRequestCommand) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -2429,9 +1998,9 @@ export class CreateGymAdminNominationRequestCommand implements ICreateGymAdminNo
         }
     }
 
-    static fromJS(data: any): CreateGymAdminNominationRequestCommand {
+    static fromJS(data: any): CreateGymAdminPromotionRequestCommand {
         data = typeof data === 'object' ? data : {};
-        let result = new CreateGymAdminNominationRequestCommand();
+        let result = new CreateGymAdminPromotionRequestCommand();
         result.init(data);
         return result;
     }
@@ -2446,12 +2015,142 @@ export class CreateGymAdminNominationRequestCommand implements ICreateGymAdminNo
     }
 }
 
-export interface ICreateGymAdminNominationRequestCommand {
+export interface ICreateGymAdminPromotionRequestCommand {
     userIdToNominate?: string;
     requestDescription?: string;
     requestPriorityLevel?: PriorityLevel;
     escalationEmail?: string;
 }
+
+export class GymDto implements IGymDto {
+    id?: string;
+    name?: string;
+    address?: string;
+    status?: GymStatus;
+    tier?: GymTier;
+    creationDate?: Date;
+    ownerName?: string | undefined;
+    gymPassProducts?: GymPassProductDto[] | undefined;
+
+    constructor(data?: IGymDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.address = _data["address"];
+            this.status = _data["status"];
+            this.tier = _data["tier"];
+            this.creationDate = _data["creationDate"] ? new Date(_data["creationDate"].toString()) : <any>undefined;
+            this.ownerName = _data["ownerName"];
+            if (Array.isArray(_data["gymPassProducts"])) {
+                this.gymPassProducts = [] as any;
+                for (let item of _data["gymPassProducts"])
+                    this.gymPassProducts!.push(GymPassProductDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): GymDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new GymDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["address"] = this.address;
+        data["status"] = this.status;
+        data["tier"] = this.tier;
+        data["creationDate"] = this.creationDate ? this.creationDate.toISOString() : <any>undefined;
+        data["ownerName"] = this.ownerName;
+        if (Array.isArray(this.gymPassProducts)) {
+            data["gymPassProducts"] = [];
+            for (let item of this.gymPassProducts)
+                data["gymPassProducts"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IGymDto {
+    id?: string;
+    name?: string;
+    address?: string;
+    status?: GymStatus;
+    tier?: GymTier;
+    creationDate?: Date;
+    ownerName?: string | undefined;
+    gymPassProducts?: GymPassProductDto[] | undefined;
+}
+
+export class GymPassProductDto implements IGymPassProductDto {
+    gymId?: string;
+    type?: PassType;
+    totalUses?: number | undefined;
+    daysAfterExpiring?: number | undefined;
+    hufPrice?: number;
+    isActive?: boolean;
+
+    constructor(data?: IGymPassProductDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.gymId = _data["gymId"];
+            this.type = _data["type"];
+            this.totalUses = _data["totalUses"];
+            this.daysAfterExpiring = _data["daysAfterExpiring"];
+            this.hufPrice = _data["hufPrice"];
+            this.isActive = _data["isActive"];
+        }
+    }
+
+    static fromJS(data: any): GymPassProductDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new GymPassProductDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["gymId"] = this.gymId;
+        data["type"] = this.type;
+        data["totalUses"] = this.totalUses;
+        data["daysAfterExpiring"] = this.daysAfterExpiring;
+        data["hufPrice"] = this.hufPrice;
+        data["isActive"] = this.isActive;
+        return data;
+    }
+}
+
+export interface IGymPassProductDto {
+    gymId?: string;
+    type?: PassType;
+    totalUses?: number | undefined;
+    daysAfterExpiring?: number | undefined;
+    hufPrice?: number;
+    isActive?: boolean;
+}
+
+export type PassType = "SingleUse" | "MultiUse" | "Unlimited";
 
 export class JwtToken implements IJwtToken {
     accessToken?: string;
@@ -2717,46 +2416,6 @@ export interface IDemoteGymStaffToPendingGymEmployeeCommand {
     userId?: string;
 }
 
-export class UpdateMyUserProfileCommand implements IUpdateMyUserProfileCommand {
-    firstName?: string;
-    lastName?: string;
-
-    constructor(data?: IUpdateMyUserProfileCommand) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.firstName = _data["firstName"];
-            this.lastName = _data["lastName"];
-        }
-    }
-
-    static fromJS(data: any): UpdateMyUserProfileCommand {
-        data = typeof data === 'object' ? data : {};
-        let result = new UpdateMyUserProfileCommand();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["firstName"] = this.firstName;
-        data["lastName"] = this.lastName;
-        return data;
-    }
-}
-
-export interface IUpdateMyUserProfileCommand {
-    firstName?: string;
-    lastName?: string;
-}
-
 export class RequestPasswordResetEmailCommand implements IRequestPasswordResetEmailCommand {
     email?: string;
 
@@ -2991,134 +2650,6 @@ export interface IGymMembershipDto {
     memberSince?: Date | undefined;
     gym?: GymDto;
     ownedPasses?: GymMembershipPassDto[];
-}
-
-export class GymDto implements IGymDto {
-    id?: string;
-    name?: string;
-    address?: string;
-    status?: GymStatus;
-    tier?: GymTier;
-    creationDate?: Date;
-    ownerName?: string | undefined;
-    gymPassProducts?: GymPassProductDto[] | undefined;
-
-    constructor(data?: IGymDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.name = _data["name"];
-            this.address = _data["address"];
-            this.status = _data["status"];
-            this.tier = _data["tier"];
-            this.creationDate = _data["creationDate"] ? new Date(_data["creationDate"].toString()) : <any>undefined;
-            this.ownerName = _data["ownerName"];
-            if (Array.isArray(_data["gymPassProducts"])) {
-                this.gymPassProducts = [] as any;
-                for (let item of _data["gymPassProducts"])
-                    this.gymPassProducts!.push(GymPassProductDto.fromJS(item));
-            }
-        }
-    }
-
-    static fromJS(data: any): GymDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new GymDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["name"] = this.name;
-        data["address"] = this.address;
-        data["status"] = this.status;
-        data["tier"] = this.tier;
-        data["creationDate"] = this.creationDate ? this.creationDate.toISOString() : <any>undefined;
-        data["ownerName"] = this.ownerName;
-        if (Array.isArray(this.gymPassProducts)) {
-            data["gymPassProducts"] = [];
-            for (let item of this.gymPassProducts)
-                data["gymPassProducts"].push(item.toJSON());
-        }
-        return data;
-    }
-}
-
-export interface IGymDto {
-    id?: string;
-    name?: string;
-    address?: string;
-    status?: GymStatus;
-    tier?: GymTier;
-    creationDate?: Date;
-    ownerName?: string | undefined;
-    gymPassProducts?: GymPassProductDto[] | undefined;
-}
-
-export class GymPassProductDto implements IGymPassProductDto {
-    gymId?: string;
-    type?: PassType;
-    totalUses?: number | undefined;
-    daysAfterExpiring?: number | undefined;
-    hufPrice?: number;
-    isActive?: boolean;
-
-    constructor(data?: IGymPassProductDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.gymId = _data["gymId"];
-            this.type = _data["type"];
-            this.totalUses = _data["totalUses"];
-            this.daysAfterExpiring = _data["daysAfterExpiring"];
-            this.hufPrice = _data["hufPrice"];
-            this.isActive = _data["isActive"];
-        }
-    }
-
-    static fromJS(data: any): GymPassProductDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new GymPassProductDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["gymId"] = this.gymId;
-        data["type"] = this.type;
-        data["totalUses"] = this.totalUses;
-        data["daysAfterExpiring"] = this.daysAfterExpiring;
-        data["hufPrice"] = this.hufPrice;
-        data["isActive"] = this.isActive;
-        return data;
-    }
-}
-
-export interface IGymPassProductDto {
-    gymId?: string;
-    type?: PassType;
-    totalUses?: number | undefined;
-    daysAfterExpiring?: number | undefined;
-    hufPrice?: number;
-    isActive?: boolean;
 }
 
 export class GymMembershipPassDto implements IGymMembershipPassDto {
@@ -3375,6 +2906,46 @@ export interface IUpdateMyGymProfileCommand {
     gymAddress?: string;
     gymTier?: GymTier;
     gymOwnerName?: string | undefined;
+}
+
+export class UpdateMyUserProfileCommand implements IUpdateMyUserProfileCommand {
+    firstName?: string;
+    lastName?: string;
+
+    constructor(data?: IUpdateMyUserProfileCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.firstName = _data["firstName"];
+            this.lastName = _data["lastName"];
+        }
+    }
+
+    static fromJS(data: any): UpdateMyUserProfileCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateMyUserProfileCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["firstName"] = this.firstName;
+        data["lastName"] = this.lastName;
+        return data;
+    }
+}
+
+export interface IUpdateMyUserProfileCommand {
+    firstName?: string;
+    lastName?: string;
 }
 
 function formatDate(d: Date) {

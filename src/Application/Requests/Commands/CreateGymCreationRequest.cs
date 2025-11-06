@@ -63,6 +63,7 @@ public class CreateGymCreationRequestCommandHandler : IRequestHandler<CreateGymC
             throw new BadRequestException("You already have an ongoing gym creation request.");
         }
 
+        /*
         var sevenDaysAgo = DateTimeOffset.UtcNow.AddDays(-7);
 
         var requestsInPastWeek = await _context.Requests
@@ -74,6 +75,7 @@ public class CreateGymCreationRequestCommandHandler : IRequestHandler<CreateGymC
         {
             throw new BadRequestException($"You can only submit one gym creation request per week. You will be able to submit a request on: {requestsInPastWeek.First().CreatedOn.AddDays(7)}.");
         }
+        */
 
         var gymCreationRequest = new Request
         {

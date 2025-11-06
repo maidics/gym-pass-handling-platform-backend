@@ -1,5 +1,6 @@
 using FitPass.Application.Common.Exceptions;
 using FitPass.Application.ApplicationUsers.DTOs;
+using FitPass.Application.Common.Exceptions;
 using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Logging;
@@ -11,6 +12,7 @@ namespace FitPass.Application.ApplicationUsers.Commands;
 public record ActivateUserAccountCommand(
     string EncodedEmail,
     string EncodedEmailConfirmationToken,
+    bool SetPassword,
     string? Password,
     string? PasswordConfirm) : IRequest<JwtToken>;
 
@@ -21,6 +23,20 @@ public class ActivateUserAccountCommandValidator : AbstractValidator<ActivateUse
         RuleFor(v => v.EncodedEmail).NotEmptyWithMessage(nameof(ActivateUserAccountCommand.EncodedEmail));
 
         RuleFor(v => v.EncodedEmailConfirmationToken).NotEmptyWithMessage(nameof(ActivateUserAccountCommand.EncodedEmailConfirmationToken));
+
+        RuleFor(v => v.SetPassword).NotEmptyWithMessage(nameof(ActivateUserAccountCommand.SetPassword));
+
+        When(v => v.SetPassword == true, () =>
+        {
+            RuleFor(v => v.Password).NotNull(); //no message - malformed request
+            RuleFor(v => v.PasswordConfirm).NotNull();
+        });
+
+        When(v => v.SetPassword == false, () =>
+        {
+            RuleFor(v => v.Password).Null(); //no message - malformed request
+            RuleFor(v => v.PasswordConfirm).Null();
+        });
 
         When(v => v.Password != null, () => RuleFor(v => v.Password!).StrongPassword());
 
@@ -81,7 +97,7 @@ public class ActivateUserAccountCommandHandler : IRequestHandler<ActivateUserAcc
             throw new Exception(ErrorMessages.FailedToActiveAccount());
         }
 
-        if (command.Password != null && command.PasswordConfirm != null)
+        if (command.SetPassword)
         {
             var passwordResult = await _identityService.AddPasswordToUserWithNoPasswordAsync(email, command.Password);
 
@@ -92,7 +108,11 @@ public class ActivateUserAccountCommandHandler : IRequestHandler<ActivateUserAcc
 
             if (passwordResult.IsResultFailureWithOneErrorMessage(ResultErrorMessages.UserAlreadyHasPassword()))
             {
-                throw new BadRequestException(ResultErrorMessages.UserAlreadyHasPassword());
+                _logger.LogCritical(
+                    "Malformed request received for '{UserEmail}': User already has a password but the request attempted to set it,",
+                    email);
+                //logCritical here - not bad request, forbiddenaccess
+                throw new ForbiddenAccessException();
             }
 
             if (!passwordResult.Succeeded)

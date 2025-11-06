@@ -16,11 +16,4 @@ public static partial class LogCriticalMessages
             LogLevel.Critical,
             eventId: new EventId(),
             formatString: "Authenticated {UserRoles} user's ({UserId}) {EntityType} entity not found.");
-
-    private static readonly Action<ILogger, Request, string?, Exception?> _requestIsAlreadyHandled = //this is critical because a request that is already handled cannot be submitted from the client
-        LoggerMessage.Define<Request, string?>(
-            LogLevel.Critical,
-            eventId: new EventId(),
-            formatString: "Malformed request: Request entity ({@Request}) is already handled. UserId: {UserId}"
-        );
 }

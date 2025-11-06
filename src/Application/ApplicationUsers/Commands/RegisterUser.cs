@@ -41,20 +41,17 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, J
 {
     private readonly IIdentityService _identityService;
     private readonly IApplicationDbContext _context;
-    private readonly IStripeCustomerService _stripeCustomerService;
     private readonly IJwtTokenService _jwtTokenService;
     private readonly ILogger<RegisterUserCommand> _logger;
 
     public RegisterUserCommandHandler(
         IIdentityService identityService,
         IApplicationDbContext context,
-        IStripeCustomerService stripeCustomerService,
         IJwtTokenService jwtTokenService,
         ILogger<RegisterUserCommand> logger)
     {
         _identityService = identityService;
         _context = context;
-        _stripeCustomerService = stripeCustomerService;
         _jwtTokenService = jwtTokenService;
         _logger = logger;
     }
@@ -103,8 +100,6 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, J
             };
 
             await _context.UserProfiles.AddAsync(userProfile);
-
-            var stripeCustomerId = await _stripeCustomerService.CreateStripeCustomer(userProfile, command.Email);
 
             //user.AddDomainEvent(new UserRegisteredEvent(user));
 

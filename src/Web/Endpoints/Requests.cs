@@ -40,7 +40,7 @@ public class Requests : EndpointGroupBase
     {
         await sender.Send(command);
 
-        return TypedResults.Ok();
+        return TypedResults.NoContent();
     }
 
     public async Task<Results<Ok<Result>, ProblemHttpResult>> CreateGymAdminPromotionRequest(ISender sender, [FromBody] CreateGymAdminPromotionRequestCommand command)
