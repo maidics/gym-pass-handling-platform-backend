@@ -38,11 +38,11 @@ public class FluentValidationTests : BaseTestFixture
         ex.Errors[nameof(CreateGymCreationRequestCommand.RequestDescription)].ShouldContain(ErrorMessages.PropertyIsRequired(nameof(CreateGymCreationRequestCommand.RequestDescription)));
 
         ex.Errors.ShouldContainKey("CreateGymDTO.GymName");
-        ex.Errors["CreateGymDTO.GymName"].ShouldContain(ErrorMessages.PropertyCannotBeLongerThan(nameof(CreateGymCreationRequestCommand.CreateGymDTO.GymName), MaxStringLengths.Name));
+        ex.Errors["CreateGymDTO.GymName"].ShouldContain(ErrorMessages.PropertyCannotBeLongerThan(nameof(CreateGymCreationRequestCommand.CreateGymDto.GymName), MaxStringLengths.Name));
 
         ex.Errors.ShouldContainKey("CreateGymDTO.EscalationEmail");
-        ex.Errors["CreateGymDTO.EscalationEmail"].ShouldContain(ErrorMessages.PropertyIsRequired(nameof(CreateGymCreationRequestCommand.CreateGymDTO.EscalationEmail)));
-        ex.Errors["CreateGymDTO.EscalationEmail"].ShouldContain(ErrorMessages.InvalidEmailAddress(nameof(CreateGymCreationRequestCommand.CreateGymDTO.EscalationEmail)));        
+        ex.Errors["CreateGymDTO.EscalationEmail"].ShouldContain(ErrorMessages.PropertyIsRequired(nameof(CreateGymCreationRequestCommand.CreateGymDto.EscalationEmail)));
+        ex.Errors["CreateGymDTO.EscalationEmail"].ShouldContain(ErrorMessages.InvalidEmailAddress(nameof(CreateGymCreationRequestCommand.CreateGymDto.EscalationEmail)));        
     }
 
     public override void AuthorizeAttributeCheck()

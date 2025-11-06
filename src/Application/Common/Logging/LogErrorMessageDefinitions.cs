@@ -11,11 +11,11 @@ public partial class LogErrorMessages
             eventId: new EventId(),
             formatString: "Unhandled error caught in {Context}.");
 
-    private static readonly Action<ILogger, string, string?, string?, Result?, Exception?> _identityServiceMethodFailed =
-        LoggerMessage.Define<string, string?, string?, Result?>(
+    private static readonly Action<ILogger, string, IEnumerable<string>?, string?, Result?, Exception?> _identityServiceMethodFailed =
+        LoggerMessage.Define<string, IEnumerable<string>?, string?, Result?>(
             logLevel: LogLevel.Error,
             eventId: new EventId(),
-            formatString: "IdentityService {MethodName} method failed for {UserRole} user ({UserIdOrEmail}). Result: {Result}");
+            formatString: "IdentityService {MethodName} method failed for {UserRoles} user ({UserIdOrEmail}). Result: {Result}");
 
     private static readonly Action<ILogger, string, string, string?, string?, string?, Exception?> _jsonSerilaizationFailure =
         LoggerMessage.Define<string, string, string?, string?, string?>(

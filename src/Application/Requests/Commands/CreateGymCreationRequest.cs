@@ -14,7 +14,7 @@ namespace FitPass.Application.Requests.Commands;
 public record CreateGymCreationRequestCommand(
     string RequestDescription,
     PriorityLevel PriorityLevel,
-    CreateGymDto CreateGymDTO
+    CreateGymDto CreateGymDto
 ) : IRequest;
 
 public class CreateGymCreationRequestCommandValidator : AbstractValidator<CreateGymCreationRequestCommand>
@@ -26,18 +26,18 @@ public class CreateGymCreationRequestCommandValidator : AbstractValidator<Create
 
         RuleFor(v => v.PriorityLevel).IsInEnumWithMessage();
 
-        RuleFor(v => v.CreateGymDTO.GymName)
-            .NotEmptyWithMaxLenghtAndMessage(nameof(CreateGymCreationRequestCommand.CreateGymDTO.GymName), MaxStringLengths.Name);
+        RuleFor(v => v.CreateGymDto.GymName)
+            .NotEmptyWithMaxLenghtAndMessage(nameof(CreateGymCreationRequestCommand.CreateGymDto.GymName), MaxStringLengths.Name);
 
-        RuleFor(v => v.CreateGymDTO.GymAddress)
-            .NotEmptyWithMaxLenghtAndMessage(nameof(CreateGymCreationRequestCommand.CreateGymDTO.GymAddress), MaxStringLengths.Address);
+        RuleFor(v => v.CreateGymDto.GymAddress)
+            .NotEmptyWithMaxLenghtAndMessage(nameof(CreateGymCreationRequestCommand.CreateGymDto.GymAddress), MaxStringLengths.Address);
 
-        RuleFor(v => v.CreateGymDTO.GymStatus).IsInEnumWithMessage();
+        RuleFor(v => v.CreateGymDto.GymStatus).IsInEnumWithMessage();
 
-        RuleFor(v => v.CreateGymDTO.GymTier).IsInEnumWithMessage();
+        RuleFor(v => v.CreateGymDto.GymTier).IsInEnumWithMessage();
 
-        RuleFor(v => v.CreateGymDTO.EscalationEmail)
-            .ValidEmailAddress(nameof(CreateGymCreationRequestCommand.CreateGymDTO.EscalationEmail));
+        RuleFor(v => v.CreateGymDto.EscalationEmail)
+            .ValidEmailAddress(nameof(CreateGymCreationRequestCommand.CreateGymDto.EscalationEmail));
     }
 }
 
@@ -55,7 +55,7 @@ public class CreateGymCreationRequestCommandHandler : IRequestHandler<CreateGymC
     public async Task Handle(CreateGymCreationRequestCommand command, CancellationToken cancellationToken)
     {
         var ongoingRequests = await _context.Requests
-            .Where(r => r.CreatedBy == _user.Id && (r.Status == RequestStatus.Submitted || r.Status == RequestStatus.InProgress))
+            .Where(r => r.CreatedBy == _user.Id && (r.Status == RequestStatus.Submitted))
             .ToListAsync();
 
         if (ongoingRequests.Count > 0)
@@ -80,11 +80,11 @@ public class CreateGymCreationRequestCommandHandler : IRequestHandler<CreateGymC
         var gymCreationRequest = new Request
         {
             Id = Guid.NewGuid().ToString(),
-            Title = $"'{command.CreateGymDTO.GymName}' gym creation",
+            Title = $"'{command.CreateGymDto.GymName}' gym creation",
             Description = command.RequestDescription,
             PriorityLevel = command.PriorityLevel,
             Type = RequestType.GymCreation,
-            Payload = JsonSerializer.Serialize(command.CreateGymDTO),
+            Payload = JsonSerializer.Serialize(command.CreateGymDto),
         };
 
         await _context.Requests.AddAsync(gymCreationRequest);

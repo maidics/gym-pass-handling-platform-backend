@@ -5,7 +5,7 @@ namespace FitPass.Application.Common.Logging;
 
 public partial class LogErrorMessages
 {
-    public static void IdentityServiceMethodFailed(ILogger logger, string methodName, string? userRole, string? userIdOrEmail, Result? result)
+    public static void IdentityServiceMethodFailed(ILogger logger, string methodName, IEnumerable<string>? userRole, string? userIdOrEmail, Result? result)
     {
         _identityServiceMethodFailed(logger, methodName, userRole, userIdOrEmail, result, null);
     }
