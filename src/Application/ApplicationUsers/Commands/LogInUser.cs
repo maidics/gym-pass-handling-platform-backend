@@ -1,5 +1,5 @@
 using System.Security.Authentication;
-using Fitpass.Application.Common.Exceptions;
+using FitPass.Application.Common.Exceptions;
 using FitPass.Application.ApplicationUsers.DTOs;
 using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
@@ -8,7 +8,7 @@ using FitPass.Domain.Constants;
 using FitPass.Domain.Strings;
 using Microsoft.Extensions.Logging;
 
-namespace Fitpass.Application.ApplicationUsers.Commands;
+namespace FitPass.Application.ApplicationUsers.Commands;
 
 public record LogInUserCommand
     (

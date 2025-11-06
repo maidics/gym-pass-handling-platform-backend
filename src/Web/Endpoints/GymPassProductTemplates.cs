@@ -1,10 +1,10 @@
-using Fitpass.Application.GymPassProductsTemplates.Commands;
-using Fitpass.Application.GymPassProductsTemplates.DTOs;
-using Fitpass.Application.GymPassProductsTemplates.Queries;
+using FitPass.Application.GymPassProductsTemplates.Commands;
+using FitPass.Application.GymPassProductsTemplates.DTOs;
+using FitPass.Application.GymPassProductsTemplates.Queries;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Fitpass.Web.Endpoints;
+namespace FitPass.Web.Endpoints;
 
 public class GymPassProductTemplates : EndpointGroupBase
 {

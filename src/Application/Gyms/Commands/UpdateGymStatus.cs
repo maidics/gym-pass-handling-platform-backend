@@ -4,7 +4,7 @@ using FitPass.Application.Common.Security;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Enums;
 
-namespace Fitpass.Application.Gyms.Commands;
+namespace FitPass.Application.Gyms.Commands;
 
 [Authorize(Roles = Roles.AppAdministrator)]
 public record UpdateGymStatusCommand(string GymId, GymStatus NewGymStatus) : IRequest;

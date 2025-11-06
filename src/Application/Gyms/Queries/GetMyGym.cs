@@ -1,4 +1,4 @@
-using Fitpass.Application.Gyms.DTOs;
+using FitPass.Application.Gyms.DTOs;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Logging;
 using FitPass.Application.Common.Security;

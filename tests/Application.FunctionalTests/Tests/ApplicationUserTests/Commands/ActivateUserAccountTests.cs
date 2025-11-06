@@ -1,6 +1,6 @@
 ﻿namespace FitPass.Application.FunctionalTests.Tests.ApplicationUserTests.Commands;
 
-using Fitpass.Application.Common.Exceptions;
+using FitPass.Application.Common.Exceptions;
 using FitPass.Application.ApplicationUsers.Commands;
 using FitPass.Application.ApplicationUsers.DTOs;
 using FitPass.Application.Common.Exceptions;

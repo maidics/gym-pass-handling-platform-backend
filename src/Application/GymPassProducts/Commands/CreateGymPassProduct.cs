@@ -4,7 +4,7 @@ using FitPass.Domain.Constants;
 using FitPass.Domain.Enums;
 using FitPass.Domain.Strings;
 
-namespace Fitpass.Application.GymPassProducts.Commands;
+namespace FitPass.Application.GymPassProducts.Commands;
 
 [Authorize(Roles = Roles.GymAdministrator)]
 public record CreateGymPassProductCommand

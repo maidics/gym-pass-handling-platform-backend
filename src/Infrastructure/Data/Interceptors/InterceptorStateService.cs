@@ -1,4 +1,4 @@
-namespace Fitpass.Infrastructure.Data.Interceptors;
+namespace FitPass.Infrastructure.Data.Interceptors;
 
 public class InterceptorStateService
 {

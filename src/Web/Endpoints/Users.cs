@@ -1,5 +1,5 @@
-using Fitpass.Application.ApplicationUsers.Commands;
-using Fitpass.Application.ApplicationUsers.Commands.Emails;
+using FitPass.Application.ApplicationUsers.Commands;
+using FitPass.Application.ApplicationUsers.Commands.Emails;
 using FitPass.Application.ApplicationUsers.Commands;
 using FitPass.Application.ApplicationUsers.Commands.Emails;
 using FitPass.Application.ApplicationUsers.Commands.RoleHandling;
@@ -8,7 +8,7 @@ using FitPass.Application.GymMemberships.DTOs;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Fitpass.Web.Endpoints;
+namespace FitPass.Web.Endpoints;
 
 public class Users : EndpointGroupBase
 {

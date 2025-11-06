@@ -1,4 +1,4 @@
-﻿using Fitpass.Application.ApplicationUsers.Queries;
+﻿using FitPass.Application.ApplicationUsers.Queries;
 using FitPass.Application.Common.Behaviours;
 using FitPass.Application.Common.Interfaces;
 using Microsoft.Extensions.Logging;

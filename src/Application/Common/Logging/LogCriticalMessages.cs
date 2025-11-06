@@ -14,4 +14,9 @@ public partial class LogCriticalMessages
     {
         _authenticatedUserRelatedEntityNotFound(logger, userRoles, userId, entityType, null);
     }
+
+    public static void RequestIsAlreadyHandled(ILogger logger, Request request, string? userId)
+    {
+        _requestIsAlreadyHandled(logger, request, userId, null);
+    }
 }

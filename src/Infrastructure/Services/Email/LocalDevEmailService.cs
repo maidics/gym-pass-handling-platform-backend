@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Fitpass.Infrastructure.Services.Email;
+namespace FitPass.Infrastructure.Services.Email;
 public class LocalDevEmailService : IEmailService
 {
     private readonly string _pickupDirectory;

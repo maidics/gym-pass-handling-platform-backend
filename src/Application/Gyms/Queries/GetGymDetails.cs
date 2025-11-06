@@ -1,10 +1,10 @@
-using Fitpass.Application.Gyms.DTOs;
+using FitPass.Application.Gyms.DTOs;
 using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Security;
 using FitPass.Domain.Constants;
 
-namespace Fitpass.Application.Gyms.Queries;
+namespace FitPass.Application.Gyms.Queries;
 
 [Authorize(Roles = $"{Roles.AppAdministrator},{Roles.GymAdministrator},{Roles.GymStaff}")]
 public record GetGymDetailsQuery(string GymId) : IRequest<GymDto>;

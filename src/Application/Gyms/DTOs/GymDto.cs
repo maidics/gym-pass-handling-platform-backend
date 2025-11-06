@@ -2,7 +2,7 @@ using FitPass.Application.GymPassProducts.DTOs;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
 
-namespace Fitpass.Application.Gyms.DTOs;
+namespace FitPass.Application.Gyms.DTOs;
 
 public class GymDto
 {

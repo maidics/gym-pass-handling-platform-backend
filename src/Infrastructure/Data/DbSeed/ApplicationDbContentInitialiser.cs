@@ -1,4 +1,4 @@
-﻿using Fitpass.Infrastructure.Data.Interceptors;
+﻿using FitPass.Infrastructure.Data.Interceptors;
 using FitPass.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;

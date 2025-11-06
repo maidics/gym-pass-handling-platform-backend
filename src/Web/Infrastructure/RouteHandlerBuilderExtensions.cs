@@ -1,4 +1,4 @@
-namespace Fitpass.Web.Infrastructure;
+namespace FitPass.Web.Infrastructure;
 
 public static class RouteHandlerBuilderExtensions
 {

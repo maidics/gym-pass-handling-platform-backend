@@ -1,7 +1,5 @@
-using Fitpass.Application.Gyms.Commands;
-using Fitpass.Application.Gyms.DTOs;
-using Fitpass.Application.Gyms.Queries;
 using FitPass.Application.Gyms.Commands;
+using FitPass.Application.Gyms.DTOs;
 using FitPass.Application.Gyms.Queries;
 using FitPass.Domain.Enums;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -26,6 +24,8 @@ public class Gyms : EndpointGroupBase
         groupBuilder.MapPut(UpdateGymStatus, "{gymId}/Status").RequireAuthorization();
 
         groupBuilder.MapGet(GetMyGymDetails, "My/Details").RequireAuthorization();
+
+        groupBuilder.MapPost(RegisterGymFromRequest, "Register/FromRequest").RequireAuthorization();
     }
 
     public async Task<IResult> GetMyGymQrCode(ISender sender, CancellationToken cancellationToken)
@@ -81,6 +81,13 @@ public class Gyms : EndpointGroupBase
     {
         await sender.Send(command, cancellationToken);
 
-        return TypedResults.NoContent(); 
+        return TypedResults.NoContent();
+    }
+    
+    public async Task<Ok<GymDto>> RegisterGymFromRequest(ISender sender, string requestId, CancellationToken cancellationToken)
+    {
+        var result = await sender.Send(new RegisterGymFromRequestCommand(requestId));
+
+        return TypedResults.Ok(result);
     }
 }

@@ -6,7 +6,7 @@ using FitPass.Domain.Entities;
 using FitPass.Domain.Strings;
 using Microsoft.Extensions.Logging;
 
-namespace Fitpass.Application.UserProfiles.Queries;
+namespace FitPass.Application.UserProfiles.Queries;
 
 [Authorize]
 public record GetMyUserProfileQuery : IRequest<UserProfileWithEmailDto>;

@@ -1,7 +1,7 @@
 using FitPass.Application.Common.Interfaces;
 using FitPass.Domain.Strings;
 
-namespace Fitpass.Application.ApplicationUsers.EventHandlers;
+namespace FitPass.Application.ApplicationUsers.EventHandlers;
 
 /*
 public class UserRegisteredEventHandler : INotificationHandler<UserRegisteredEvent>

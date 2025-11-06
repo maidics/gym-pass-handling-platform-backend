@@ -3,8 +3,10 @@ namespace FitPass.Domain.Enums;
 public enum RequestStatus
 {
     Submitted,
-    InProgress,
     Completed,
     Cancelled,
-    Rejected
+    Rejected,
+    PayloadFailedToSerialize,
+    CreatorNotFound,
+    RelatedRoleHandlingFailed
 }

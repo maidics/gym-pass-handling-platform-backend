@@ -1,13 +1,11 @@
-using Fitpass.Application.Gyms.DTOs;
-using Fitpass.Application.Requests.DTOs;
-using Fitpass.Application.Requests.Queries;
+using FitPass.Application.Requests.DTOs;
+using FitPass.Application.Requests.Queries;
 using FitPass.Application.Common.Models;
 using FitPass.Application.Requests.Commands;
-using FitPass.Domain.Enums;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Fitpass.Web.Endpoints;
+namespace FitPass.Web.Endpoints;
 
 public class Requests : EndpointGroupBase
 {
@@ -17,13 +15,11 @@ public class Requests : EndpointGroupBase
 
         groupBuilder.MapGet(GetRequests).RequireAuthorization();
 
-        groupBuilder.MapPut(UpdateRequestStatus, "{requestId}/Status").RequireAuthorization();
-
         groupBuilder.MapPost(CreateGymCreationRequest, "/GymCreation");
 
         groupBuilder.MapPost(CreateGymAdminPromotionRequest, "GymAdminNomination").RequireAuthorization();
 
-        groupBuilder.MapPut(HandleGymCreationRequest, "GymCreation/{requestId}").RequireAuthorization();
+        groupBuilder.MapPut(RejectRequest, "Reject/{requestId}").RequireAuthorization();
     }
 
     public async Task<Ok<RequestDto>> GetRequest(ISender sender, string requestId, CancellationToken cancellationToken)
@@ -38,13 +34,6 @@ public class Requests : EndpointGroupBase
         var result = await sender.Send(query, cancellationToken);
 
         return TypedResults.Ok(result);
-    }
-
-    public async Task<NoContent> UpdateRequestStatus(ISender sender, string requestId, [FromBody] RequestStatus newRequestStatus, CancellationToken cancellationToken)
-    {
-        await sender.Send(new UpdateRequestStatusCommand(requestId, newRequestStatus), cancellationToken);
-
-        return TypedResults.NoContent();
     }
 
     public async Task<Ok> CreateGymCreationRequest(ISender sender, [FromBody] CreateGymCreationRequestCommand command)
@@ -73,10 +62,10 @@ public class Requests : EndpointGroupBase
         return TypedResults.Ok(result);
     }
 
-    public async Task<Ok<GymDto>> HandleGymCreationRequest(ISender sender, [FromQuery] string requestId, [FromBody] RequestStatus newStatus, CancellationToken cancellationToken)
+    public async Task<NoContent> RejectRequest(ISender sender, string requestId, CancellationToken cancellationToken)
     {
-        var result = await sender.Send(new HandleGymCreationRequestCommand(requestId, newStatus));
+        await sender.Send(new RejectRequestCommand(requestId));
 
-        return TypedResults.Ok(result);
+        return TypedResults.NoContent();
     }
 }

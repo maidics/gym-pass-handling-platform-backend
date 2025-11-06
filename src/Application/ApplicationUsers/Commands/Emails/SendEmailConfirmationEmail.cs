@@ -1,4 +1,4 @@
-using Fitpass.Application.Common.Exceptions;
+using FitPass.Application.Common.Exceptions;
 using FitPass.Application.Common.Configuration;
 using FitPass.Application.Common.Exceptions;
 using FitPass.Application.Common.Extensions;

@@ -1,11 +1,11 @@
-using Fitpass.Application.Gyms.DTOs;
+using FitPass.Application.Gyms.DTOs;
 using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Security;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Enums;
 
-namespace Fitpass.Application.Gyms.Commands;
+namespace FitPass.Application.Gyms.Commands;
 
 [Authorize(Roles = Roles.GymAdministrator)]
 public record UpdateMyGymProfileCommand(

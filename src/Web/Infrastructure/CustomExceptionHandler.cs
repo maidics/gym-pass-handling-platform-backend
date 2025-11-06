@@ -1,6 +1,5 @@
 ﻿using System.Security.Authentication;
 using System.Text.Json;
-using Fitpass.Application.Common.Exceptions;
 using FitPass.Application.Common.Exceptions;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
@@ -35,12 +34,6 @@ public class CustomExceptionHandler : IExceptionHandler
         if (_exceptionHandlers.ContainsKey(exceptionType))
         {
             await _exceptionHandlers[exceptionType].Invoke(httpContext, exception);
-            return true;
-        }
-
-        if (exception is BadHttpRequestException && exception.InnerException is JsonException)
-        {
-            await HandleJsonException(httpContext, exception);
             return true;
         }
 
@@ -122,18 +115,6 @@ public class CustomExceptionHandler : IExceptionHandler
             Title = "Bad Request",
             Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1",
             Detail = ex.Message
-        });
-    }
-
-    private async Task HandleJsonException(HttpContext httpContext, Exception ex)
-    {
-        httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
-
-        await httpContext.Response.WriteAsJsonAsync(new ProblemDetails
-        {
-            Status = StatusCodes.Status400BadRequest,
-            Title = "Invalid request body",
-            Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1",
         });
     }
 

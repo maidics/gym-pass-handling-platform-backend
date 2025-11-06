@@ -1,7 +1,7 @@
-using Fitpass.Application.Gyms.DTOs;
+using FitPass.Application.Gyms.DTOs;
 using FitPass.Application.Common.Interfaces;
 
-namespace Fitpass.Application.Gyms.Queries;
+namespace FitPass.Application.Gyms.Queries;
 
 public record GetAllGymsQuery : IRequest<List<GymDto>>;
 

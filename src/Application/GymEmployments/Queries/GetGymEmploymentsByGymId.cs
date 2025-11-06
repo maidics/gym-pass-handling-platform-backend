@@ -4,7 +4,7 @@ using FitPass.Application.Common.Security;
 using FitPass.Application.GymEmployments.DTOs;
 using FitPass.Domain.Constants;
 
-namespace Fitpass.Application.GymEmployments.Queries;
+namespace FitPass.Application.GymEmployments.Queries;
 
 [Authorize(Roles = Roles.AppAdministrator)]
 public record GetGymEmploymentsByGymIdQuery(string GymId) : IRequest<List<GymEmploymentDto>>;

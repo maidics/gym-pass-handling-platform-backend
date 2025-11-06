@@ -1,4 +1,4 @@
-namespace Fitpass.Application.Requests.DTOs;
+namespace FitPass.Application.Requests.DTOs;
 
 public class GymAdminNominationDto
 {

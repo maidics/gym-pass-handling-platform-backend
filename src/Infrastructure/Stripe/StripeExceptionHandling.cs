@@ -1,6 +1,6 @@
 using System.Net;
 using System.Runtime.CompilerServices;
-using Fitpass.Application.Common.Exceptions;
+using FitPass.Application.Common.Exceptions;
 using FitPass.Domain.Strings;
 using Microsoft.Extensions.Logging;
 using Stripe;

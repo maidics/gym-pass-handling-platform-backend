@@ -1,11 +1,11 @@
-using Fitpass.Application.Requests.DTOs;
+using FitPass.Application.Requests.DTOs;
 using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Security;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Enums;
 
-namespace Fitpass.Application.Requests.Queries;
+namespace FitPass.Application.Requests.Queries;
 
 [Authorize(Roles = Roles.AppAdministrator)]
 public record GetRequestsQuery(RequestType? RequestType, RequestStatus? RequestStatus) : IRequest<List<RequestDto>>;

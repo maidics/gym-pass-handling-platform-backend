@@ -2,7 +2,7 @@ using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Domain.Strings;
 
-namespace Fitpass.Application.ApplicationUsers.Commands.Emails;
+namespace FitPass.Application.ApplicationUsers.Commands.Emails;
 
 public record RequestPasswordResetEmailCommand(string Email) : IRequest; 
 

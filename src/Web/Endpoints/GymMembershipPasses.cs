@@ -1,4 +1,4 @@
-using Fitpass.Application.GymMembershipPasses.Queries;
+using FitPass.Application.GymMembershipPasses.Queries;
 using FitPass.Application.GymMembershipPasses.Commands;
 using FitPass.Application.GymMembershipPasses.DTOs;
 using Microsoft.AspNetCore.Http.HttpResults;

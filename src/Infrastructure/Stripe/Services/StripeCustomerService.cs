@@ -4,7 +4,7 @@ using FitPass.Infrastructure.Stripe;
 using Microsoft.Extensions.Logging;
 using Stripe;
 
-namespace Fitpass.Infrastructure.Stripe.Services;
+namespace FitPass.Infrastructure.Stripe.Services;
 
 public class StripeCustomerService : IStripeCustomerService
 {

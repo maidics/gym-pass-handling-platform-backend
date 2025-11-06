@@ -1,9 +1,9 @@
 ﻿using System.Net;
 using System.Security.Claims;
 using System.Text;
-using Fitpass.Infrastructure.Data.Interceptors;
-using Fitpass.Infrastructure.Services.Email;
-using Fitpass.Infrastructure.Stripe.Services;
+using FitPass.Infrastructure.Data.Interceptors;
+using FitPass.Infrastructure.Services.Email;
+using FitPass.Infrastructure.Stripe.Services;
 using FitPass.Application.Common.Configuration;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Infrastructure.Data;

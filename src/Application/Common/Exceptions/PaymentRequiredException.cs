@@ -1,3 +1,3 @@
-namespace Fitpass.Application.Common.Exceptions;
+namespace FitPass.Application.Common.Exceptions;
 
 public class PaymentRequiredException(string message) : Exception(message);

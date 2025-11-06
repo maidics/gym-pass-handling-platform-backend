@@ -8,7 +8,7 @@ using FitPass.Domain.Entities;
 using FitPass.Domain.Strings;
 using Microsoft.Extensions.Logging;
 
-namespace Fitpass.Application.GymEmployments.Queries;
+namespace FitPass.Application.GymEmployments.Queries;
 
 [Authorize(Roles = $"{Roles.GymAdministrator},{Roles.GymStaff}")]
 public record GetMyGymEmploymentsQuery : IRequest<List<GymEmploymentDto>>;

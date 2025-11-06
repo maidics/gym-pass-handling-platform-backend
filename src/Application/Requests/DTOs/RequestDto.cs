@@ -1,7 +1,7 @@
 using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
 
-namespace Fitpass.Application.Requests.DTOs;
+namespace FitPass.Application.Requests.DTOs;
 
 public class RequestDto
 {

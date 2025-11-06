@@ -1,5 +1,5 @@
 ﻿
-using Fitpass.Application.UserProfiles.Queries;
+using FitPass.Application.UserProfiles.Queries;
 using FitPass.Application.UserProfiles.Commands;
 using FitPass.Application.UserProfiles.DTOs;
 using Microsoft.AspNetCore.Http.HttpResults;

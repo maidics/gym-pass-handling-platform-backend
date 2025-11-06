@@ -1,6 +1,6 @@
 ﻿using FitPass.Application.GymEmployments.DTOs;
 using Microsoft.AspNetCore.Http.HttpResults;
-using Fitpass.Application.GymEmployments.Queries;
+using FitPass.Application.GymEmployments.Queries;
 using FitPass.Application.GymEmployments.Queries;
 using Microsoft.AspNetCore.Mvc;
 

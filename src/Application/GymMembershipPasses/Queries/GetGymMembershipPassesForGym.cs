@@ -3,7 +3,7 @@ using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Security;
 using FitPass.Application.GymMembershipPasses.DTOs;
 
-namespace Fitpass.Application.GymMembershipPasses.Queries;
+namespace FitPass.Application.GymMembershipPasses.Queries;
 
 [Authorize]
 public record GetGymMembershipPassesForGymQuery

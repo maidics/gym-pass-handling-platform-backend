@@ -1,5 +1,5 @@
 using System.Text.Json;
-using Fitpass.Application.Common.Exceptions;
+using FitPass.Application.Common.Exceptions;
 using FitPass.Domain.Strings;
 
 namespace FitPass.Application.Common.Extensions;

@@ -3,7 +3,7 @@ using FitPass.Domain.Enums;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Fitpass.Web.Endpoints;
+namespace FitPass.Web.Endpoints;
 
 public class GymMemberships : EndpointGroupBase
 {

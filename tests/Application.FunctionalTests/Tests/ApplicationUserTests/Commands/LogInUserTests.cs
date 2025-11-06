@@ -1,4 +1,4 @@
-﻿using Fitpass.Application.ApplicationUsers.Commands;
+﻿using FitPass.Application.ApplicationUsers.Commands;
 using FitPass.Application.Common.Exceptions;
 using FitPass.Domain.Constants;
 
