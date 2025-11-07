@@ -4,6 +4,5 @@ public enum PassUseResult
 {
     Success,
     Expired,
-    NoUsesLeft,
-    AlreadyExpired
+    AlreadyHasNoUsesLeft
 }

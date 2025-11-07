@@ -51,9 +51,9 @@ public class UseGymMembershipPassCommandHandler : IRequestHandler<UseGymMembersh
             throw new ForbiddenAccessException();
         }
 
-        var passUseResult = pass.Use();
+        var passUsage = pass.Use(_user.Id);
 
-        if (passUseResult == PassUseResult.AlreadyExpired)
+        if (passUsage.Result == PassUseResult.AlreadyHasNoUsesLeft)
         {
             LogCriticalMessages.UserRequestedToUseAnAlreadyExpiredPass(
                 _logger,
@@ -61,8 +61,9 @@ public class UseGymMembershipPassCommandHandler : IRequestHandler<UseGymMembersh
                 pass.Id);
         }
 
+        await _context.GymPassUsages.AddAsync(passUsage);
         await _context.SaveChangesAsync();
 
-        return passUseResult;
+        return passUsage.Result;
     }
 }

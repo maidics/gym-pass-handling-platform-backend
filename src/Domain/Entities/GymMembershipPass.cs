@@ -21,13 +21,38 @@ public class GymMembershipPass : BaseAuditableEntity
     }
     private bool HasNoUsesLeft() => Type != PassType.Unlimited && RemainingUses.HasValue && RemainingUses <= 0;
 
-    public PassUseResult Use()
+    public GymPassUsage Use(string userId) //passing this instead of using GymMembership because that might not be loaded => exception
     {
-        if (IsExpired() || HasNoUsesLeft())
+        if (HasNoUsesLeft())
         {
             AddDomainEvent(new PassExpiredEvent(this));
-            
-            return PassUseResult.AlreadyExpired;
+
+            return new GymPassUsage
+            {
+                ApplicationUserId = userId,
+                PassType = Type,
+                TotalPassUses = TotalUses,
+                RemainingPassUses = RemainingUses,
+                PassExpirationDate = ExpirationDate,
+                Result = PassUseResult.AlreadyHasNoUsesLeft,
+                GymMembershipPassId = GymMembershipId
+            };
+        }
+
+        if (IsExpired())
+        {
+            AddDomainEvent(new PassExpiredEvent(this));
+
+            return new GymPassUsage
+            {
+                ApplicationUserId = userId,
+                PassType = Type,
+                TotalPassUses = TotalUses,
+                RemainingPassUses = RemainingUses,
+                PassExpirationDate = ExpirationDate,
+                Result = PassUseResult.Expired,
+                GymMembershipPassId = GymMembershipId
+            };
         }
 
         if (Type != PassType.Unlimited)
@@ -37,10 +62,18 @@ public class GymMembershipPass : BaseAuditableEntity
             if (HasNoUsesLeft())
             {
                 AddDomainEvent(new PassExpiredEvent(this));
-                return PassUseResult.Expired;
             }
         }
 
-        return PassUseResult.Success;
+        return new GymPassUsage
+        {
+            ApplicationUserId = userId,
+            PassType = Type,
+            TotalPassUses = TotalUses,
+            RemainingPassUses = RemainingUses,
+            PassExpirationDate = ExpirationDate,
+            Result = PassUseResult.Success,
+            GymMembershipPassId = GymMembershipId
+        };
     }
 }
