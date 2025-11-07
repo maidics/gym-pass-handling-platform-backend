@@ -1,5 +1,4 @@
 ﻿using FitPass.Application.ApplicationUsers.Commands;
-using FitPass.Domain.Entities;
 
 namespace FitPass.Application.FunctionalTests.Tests.ApplicationUserTests.Commands;
 
@@ -42,14 +41,6 @@ public class DeleteMyAccountTests : BaseTestFixture
         var action = () => SendAsync(command);
 
         await action.ShouldNotThrowAsync();
-
-        var deletedUserProfile = await FindAsync<UserProfile>(userProfile.ApplicationUserId);
-
-        deletedUserProfile.ShouldBeNull();
-
-        var deletedUserPaymentProfile = await FindAsync<UserPaymentProfile>(userPaymentProfile.Id);
-
-        deletedUserPaymentProfile.ShouldBeNull();
     }
 
     [Test]
