@@ -3,7 +3,6 @@ using FitPass.Application.GymMembershipPasses.Commands;
 using FitPass.Application.GymMembershipPasses.DTOs;
 using FitPass.Domain.Enums;
 using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
 
 namespace FitPass.Web.Endpoints;
 
@@ -16,6 +15,8 @@ public class GymMembershipPasses : EndpointGroupBase
         groupBuilder.MapGet(GetGymMembershipPassesForGym, "My/{gymId}").RequireAuthorization();
 
         groupBuilder.MapPut(GymEmployeeUseGymMembershipPass, "MyGymMember/Use/{gymMembershipPassId}").RequireAuthorization();
+
+        groupBuilder.MapGet(IsGymMembershipPassValid, "MyGymMember/Validity/{gymMembershipPassId}").RequireAuthorization();
     }
 
     public async Task<Results<Ok<PassUseResult>, BadRequest<PassUseResult>>> UseGymMembershipPass (ISender sender, string gymMembershipPassId, CancellationToken cancellationToken)
@@ -40,6 +41,13 @@ public class GymMembershipPasses : EndpointGroupBase
     public async Task<Ok<PassUseResult>> GymEmployeeUseGymMembershipPass(ISender sender, string gymMembershipPassId, CancellationToken cancellationToken)
     {
         var result = await sender.Send(new GymEmployeeUseGymMembershipPassCommand(gymMembershipPassId));
+
+        return TypedResults.Ok(result);
+    }
+
+    public async Task<Ok<bool>> IsGymMembershipPassValid(ISender sender, string gymMembershipPassId, CancellationToken cancellationToken)
+    {
+        var result = await sender.Send(new IsGymMembershipPassValidQuery(gymMembershipPassId));
 
         return TypedResults.Ok(result);
     }

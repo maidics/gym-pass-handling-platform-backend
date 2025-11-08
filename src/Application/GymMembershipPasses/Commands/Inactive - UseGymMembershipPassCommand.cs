@@ -8,7 +8,7 @@ using FitPass.Domain.Enums;
 using Microsoft.Extensions.Logging;
 
 namespace FitPass.Application.GymMembershipPasses.Commands;
-
+/*
 [Authorize(Roles = Roles.User)]
 public record UseGymMembershipPassCommand(string GymMembershipPassId) : IRequest<PassUseResult>;
 
@@ -67,3 +67,4 @@ public class UseGymMembershipPassCommandHandler : IRequestHandler<UseGymMembersh
         return passUsage.Result;
     }
 }
+*/

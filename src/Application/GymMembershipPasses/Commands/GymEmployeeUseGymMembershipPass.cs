@@ -12,13 +12,15 @@ using Microsoft.Extensions.Logging;
 namespace FitPass.Application.GymMembershipPasses.Commands;
 
 [Authorize(Roles = $"{Roles.GymAdministrator},{Roles.GymStaff}")]
-public record GymEmployeeUseGymMembershipPassCommand(string GymMembershipPassId) : IRequest<PassUseResult>;
+public record GymEmployeeUseGymMembershipPassCommand(string GymMembershipPassId, string LockerNumber) : IRequest<PassUseResult>;
 
 public class GymEmployeeUseGymMembershipPassCommandValidator : AbstractValidator<GymEmployeeUseGymMembershipPassCommand>
 {
     public GymEmployeeUseGymMembershipPassCommandValidator()
     {
         RuleFor(v => v.GymMembershipPassId).NotEmptyWithMessage(nameof(GymEmployeeUseGymMembershipPassCommand.GymMembershipPassId));
+
+        RuleFor(v => v.LockerNumber).NotEmptyWithMessage(nameof(GymEmployeeUseGymMembershipPassCommand.LockerNumber));
     }
 }
 
@@ -65,7 +67,7 @@ public class GymEmployeeUseGymMembershipPassCommandHandler : IRequestHandler<Gym
             throw new ForbiddenAccessException();
         }
 
-        var passUsage = pass.Use(pass.GymMembership.ApplicationUserId);
+        var passUsage = pass.Use(command.LockerNumber);
 
         if (passUsage.Result == PassUseResult.AlreadyHasNoUsesLeft)
         {
