@@ -1,7 +1,5 @@
 using FitPass.Application.ApplicationUsers.Commands;
 using FitPass.Application.ApplicationUsers.Commands.Emails;
-using FitPass.Application.ApplicationUsers.Commands;
-using FitPass.Application.ApplicationUsers.Commands.Emails;
 using FitPass.Application.ApplicationUsers.Commands.RoleHandling;
 using FitPass.Application.ApplicationUsers.DTOs;
 using FitPass.Application.GymMemberships.DTOs;

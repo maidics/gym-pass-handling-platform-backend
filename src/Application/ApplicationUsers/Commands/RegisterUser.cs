@@ -74,7 +74,7 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, J
             {
                 await transaction.RollbackAsync();
 
-                LogErrorMessages.IdentityServiceMethodFailed(_logger, nameof(IIdentityService.CreateUserAsync), Roles.User, command.Email, userCreationResultObj.result);
+                LogErrorMessages.IdentityServiceMethodFailed(_logger, nameof(IIdentityService.CreateUserAsync), [Roles.User], command.Email, userCreationResultObj.result);
 
                 throw new BadRequestException(string.Join(", ", userCreationResultObj.result.Errors));
             }
@@ -87,7 +87,7 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, J
             {
                 await transaction.RollbackAsync();
 
-                LogErrorMessages.IdentityServiceMethodFailed(_logger, nameof(IIdentityService.AddToRoleAsync), Roles.User, userId, roleResult);
+                LogErrorMessages.IdentityServiceMethodFailed(_logger, nameof(IIdentityService.AddToRoleAsync), [Roles.User], userId, roleResult);
 
                 throw new Exception(ErrorMessages.FailedToHandleRole(Roles.User, true, roleResult.Errors));
             }

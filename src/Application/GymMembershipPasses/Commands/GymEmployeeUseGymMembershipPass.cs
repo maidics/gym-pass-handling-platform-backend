@@ -71,10 +71,7 @@ public class GymEmployeeUseGymMembershipPassCommandHandler : IRequestHandler<Gym
 
         if (passUsage.PassUseResult == PassUseResult.AlreadyHasNoUsesLeft)
         {
-            LogCriticalMessages.UserRequestedToUseAnAlreadyExpiredPass(
-                _logger,
-                _user.Id,
-                command.GymMembershipPassId);
+            _logger.LogCritical("User request to use an already expired pass.");
         }
 
         await _context.GymPassUsages.AddAsync(passUsage);

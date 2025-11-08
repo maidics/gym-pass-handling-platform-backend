@@ -14,13 +14,33 @@ import type { AxiosInstance, AxiosRequestConfig, AxiosResponse, CancelToken } fr
 export module apiClient {
 
 export interface IApiClient {
+    getMyGymEmployments(): Promise<GymEmploymentDto[]>;
+    getMyGymEmployment(): Promise<GymEmploymentDto>;
+    getGymEmploymentsByGymId(gymId: string): Promise<GymEmploymentDto[]>;
+    getGymMembershipPassesForGym(gymId: string): Promise<GymMembershipPassDto[]>;
+    gymEmployeeUseGymMembershipPass(gymMembershipPassId: string, lockerNumber: string): Promise<PassUseResult>;
+    isGymMembershipPassValid(gymMembershipPassId: string): Promise<boolean>;
     updateUserMembershipStatus(gymMembership: string, newGymMembershipStatus: GymMembershipStatus): Promise<void>;
+    getGymMembershipsQueryToMyGym(query: GetGymMembershipsQueryToMyGymQuery): Promise<GymMembershipWithUserProfileAndEmailDto[]>;
+    getGymPassUsagesForMyGymToday(): Promise<GymPassUsageDto[]>;
+    gymEmployeeEndUserGymSession(gymPassUsageId: string): Promise<void>;
+    updateGymPassUsageLockerNumberCommand(gymPassUsageId: string, lockerNumber: string): Promise<void>;
+    getMyGymQrCode(): Promise<void>;
+    updateMyGymProfile(command: UpdateMyGymProfileCommand): Promise<GymDto>;
+    getAllGyms(): Promise<GymDto[]>;
+    getGymDetails(gymId: string): Promise<GymDto>;
+    getNewGymsThisMonth(): Promise<GymDto[]>;
+    updateGymStatus(gymId: string, newGymStatus: GymStatus): Promise<void>;
+    getMyGymDetails(): Promise<GymDto>;
+    registerGymFromRequest(requestId: string): Promise<GymDto>;
+    registerGym(command: RegisterGymCommand): Promise<GymDto>;
     getRequest(requestId: string): Promise<RequestDto>;
     getRequests(query: GetRequestsQuery): Promise<RequestDto[]>;
-    updateRequestStatus(requestId: string, newRequestStatus: RequestStatus): Promise<void>;
     createGymCreationRequest(command: CreateGymCreationRequestCommand): Promise<void>;
-    handleGymCreationRequest(requestId: string, newStatus: RequestStatus): Promise<GymDto>;
     createGymAdminPromotionRequest(command: CreateGymAdminPromotionRequestCommand): Promise<Result>;
+    rejectRequest(requestId: string): Promise<void>;
+    getMyUserProfile(): Promise<UserProfileWithEmailDto>;
+    updateMyUserProfile(command: UpdateMyUserProfileCommand): Promise<void>;
     registerUser(command: RegisterUserCommand): Promise<JwtToken>;
     logInUser(command: LogInUserCommand): Promise<JwtToken>;
     registerPendingGymManagement(command: RegisterPendingGymEmployeeCommand): Promise<JwtToken>;
@@ -32,20 +52,6 @@ export interface IApiClient {
     sendEmailConfirmationEmail(command: SendEmailConfirmationEmailCommand): Promise<void>;
     activateUserAccount(command: ActivateUserAccountCommand): Promise<JwtToken>;
     gymEmployeeRegisterUser(command: GymEmployeeRegisterUserCommand): Promise<GymMembershipDto>;
-    getMyGymEmployments(): Promise<GymEmploymentDto[]>;
-    getMyGymEmployment(): Promise<GymEmploymentDto>;
-    getGymEmploymentsByGymId(gymId: string): Promise<GymEmploymentDto[]>;
-    useGymMembershipPass(gymMembershipPassId: string): Promise<void>;
-    getGymMembershipPassesForGym(gymId: string): Promise<GymMembershipPassDto[]>;
-    getMyGymQrCode(): Promise<void>;
-    updateMyGymProfile(command: UpdateMyGymProfileCommand): Promise<GymDto>;
-    getAllGyms(): Promise<GymDto[]>;
-    getGymDetails(gymId: string): Promise<GymDto>;
-    getNewGymsThisMonth(): Promise<GymDto[]>;
-    updateGymStatus(gymId: string, newGymStatus: GymStatus): Promise<void>;
-    getMyGymDetails(): Promise<GymDto>;
-    getMyUserProfile(): Promise<UserProfileWithEmailDto>;
-    updateMyUserProfile(command: UpdateMyUserProfileCommand): Promise<void>;
 }
 
 export class ApiClient implements IApiClient {
@@ -59,6 +65,334 @@ export class ApiClient implements IApiClient {
 
         this.baseUrl = baseUrl ?? "";
 
+    }
+
+    getMyGymEmployments( cancelToken?: CancelToken): Promise<GymEmploymentDto[]> {
+        let url_ = this.baseUrl + "/api/GymEmployments/MyGym/All";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: AxiosRequestConfig = {
+            method: "GET",
+            url: url_,
+            headers: {
+                "Accept": "application/json"
+            },
+            cancelToken
+        };
+
+        return this.instance.request(options_).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processGetMyGymEmployments(_response);
+        });
+    }
+
+    protected processGetMyGymEmployments(response: AxiosResponse): Promise<GymEmploymentDto[]> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (const k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 200) {
+            const _responseText = response.data;
+            let result200: any = null;
+            let resultData200  = _responseText;
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(GymEmploymentDto.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return Promise.resolve<GymEmploymentDto[]>(result200);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<GymEmploymentDto[]>(null as any);
+    }
+
+    getMyGymEmployment( cancelToken?: CancelToken): Promise<GymEmploymentDto> {
+        let url_ = this.baseUrl + "/api/GymEmployments/My";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: AxiosRequestConfig = {
+            method: "GET",
+            url: url_,
+            headers: {
+                "Accept": "application/json"
+            },
+            cancelToken
+        };
+
+        return this.instance.request(options_).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processGetMyGymEmployment(_response);
+        });
+    }
+
+    protected processGetMyGymEmployment(response: AxiosResponse): Promise<GymEmploymentDto> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (const k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 200) {
+            const _responseText = response.data;
+            let result200: any = null;
+            let resultData200  = _responseText;
+            result200 = GymEmploymentDto.fromJS(resultData200);
+            return Promise.resolve<GymEmploymentDto>(result200);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<GymEmploymentDto>(null as any);
+    }
+
+    getGymEmploymentsByGymId(gymId: string, cancelToken?: CancelToken): Promise<GymEmploymentDto[]> {
+        let url_ = this.baseUrl + "/api/GymEmployments/Gym?";
+        if (gymId === undefined || gymId === null)
+            throw new Error("The parameter 'gymId' must be defined and cannot be null.");
+        else
+            url_ += "gymId=" + encodeURIComponent("" + gymId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: AxiosRequestConfig = {
+            method: "GET",
+            url: url_,
+            headers: {
+                "Accept": "application/json"
+            },
+            cancelToken
+        };
+
+        return this.instance.request(options_).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processGetGymEmploymentsByGymId(_response);
+        });
+    }
+
+    protected processGetGymEmploymentsByGymId(response: AxiosResponse): Promise<GymEmploymentDto[]> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (const k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 200) {
+            const _responseText = response.data;
+            let result200: any = null;
+            let resultData200  = _responseText;
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(GymEmploymentDto.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return Promise.resolve<GymEmploymentDto[]>(result200);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<GymEmploymentDto[]>(null as any);
+    }
+
+    getGymMembershipPassesForGym(gymId: string, cancelToken?: CancelToken): Promise<GymMembershipPassDto[]> {
+        let url_ = this.baseUrl + "/api/GymMembershipPasses/My/{gymId}";
+        if (gymId === undefined || gymId === null)
+            throw new Error("The parameter 'gymId' must be defined.");
+        url_ = url_.replace("{gymId}", encodeURIComponent("" + gymId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: AxiosRequestConfig = {
+            method: "GET",
+            url: url_,
+            headers: {
+                "Accept": "application/json"
+            },
+            cancelToken
+        };
+
+        return this.instance.request(options_).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processGetGymMembershipPassesForGym(_response);
+        });
+    }
+
+    protected processGetGymMembershipPassesForGym(response: AxiosResponse): Promise<GymMembershipPassDto[]> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (const k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 200) {
+            const _responseText = response.data;
+            let result200: any = null;
+            let resultData200  = _responseText;
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(GymMembershipPassDto.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return Promise.resolve<GymMembershipPassDto[]>(result200);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<GymMembershipPassDto[]>(null as any);
+    }
+
+    gymEmployeeUseGymMembershipPass(gymMembershipPassId: string, lockerNumber: string, cancelToken?: CancelToken): Promise<PassUseResult> {
+        let url_ = this.baseUrl + "/api/GymMembershipPasses/MyGymMember/Use/{gymMembershipPassId}";
+        if (gymMembershipPassId === undefined || gymMembershipPassId === null)
+            throw new Error("The parameter 'gymMembershipPassId' must be defined.");
+        url_ = url_.replace("{gymMembershipPassId}", encodeURIComponent("" + gymMembershipPassId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(lockerNumber);
+
+        let options_: AxiosRequestConfig = {
+            data: content_,
+            method: "PUT",
+            url: url_,
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+            cancelToken
+        };
+
+        return this.instance.request(options_).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processGymEmployeeUseGymMembershipPass(_response);
+        });
+    }
+
+    protected processGymEmployeeUseGymMembershipPass(response: AxiosResponse): Promise<PassUseResult> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (const k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 200) {
+            const _responseText = response.data;
+            let result200: any = null;
+            let resultData200  = _responseText;
+                result200 = resultData200 !== undefined ? resultData200 : <any>null;
+    
+            return Promise.resolve<PassUseResult>(result200);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<PassUseResult>(null as any);
+    }
+
+    isGymMembershipPassValid(gymMembershipPassId: string, cancelToken?: CancelToken): Promise<boolean> {
+        let url_ = this.baseUrl + "/api/GymMembershipPasses/MyGymMember/Validity/{gymMembershipPassId}";
+        if (gymMembershipPassId === undefined || gymMembershipPassId === null)
+            throw new Error("The parameter 'gymMembershipPassId' must be defined.");
+        url_ = url_.replace("{gymMembershipPassId}", encodeURIComponent("" + gymMembershipPassId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: AxiosRequestConfig = {
+            method: "GET",
+            url: url_,
+            headers: {
+                "Accept": "application/json"
+            },
+            cancelToken
+        };
+
+        return this.instance.request(options_).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processIsGymMembershipPassValid(_response);
+        });
+    }
+
+    protected processIsGymMembershipPassValid(response: AxiosResponse): Promise<boolean> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (const k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 200) {
+            const _responseText = response.data;
+            let result200: any = null;
+            let resultData200  = _responseText;
+                result200 = resultData200 !== undefined ? resultData200 : <any>null;
+    
+            return Promise.resolve<boolean>(result200);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<boolean>(null as any);
     }
 
     updateUserMembershipStatus(gymMembership: string, newGymMembershipStatus: GymMembershipStatus, cancelToken?: CancelToken): Promise<void> {
@@ -110,6 +444,678 @@ export class ApiClient implements IApiClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
         }
         return Promise.resolve<void>(null as any);
+    }
+
+    getGymMembershipsQueryToMyGym(query: GetGymMembershipsQueryToMyGymQuery, cancelToken?: CancelToken): Promise<GymMembershipWithUserProfileAndEmailDto[]> {
+        let url_ = this.baseUrl + "/api/GymMemberships/MyGym";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(query);
+
+        let options_: AxiosRequestConfig = {
+            data: content_,
+            method: "GET",
+            url: url_,
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+            cancelToken
+        };
+
+        return this.instance.request(options_).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processGetGymMembershipsQueryToMyGym(_response);
+        });
+    }
+
+    protected processGetGymMembershipsQueryToMyGym(response: AxiosResponse): Promise<GymMembershipWithUserProfileAndEmailDto[]> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (const k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 200) {
+            const _responseText = response.data;
+            let result200: any = null;
+            let resultData200  = _responseText;
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(GymMembershipWithUserProfileAndEmailDto.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return Promise.resolve<GymMembershipWithUserProfileAndEmailDto[]>(result200);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<GymMembershipWithUserProfileAndEmailDto[]>(null as any);
+    }
+
+    getGymPassUsagesForMyGymToday( cancelToken?: CancelToken): Promise<GymPassUsageDto[]> {
+        let url_ = this.baseUrl + "/api/GymPassUsages/MyGym/Today";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: AxiosRequestConfig = {
+            method: "GET",
+            url: url_,
+            headers: {
+                "Accept": "application/json"
+            },
+            cancelToken
+        };
+
+        return this.instance.request(options_).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processGetGymPassUsagesForMyGymToday(_response);
+        });
+    }
+
+    protected processGetGymPassUsagesForMyGymToday(response: AxiosResponse): Promise<GymPassUsageDto[]> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (const k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 200) {
+            const _responseText = response.data;
+            let result200: any = null;
+            let resultData200  = _responseText;
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(GymPassUsageDto.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return Promise.resolve<GymPassUsageDto[]>(result200);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<GymPassUsageDto[]>(null as any);
+    }
+
+    gymEmployeeEndUserGymSession(gymPassUsageId: string, cancelToken?: CancelToken): Promise<void> {
+        let url_ = this.baseUrl + "/api/GymPassUsages/MyGym/EndGymSession/{gymPassUsageId}";
+        if (gymPassUsageId === undefined || gymPassUsageId === null)
+            throw new Error("The parameter 'gymPassUsageId' must be defined.");
+        url_ = url_.replace("{gymPassUsageId}", encodeURIComponent("" + gymPassUsageId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: AxiosRequestConfig = {
+            method: "PUT",
+            url: url_,
+            headers: {
+            },
+            cancelToken
+        };
+
+        return this.instance.request(options_).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processGymEmployeeEndUserGymSession(_response);
+        });
+    }
+
+    protected processGymEmployeeEndUserGymSession(response: AxiosResponse): Promise<void> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (const k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 204) {
+            const _responseText = response.data;
+            return Promise.resolve<void>(null as any);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    updateGymPassUsageLockerNumberCommand(gymPassUsageId: string, lockerNumber: string, cancelToken?: CancelToken): Promise<void> {
+        let url_ = this.baseUrl + "/api/GymPassUsages/MyGym/UpdateLockerNumber/{gymPassUsageId}";
+        if (gymPassUsageId === undefined || gymPassUsageId === null)
+            throw new Error("The parameter 'gymPassUsageId' must be defined.");
+        url_ = url_.replace("{gymPassUsageId}", encodeURIComponent("" + gymPassUsageId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(lockerNumber);
+
+        let options_: AxiosRequestConfig = {
+            data: content_,
+            method: "PUT",
+            url: url_,
+            headers: {
+                "Content-Type": "application/json",
+            },
+            cancelToken
+        };
+
+        return this.instance.request(options_).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processUpdateGymPassUsageLockerNumberCommand(_response);
+        });
+    }
+
+    protected processUpdateGymPassUsageLockerNumberCommand(response: AxiosResponse): Promise<void> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (const k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 204) {
+            const _responseText = response.data;
+            return Promise.resolve<void>(null as any);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    getMyGymQrCode( cancelToken?: CancelToken): Promise<void> {
+        let url_ = this.baseUrl + "/api/Gyms/My/QrCode";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: AxiosRequestConfig = {
+            method: "GET",
+            url: url_,
+            headers: {
+            },
+            cancelToken
+        };
+
+        return this.instance.request(options_).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processGetMyGymQrCode(_response);
+        });
+    }
+
+    protected processGetMyGymQrCode(response: AxiosResponse): Promise<void> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (const k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 200) {
+            const _responseText = response.data;
+            return Promise.resolve<void>(null as any);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    updateMyGymProfile(command: UpdateMyGymProfileCommand, cancelToken?: CancelToken): Promise<GymDto> {
+        let url_ = this.baseUrl + "/api/Gyms/My/Profile";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: AxiosRequestConfig = {
+            data: content_,
+            method: "PUT",
+            url: url_,
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+            cancelToken
+        };
+
+        return this.instance.request(options_).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processUpdateMyGymProfile(_response);
+        });
+    }
+
+    protected processUpdateMyGymProfile(response: AxiosResponse): Promise<GymDto> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (const k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 200) {
+            const _responseText = response.data;
+            let result200: any = null;
+            let resultData200  = _responseText;
+            result200 = GymDto.fromJS(resultData200);
+            return Promise.resolve<GymDto>(result200);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<GymDto>(null as any);
+    }
+
+    getAllGyms( cancelToken?: CancelToken): Promise<GymDto[]> {
+        let url_ = this.baseUrl + "/api/Gyms";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: AxiosRequestConfig = {
+            method: "GET",
+            url: url_,
+            headers: {
+                "Accept": "application/json"
+            },
+            cancelToken
+        };
+
+        return this.instance.request(options_).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processGetAllGyms(_response);
+        });
+    }
+
+    protected processGetAllGyms(response: AxiosResponse): Promise<GymDto[]> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (const k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 200) {
+            const _responseText = response.data;
+            let result200: any = null;
+            let resultData200  = _responseText;
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(GymDto.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return Promise.resolve<GymDto[]>(result200);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<GymDto[]>(null as any);
+    }
+
+    getGymDetails(gymId: string, cancelToken?: CancelToken): Promise<GymDto> {
+        let url_ = this.baseUrl + "/api/Gyms/{gymId}/Details";
+        if (gymId === undefined || gymId === null)
+            throw new Error("The parameter 'gymId' must be defined.");
+        url_ = url_.replace("{gymId}", encodeURIComponent("" + gymId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: AxiosRequestConfig = {
+            method: "GET",
+            url: url_,
+            headers: {
+                "Accept": "application/json"
+            },
+            cancelToken
+        };
+
+        return this.instance.request(options_).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processGetGymDetails(_response);
+        });
+    }
+
+    protected processGetGymDetails(response: AxiosResponse): Promise<GymDto> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (const k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 200) {
+            const _responseText = response.data;
+            let result200: any = null;
+            let resultData200  = _responseText;
+            result200 = GymDto.fromJS(resultData200);
+            return Promise.resolve<GymDto>(result200);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<GymDto>(null as any);
+    }
+
+    getNewGymsThisMonth( cancelToken?: CancelToken): Promise<GymDto[]> {
+        let url_ = this.baseUrl + "/api/Gyms/NewThisMonth";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: AxiosRequestConfig = {
+            method: "GET",
+            url: url_,
+            headers: {
+                "Accept": "application/json"
+            },
+            cancelToken
+        };
+
+        return this.instance.request(options_).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processGetNewGymsThisMonth(_response);
+        });
+    }
+
+    protected processGetNewGymsThisMonth(response: AxiosResponse): Promise<GymDto[]> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (const k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 200) {
+            const _responseText = response.data;
+            let result200: any = null;
+            let resultData200  = _responseText;
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(GymDto.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return Promise.resolve<GymDto[]>(result200);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<GymDto[]>(null as any);
+    }
+
+    updateGymStatus(gymId: string, newGymStatus: GymStatus, cancelToken?: CancelToken): Promise<void> {
+        let url_ = this.baseUrl + "/api/Gyms/{gymId}/Status";
+        if (gymId === undefined || gymId === null)
+            throw new Error("The parameter 'gymId' must be defined.");
+        url_ = url_.replace("{gymId}", encodeURIComponent("" + gymId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(newGymStatus);
+
+        let options_: AxiosRequestConfig = {
+            data: content_,
+            method: "PUT",
+            url: url_,
+            headers: {
+                "Content-Type": "application/json",
+            },
+            cancelToken
+        };
+
+        return this.instance.request(options_).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processUpdateGymStatus(_response);
+        });
+    }
+
+    protected processUpdateGymStatus(response: AxiosResponse): Promise<void> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (const k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 204) {
+            const _responseText = response.data;
+            return Promise.resolve<void>(null as any);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    getMyGymDetails( cancelToken?: CancelToken): Promise<GymDto> {
+        let url_ = this.baseUrl + "/api/Gyms/My/Details";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: AxiosRequestConfig = {
+            method: "GET",
+            url: url_,
+            headers: {
+                "Accept": "application/json"
+            },
+            cancelToken
+        };
+
+        return this.instance.request(options_).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processGetMyGymDetails(_response);
+        });
+    }
+
+    protected processGetMyGymDetails(response: AxiosResponse): Promise<GymDto> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (const k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 200) {
+            const _responseText = response.data;
+            let result200: any = null;
+            let resultData200  = _responseText;
+            result200 = GymDto.fromJS(resultData200);
+            return Promise.resolve<GymDto>(result200);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<GymDto>(null as any);
+    }
+
+    registerGymFromRequest(requestId: string, cancelToken?: CancelToken): Promise<GymDto> {
+        let url_ = this.baseUrl + "/api/Gyms/Register/FromRequest?";
+        if (requestId === undefined || requestId === null)
+            throw new Error("The parameter 'requestId' must be defined and cannot be null.");
+        else
+            url_ += "requestId=" + encodeURIComponent("" + requestId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: AxiosRequestConfig = {
+            method: "POST",
+            url: url_,
+            headers: {
+                "Accept": "application/json"
+            },
+            cancelToken
+        };
+
+        return this.instance.request(options_).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processRegisterGymFromRequest(_response);
+        });
+    }
+
+    protected processRegisterGymFromRequest(response: AxiosResponse): Promise<GymDto> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (const k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 200) {
+            const _responseText = response.data;
+            let result200: any = null;
+            let resultData200  = _responseText;
+            result200 = GymDto.fromJS(resultData200);
+            return Promise.resolve<GymDto>(result200);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<GymDto>(null as any);
+    }
+
+    registerGym(command: RegisterGymCommand, cancelToken?: CancelToken): Promise<GymDto> {
+        let url_ = this.baseUrl + "/api/Gyms/Register";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: AxiosRequestConfig = {
+            data: content_,
+            method: "POST",
+            url: url_,
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+            cancelToken
+        };
+
+        return this.instance.request(options_).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processRegisterGym(_response);
+        });
+    }
+
+    protected processRegisterGym(response: AxiosResponse): Promise<GymDto> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (const k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 200) {
+            const _responseText = response.data;
+            let result200: any = null;
+            let resultData200  = _responseText;
+            result200 = GymDto.fromJS(resultData200);
+            return Promise.resolve<GymDto>(result200);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<GymDto>(null as any);
     }
 
     getRequest(requestId: string, cancelToken?: CancelToken): Promise<RequestDto> {
@@ -222,57 +1228,6 @@ export class ApiClient implements IApiClient {
         return Promise.resolve<RequestDto[]>(null as any);
     }
 
-    updateRequestStatus(requestId: string, newRequestStatus: RequestStatus, cancelToken?: CancelToken): Promise<void> {
-        let url_ = this.baseUrl + "/api/Requests/{requestId}/Status";
-        if (requestId === undefined || requestId === null)
-            throw new Error("The parameter 'requestId' must be defined.");
-        url_ = url_.replace("{requestId}", encodeURIComponent("" + requestId));
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(newRequestStatus);
-
-        let options_: AxiosRequestConfig = {
-            data: content_,
-            method: "PUT",
-            url: url_,
-            headers: {
-                "Content-Type": "application/json",
-            },
-            cancelToken
-        };
-
-        return this.instance.request(options_).catch((_error: any) => {
-            if (isAxiosError(_error) && _error.response) {
-                return _error.response;
-            } else {
-                throw _error;
-            }
-        }).then((_response: AxiosResponse) => {
-            return this.processUpdateRequestStatus(_response);
-        });
-    }
-
-    protected processUpdateRequestStatus(response: AxiosResponse): Promise<void> {
-        const status = response.status;
-        let _headers: any = {};
-        if (response.headers && typeof response.headers === "object") {
-            for (const k in response.headers) {
-                if (response.headers.hasOwnProperty(k)) {
-                    _headers[k] = response.headers[k];
-                }
-            }
-        }
-        if (status === 204) {
-            const _responseText = response.data;
-            return Promise.resolve<void>(null as any);
-
-        } else if (status !== 200 && status !== 204) {
-            const _responseText = response.data;
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-        }
-        return Promise.resolve<void>(null as any);
-    }
-
     createGymCreationRequest(command: CreateGymCreationRequestCommand, cancelToken?: CancelToken): Promise<void> {
         let url_ = this.baseUrl + "/api/Requests/GymCreation";
         url_ = url_.replace(/[?&]$/, "");
@@ -319,62 +1274,6 @@ export class ApiClient implements IApiClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
         }
         return Promise.resolve<void>(null as any);
-    }
-
-    handleGymCreationRequest(requestId: string, newStatus: RequestStatus, cancelToken?: CancelToken): Promise<GymDto> {
-        let url_ = this.baseUrl + "/api/Requests/GymCreation?";
-        if (requestId === undefined || requestId === null)
-            throw new Error("The parameter 'requestId' must be defined and cannot be null.");
-        else
-            url_ += "requestId=" + encodeURIComponent("" + requestId) + "&";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(newStatus);
-
-        let options_: AxiosRequestConfig = {
-            data: content_,
-            method: "PUT",
-            url: url_,
-            headers: {
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            },
-            cancelToken
-        };
-
-        return this.instance.request(options_).catch((_error: any) => {
-            if (isAxiosError(_error) && _error.response) {
-                return _error.response;
-            } else {
-                throw _error;
-            }
-        }).then((_response: AxiosResponse) => {
-            return this.processHandleGymCreationRequest(_response);
-        });
-    }
-
-    protected processHandleGymCreationRequest(response: AxiosResponse): Promise<GymDto> {
-        const status = response.status;
-        let _headers: any = {};
-        if (response.headers && typeof response.headers === "object") {
-            for (const k in response.headers) {
-                if (response.headers.hasOwnProperty(k)) {
-                    _headers[k] = response.headers[k];
-                }
-            }
-        }
-        if (status === 200) {
-            const _responseText = response.data;
-            let result200: any = null;
-            let resultData200  = _responseText;
-            result200 = GymDto.fromJS(resultData200);
-            return Promise.resolve<GymDto>(result200);
-
-        } else if (status !== 200 && status !== 204) {
-            const _responseText = response.data;
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-        }
-        return Promise.resolve<GymDto>(null as any);
     }
 
     createGymAdminPromotionRequest(command: CreateGymAdminPromotionRequestCommand, cancelToken?: CancelToken): Promise<Result> {
@@ -427,6 +1326,149 @@ export class ApiClient implements IApiClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
         }
         return Promise.resolve<Result>(null as any);
+    }
+
+    rejectRequest(requestId: string, cancelToken?: CancelToken): Promise<void> {
+        let url_ = this.baseUrl + "/api/Requests/Reject/{requestId}";
+        if (requestId === undefined || requestId === null)
+            throw new Error("The parameter 'requestId' must be defined.");
+        url_ = url_.replace("{requestId}", encodeURIComponent("" + requestId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: AxiosRequestConfig = {
+            method: "PUT",
+            url: url_,
+            headers: {
+            },
+            cancelToken
+        };
+
+        return this.instance.request(options_).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processRejectRequest(_response);
+        });
+    }
+
+    protected processRejectRequest(response: AxiosResponse): Promise<void> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (const k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 204) {
+            const _responseText = response.data;
+            return Promise.resolve<void>(null as any);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
+    getMyUserProfile( cancelToken?: CancelToken): Promise<UserProfileWithEmailDto> {
+        let url_ = this.baseUrl + "/api/UserProfiles/My";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: AxiosRequestConfig = {
+            method: "GET",
+            url: url_,
+            headers: {
+                "Accept": "application/json"
+            },
+            cancelToken
+        };
+
+        return this.instance.request(options_).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processGetMyUserProfile(_response);
+        });
+    }
+
+    protected processGetMyUserProfile(response: AxiosResponse): Promise<UserProfileWithEmailDto> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (const k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 200) {
+            const _responseText = response.data;
+            let result200: any = null;
+            let resultData200  = _responseText;
+            result200 = UserProfileWithEmailDto.fromJS(resultData200);
+            return Promise.resolve<UserProfileWithEmailDto>(result200);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<UserProfileWithEmailDto>(null as any);
+    }
+
+    updateMyUserProfile(command: UpdateMyUserProfileCommand, cancelToken?: CancelToken): Promise<void> {
+        let url_ = this.baseUrl + "/api/UserProfiles/My/Update";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: AxiosRequestConfig = {
+            data: content_,
+            method: "PUT",
+            url: url_,
+            headers: {
+                "Content-Type": "application/json",
+            },
+            cancelToken
+        };
+
+        return this.instance.request(options_).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processUpdateMyUserProfile(_response);
+        });
+    }
+
+    protected processUpdateMyUserProfile(response: AxiosResponse): Promise<void> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (const k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 204) {
+            const _responseText = response.data;
+            return Promise.resolve<void>(null as any);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<void>(null as any);
     }
 
     registerUser(command: RegisterUserCommand, cancelToken?: CancelToken): Promise<JwtToken> {
@@ -976,729 +2018,703 @@ export class ApiClient implements IApiClient {
         }
         return Promise.resolve<GymMembershipDto>(null as any);
     }
+}
 
-    getMyGymEmployments( cancelToken?: CancelToken): Promise<GymEmploymentDto[]> {
-        let url_ = this.baseUrl + "/api/GymEmployments/MyGym/All";
-        url_ = url_.replace(/[?&]$/, "");
+export class GymEmploymentDto implements IGymEmploymentDto {
+    applicationUserId?: string | undefined;
+    gymId?: string | undefined;
+    escalationEmail?: string | undefined;
+    role?: string;
+    userProfile?: UserProfileWithEmailDto;
 
-        let options_: AxiosRequestConfig = {
-            method: "GET",
-            url: url_,
-            headers: {
-                "Accept": "application/json"
-            },
-            cancelToken
-        };
-
-        return this.instance.request(options_).catch((_error: any) => {
-            if (isAxiosError(_error) && _error.response) {
-                return _error.response;
-            } else {
-                throw _error;
+    constructor(data?: IGymEmploymentDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
             }
-        }).then((_response: AxiosResponse) => {
-            return this.processGetMyGymEmployments(_response);
-        });
+        }
     }
 
-    protected processGetMyGymEmployments(response: AxiosResponse): Promise<GymEmploymentDto[]> {
-        const status = response.status;
-        let _headers: any = {};
-        if (response.headers && typeof response.headers === "object") {
-            for (const k in response.headers) {
-                if (response.headers.hasOwnProperty(k)) {
-                    _headers[k] = response.headers[k];
-                }
-            }
+    init(_data?: any) {
+        if (_data) {
+            this.applicationUserId = _data["applicationUserId"];
+            this.gymId = _data["gymId"];
+            this.escalationEmail = _data["escalationEmail"];
+            this.role = _data["role"];
+            this.userProfile = _data["userProfile"] ? UserProfileWithEmailDto.fromJS(_data["userProfile"]) : <any>undefined;
         }
-        if (status === 200) {
-            const _responseText = response.data;
-            let result200: any = null;
-            let resultData200  = _responseText;
-            if (Array.isArray(resultData200)) {
-                result200 = [] as any;
-                for (let item of resultData200)
-                    result200!.push(GymEmploymentDto.fromJS(item));
-            }
-            else {
-                result200 = <any>null;
-            }
-            return Promise.resolve<GymEmploymentDto[]>(result200);
-
-        } else if (status !== 200 && status !== 204) {
-            const _responseText = response.data;
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-        }
-        return Promise.resolve<GymEmploymentDto[]>(null as any);
     }
 
-    getMyGymEmployment( cancelToken?: CancelToken): Promise<GymEmploymentDto> {
-        let url_ = this.baseUrl + "/api/GymEmployments/My";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_: AxiosRequestConfig = {
-            method: "GET",
-            url: url_,
-            headers: {
-                "Accept": "application/json"
-            },
-            cancelToken
-        };
-
-        return this.instance.request(options_).catch((_error: any) => {
-            if (isAxiosError(_error) && _error.response) {
-                return _error.response;
-            } else {
-                throw _error;
-            }
-        }).then((_response: AxiosResponse) => {
-            return this.processGetMyGymEmployment(_response);
-        });
+    static fromJS(data: any): GymEmploymentDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new GymEmploymentDto();
+        result.init(data);
+        return result;
     }
 
-    protected processGetMyGymEmployment(response: AxiosResponse): Promise<GymEmploymentDto> {
-        const status = response.status;
-        let _headers: any = {};
-        if (response.headers && typeof response.headers === "object") {
-            for (const k in response.headers) {
-                if (response.headers.hasOwnProperty(k)) {
-                    _headers[k] = response.headers[k];
-                }
-            }
-        }
-        if (status === 200) {
-            const _responseText = response.data;
-            let result200: any = null;
-            let resultData200  = _responseText;
-            result200 = GymEmploymentDto.fromJS(resultData200);
-            return Promise.resolve<GymEmploymentDto>(result200);
-
-        } else if (status !== 200 && status !== 204) {
-            const _responseText = response.data;
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-        }
-        return Promise.resolve<GymEmploymentDto>(null as any);
-    }
-
-    getGymEmploymentsByGymId(gymId: string, cancelToken?: CancelToken): Promise<GymEmploymentDto[]> {
-        let url_ = this.baseUrl + "/api/GymEmployments/Gym?";
-        if (gymId === undefined || gymId === null)
-            throw new Error("The parameter 'gymId' must be defined and cannot be null.");
-        else
-            url_ += "gymId=" + encodeURIComponent("" + gymId) + "&";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_: AxiosRequestConfig = {
-            method: "GET",
-            url: url_,
-            headers: {
-                "Accept": "application/json"
-            },
-            cancelToken
-        };
-
-        return this.instance.request(options_).catch((_error: any) => {
-            if (isAxiosError(_error) && _error.response) {
-                return _error.response;
-            } else {
-                throw _error;
-            }
-        }).then((_response: AxiosResponse) => {
-            return this.processGetGymEmploymentsByGymId(_response);
-        });
-    }
-
-    protected processGetGymEmploymentsByGymId(response: AxiosResponse): Promise<GymEmploymentDto[]> {
-        const status = response.status;
-        let _headers: any = {};
-        if (response.headers && typeof response.headers === "object") {
-            for (const k in response.headers) {
-                if (response.headers.hasOwnProperty(k)) {
-                    _headers[k] = response.headers[k];
-                }
-            }
-        }
-        if (status === 200) {
-            const _responseText = response.data;
-            let result200: any = null;
-            let resultData200  = _responseText;
-            if (Array.isArray(resultData200)) {
-                result200 = [] as any;
-                for (let item of resultData200)
-                    result200!.push(GymEmploymentDto.fromJS(item));
-            }
-            else {
-                result200 = <any>null;
-            }
-            return Promise.resolve<GymEmploymentDto[]>(result200);
-
-        } else if (status !== 200 && status !== 204) {
-            const _responseText = response.data;
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-        }
-        return Promise.resolve<GymEmploymentDto[]>(null as any);
-    }
-
-    useGymMembershipPass(gymMembershipPassId: string, cancelToken?: CancelToken): Promise<void> {
-        let url_ = this.baseUrl + "/api/GymMembershipPasses/Use/{gymMembershipPassId}";
-        if (gymMembershipPassId === undefined || gymMembershipPassId === null)
-            throw new Error("The parameter 'gymMembershipPassId' must be defined.");
-        url_ = url_.replace("{gymMembershipPassId}", encodeURIComponent("" + gymMembershipPassId));
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_: AxiosRequestConfig = {
-            method: "PUT",
-            url: url_,
-            headers: {
-            },
-            cancelToken
-        };
-
-        return this.instance.request(options_).catch((_error: any) => {
-            if (isAxiosError(_error) && _error.response) {
-                return _error.response;
-            } else {
-                throw _error;
-            }
-        }).then((_response: AxiosResponse) => {
-            return this.processUseGymMembershipPass(_response);
-        });
-    }
-
-    protected processUseGymMembershipPass(response: AxiosResponse): Promise<void> {
-        const status = response.status;
-        let _headers: any = {};
-        if (response.headers && typeof response.headers === "object") {
-            for (const k in response.headers) {
-                if (response.headers.hasOwnProperty(k)) {
-                    _headers[k] = response.headers[k];
-                }
-            }
-        }
-        if (status === 204) {
-            const _responseText = response.data;
-            return Promise.resolve<void>(null as any);
-
-        } else if (status !== 200 && status !== 204) {
-            const _responseText = response.data;
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-        }
-        return Promise.resolve<void>(null as any);
-    }
-
-    getGymMembershipPassesForGym(gymId: string, cancelToken?: CancelToken): Promise<GymMembershipPassDto[]> {
-        let url_ = this.baseUrl + "/api/GymMembershipPasses/My?";
-        if (gymId === undefined || gymId === null)
-            throw new Error("The parameter 'gymId' must be defined and cannot be null.");
-        else
-            url_ += "gymId=" + encodeURIComponent("" + gymId) + "&";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_: AxiosRequestConfig = {
-            method: "GET",
-            url: url_,
-            headers: {
-                "Accept": "application/json"
-            },
-            cancelToken
-        };
-
-        return this.instance.request(options_).catch((_error: any) => {
-            if (isAxiosError(_error) && _error.response) {
-                return _error.response;
-            } else {
-                throw _error;
-            }
-        }).then((_response: AxiosResponse) => {
-            return this.processGetGymMembershipPassesForGym(_response);
-        });
-    }
-
-    protected processGetGymMembershipPassesForGym(response: AxiosResponse): Promise<GymMembershipPassDto[]> {
-        const status = response.status;
-        let _headers: any = {};
-        if (response.headers && typeof response.headers === "object") {
-            for (const k in response.headers) {
-                if (response.headers.hasOwnProperty(k)) {
-                    _headers[k] = response.headers[k];
-                }
-            }
-        }
-        if (status === 200) {
-            const _responseText = response.data;
-            let result200: any = null;
-            let resultData200  = _responseText;
-            if (Array.isArray(resultData200)) {
-                result200 = [] as any;
-                for (let item of resultData200)
-                    result200!.push(GymMembershipPassDto.fromJS(item));
-            }
-            else {
-                result200 = <any>null;
-            }
-            return Promise.resolve<GymMembershipPassDto[]>(result200);
-
-        } else if (status !== 200 && status !== 204) {
-            const _responseText = response.data;
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-        }
-        return Promise.resolve<GymMembershipPassDto[]>(null as any);
-    }
-
-    getMyGymQrCode( cancelToken?: CancelToken): Promise<void> {
-        let url_ = this.baseUrl + "/api/Gyms/My/QrCode";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_: AxiosRequestConfig = {
-            method: "GET",
-            url: url_,
-            headers: {
-            },
-            cancelToken
-        };
-
-        return this.instance.request(options_).catch((_error: any) => {
-            if (isAxiosError(_error) && _error.response) {
-                return _error.response;
-            } else {
-                throw _error;
-            }
-        }).then((_response: AxiosResponse) => {
-            return this.processGetMyGymQrCode(_response);
-        });
-    }
-
-    protected processGetMyGymQrCode(response: AxiosResponse): Promise<void> {
-        const status = response.status;
-        let _headers: any = {};
-        if (response.headers && typeof response.headers === "object") {
-            for (const k in response.headers) {
-                if (response.headers.hasOwnProperty(k)) {
-                    _headers[k] = response.headers[k];
-                }
-            }
-        }
-        if (status === 200) {
-            const _responseText = response.data;
-            return Promise.resolve<void>(null as any);
-
-        } else if (status !== 200 && status !== 204) {
-            const _responseText = response.data;
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-        }
-        return Promise.resolve<void>(null as any);
-    }
-
-    updateMyGymProfile(command: UpdateMyGymProfileCommand, cancelToken?: CancelToken): Promise<GymDto> {
-        let url_ = this.baseUrl + "/api/Gyms/My/Profile";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(command);
-
-        let options_: AxiosRequestConfig = {
-            data: content_,
-            method: "PUT",
-            url: url_,
-            headers: {
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            },
-            cancelToken
-        };
-
-        return this.instance.request(options_).catch((_error: any) => {
-            if (isAxiosError(_error) && _error.response) {
-                return _error.response;
-            } else {
-                throw _error;
-            }
-        }).then((_response: AxiosResponse) => {
-            return this.processUpdateMyGymProfile(_response);
-        });
-    }
-
-    protected processUpdateMyGymProfile(response: AxiosResponse): Promise<GymDto> {
-        const status = response.status;
-        let _headers: any = {};
-        if (response.headers && typeof response.headers === "object") {
-            for (const k in response.headers) {
-                if (response.headers.hasOwnProperty(k)) {
-                    _headers[k] = response.headers[k];
-                }
-            }
-        }
-        if (status === 200) {
-            const _responseText = response.data;
-            let result200: any = null;
-            let resultData200  = _responseText;
-            result200 = GymDto.fromJS(resultData200);
-            return Promise.resolve<GymDto>(result200);
-
-        } else if (status !== 200 && status !== 204) {
-            const _responseText = response.data;
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-        }
-        return Promise.resolve<GymDto>(null as any);
-    }
-
-    getAllGyms( cancelToken?: CancelToken): Promise<GymDto[]> {
-        let url_ = this.baseUrl + "/api/Gyms";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_: AxiosRequestConfig = {
-            method: "GET",
-            url: url_,
-            headers: {
-                "Accept": "application/json"
-            },
-            cancelToken
-        };
-
-        return this.instance.request(options_).catch((_error: any) => {
-            if (isAxiosError(_error) && _error.response) {
-                return _error.response;
-            } else {
-                throw _error;
-            }
-        }).then((_response: AxiosResponse) => {
-            return this.processGetAllGyms(_response);
-        });
-    }
-
-    protected processGetAllGyms(response: AxiosResponse): Promise<GymDto[]> {
-        const status = response.status;
-        let _headers: any = {};
-        if (response.headers && typeof response.headers === "object") {
-            for (const k in response.headers) {
-                if (response.headers.hasOwnProperty(k)) {
-                    _headers[k] = response.headers[k];
-                }
-            }
-        }
-        if (status === 200) {
-            const _responseText = response.data;
-            let result200: any = null;
-            let resultData200  = _responseText;
-            if (Array.isArray(resultData200)) {
-                result200 = [] as any;
-                for (let item of resultData200)
-                    result200!.push(GymDto.fromJS(item));
-            }
-            else {
-                result200 = <any>null;
-            }
-            return Promise.resolve<GymDto[]>(result200);
-
-        } else if (status !== 200 && status !== 204) {
-            const _responseText = response.data;
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-        }
-        return Promise.resolve<GymDto[]>(null as any);
-    }
-
-    getGymDetails(gymId: string, cancelToken?: CancelToken): Promise<GymDto> {
-        let url_ = this.baseUrl + "/api/Gyms/{gymId}/Details";
-        if (gymId === undefined || gymId === null)
-            throw new Error("The parameter 'gymId' must be defined.");
-        url_ = url_.replace("{gymId}", encodeURIComponent("" + gymId));
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_: AxiosRequestConfig = {
-            method: "GET",
-            url: url_,
-            headers: {
-                "Accept": "application/json"
-            },
-            cancelToken
-        };
-
-        return this.instance.request(options_).catch((_error: any) => {
-            if (isAxiosError(_error) && _error.response) {
-                return _error.response;
-            } else {
-                throw _error;
-            }
-        }).then((_response: AxiosResponse) => {
-            return this.processGetGymDetails(_response);
-        });
-    }
-
-    protected processGetGymDetails(response: AxiosResponse): Promise<GymDto> {
-        const status = response.status;
-        let _headers: any = {};
-        if (response.headers && typeof response.headers === "object") {
-            for (const k in response.headers) {
-                if (response.headers.hasOwnProperty(k)) {
-                    _headers[k] = response.headers[k];
-                }
-            }
-        }
-        if (status === 200) {
-            const _responseText = response.data;
-            let result200: any = null;
-            let resultData200  = _responseText;
-            result200 = GymDto.fromJS(resultData200);
-            return Promise.resolve<GymDto>(result200);
-
-        } else if (status !== 200 && status !== 204) {
-            const _responseText = response.data;
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-        }
-        return Promise.resolve<GymDto>(null as any);
-    }
-
-    getNewGymsThisMonth( cancelToken?: CancelToken): Promise<GymDto[]> {
-        let url_ = this.baseUrl + "/api/Gyms/NewThisMonth";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_: AxiosRequestConfig = {
-            method: "GET",
-            url: url_,
-            headers: {
-                "Accept": "application/json"
-            },
-            cancelToken
-        };
-
-        return this.instance.request(options_).catch((_error: any) => {
-            if (isAxiosError(_error) && _error.response) {
-                return _error.response;
-            } else {
-                throw _error;
-            }
-        }).then((_response: AxiosResponse) => {
-            return this.processGetNewGymsThisMonth(_response);
-        });
-    }
-
-    protected processGetNewGymsThisMonth(response: AxiosResponse): Promise<GymDto[]> {
-        const status = response.status;
-        let _headers: any = {};
-        if (response.headers && typeof response.headers === "object") {
-            for (const k in response.headers) {
-                if (response.headers.hasOwnProperty(k)) {
-                    _headers[k] = response.headers[k];
-                }
-            }
-        }
-        if (status === 200) {
-            const _responseText = response.data;
-            let result200: any = null;
-            let resultData200  = _responseText;
-            if (Array.isArray(resultData200)) {
-                result200 = [] as any;
-                for (let item of resultData200)
-                    result200!.push(GymDto.fromJS(item));
-            }
-            else {
-                result200 = <any>null;
-            }
-            return Promise.resolve<GymDto[]>(result200);
-
-        } else if (status !== 200 && status !== 204) {
-            const _responseText = response.data;
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-        }
-        return Promise.resolve<GymDto[]>(null as any);
-    }
-
-    updateGymStatus(gymId: string, newGymStatus: GymStatus, cancelToken?: CancelToken): Promise<void> {
-        let url_ = this.baseUrl + "/api/Gyms/{gymId}/Status";
-        if (gymId === undefined || gymId === null)
-            throw new Error("The parameter 'gymId' must be defined.");
-        url_ = url_.replace("{gymId}", encodeURIComponent("" + gymId));
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(newGymStatus);
-
-        let options_: AxiosRequestConfig = {
-            data: content_,
-            method: "PUT",
-            url: url_,
-            headers: {
-                "Content-Type": "application/json",
-            },
-            cancelToken
-        };
-
-        return this.instance.request(options_).catch((_error: any) => {
-            if (isAxiosError(_error) && _error.response) {
-                return _error.response;
-            } else {
-                throw _error;
-            }
-        }).then((_response: AxiosResponse) => {
-            return this.processUpdateGymStatus(_response);
-        });
-    }
-
-    protected processUpdateGymStatus(response: AxiosResponse): Promise<void> {
-        const status = response.status;
-        let _headers: any = {};
-        if (response.headers && typeof response.headers === "object") {
-            for (const k in response.headers) {
-                if (response.headers.hasOwnProperty(k)) {
-                    _headers[k] = response.headers[k];
-                }
-            }
-        }
-        if (status === 204) {
-            const _responseText = response.data;
-            return Promise.resolve<void>(null as any);
-
-        } else if (status !== 200 && status !== 204) {
-            const _responseText = response.data;
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-        }
-        return Promise.resolve<void>(null as any);
-    }
-
-    getMyGymDetails( cancelToken?: CancelToken): Promise<GymDto> {
-        let url_ = this.baseUrl + "/api/Gyms/My/Details";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_: AxiosRequestConfig = {
-            method: "GET",
-            url: url_,
-            headers: {
-                "Accept": "application/json"
-            },
-            cancelToken
-        };
-
-        return this.instance.request(options_).catch((_error: any) => {
-            if (isAxiosError(_error) && _error.response) {
-                return _error.response;
-            } else {
-                throw _error;
-            }
-        }).then((_response: AxiosResponse) => {
-            return this.processGetMyGymDetails(_response);
-        });
-    }
-
-    protected processGetMyGymDetails(response: AxiosResponse): Promise<GymDto> {
-        const status = response.status;
-        let _headers: any = {};
-        if (response.headers && typeof response.headers === "object") {
-            for (const k in response.headers) {
-                if (response.headers.hasOwnProperty(k)) {
-                    _headers[k] = response.headers[k];
-                }
-            }
-        }
-        if (status === 200) {
-            const _responseText = response.data;
-            let result200: any = null;
-            let resultData200  = _responseText;
-            result200 = GymDto.fromJS(resultData200);
-            return Promise.resolve<GymDto>(result200);
-
-        } else if (status !== 200 && status !== 204) {
-            const _responseText = response.data;
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-        }
-        return Promise.resolve<GymDto>(null as any);
-    }
-
-    getMyUserProfile( cancelToken?: CancelToken): Promise<UserProfileWithEmailDto> {
-        let url_ = this.baseUrl + "/api/UserProfiles/My";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_: AxiosRequestConfig = {
-            method: "GET",
-            url: url_,
-            headers: {
-                "Accept": "application/json"
-            },
-            cancelToken
-        };
-
-        return this.instance.request(options_).catch((_error: any) => {
-            if (isAxiosError(_error) && _error.response) {
-                return _error.response;
-            } else {
-                throw _error;
-            }
-        }).then((_response: AxiosResponse) => {
-            return this.processGetMyUserProfile(_response);
-        });
-    }
-
-    protected processGetMyUserProfile(response: AxiosResponse): Promise<UserProfileWithEmailDto> {
-        const status = response.status;
-        let _headers: any = {};
-        if (response.headers && typeof response.headers === "object") {
-            for (const k in response.headers) {
-                if (response.headers.hasOwnProperty(k)) {
-                    _headers[k] = response.headers[k];
-                }
-            }
-        }
-        if (status === 200) {
-            const _responseText = response.data;
-            let result200: any = null;
-            let resultData200  = _responseText;
-            result200 = UserProfileWithEmailDto.fromJS(resultData200);
-            return Promise.resolve<UserProfileWithEmailDto>(result200);
-
-        } else if (status !== 200 && status !== 204) {
-            const _responseText = response.data;
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-        }
-        return Promise.resolve<UserProfileWithEmailDto>(null as any);
-    }
-
-    updateMyUserProfile(command: UpdateMyUserProfileCommand, cancelToken?: CancelToken): Promise<void> {
-        let url_ = this.baseUrl + "/api/UserProfiles/My/Update";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(command);
-
-        let options_: AxiosRequestConfig = {
-            data: content_,
-            method: "PUT",
-            url: url_,
-            headers: {
-                "Content-Type": "application/json",
-            },
-            cancelToken
-        };
-
-        return this.instance.request(options_).catch((_error: any) => {
-            if (isAxiosError(_error) && _error.response) {
-                return _error.response;
-            } else {
-                throw _error;
-            }
-        }).then((_response: AxiosResponse) => {
-            return this.processUpdateMyUserProfile(_response);
-        });
-    }
-
-    protected processUpdateMyUserProfile(response: AxiosResponse): Promise<void> {
-        const status = response.status;
-        let _headers: any = {};
-        if (response.headers && typeof response.headers === "object") {
-            for (const k in response.headers) {
-                if (response.headers.hasOwnProperty(k)) {
-                    _headers[k] = response.headers[k];
-                }
-            }
-        }
-        if (status === 204) {
-            const _responseText = response.data;
-            return Promise.resolve<void>(null as any);
-
-        } else if (status !== 200 && status !== 204) {
-            const _responseText = response.data;
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-        }
-        return Promise.resolve<void>(null as any);
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["applicationUserId"] = this.applicationUserId;
+        data["gymId"] = this.gymId;
+        data["escalationEmail"] = this.escalationEmail;
+        data["role"] = this.role;
+        data["userProfile"] = this.userProfile ? this.userProfile.toJSON() : <any>undefined;
+        return data;
     }
 }
 
-export type GymMembershipStatus = "Member" | "Banned";
+export interface IGymEmploymentDto {
+    applicationUserId?: string | undefined;
+    gymId?: string | undefined;
+    escalationEmail?: string | undefined;
+    role?: string;
+    userProfile?: UserProfileWithEmailDto;
+}
+
+export class UserProfileWithEmailDto implements IUserProfileWithEmailDto {
+    applicationUserId?: string;
+    firstName?: string;
+    lastName?: string;
+    email?: string | undefined;
+
+    constructor(data?: IUserProfileWithEmailDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.applicationUserId = _data["applicationUserId"];
+            this.firstName = _data["firstName"];
+            this.lastName = _data["lastName"];
+            this.email = _data["email"];
+        }
+    }
+
+    static fromJS(data: any): UserProfileWithEmailDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new UserProfileWithEmailDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["applicationUserId"] = this.applicationUserId;
+        data["firstName"] = this.firstName;
+        data["lastName"] = this.lastName;
+        data["email"] = this.email;
+        return data;
+    }
+}
+
+export interface IUserProfileWithEmailDto {
+    applicationUserId?: string;
+    firstName?: string;
+    lastName?: string;
+    email?: string | undefined;
+}
+
+export class GymMembershipPassDto implements IGymMembershipPassDto {
+    id?: string;
+    gymMembershipId?: string | undefined;
+    type?: PassType;
+    totalUses?: number | undefined;
+    remainingUses?: number | undefined;
+    expirationDate?: Date | undefined;
+
+    constructor(data?: IGymMembershipPassDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.gymMembershipId = _data["gymMembershipId"];
+            this.type = _data["type"];
+            this.totalUses = _data["totalUses"];
+            this.remainingUses = _data["remainingUses"];
+            this.expirationDate = _data["expirationDate"] ? new Date(_data["expirationDate"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): GymMembershipPassDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new GymMembershipPassDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["gymMembershipId"] = this.gymMembershipId;
+        data["type"] = this.type;
+        data["totalUses"] = this.totalUses;
+        data["remainingUses"] = this.remainingUses;
+        data["expirationDate"] = this.expirationDate ? formatDate(this.expirationDate) : <any>undefined;
+        return data;
+    }
+}
+
+export interface IGymMembershipPassDto {
+    id?: string;
+    gymMembershipId?: string | undefined;
+    type?: PassType;
+    totalUses?: number | undefined;
+    remainingUses?: number | undefined;
+    expirationDate?: Date | undefined;
+}
+
+export type PassType = "SingleUse" | "MultiUse" | "Unlimited";
+
+export type PassUseResult = "Success" | "Expired" | "AlreadyHasNoUsesLeft";
+
+export type GymMembershipStatus = "Active" | "Banned";
+
+export class GymMembershipWithUserProfileAndEmailDto implements IGymMembershipWithUserProfileAndEmailDto {
+    id?: string;
+    applicationUserId?: string | undefined;
+    gymId?: string;
+    gymMembershipStatus?: GymMembershipStatus;
+    passes?: GymMembershipPassDto[];
+    userProfile?: UserProfileWithEmailDto;
+
+    constructor(data?: IGymMembershipWithUserProfileAndEmailDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.applicationUserId = _data["applicationUserId"];
+            this.gymId = _data["gymId"];
+            this.gymMembershipStatus = _data["gymMembershipStatus"];
+            if (Array.isArray(_data["passes"])) {
+                this.passes = [] as any;
+                for (let item of _data["passes"])
+                    this.passes!.push(GymMembershipPassDto.fromJS(item));
+            }
+            this.userProfile = _data["userProfile"] ? UserProfileWithEmailDto.fromJS(_data["userProfile"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): GymMembershipWithUserProfileAndEmailDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new GymMembershipWithUserProfileAndEmailDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["applicationUserId"] = this.applicationUserId;
+        data["gymId"] = this.gymId;
+        data["gymMembershipStatus"] = this.gymMembershipStatus;
+        if (Array.isArray(this.passes)) {
+            data["passes"] = [];
+            for (let item of this.passes)
+                data["passes"].push(item.toJSON());
+        }
+        data["userProfile"] = this.userProfile ? this.userProfile.toJSON() : <any>undefined;
+        return data;
+    }
+}
+
+export interface IGymMembershipWithUserProfileAndEmailDto {
+    id?: string;
+    applicationUserId?: string | undefined;
+    gymId?: string;
+    gymMembershipStatus?: GymMembershipStatus;
+    passes?: GymMembershipPassDto[];
+    userProfile?: UserProfileWithEmailDto;
+}
+
+export class GetGymMembershipsQueryToMyGymQuery implements IGetGymMembershipsQueryToMyGymQuery {
+    gymMembershipStatus?: GymMembershipStatus | undefined;
+
+    constructor(data?: IGetGymMembershipsQueryToMyGymQuery) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.gymMembershipStatus = _data["gymMembershipStatus"];
+        }
+    }
+
+    static fromJS(data: any): GetGymMembershipsQueryToMyGymQuery {
+        data = typeof data === 'object' ? data : {};
+        let result = new GetGymMembershipsQueryToMyGymQuery();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["gymMembershipStatus"] = this.gymMembershipStatus;
+        return data;
+    }
+}
+
+export interface IGetGymMembershipsQueryToMyGymQuery {
+    gymMembershipStatus?: GymMembershipStatus | undefined;
+}
+
+export abstract class BaseEntity implements IBaseEntity {
+    id?: string;
+    domainEvents?: BaseEvent[];
+
+    constructor(data?: IBaseEntity) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            if (Array.isArray(_data["domainEvents"])) {
+                this.domainEvents = [] as any;
+                for (let item of _data["domainEvents"])
+                    this.domainEvents!.push(BaseEvent.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): BaseEntity {
+        data = typeof data === 'object' ? data : {};
+        throw new Error("The abstract class 'BaseEntity' cannot be instantiated.");
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        if (Array.isArray(this.domainEvents)) {
+            data["domainEvents"] = [];
+            for (let item of this.domainEvents)
+                data["domainEvents"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IBaseEntity {
+    id?: string;
+    domainEvents?: BaseEvent[];
+}
+
+export abstract class BaseAuditableEntity extends BaseEntity implements IBaseAuditableEntity {
+    createdOn?: Date;
+    createdBy?: string | undefined;
+    lastModifiedOn?: Date;
+    lastModifiedBy?: string | undefined;
+
+    constructor(data?: IBaseAuditableEntity) {
+        super(data);
+    }
+
+    override init(_data?: any) {
+        super.init(_data);
+        if (_data) {
+            this.createdOn = _data["createdOn"] ? new Date(_data["createdOn"].toString()) : <any>undefined;
+            this.createdBy = _data["createdBy"];
+            this.lastModifiedOn = _data["lastModifiedOn"] ? new Date(_data["lastModifiedOn"].toString()) : <any>undefined;
+            this.lastModifiedBy = _data["lastModifiedBy"];
+        }
+    }
+
+    static override fromJS(data: any): BaseAuditableEntity {
+        data = typeof data === 'object' ? data : {};
+        throw new Error("The abstract class 'BaseAuditableEntity' cannot be instantiated.");
+    }
+
+    override toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["createdOn"] = this.createdOn ? this.createdOn.toISOString() : <any>undefined;
+        data["createdBy"] = this.createdBy;
+        data["lastModifiedOn"] = this.lastModifiedOn ? this.lastModifiedOn.toISOString() : <any>undefined;
+        data["lastModifiedBy"] = this.lastModifiedBy;
+        super.toJSON(data);
+        return data;
+    }
+}
+
+export interface IBaseAuditableEntity extends IBaseEntity {
+    createdOn?: Date;
+    createdBy?: string | undefined;
+    lastModifiedOn?: Date;
+    lastModifiedBy?: string | undefined;
+}
+
+export class GymPassUsageDto extends BaseAuditableEntity implements IGymPassUsageDto {
+    applicationUserId?: string;
+    pass?: GymMembershipPassDto;
+
+    constructor(data?: IGymPassUsageDto) {
+        super(data);
+    }
+
+    override init(_data?: any) {
+        super.init(_data);
+        if (_data) {
+            this.applicationUserId = _data["applicationUserId"];
+            this.pass = _data["pass"] ? GymMembershipPassDto.fromJS(_data["pass"]) : <any>undefined;
+        }
+    }
+
+    static override fromJS(data: any): GymPassUsageDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new GymPassUsageDto();
+        result.init(data);
+        return result;
+    }
+
+    override toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["applicationUserId"] = this.applicationUserId;
+        data["pass"] = this.pass ? this.pass.toJSON() : <any>undefined;
+        super.toJSON(data);
+        return data;
+    }
+}
+
+export interface IGymPassUsageDto extends IBaseAuditableEntity {
+    applicationUserId?: string;
+    pass?: GymMembershipPassDto;
+}
+
+export abstract class BaseEvent implements IBaseEvent {
+
+    constructor(data?: IBaseEvent) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+    }
+
+    static fromJS(data: any): BaseEvent {
+        data = typeof data === 'object' ? data : {};
+        throw new Error("The abstract class 'BaseEvent' cannot be instantiated.");
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        return data;
+    }
+}
+
+export interface IBaseEvent {
+}
+
+export class GymDto implements IGymDto {
+    id?: string;
+    name?: string;
+    address?: string;
+    status?: GymStatus;
+    tier?: GymTier;
+    creationDate?: Date;
+    ownerName?: string | undefined;
+    gymPassProducts?: GymPassProductDto[] | undefined;
+
+    constructor(data?: IGymDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.address = _data["address"];
+            this.status = _data["status"];
+            this.tier = _data["tier"];
+            this.creationDate = _data["creationDate"] ? new Date(_data["creationDate"].toString()) : <any>undefined;
+            this.ownerName = _data["ownerName"];
+            if (Array.isArray(_data["gymPassProducts"])) {
+                this.gymPassProducts = [] as any;
+                for (let item of _data["gymPassProducts"])
+                    this.gymPassProducts!.push(GymPassProductDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): GymDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new GymDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["address"] = this.address;
+        data["status"] = this.status;
+        data["tier"] = this.tier;
+        data["creationDate"] = this.creationDate ? this.creationDate.toISOString() : <any>undefined;
+        data["ownerName"] = this.ownerName;
+        if (Array.isArray(this.gymPassProducts)) {
+            data["gymPassProducts"] = [];
+            for (let item of this.gymPassProducts)
+                data["gymPassProducts"].push(item.toJSON());
+        }
+        return data;
+    }
+}
+
+export interface IGymDto {
+    id?: string;
+    name?: string;
+    address?: string;
+    status?: GymStatus;
+    tier?: GymTier;
+    creationDate?: Date;
+    ownerName?: string | undefined;
+    gymPassProducts?: GymPassProductDto[] | undefined;
+}
+
+export type GymStatus = "Active" | "Inactive" | "Suspended";
+
+export type GymTier = "Local" | "MidRange" | "Premium" | "Elite";
+
+export class GymPassProductDto implements IGymPassProductDto {
+    gymId?: string;
+    type?: PassType;
+    totalUses?: number | undefined;
+    daysAfterExpiring?: number | undefined;
+    hufPrice?: number;
+    isActive?: boolean;
+
+    constructor(data?: IGymPassProductDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.gymId = _data["gymId"];
+            this.type = _data["type"];
+            this.totalUses = _data["totalUses"];
+            this.daysAfterExpiring = _data["daysAfterExpiring"];
+            this.hufPrice = _data["hufPrice"];
+            this.isActive = _data["isActive"];
+        }
+    }
+
+    static fromJS(data: any): GymPassProductDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new GymPassProductDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["gymId"] = this.gymId;
+        data["type"] = this.type;
+        data["totalUses"] = this.totalUses;
+        data["daysAfterExpiring"] = this.daysAfterExpiring;
+        data["hufPrice"] = this.hufPrice;
+        data["isActive"] = this.isActive;
+        return data;
+    }
+}
+
+export interface IGymPassProductDto {
+    gymId?: string;
+    type?: PassType;
+    totalUses?: number | undefined;
+    daysAfterExpiring?: number | undefined;
+    hufPrice?: number;
+    isActive?: boolean;
+}
+
+export class UpdateMyGymProfileCommand implements IUpdateMyGymProfileCommand {
+    gymId?: string;
+    gymName?: string;
+    gymAddress?: string;
+    gymTier?: GymTier;
+    gymOwnerName?: string | undefined;
+
+    constructor(data?: IUpdateMyGymProfileCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.gymId = _data["gymId"];
+            this.gymName = _data["gymName"];
+            this.gymAddress = _data["gymAddress"];
+            this.gymTier = _data["gymTier"];
+            this.gymOwnerName = _data["gymOwnerName"];
+        }
+    }
+
+    static fromJS(data: any): UpdateMyGymProfileCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateMyGymProfileCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["gymId"] = this.gymId;
+        data["gymName"] = this.gymName;
+        data["gymAddress"] = this.gymAddress;
+        data["gymTier"] = this.gymTier;
+        data["gymOwnerName"] = this.gymOwnerName;
+        return data;
+    }
+}
+
+export interface IUpdateMyGymProfileCommand {
+    gymId?: string;
+    gymName?: string;
+    gymAddress?: string;
+    gymTier?: GymTier;
+    gymOwnerName?: string | undefined;
+}
+
+export class RegisterGymCommand implements IRegisterGymCommand {
+    createGymDto?: CreateGymDto;
+    pendingGymEmployeeToPromoteEmail?: string;
+
+    constructor(data?: IRegisterGymCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.createGymDto = _data["createGymDto"] ? CreateGymDto.fromJS(_data["createGymDto"]) : <any>undefined;
+            this.pendingGymEmployeeToPromoteEmail = _data["pendingGymEmployeeToPromoteEmail"];
+        }
+    }
+
+    static fromJS(data: any): RegisterGymCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new RegisterGymCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["createGymDto"] = this.createGymDto ? this.createGymDto.toJSON() : <any>undefined;
+        data["pendingGymEmployeeToPromoteEmail"] = this.pendingGymEmployeeToPromoteEmail;
+        return data;
+    }
+}
+
+export interface IRegisterGymCommand {
+    createGymDto?: CreateGymDto;
+    pendingGymEmployeeToPromoteEmail?: string;
+}
+
+export class CreateGymDto implements ICreateGymDto {
+    gymName?: string;
+    gymAddress?: string;
+    gymStatus?: GymStatus;
+    gymTier?: GymTier;
+    gymOwnerName?: string;
+    escalationEmail?: string;
+
+    constructor(data?: ICreateGymDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.gymName = _data["gymName"];
+            this.gymAddress = _data["gymAddress"];
+            this.gymStatus = _data["gymStatus"];
+            this.gymTier = _data["gymTier"];
+            this.gymOwnerName = _data["gymOwnerName"];
+            this.escalationEmail = _data["escalationEmail"];
+        }
+    }
+
+    static fromJS(data: any): CreateGymDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateGymDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["gymName"] = this.gymName;
+        data["gymAddress"] = this.gymAddress;
+        data["gymStatus"] = this.gymStatus;
+        data["gymTier"] = this.gymTier;
+        data["gymOwnerName"] = this.gymOwnerName;
+        data["escalationEmail"] = this.escalationEmail;
+        return data;
+    }
+}
+
+export interface ICreateGymDto {
+    gymName?: string;
+    gymAddress?: string;
+    gymStatus?: GymStatus;
+    gymTier?: GymTier;
+    gymOwnerName?: string;
+    escalationEmail?: string;
+}
 
 export class RequestDto implements IRequestDto {
     id?: string;
@@ -1780,7 +2796,7 @@ export type PriorityLevel = "None" | "Low" | "Medium" | "High";
 
 export type RequestType = "GymCreation" | "GymAdminNomination" | "Other";
 
-export type RequestStatus = "Submitted" | "InProgress" | "Completed" | "Cancelled" | "Rejected";
+export type RequestStatus = "Submitted" | "Completed" | "Cancelled" | "Rejected" | "PayloadFailedToSerialize" | "CreatorNotFound" | "RelatedRoleHandlingFailed";
 
 export class GetRequestsQuery implements IGetRequestsQuery {
     requestType?: RequestType | undefined;
@@ -1825,7 +2841,7 @@ export interface IGetRequestsQuery {
 export class CreateGymCreationRequestCommand implements ICreateGymCreationRequestCommand {
     requestDescription?: string;
     priorityLevel?: PriorityLevel;
-    createGymDTO?: CreateGymDto;
+    createGymDto?: CreateGymDto;
 
     constructor(data?: ICreateGymCreationRequestCommand) {
         if (data) {
@@ -1840,7 +2856,7 @@ export class CreateGymCreationRequestCommand implements ICreateGymCreationReques
         if (_data) {
             this.requestDescription = _data["requestDescription"];
             this.priorityLevel = _data["priorityLevel"];
-            this.createGymDTO = _data["createGymDTO"] ? CreateGymDto.fromJS(_data["createGymDTO"]) : <any>undefined;
+            this.createGymDto = _data["createGymDto"] ? CreateGymDto.fromJS(_data["createGymDto"]) : <any>undefined;
         }
     }
 
@@ -1855,7 +2871,7 @@ export class CreateGymCreationRequestCommand implements ICreateGymCreationReques
         data = typeof data === 'object' ? data : {};
         data["requestDescription"] = this.requestDescription;
         data["priorityLevel"] = this.priorityLevel;
-        data["createGymDTO"] = this.createGymDTO ? this.createGymDTO.toJSON() : <any>undefined;
+        data["createGymDto"] = this.createGymDto ? this.createGymDto.toJSON() : <any>undefined;
         return data;
     }
 }
@@ -1863,68 +2879,8 @@ export class CreateGymCreationRequestCommand implements ICreateGymCreationReques
 export interface ICreateGymCreationRequestCommand {
     requestDescription?: string;
     priorityLevel?: PriorityLevel;
-    createGymDTO?: CreateGymDto;
+    createGymDto?: CreateGymDto;
 }
-
-export class CreateGymDto implements ICreateGymDto {
-    gymName?: string;
-    gymAddress?: string;
-    gymStatus?: GymStatus;
-    gymTier?: GymTier;
-    gymOwnerName?: string;
-    escalationEmail?: string;
-
-    constructor(data?: ICreateGymDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.gymName = _data["gymName"];
-            this.gymAddress = _data["gymAddress"];
-            this.gymStatus = _data["gymStatus"];
-            this.gymTier = _data["gymTier"];
-            this.gymOwnerName = _data["gymOwnerName"];
-            this.escalationEmail = _data["escalationEmail"];
-        }
-    }
-
-    static fromJS(data: any): CreateGymDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new CreateGymDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["gymName"] = this.gymName;
-        data["gymAddress"] = this.gymAddress;
-        data["gymStatus"] = this.gymStatus;
-        data["gymTier"] = this.gymTier;
-        data["gymOwnerName"] = this.gymOwnerName;
-        data["escalationEmail"] = this.escalationEmail;
-        return data;
-    }
-}
-
-export interface ICreateGymDto {
-    gymName?: string;
-    gymAddress?: string;
-    gymStatus?: GymStatus;
-    gymTier?: GymTier;
-    gymOwnerName?: string;
-    escalationEmail?: string;
-}
-
-export type GymStatus = "Active" | "Inactive" | "Suspended";
-
-export type GymTier = "Local" | "MidRange" | "Premium" | "Elite";
 
 export class Result implements IResult {
     succeeded?: boolean;
@@ -2022,17 +2978,11 @@ export interface ICreateGymAdminPromotionRequestCommand {
     escalationEmail?: string;
 }
 
-export class GymDto implements IGymDto {
-    id?: string;
-    name?: string;
-    address?: string;
-    status?: GymStatus;
-    tier?: GymTier;
-    creationDate?: Date;
-    ownerName?: string | undefined;
-    gymPassProducts?: GymPassProductDto[] | undefined;
+export class UpdateMyUserProfileCommand implements IUpdateMyUserProfileCommand {
+    firstName?: string;
+    lastName?: string;
 
-    constructor(data?: IGymDto) {
+    constructor(data?: IUpdateMyUserProfileCommand) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -2043,114 +2993,30 @@ export class GymDto implements IGymDto {
 
     init(_data?: any) {
         if (_data) {
-            this.id = _data["id"];
-            this.name = _data["name"];
-            this.address = _data["address"];
-            this.status = _data["status"];
-            this.tier = _data["tier"];
-            this.creationDate = _data["creationDate"] ? new Date(_data["creationDate"].toString()) : <any>undefined;
-            this.ownerName = _data["ownerName"];
-            if (Array.isArray(_data["gymPassProducts"])) {
-                this.gymPassProducts = [] as any;
-                for (let item of _data["gymPassProducts"])
-                    this.gymPassProducts!.push(GymPassProductDto.fromJS(item));
-            }
+            this.firstName = _data["firstName"];
+            this.lastName = _data["lastName"];
         }
     }
 
-    static fromJS(data: any): GymDto {
+    static fromJS(data: any): UpdateMyUserProfileCommand {
         data = typeof data === 'object' ? data : {};
-        let result = new GymDto();
+        let result = new UpdateMyUserProfileCommand();
         result.init(data);
         return result;
     }
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["name"] = this.name;
-        data["address"] = this.address;
-        data["status"] = this.status;
-        data["tier"] = this.tier;
-        data["creationDate"] = this.creationDate ? this.creationDate.toISOString() : <any>undefined;
-        data["ownerName"] = this.ownerName;
-        if (Array.isArray(this.gymPassProducts)) {
-            data["gymPassProducts"] = [];
-            for (let item of this.gymPassProducts)
-                data["gymPassProducts"].push(item.toJSON());
-        }
+        data["firstName"] = this.firstName;
+        data["lastName"] = this.lastName;
         return data;
     }
 }
 
-export interface IGymDto {
-    id?: string;
-    name?: string;
-    address?: string;
-    status?: GymStatus;
-    tier?: GymTier;
-    creationDate?: Date;
-    ownerName?: string | undefined;
-    gymPassProducts?: GymPassProductDto[] | undefined;
+export interface IUpdateMyUserProfileCommand {
+    firstName?: string;
+    lastName?: string;
 }
-
-export class GymPassProductDto implements IGymPassProductDto {
-    gymId?: string;
-    type?: PassType;
-    totalUses?: number | undefined;
-    daysAfterExpiring?: number | undefined;
-    hufPrice?: number;
-    isActive?: boolean;
-
-    constructor(data?: IGymPassProductDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.gymId = _data["gymId"];
-            this.type = _data["type"];
-            this.totalUses = _data["totalUses"];
-            this.daysAfterExpiring = _data["daysAfterExpiring"];
-            this.hufPrice = _data["hufPrice"];
-            this.isActive = _data["isActive"];
-        }
-    }
-
-    static fromJS(data: any): GymPassProductDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new GymPassProductDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["gymId"] = this.gymId;
-        data["type"] = this.type;
-        data["totalUses"] = this.totalUses;
-        data["daysAfterExpiring"] = this.daysAfterExpiring;
-        data["hufPrice"] = this.hufPrice;
-        data["isActive"] = this.isActive;
-        return data;
-    }
-}
-
-export interface IGymPassProductDto {
-    gymId?: string;
-    type?: PassType;
-    totalUses?: number | undefined;
-    daysAfterExpiring?: number | undefined;
-    hufPrice?: number;
-    isActive?: boolean;
-}
-
-export type PassType = "SingleUse" | "MultiUse" | "Unlimited";
 
 export class JwtToken implements IJwtToken {
     accessToken?: string;
@@ -2539,6 +3405,7 @@ export interface ISendEmailConfirmationEmailCommand {
 export class ActivateUserAccountCommand implements IActivateUserAccountCommand {
     encodedEmail?: string;
     encodedEmailConfirmationToken?: string;
+    setPassword?: boolean;
     password?: string | undefined;
     passwordConfirm?: string | undefined;
 
@@ -2555,6 +3422,7 @@ export class ActivateUserAccountCommand implements IActivateUserAccountCommand {
         if (_data) {
             this.encodedEmail = _data["encodedEmail"];
             this.encodedEmailConfirmationToken = _data["encodedEmailConfirmationToken"];
+            this.setPassword = _data["setPassword"];
             this.password = _data["password"];
             this.passwordConfirm = _data["passwordConfirm"];
         }
@@ -2571,6 +3439,7 @@ export class ActivateUserAccountCommand implements IActivateUserAccountCommand {
         data = typeof data === 'object' ? data : {};
         data["encodedEmail"] = this.encodedEmail;
         data["encodedEmailConfirmationToken"] = this.encodedEmailConfirmationToken;
+        data["setPassword"] = this.setPassword;
         data["password"] = this.password;
         data["passwordConfirm"] = this.passwordConfirm;
         return data;
@@ -2580,17 +3449,16 @@ export class ActivateUserAccountCommand implements IActivateUserAccountCommand {
 export interface IActivateUserAccountCommand {
     encodedEmail?: string;
     encodedEmailConfirmationToken?: string;
+    setPassword?: boolean;
     password?: string | undefined;
     passwordConfirm?: string | undefined;
 }
 
 export class GymMembershipDto implements IGymMembershipDto {
     applicationUserId?: string | undefined;
-    nonRegisteredUserId?: string | undefined;
     gymId?: string;
     gymMembershipStatus?: GymMembershipStatus;
     memberSince?: Date | undefined;
-    gym?: GymDto;
     ownedPasses?: GymMembershipPassDto[];
 
     constructor(data?: IGymMembershipDto) {
@@ -2605,11 +3473,9 @@ export class GymMembershipDto implements IGymMembershipDto {
     init(_data?: any) {
         if (_data) {
             this.applicationUserId = _data["applicationUserId"];
-            this.nonRegisteredUserId = _data["nonRegisteredUserId"];
             this.gymId = _data["gymId"];
             this.gymMembershipStatus = _data["gymMembershipStatus"];
             this.memberSince = _data["memberSince"] ? new Date(_data["memberSince"].toString()) : <any>undefined;
-            this.gym = _data["gym"] ? GymDto.fromJS(_data["gym"]) : <any>undefined;
             if (Array.isArray(_data["ownedPasses"])) {
                 this.ownedPasses = [] as any;
                 for (let item of _data["ownedPasses"])
@@ -2628,11 +3494,9 @@ export class GymMembershipDto implements IGymMembershipDto {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["applicationUserId"] = this.applicationUserId;
-        data["nonRegisteredUserId"] = this.nonRegisteredUserId;
         data["gymId"] = this.gymId;
         data["gymMembershipStatus"] = this.gymMembershipStatus;
         data["memberSince"] = this.memberSince ? this.memberSince.toISOString() : <any>undefined;
-        data["gym"] = this.gym ? this.gym.toJSON() : <any>undefined;
         if (Array.isArray(this.ownedPasses)) {
             data["ownedPasses"] = [];
             for (let item of this.ownedPasses)
@@ -2644,72 +3508,10 @@ export class GymMembershipDto implements IGymMembershipDto {
 
 export interface IGymMembershipDto {
     applicationUserId?: string | undefined;
-    nonRegisteredUserId?: string | undefined;
     gymId?: string;
     gymMembershipStatus?: GymMembershipStatus;
     memberSince?: Date | undefined;
-    gym?: GymDto;
     ownedPasses?: GymMembershipPassDto[];
-}
-
-export class GymMembershipPassDto implements IGymMembershipPassDto {
-    id?: string;
-    userGymMembershipId?: string | undefined;
-    type?: PassType;
-    totalUses?: number | undefined;
-    remainingUses?: number | undefined;
-    expirationDate?: Date | undefined;
-    eurPrice?: number;
-
-    constructor(data?: IGymMembershipPassDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.userGymMembershipId = _data["userGymMembershipId"];
-            this.type = _data["type"];
-            this.totalUses = _data["totalUses"];
-            this.remainingUses = _data["remainingUses"];
-            this.expirationDate = _data["expirationDate"] ? new Date(_data["expirationDate"].toString()) : <any>undefined;
-            this.eurPrice = _data["eurPrice"];
-        }
-    }
-
-    static fromJS(data: any): GymMembershipPassDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new GymMembershipPassDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["userGymMembershipId"] = this.userGymMembershipId;
-        data["type"] = this.type;
-        data["totalUses"] = this.totalUses;
-        data["remainingUses"] = this.remainingUses;
-        data["expirationDate"] = this.expirationDate ? formatDate(this.expirationDate) : <any>undefined;
-        data["eurPrice"] = this.eurPrice;
-        return data;
-    }
-}
-
-export interface IGymMembershipPassDto {
-    id?: string;
-    userGymMembershipId?: string | undefined;
-    type?: PassType;
-    totalUses?: number | undefined;
-    remainingUses?: number | undefined;
-    expirationDate?: Date | undefined;
-    eurPrice?: number;
 }
 
 export class GymEmployeeRegisterUserCommand implements IGymEmployeeRegisterUserCommand {
@@ -2752,198 +3554,6 @@ export class GymEmployeeRegisterUserCommand implements IGymEmployeeRegisterUserC
 
 export interface IGymEmployeeRegisterUserCommand {
     email?: string;
-    firstName?: string;
-    lastName?: string;
-}
-
-export class GymEmploymentDto implements IGymEmploymentDto {
-    applicationUserId?: string | undefined;
-    gymId?: string | undefined;
-    escalationEmail?: string | undefined;
-    role?: string;
-    userProfile?: UserProfileWithEmailDto | undefined;
-
-    constructor(data?: IGymEmploymentDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.applicationUserId = _data["applicationUserId"];
-            this.gymId = _data["gymId"];
-            this.escalationEmail = _data["escalationEmail"];
-            this.role = _data["role"];
-            this.userProfile = _data["userProfile"] ? UserProfileWithEmailDto.fromJS(_data["userProfile"]) : <any>undefined;
-        }
-    }
-
-    static fromJS(data: any): GymEmploymentDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new GymEmploymentDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["applicationUserId"] = this.applicationUserId;
-        data["gymId"] = this.gymId;
-        data["escalationEmail"] = this.escalationEmail;
-        data["role"] = this.role;
-        data["userProfile"] = this.userProfile ? this.userProfile.toJSON() : <any>undefined;
-        return data;
-    }
-}
-
-export interface IGymEmploymentDto {
-    applicationUserId?: string | undefined;
-    gymId?: string | undefined;
-    escalationEmail?: string | undefined;
-    role?: string;
-    userProfile?: UserProfileWithEmailDto | undefined;
-}
-
-export class UserProfileWithEmailDto implements IUserProfileWithEmailDto {
-    applicationUserId?: string;
-    firstName?: string;
-    lastName?: string;
-    email?: string | undefined;
-
-    constructor(data?: IUserProfileWithEmailDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.applicationUserId = _data["applicationUserId"];
-            this.firstName = _data["firstName"];
-            this.lastName = _data["lastName"];
-            this.email = _data["email"];
-        }
-    }
-
-    static fromJS(data: any): UserProfileWithEmailDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new UserProfileWithEmailDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["applicationUserId"] = this.applicationUserId;
-        data["firstName"] = this.firstName;
-        data["lastName"] = this.lastName;
-        data["email"] = this.email;
-        return data;
-    }
-}
-
-export interface IUserProfileWithEmailDto {
-    applicationUserId?: string;
-    firstName?: string;
-    lastName?: string;
-    email?: string | undefined;
-}
-
-export class UpdateMyGymProfileCommand implements IUpdateMyGymProfileCommand {
-    gymId?: string;
-    gymName?: string;
-    gymAddress?: string;
-    gymTier?: GymTier;
-    gymOwnerName?: string | undefined;
-
-    constructor(data?: IUpdateMyGymProfileCommand) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.gymId = _data["gymId"];
-            this.gymName = _data["gymName"];
-            this.gymAddress = _data["gymAddress"];
-            this.gymTier = _data["gymTier"];
-            this.gymOwnerName = _data["gymOwnerName"];
-        }
-    }
-
-    static fromJS(data: any): UpdateMyGymProfileCommand {
-        data = typeof data === 'object' ? data : {};
-        let result = new UpdateMyGymProfileCommand();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["gymId"] = this.gymId;
-        data["gymName"] = this.gymName;
-        data["gymAddress"] = this.gymAddress;
-        data["gymTier"] = this.gymTier;
-        data["gymOwnerName"] = this.gymOwnerName;
-        return data;
-    }
-}
-
-export interface IUpdateMyGymProfileCommand {
-    gymId?: string;
-    gymName?: string;
-    gymAddress?: string;
-    gymTier?: GymTier;
-    gymOwnerName?: string | undefined;
-}
-
-export class UpdateMyUserProfileCommand implements IUpdateMyUserProfileCommand {
-    firstName?: string;
-    lastName?: string;
-
-    constructor(data?: IUpdateMyUserProfileCommand) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.firstName = _data["firstName"];
-            this.lastName = _data["lastName"];
-        }
-    }
-
-    static fromJS(data: any): UpdateMyUserProfileCommand {
-        data = typeof data === 'object' ? data : {};
-        let result = new UpdateMyUserProfileCommand();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["firstName"] = this.firstName;
-        data["lastName"] = this.lastName;
-        return data;
-    }
-}
-
-export interface IUpdateMyUserProfileCommand {
     firstName?: string;
     lastName?: string;
 }

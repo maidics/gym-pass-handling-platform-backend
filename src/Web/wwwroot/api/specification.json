@@ -6,6 +6,221 @@
     "version": "1.0.0"
   },
   "paths": {
+    "/api/GymEmployments/MyGym/All": {
+      "get": {
+        "tags": [
+          "GymEmployments"
+        ],
+        "operationId": "GetMyGymEmployments",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GymEmploymentDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/GymEmployments/My": {
+      "get": {
+        "tags": [
+          "GymEmployments"
+        ],
+        "operationId": "GetMyGymEmployment",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GymEmploymentDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/GymEmployments/Gym": {
+      "get": {
+        "tags": [
+          "GymEmployments"
+        ],
+        "operationId": "GetGymEmploymentsByGymId",
+        "parameters": [
+          {
+            "name": "gymId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GymEmploymentDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/GymMembershipPasses/My/{gymId}": {
+      "get": {
+        "tags": [
+          "GymMembershipPasses"
+        ],
+        "operationId": "GetGymMembershipPassesForGym",
+        "parameters": [
+          {
+            "name": "gymId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GymMembershipPassDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/GymMembershipPasses/MyGymMember/Use/{gymMembershipPassId}": {
+      "put": {
+        "tags": [
+          "GymMembershipPasses"
+        ],
+        "operationId": "GymEmployeeUseGymMembershipPass",
+        "parameters": [
+          {
+            "name": "gymMembershipPassId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "x-name": "lockerNumber",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 2
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassUseResult"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/GymMembershipPasses/MyGymMember/Validity/{gymMembershipPassId}": {
+      "get": {
+        "tags": [
+          "GymMembershipPasses"
+        ],
+        "operationId": "IsGymMembershipPassValid",
+        "parameters": [
+          {
+            "name": "gymMembershipPassId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
     "/api/GymMemberships/{gymMembership}": {
       "put": {
         "tags": [
@@ -38,6 +253,425 @@
         "responses": {
           "204": {
             "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/GymMemberships/MyGym": {
+      "get": {
+        "tags": [
+          "GymMemberships"
+        ],
+        "operationId": "GetGymMembershipsQueryToMyGym",
+        "requestBody": {
+          "x-name": "query",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetGymMembershipsQueryToMyGymQuery"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GymMembershipWithUserProfileAndEmailDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/GymPassUsages/MyGym/Today": {
+      "get": {
+        "tags": [
+          "GymPassUsages"
+        ],
+        "operationId": "GetGymPassUsagesForMyGymToday",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GymPassUsageDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/GymPassUsages/MyGym/EndGymSession/{gymPassUsageId}": {
+      "put": {
+        "tags": [
+          "GymPassUsages"
+        ],
+        "operationId": "GymEmployeeEndUserGymSession",
+        "parameters": [
+          {
+            "name": "gymPassUsageId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/GymPassUsages/MyGym/UpdateLockerNumber/{gymPassUsageId}": {
+      "put": {
+        "tags": [
+          "GymPassUsages"
+        ],
+        "operationId": "UpdateGymPassUsageLockerNumberCommand",
+        "parameters": [
+          {
+            "name": "gymPassUsageId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "x-name": "lockerNumber",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 2
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/Gyms/My/QrCode": {
+      "get": {
+        "tags": [
+          "Gyms"
+        ],
+        "operationId": "GetMyGymQrCode",
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/Gyms/My/Profile": {
+      "put": {
+        "tags": [
+          "Gyms"
+        ],
+        "operationId": "UpdateMyGymProfile",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateMyGymProfileCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GymDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/Gyms": {
+      "get": {
+        "tags": [
+          "Gyms"
+        ],
+        "operationId": "GetAllGyms",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GymDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Gyms/{gymId}/Details": {
+      "get": {
+        "tags": [
+          "Gyms"
+        ],
+        "operationId": "GetGymDetails",
+        "parameters": [
+          {
+            "name": "gymId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GymDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/Gyms/NewThisMonth": {
+      "get": {
+        "tags": [
+          "Gyms"
+        ],
+        "operationId": "GetNewGymsThisMonth",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GymDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/Gyms/{gymId}/Status": {
+      "put": {
+        "tags": [
+          "Gyms"
+        ],
+        "operationId": "UpdateGymStatus",
+        "parameters": [
+          {
+            "name": "gymId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "x-name": "newGymStatus",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GymStatus"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 2
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/Gyms/My/Details": {
+      "get": {
+        "tags": [
+          "Gyms"
+        ],
+        "operationId": "GetMyGymDetails",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GymDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/Gyms/Register/FromRequest": {
+      "post": {
+        "tags": [
+          "Gyms"
+        ],
+        "operationId": "RegisterGymFromRequest",
+        "parameters": [
+          {
+            "name": "requestId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GymDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/Gyms/Register": {
+      "post": {
+        "tags": [
+          "Gyms"
+        ],
+        "operationId": "RegisterGym",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterGymCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GymDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -123,47 +757,6 @@
         ]
       }
     },
-    "/api/Requests/{requestId}/Status": {
-      "put": {
-        "tags": [
-          "Requests"
-        ],
-        "operationId": "UpdateRequestStatus",
-        "parameters": [
-          {
-            "name": "requestId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "x-position": 1
-          }
-        ],
-        "requestBody": {
-          "x-name": "newRequestStatus",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RequestStatus"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 2
-        },
-        "responses": {
-          "204": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "JWT": []
-          }
-        ]
-      }
-    },
     "/api/Requests/GymCreation": {
       "post": {
         "tags": [
@@ -187,52 +780,6 @@
             "description": ""
           }
         }
-      },
-      "put": {
-        "tags": [
-          "Requests"
-        ],
-        "operationId": "HandleGymCreationRequest",
-        "parameters": [
-          {
-            "name": "requestId",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "x-position": 1
-          }
-        ],
-        "requestBody": {
-          "x-name": "newStatus",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RequestStatus"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 2
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GymDto"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "JWT": []
-          }
-        ]
       }
     },
     "/api/Requests/GymAdminNomination": {
@@ -263,6 +810,90 @@
                 }
               }
             }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/Requests/Reject/{requestId}": {
+      "put": {
+        "tags": [
+          "Requests"
+        ],
+        "operationId": "RejectRequest",
+        "parameters": [
+          {
+            "name": "requestId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/UserProfiles/My": {
+      "get": {
+        "tags": [
+          "UserProfiles"
+        ],
+        "operationId": "GetMyUserProfile",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserProfileWithEmailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/UserProfiles/My/Update": {
+      "put": {
+        "tags": [
+          "UserProfiles"
+        ],
+        "operationId": "UpdateMyUserProfile",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateMyUserProfileCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "204": {
+            "description": ""
           }
         },
         "security": [
@@ -597,444 +1228,388 @@
           }
         ]
       }
-    },
-    "/api/GymEmployments/MyGym/All": {
-      "get": {
-        "tags": [
-          "GymEmployments"
-        ],
-        "operationId": "GetMyGymEmployments",
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/GymEmploymentDto"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "JWT": []
-          }
-        ]
-      }
-    },
-    "/api/GymEmployments/My": {
-      "get": {
-        "tags": [
-          "GymEmployments"
-        ],
-        "operationId": "GetMyGymEmployment",
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GymEmploymentDto"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "JWT": []
-          }
-        ]
-      }
-    },
-    "/api/GymEmployments/Gym": {
-      "get": {
-        "tags": [
-          "GymEmployments"
-        ],
-        "operationId": "GetGymEmploymentsByGymId",
-        "parameters": [
-          {
-            "name": "gymId",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "x-position": 1
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/GymEmploymentDto"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "JWT": []
-          }
-        ]
-      }
-    },
-    "/api/GymMembershipPasses/Use/{gymMembershipPassId}": {
-      "put": {
-        "tags": [
-          "GymMembershipPasses"
-        ],
-        "operationId": "UseGymMembershipPass",
-        "parameters": [
-          {
-            "name": "gymMembershipPassId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "x-position": 1
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "JWT": []
-          }
-        ]
-      }
-    },
-    "/api/GymMembershipPasses/My": {
-      "get": {
-        "tags": [
-          "GymMembershipPasses"
-        ],
-        "operationId": "GetGymMembershipPassesForGym",
-        "parameters": [
-          {
-            "name": "gymId",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "x-position": 1
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/GymMembershipPassDto"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "JWT": []
-          }
-        ]
-      }
-    },
-    "/api/Gyms/My/QrCode": {
-      "get": {
-        "tags": [
-          "Gyms"
-        ],
-        "operationId": "GetMyGymQrCode",
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "JWT": []
-          }
-        ]
-      }
-    },
-    "/api/Gyms/My/Profile": {
-      "put": {
-        "tags": [
-          "Gyms"
-        ],
-        "operationId": "UpdateMyGymProfile",
-        "requestBody": {
-          "x-name": "command",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateMyGymProfileCommand"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GymDto"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "JWT": []
-          }
-        ]
-      }
-    },
-    "/api/Gyms": {
-      "get": {
-        "tags": [
-          "Gyms"
-        ],
-        "operationId": "GetAllGyms",
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/GymDto"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/Gyms/{gymId}/Details": {
-      "get": {
-        "tags": [
-          "Gyms"
-        ],
-        "operationId": "GetGymDetails",
-        "parameters": [
-          {
-            "name": "gymId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "x-position": 1
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GymDto"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "JWT": []
-          }
-        ]
-      }
-    },
-    "/api/Gyms/NewThisMonth": {
-      "get": {
-        "tags": [
-          "Gyms"
-        ],
-        "operationId": "GetNewGymsThisMonth",
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/GymDto"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "JWT": []
-          }
-        ]
-      }
-    },
-    "/api/Gyms/{gymId}/Status": {
-      "put": {
-        "tags": [
-          "Gyms"
-        ],
-        "operationId": "UpdateGymStatus",
-        "parameters": [
-          {
-            "name": "gymId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "x-position": 1
-          }
-        ],
-        "requestBody": {
-          "x-name": "newGymStatus",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/GymStatus"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 2
-        },
-        "responses": {
-          "204": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "JWT": []
-          }
-        ]
-      }
-    },
-    "/api/Gyms/My/Details": {
-      "get": {
-        "tags": [
-          "Gyms"
-        ],
-        "operationId": "GetMyGymDetails",
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GymDto"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "JWT": []
-          }
-        ]
-      }
-    },
-    "/api/UserProfiles/My": {
-      "get": {
-        "tags": [
-          "UserProfiles"
-        ],
-        "operationId": "GetMyUserProfile",
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UserProfileWithEmailDto"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "JWT": []
-          }
-        ]
-      }
-    },
-    "/api/UserProfiles/My/Update": {
-      "put": {
-        "tags": [
-          "UserProfiles"
-        ],
-        "operationId": "UpdateMyUserProfile",
-        "requestBody": {
-          "x-name": "command",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateMyUserProfileCommand"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
-        "responses": {
-          "204": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "JWT": []
-          }
-        ]
-      }
     }
   },
   "components": {
     "schemas": {
+      "GymEmploymentDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "applicationUserId": {
+            "type": "string",
+            "nullable": true
+          },
+          "gymId": {
+            "type": "string",
+            "nullable": true
+          },
+          "escalationEmail": {
+            "type": "string",
+            "nullable": true
+          },
+          "role": {
+            "type": "string"
+          },
+          "userProfile": {
+            "$ref": "#/components/schemas/UserProfileWithEmailDto"
+          }
+        }
+      },
+      "UserProfileWithEmailDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "applicationUserId": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "GymMembershipPassDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "gymMembershipId": {
+            "type": "string",
+            "nullable": true
+          },
+          "type": {
+            "$ref": "#/components/schemas/PassType"
+          },
+          "totalUses": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "remainingUses": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "expirationDate": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          }
+        }
+      },
+      "PassType": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "SingleUse",
+          "MultiUse",
+          "Unlimited"
+        ],
+        "enum": [
+          "SingleUse",
+          "MultiUse",
+          "Unlimited"
+        ]
+      },
+      "PassUseResult": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "Success",
+          "Expired",
+          "AlreadyHasNoUsesLeft"
+        ],
+        "enum": [
+          "Success",
+          "Expired",
+          "AlreadyHasNoUsesLeft"
+        ]
+      },
       "GymMembershipStatus": {
         "type": "string",
         "description": "",
         "x-enumNames": [
-          "Member",
+          "Active",
           "Banned"
         ],
         "enum": [
-          "Member",
+          "Active",
           "Banned"
         ]
+      },
+      "GymMembershipWithUserProfileAndEmailDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "applicationUserId": {
+            "type": "string",
+            "nullable": true
+          },
+          "gymId": {
+            "type": "string"
+          },
+          "gymMembershipStatus": {
+            "$ref": "#/components/schemas/GymMembershipStatus"
+          },
+          "passes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GymMembershipPassDto"
+            }
+          },
+          "userProfile": {
+            "$ref": "#/components/schemas/UserProfileWithEmailDto"
+          }
+        }
+      },
+      "GetGymMembershipsQueryToMyGymQuery": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "gymMembershipStatus": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/GymMembershipStatus"
+              }
+            ]
+          }
+        }
+      },
+      "GymPassUsageDto": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BaseAuditableEntity"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "applicationUserId": {
+                "type": "string"
+              },
+              "pass": {
+                "$ref": "#/components/schemas/GymMembershipPassDto"
+              }
+            }
+          }
+        ]
+      },
+      "BaseAuditableEntity": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BaseEntity"
+          },
+          {
+            "type": "object",
+            "x-abstract": true,
+            "additionalProperties": false,
+            "properties": {
+              "createdOn": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "createdBy": {
+                "type": "string",
+                "nullable": true
+              },
+              "lastModifiedOn": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "lastModifiedBy": {
+                "type": "string",
+                "nullable": true
+              }
+            }
+          }
+        ]
+      },
+      "BaseEntity": {
+        "type": "object",
+        "x-abstract": true,
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "domainEvents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BaseEvent"
+            }
+          }
+        }
+      },
+      "BaseEvent": {
+        "type": "object",
+        "x-abstract": true,
+        "additionalProperties": false
+      },
+      "GymDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/GymStatus"
+          },
+          "tier": {
+            "$ref": "#/components/schemas/GymTier"
+          },
+          "creationDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "ownerName": {
+            "type": "string",
+            "nullable": true
+          },
+          "gymPassProducts": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/GymPassProductDto"
+            }
+          }
+        }
+      },
+      "GymStatus": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "Active",
+          "Inactive",
+          "Suspended"
+        ],
+        "enum": [
+          "Active",
+          "Inactive",
+          "Suspended"
+        ]
+      },
+      "GymTier": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "Local",
+          "MidRange",
+          "Premium",
+          "Elite"
+        ],
+        "enum": [
+          "Local",
+          "MidRange",
+          "Premium",
+          "Elite"
+        ]
+      },
+      "GymPassProductDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "gymId": {
+            "type": "string"
+          },
+          "type": {
+            "$ref": "#/components/schemas/PassType"
+          },
+          "totalUses": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "daysAfterExpiring": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "hufPrice": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "isActive": {
+            "type": "boolean"
+          }
+        }
+      },
+      "UpdateMyGymProfileCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "gymId": {
+            "type": "string"
+          },
+          "gymName": {
+            "type": "string"
+          },
+          "gymAddress": {
+            "type": "string"
+          },
+          "gymTier": {
+            "$ref": "#/components/schemas/GymTier"
+          },
+          "gymOwnerName": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "RegisterGymCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "createGymDto": {
+            "$ref": "#/components/schemas/CreateGymDto"
+          },
+          "pendingGymEmployeeToPromoteEmail": {
+            "type": "string"
+          }
+        }
+      },
+      "CreateGymDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "gymName": {
+            "type": "string"
+          },
+          "gymAddress": {
+            "type": "string"
+          },
+          "gymStatus": {
+            "$ref": "#/components/schemas/GymStatus"
+          },
+          "gymTier": {
+            "$ref": "#/components/schemas/GymTier"
+          },
+          "gymOwnerName": {
+            "type": "string"
+          },
+          "escalationEmail": {
+            "type": "string"
+          }
+        }
       },
       "RequestDto": {
         "type": "object",
@@ -1115,17 +1690,21 @@
         "description": "",
         "x-enumNames": [
           "Submitted",
-          "InProgress",
           "Completed",
           "Cancelled",
-          "Rejected"
+          "Rejected",
+          "PayloadFailedToSerialize",
+          "CreatorNotFound",
+          "RelatedRoleHandlingFailed"
         ],
         "enum": [
           "Submitted",
-          "InProgress",
           "Completed",
           "Cancelled",
-          "Rejected"
+          "Rejected",
+          "PayloadFailedToSerialize",
+          "CreatorNotFound",
+          "RelatedRoleHandlingFailed"
         ]
       },
       "GetRequestsQuery": {
@@ -1160,64 +1739,10 @@
           "priorityLevel": {
             "$ref": "#/components/schemas/PriorityLevel"
           },
-          "createGymDTO": {
+          "createGymDto": {
             "$ref": "#/components/schemas/CreateGymDto"
           }
         }
-      },
-      "CreateGymDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "gymName": {
-            "type": "string"
-          },
-          "gymAddress": {
-            "type": "string"
-          },
-          "gymStatus": {
-            "$ref": "#/components/schemas/GymStatus"
-          },
-          "gymTier": {
-            "$ref": "#/components/schemas/GymTier"
-          },
-          "gymOwnerName": {
-            "type": "string"
-          },
-          "escalationEmail": {
-            "type": "string"
-          }
-        }
-      },
-      "GymStatus": {
-        "type": "string",
-        "description": "",
-        "x-enumNames": [
-          "Active",
-          "Inactive",
-          "Suspended"
-        ],
-        "enum": [
-          "Active",
-          "Inactive",
-          "Suspended"
-        ]
-      },
-      "GymTier": {
-        "type": "string",
-        "description": "",
-        "x-enumNames": [
-          "Local",
-          "MidRange",
-          "Premium",
-          "Elite"
-        ],
-        "enum": [
-          "Local",
-          "MidRange",
-          "Premium",
-          "Elite"
-        ]
       },
       "Result": {
         "type": "object",
@@ -1252,84 +1777,17 @@
           }
         }
       },
-      "GymDto": {
+      "UpdateMyUserProfileCommand": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "id": {
+          "firstName": {
             "type": "string"
           },
-          "name": {
+          "lastName": {
             "type": "string"
-          },
-          "address": {
-            "type": "string"
-          },
-          "status": {
-            "$ref": "#/components/schemas/GymStatus"
-          },
-          "tier": {
-            "$ref": "#/components/schemas/GymTier"
-          },
-          "creationDate": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "ownerName": {
-            "type": "string",
-            "nullable": true
-          },
-          "gymPassProducts": {
-            "type": "array",
-            "nullable": true,
-            "items": {
-              "$ref": "#/components/schemas/GymPassProductDto"
-            }
           }
         }
-      },
-      "GymPassProductDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "gymId": {
-            "type": "string"
-          },
-          "type": {
-            "$ref": "#/components/schemas/PassType"
-          },
-          "totalUses": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "daysAfterExpiring": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "hufPrice": {
-            "type": "number",
-            "format": "decimal"
-          },
-          "isActive": {
-            "type": "boolean"
-          }
-        }
-      },
-      "PassType": {
-        "type": "string",
-        "description": "",
-        "x-enumNames": [
-          "SingleUse",
-          "MultiUse",
-          "Unlimited"
-        ],
-        "enum": [
-          "SingleUse",
-          "MultiUse",
-          "Unlimited"
-        ]
       },
       "JwtToken": {
         "type": "object",
@@ -1469,6 +1927,9 @@
           "encodedEmailConfirmationToken": {
             "type": "string"
           },
+          "setPassword": {
+            "type": "boolean"
+          },
           "password": {
             "type": "string",
             "nullable": true
@@ -1487,10 +1948,6 @@
             "type": "string",
             "nullable": true
           },
-          "nonRegisteredUserId": {
-            "type": "string",
-            "nullable": true
-          },
           "gymId": {
             "type": "string"
           },
@@ -1502,49 +1959,11 @@
             "format": "date-time",
             "nullable": true
           },
-          "gym": {
-            "$ref": "#/components/schemas/GymDto"
-          },
           "ownedPasses": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/GymMembershipPassDto"
             }
-          }
-        }
-      },
-      "GymMembershipPassDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "userGymMembershipId": {
-            "type": "string",
-            "nullable": true
-          },
-          "type": {
-            "$ref": "#/components/schemas/PassType"
-          },
-          "totalUses": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "remainingUses": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "expirationDate": {
-            "type": "string",
-            "format": "date",
-            "nullable": true
-          },
-          "eurPrice": {
-            "type": "number",
-            "format": "decimal"
           }
         }
       },
@@ -1555,88 +1974,6 @@
           "email": {
             "type": "string"
           },
-          "firstName": {
-            "type": "string"
-          },
-          "lastName": {
-            "type": "string"
-          }
-        }
-      },
-      "GymEmploymentDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "applicationUserId": {
-            "type": "string",
-            "nullable": true
-          },
-          "gymId": {
-            "type": "string",
-            "nullable": true
-          },
-          "escalationEmail": {
-            "type": "string",
-            "nullable": true
-          },
-          "role": {
-            "type": "string"
-          },
-          "userProfile": {
-            "nullable": true,
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/UserProfileWithEmailDto"
-              }
-            ]
-          }
-        }
-      },
-      "UserProfileWithEmailDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "applicationUserId": {
-            "type": "string"
-          },
-          "firstName": {
-            "type": "string"
-          },
-          "lastName": {
-            "type": "string"
-          },
-          "email": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "UpdateMyGymProfileCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "gymId": {
-            "type": "string"
-          },
-          "gymName": {
-            "type": "string"
-          },
-          "gymAddress": {
-            "type": "string"
-          },
-          "gymTier": {
-            "$ref": "#/components/schemas/GymTier"
-          },
-          "gymOwnerName": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "UpdateMyUserProfileCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
           "firstName": {
             "type": "string"
           },

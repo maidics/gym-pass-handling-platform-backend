@@ -89,6 +89,14 @@ public class GymPassProductBuilder : TestAuditableEntityBuilder<GymPassProductBu
         return this;
     }
 
+    public GymPassProductBuilder WithGym(Gym gym)
+    {
+        _gym = gym;
+        _gymId = gym.Id;
+
+        return this;
+    }
+
     public override GymPassProduct Build()
     {
         return new GymPassProduct

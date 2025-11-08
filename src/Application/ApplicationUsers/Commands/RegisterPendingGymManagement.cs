@@ -74,7 +74,7 @@ public class RegisterPendingGymEmployeeCommandHandler : IRequestHandler<Register
             {
                 await transaction.RollbackAsync();
 
-                LogErrorMessages.IdentityServiceMethodFailed(_logger, nameof(_identityService.CreateUserAsync), Roles.PendingGymEmployee, resultObj.userId, resultObj.result);
+                LogErrorMessages.IdentityServiceMethodFailed(_logger, nameof(_identityService.CreateUserAsync), [Roles.PendingGymEmployee], resultObj.userId, resultObj.result);
 
                 throw new BadRequestException(string.Join(", ", resultObj.result.Errors));
             }
@@ -87,7 +87,7 @@ public class RegisterPendingGymEmployeeCommandHandler : IRequestHandler<Register
             {
                 await transaction.RollbackAsync();
 
-                LogErrorMessages.IdentityServiceMethodFailed(_logger, nameof(_identityService.AddToRoleAsync), Roles.PendingGymEmployee, userId, roleResult);
+                LogErrorMessages.IdentityServiceMethodFailed(_logger, nameof(_identityService.AddToRoleAsync), [Roles.PendingGymEmployee], userId, roleResult);
 
                 throw new Exception(string.Join(", ", roleResult.Errors));
             }

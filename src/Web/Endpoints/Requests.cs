@@ -36,7 +36,7 @@ public class Requests : EndpointGroupBase
         return TypedResults.Ok(result);
     }
 
-    public async Task<Ok> CreateGymCreationRequest(ISender sender, [FromBody] CreateGymCreationRequestCommand command)
+    public async Task<NoContent> CreateGymCreationRequest(ISender sender, [FromBody] CreateGymCreationRequestCommand command)
     {
         await sender.Send(command);
 

@@ -1,11 +1,10 @@
-using FitPass.Application.Common.Interfaces;
 using FitPass.Domain.Entities;
-using FitPass.Infrastructure.Stripe;
 using Microsoft.Extensions.Logging;
 using Stripe;
 
 namespace FitPass.Infrastructure.Stripe.Services;
 
+/*
 public class StripeCustomerService : IStripeCustomerService
 {
     private readonly ILogger<StripeCustomerService> _logger;

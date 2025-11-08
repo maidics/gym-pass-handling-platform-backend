@@ -50,7 +50,7 @@ public class DeleteMyAccountCommandHandler : IRequestHandler<DeleteMyAccountComm
             {
                 await transaction.RollbackAsync();
 
-                LogErrorMessages.IdentityServiceMethodFailed(_logger, nameof(IIdentityService.DeleteUserAsync), _user.Roles?[0], _user.Id, result);
+                LogErrorMessages.IdentityServiceMethodFailed(_logger, nameof(IIdentityService.DeleteUserAsync), _user.Roles, _user.Id, result);
                 _logger.LogError("Failed to delete ({UserId}) user. IdentityResult: {IdentityResult}", _user.Id, result);
                 throw new Exception($"Failed to delete user.");
             }

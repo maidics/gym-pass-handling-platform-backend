@@ -1,7 +1,6 @@
 using System.Net.Mail;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Domain.Strings;
-using FitPass.Infrastructure.Services.Email;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;

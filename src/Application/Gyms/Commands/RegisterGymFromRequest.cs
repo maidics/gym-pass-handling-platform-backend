@@ -54,11 +54,6 @@ public class RegisterGymFromRequestCommandHandler : IRequestHandler<RegisterGymF
 
         if (request.Status != RequestStatus.Submitted)
         {
-            LogCriticalMessages.RequestIsAlreadyHandled(
-                _logger,
-                request,
-                _user.Id);
-
             throw new ForbiddenAccessException();
         }
 
@@ -139,7 +134,7 @@ public class RegisterGymFromRequestCommandHandler : IRequestHandler<RegisterGymF
                 LogErrorMessages.IdentityServiceMethodFailed(
                     _logger,
                     nameof(IIdentityService.RemoveFromRoleAsync),
-                    Roles.PendingGymEmployee,
+                    [Roles.PendingGymEmployee],
                     request.CreatedBy,
                     demotionResult);
 
@@ -159,7 +154,7 @@ public class RegisterGymFromRequestCommandHandler : IRequestHandler<RegisterGymF
                 LogErrorMessages.IdentityServiceMethodFailed(
                     _logger,
                     nameof(IIdentityService.AddToRoleAsync),
-                    Roles.GymAdministrator,
+                    [Roles.GymAdministrator],
                     request.CreatedBy,
                     promotionResult);
 

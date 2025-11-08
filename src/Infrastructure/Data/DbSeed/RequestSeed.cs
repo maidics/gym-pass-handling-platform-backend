@@ -1,6 +1,5 @@
 ﻿using System.Text.Json;
 using FitPass.Application.Requests.DTOs;
-using FitPass.Application.Requests.DTOs;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
 
