@@ -15,7 +15,6 @@ public class GymMembershipPassBuilder : TestAuditableEntityBuilder<GymMembership
     private int? _totalUses = 1;
     private int? _remainingUses = 1;
     private DateOnly? _expirationDate;
-    private decimal _hufPrice = 100;
     private GymMembership? _gymMembership;
 
     public GymMembershipPassBuilder(IServiceScopeFactory scopeFactory) : base(scopeFactory) { }
@@ -65,18 +64,6 @@ public class GymMembershipPassBuilder : TestAuditableEntityBuilder<GymMembership
         return this;
     }
 
-    public GymMembershipPassBuilder WithPrice(decimal hufPrice)
-    {
-        if (hufPrice <= 0)
-        {
-            throw new InvalidOperationException("Pass price must be bigger than 0.");
-        }
-
-        _hufPrice = hufPrice;
-
-        return this;
-    }
-
     public GymMembershipPassBuilder WithGymMembership(GymMembership gymMembership)
     {
         _gymMembershipId = gymMembership.Id;
@@ -92,7 +79,6 @@ public class GymMembershipPassBuilder : TestAuditableEntityBuilder<GymMembership
         _totalUses = gymPassProduct.TotalUses;
         _remainingUses = gymPassProduct.TotalUses;
         _expirationDate = gymPassProduct.GetExpirationDate();
-        _hufPrice = gymPassProduct.HufPrice;
 
         return this;
     }
@@ -107,7 +93,6 @@ public class GymMembershipPassBuilder : TestAuditableEntityBuilder<GymMembership
             TotalUses = _totalUses,
             RemainingUses = _remainingUses,
             ExpirationDate = _expirationDate,
-            HufPrice = _hufPrice
         };
 
         if (_gymMembership is not null)
@@ -127,30 +112,17 @@ public class GymMembershipPassBuilder : TestAuditableEntityBuilder<GymMembership
         using var scope = _scopeFactory.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-        if (string.IsNullOrEmpty(_gymMembershipId))
-        {
-            var gymMemberships = await context.GymMemberships.ToListAsync();
-
-            if (gymMemberships.Count == 0)
-            {
-                throw new InvalidOperationException("No GymMembershipId was specified and no GymMembership exists.");
-            }
-
-            if (gymMemberships.Count > 1)
-            {
-                throw new InvalidOperationException("No GymMembershipId was specified and more than 1 GymMembership exists.");
-            }
-
-            gymMembershipPass.GymMembershipId = gymMemberships.First().Id;
-            gymMembershipPass.GymMembership = gymMemberships.First();
-        }
+        Guard.Against.NullOrEmpty(_gymMembershipId);
 
         await context.GymMembershipPasses.AddAsync(gymMembershipPass);
         await context.SaveChangesAsync();
 
-        var createdGymMembershipPass = await context.GymMembershipPasses.FindAsync(gymMembershipPass.Id);
+        var createdGymMembershipPass = await context
+            .GymMembershipPasses
+            .Include(gmp => gmp.GymMembership)
+            .FirstOrDefaultAsync(gmp => gmp.Id == _id);
 
-        Guard.Against.NotFound(gymMembershipPass.Id, createdGymMembershipPass);
+        Guard.Against.Null(createdGymMembershipPass);
 
         return createdGymMembershipPass;
     }

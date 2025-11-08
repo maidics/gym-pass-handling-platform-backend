@@ -98,29 +98,18 @@ public class GymMembershipBuilder : TestAuditableEntityBuilder<GymMembershipBuil
         using var scope = _scopeFactory.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-        if (string.IsNullOrEmpty(gymMembership.ApplicationUserId))
-        {
-            var users = await context.Users.ToListAsync();
-
-            if (users.Count == 0)
-            {
-                throw new InvalidOperationException("No ApplicationUserId was specified and no ApplicationUser exists.");
-            }
-
-            if (users.Count > 1)
-            {
-                throw new InvalidOperationException("No ApplicationUserId was specified and more than 1 ApplicationUser exists.");
-            }
-
-            gymMembership.ApplicationUserId = users.First().Id;
-        }
+        Guard.Against.NullOrEmpty(_applicationUserId);
 
         await context.GymMemberships.AddAsync(gymMembership);
         await context.SaveChangesAsync();
 
-        var createdGymMembership = await context.GymMemberships.FindAsync(gymMembership.Id);
+        var createdGymMembership = await context
+            .GymMemberships
+            .Include(gm => gm.Gym)
+            .Include(gm => gm.Passes)
+            .FirstOrDefaultAsync(gm => gm.Id == _id);
 
-        Guard.Against.NotFound(gymMembership.Id, createdGymMembership);
+        Guard.Against.Null(createdGymMembership);
 
         return createdGymMembership;
     }

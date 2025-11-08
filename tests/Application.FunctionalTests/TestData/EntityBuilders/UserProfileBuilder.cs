@@ -1,7 +1,6 @@
 ﻿using FitPass.Application.FunctionalTests.TestData.Common;
 using FitPass.Domain.Entities;
 using FitPass.Infrastructure.Data;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FitPass.Application.FunctionalTests.TestData.EntityBuilders;
@@ -56,25 +55,16 @@ public class UserProfileBuilder : TestEntityBuilderBase<UserProfile>
         using var scope = _scopeFactory.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-        if (string.IsNullOrEmpty(userProfile.ApplicationUserId))
-        {
-            var users = await context.Users.ToListAsync();
-
-            if (users.Count == 1)
-            {
-                userProfile.ApplicationUserId = users.First().Id;
-            } else
-            {
-                throw new InvalidOperationException($"Multiple user exists, {nameof(UserProfile)}.{nameof(UserProfile.ApplicationUserId)} must be set explicitly.");
-            }
-        }
+        Guard.Against.NullOrEmpty(_applicationUserId);
 
         await context.UserProfiles.AddAsync(userProfile);
         await context.SaveChangesAsync();
 
-        var createdUserProfile = await context.UserProfiles.FindAsync(userProfile.ApplicationUserId);
+        var createdUserProfile = await context
+            .UserProfiles
+            .FindAsync(userProfile.ApplicationUserId);
 
-        Guard.Against.NotFound(userProfile.ApplicationUserId, createdUserProfile);
+        Guard.Against.Null(createdUserProfile);
 
         return createdUserProfile;
     }

@@ -36,12 +36,10 @@ public class GymMembershipPass : BaseAuditableEntity
             {
                 ApplicationUserId = GymMembership.ApplicationUserId,
                 GymId = GymMembership.GymId!,
-                PassType = Type,
-                TotalPassUses = TotalUses,
                 RemainingPassUses = RemainingUses,
                 PassExpirationDate = ExpirationDate,
-                Result = PassUseResult.AlreadyHasNoUsesLeft,
-                GymMembershipPassId = GymMembershipId,
+                PassUseResult = PassUseResult.AlreadyHasNoUsesLeft,
+                PassId = GymMembershipId,
                 LockerNumber = null
             };
         }
@@ -54,12 +52,10 @@ public class GymMembershipPass : BaseAuditableEntity
             {
                 ApplicationUserId = GymMembership.ApplicationUserId,
                 GymId = GymMembership.GymId!,
-                PassType = Type,
-                TotalPassUses = TotalUses,
                 RemainingPassUses = RemainingUses,
                 PassExpirationDate = ExpirationDate,
-                Result = PassUseResult.Expired,
-                GymMembershipPassId = GymMembershipId,
+                PassUseResult = PassUseResult.Expired,
+                PassId = GymMembershipId,
                 LockerNumber = null
             };
         }
@@ -78,12 +74,10 @@ public class GymMembershipPass : BaseAuditableEntity
         {
             ApplicationUserId = GymMembership.ApplicationUserId,
             GymId = GymMembership.GymId!,
-            PassType = Type,
-            TotalPassUses = TotalUses,
             RemainingPassUses = RemainingUses,
             PassExpirationDate = ExpirationDate,
-            Result = PassUseResult.Success,
-            GymMembershipPassId = GymMembershipId,
+            PassUseResult = PassUseResult.Success,
+            PassId = GymMembershipId,
             LockerNumber = lockerNumber
         };
     }

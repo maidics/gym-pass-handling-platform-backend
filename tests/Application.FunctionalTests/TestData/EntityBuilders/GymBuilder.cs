@@ -2,6 +2,7 @@
 using FitPass.Application.FunctionalTests.TestData.Common;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FitPass.Application.FunctionalTests.TestData.EntityBuilders;
@@ -104,9 +105,12 @@ public class GymBuilder : TestAuditableEntityBuilder<GymBuilder, Gym>
         await context.Gyms.AddAsync(gym);
         await context.SaveChangesAsync();
 
-        var createdGym = await context.Gyms.FindAsync(gym.Id);
+        var createdGym = await context
+            .Gyms
+            .Include(g => g.PassProducts)
+            .FirstOrDefaultAsync(g => g.Id == _id);
 
-        Guard.Against.NotFound(gym.Id, createdGym);
+        Guard.Against.Null(createdGym);
 
         return createdGym;
     }

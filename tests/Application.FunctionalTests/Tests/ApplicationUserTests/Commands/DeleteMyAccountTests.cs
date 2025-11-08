@@ -34,7 +34,6 @@ public class DeleteMyAccountTests : BaseTestFixture
         var user = await RunAsDefaultUserAsync();
 
         var userProfile = await UserProfileBuilder.WithApplicationUserId(user.Id).BuildAsync();
-        var userPaymentProfile = await UserPaymentProfileBuilder.WithApplicationUserId(user.Id).BuildAsync();
 
         var command = new DeleteMyAccountCommand();
 

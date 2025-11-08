@@ -125,7 +125,7 @@ public class ApplicationUserBuilder : TestEntityBuilderBase<ApplicationUser>
 
         var createdUser = await userManager.FindByIdAsync(user.Id);
 
-        Guard.Against.NotFound(user.Id, createdUser);
+        Guard.Against.Null(createdUser);
 
         return createdUser;
     }

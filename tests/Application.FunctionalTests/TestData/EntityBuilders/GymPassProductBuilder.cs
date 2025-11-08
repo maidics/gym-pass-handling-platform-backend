@@ -1,6 +1,9 @@
 using FitPass.Application.FunctionalTests.TestData.Common;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
+using FitPass.Domain.ValueObjects;
+using FitPass.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FitPass.Application.FunctionalTests.TestData.EntityBuilders;
@@ -14,10 +17,8 @@ public class GymPassProductBuilder : TestAuditableEntityBuilder<GymPassProductBu
     private PassType _type = PassType.SingleUse;
     private int? _totalUses = 1;
     private int? _daysAfterExpiring;
-    private decimal _hufPrice = 100;
     private bool _isActive = true;
-    private bool _isCreatedOnStripe;
-    private string? _stripePriceId;
+    private Money _price = Money.Eur(2);
     private Gym? _gym;
 
     public GymPassProductBuilder(IServiceScopeFactory scopeFactory) : base(scopeFactory) { }
@@ -74,14 +75,9 @@ public class GymPassProductBuilder : TestAuditableEntityBuilder<GymPassProductBu
         return this;
     }
 
-    public GymPassProductBuilder WithPrice(decimal hufPrice)
+    public GymPassProductBuilder WithPrice(Money price)
     {
-        if (hufPrice <= 0)
-        {
-            throw new InvalidOperationException("Pass price must be bigger than 0.");
-        }
-
-        _hufPrice = hufPrice;
+        _price = price;
 
         return this;
     }
@@ -95,15 +91,40 @@ public class GymPassProductBuilder : TestAuditableEntityBuilder<GymPassProductBu
 
     public override GymPassProduct Build()
     {
-        var gymPassProduct = new GymPassProduct
+        return new GymPassProduct
         {
-
+            Id = _id,
+            Name = _name,
+            Description = _description,
+            GymId = _gymId,
+            Type = _type,
+            Price = _price,
+            TotalUses = _totalUses,
+            DaysAfterExpiring = _daysAfterExpiring,
+            IsActive = _isActive
         };
     }
 
-    public override Task<GymPassProduct> BuildAsync()
+    public override async Task<GymPassProduct> BuildAsync()
     {
-        throw new NotImplementedException();
+        var gymPassProduct = Build();
+
+        Guard.Against.NullOrEmpty(_gymId);
+        
+        using var scope = _scopeFactory.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+        await context.GymPassProducts.AddAsync(gymPassProduct);
+        await context.SaveChangesAsync();
+
+        var createdGymPassProduct = await context
+            .GymPassProducts
+            .Include(gpp => gpp.Gym)
+            .FirstOrDefaultAsync(gpp => gpp.Id == _id);
+
+        Guard.Against.Null(createdGymPassProduct);
+
+        return createdGymPassProduct;
     }
 
     protected override void AssertEntity()

@@ -2,6 +2,7 @@
 using FitPass.Application.FunctionalTests.TestData.Common;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FitPass.Application.FunctionalTests.TestData.EntityBuilders;
@@ -108,9 +109,12 @@ public class GymEmploymentBuilder : TestEntityBuilderBase<GymEmployment>
         await context.GymEmployments.AddAsync(gymEmployment);
         await context.SaveChangesAsync();
 
-        var createdGymEmployment = await context.GymEmployments.FindAsync(gymEmployment.Id);
+        var createdGymEmployment = await context
+            .GymEmployments
+            .Include(ge => ge.Gym)
+            .FirstOrDefaultAsync(ge => ge.Id == gymEmployment.Id);
 
-        Guard.Against.NotFound(gymEmployment.Id, createdGymEmployment);
+        Guard.Against.Null(createdGymEmployment);
 
         return createdGymEmployment;
     }

@@ -69,7 +69,7 @@ public class GymEmployeeUseGymMembershipPassCommandHandler : IRequestHandler<Gym
 
         var passUsage = pass.Use(command.LockerNumber);
 
-        if (passUsage.Result == PassUseResult.AlreadyHasNoUsesLeft)
+        if (passUsage.PassUseResult == PassUseResult.AlreadyHasNoUsesLeft)
         {
             LogCriticalMessages.UserRequestedToUseAnAlreadyExpiredPass(
                 _logger,
@@ -80,6 +80,6 @@ public class GymEmployeeUseGymMembershipPassCommandHandler : IRequestHandler<Gym
         await _context.GymPassUsages.AddAsync(passUsage);
         await _context.SaveChangesAsync();
 
-        return passUsage.Result;
+        return passUsage.PassUseResult;
     }
 }

@@ -3,7 +3,6 @@
 using FitPass.Application.Common.Exceptions;
 using FitPass.Application.ApplicationUsers.Commands;
 using FitPass.Application.ApplicationUsers.DTOs;
-using FitPass.Application.Common.Exceptions;
 using FitPass.Domain.Strings;
 using FitPass.Infrastructure.Identity;
 using static Testing;
@@ -21,7 +20,7 @@ public class ActivateUserAccountTests : BaseTestFixture
     [Test]
     public async Task ShouldDenyInvalidParameters()
     {
-        var command = new ActivateUserAccountCommand(string.Empty, string.Empty, null, null);
+        var command = new ActivateUserAccountCommand(string.Empty, string.Empty, true, null, null);
 
         await Should.ThrowAsync<ValidationException>(() => SendAsync(command));
     }
@@ -29,7 +28,7 @@ public class ActivateUserAccountTests : BaseTestFixture
     [Test]
     public async Task ShouldThrowIfUserNotExists()
     {
-        var command = new ActivateUserAccountCommand(Uri.EscapeDataString("email@localhost"), "token", null, null);
+        var command = new ActivateUserAccountCommand(Uri.EscapeDataString("email@localhost"), "token", false, null, null);
 
         await Should.ThrowAsync<NotFoundException>(() => SendAsync(command));
     }
@@ -39,7 +38,7 @@ public class ActivateUserAccountTests : BaseTestFixture
     {
         var user = await ApplicationUserBuilder.BuildAsync();
 
-        var command = new ActivateUserAccountCommand(Uri.EscapeDataString(user.Email!), "invalidtoken", null, null);
+        var command = new ActivateUserAccountCommand(Uri.EscapeDataString(user.Email!), "invalidtoken", false, null, null);
 
         await Should.ThrowAsync<Exception>(() => SendAsync(command));
     }
@@ -51,7 +50,7 @@ public class ActivateUserAccountTests : BaseTestFixture
 
         var token = await GenerateEmailConfirmationToken(user.Id);
 
-        var command = new ActivateUserAccountCommand(Uri.EscapeDataString(user.Email!), token, null, null);
+        var command = new ActivateUserAccountCommand(Uri.EscapeDataString(user.Email!), token, false, null, null);
 
         var jwtToken = await SendAsync(command);
 
@@ -69,7 +68,7 @@ public class ActivateUserAccountTests : BaseTestFixture
 
         var token = await GenerateEmailConfirmationToken(user.Id);
 
-        var command = new ActivateUserAccountCommand(Uri.EscapeDataString(user.Email!), token, "Password123_", "Password123_");
+        var command = new ActivateUserAccountCommand(Uri.EscapeDataString(user.Email!), token, true, "Password123_", "Password123_");
 
         var ex = await Should.ThrowAsync<BadRequestException>(() => SendAsync(command));
 
@@ -83,7 +82,7 @@ public class ActivateUserAccountTests : BaseTestFixture
 
         var token = await GenerateEmailConfirmationToken(user.Id);
 
-        var command = new ActivateUserAccountCommand(Uri.EscapeDataString(user.Email!), token, "Password123_", "Password123_");
+        var command = new ActivateUserAccountCommand(Uri.EscapeDataString(user.Email!), token, true, "Password123_", "Password123_");
 
         var jwtToken = await SendAsync(command);
 
