@@ -1,10 +1,9 @@
-﻿
-using FitPass.Application.ApplicationUsers.Commands.RoleHandling;
+﻿using FitPass.Application.ApplicationUsers.Commands.RoleHandling;
 using FitPass.Application.Common.Exceptions;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 
-namespace FitPass.Application.FunctionalTests.Tests.ApplicationUserTests.Commands.RoleHandling;
+namespace FitPass.Application.FunctionalTests.Tests.ApplicationUserTests.Commands;
 
 using static Testing;
 
@@ -56,7 +55,7 @@ public class PromotePendingGymEmployeeToGymStaffRoleTests : BaseTestFixture
 
         await Should.NotThrowAsync(() => SendAsync(command));
 
-        var rolesAfterPromotion = await GetRoles(pendingGymEmployee.Id);
+        var rolesAfterPromotion = await GetUserRolesAsync(pendingGymEmployee.Id);
 
         rolesAfterPromotion.Count.ShouldBe(1);
         rolesAfterPromotion.First().ShouldBe(Roles.GymStaff);

@@ -1,24 +1,14 @@
 ﻿using FitPass.Application.ApplicationUsers.Commands.Emails;
 using FitPass.Application.Common.Exceptions;
 
-namespace FitPass.Application.FunctionalTests.Tests.ApplicationUserTests.Commands.Emails;
+namespace FitPass.Application.FunctionalTests.Tests.ApplicationUserTests.Commands;
 
 using static Testing;
 
 public class SendEmailConfirmationEmailTests : BaseTestFixture
 {
     [Test]
-    public async Task ShouldDenyAnonymousUser()
-    {
-        var command = new SendEmailConfirmationEmailCommand("email@localhost");
-
-        var action = () => SendAsync(command);
-
-        action.ShouldThrow<UnauthorizedAccessException>();
-    }
-
-    [Test]
-    public async Task ShouldDenyInvalidEmail()
+    public async Task ShouldDenyInvalidParameters()
     {
         await RunAsDefaultUserAsync();
 
@@ -42,7 +32,7 @@ public class SendEmailConfirmationEmailTests : BaseTestFixture
     }
 
     [Test]
-    public async Task ShouldReturnSuccess()
+    public async Task ShouldReturnSuccessForUser()
     {
         var user = await RunAsDefaultUserAsync();
 
@@ -51,6 +41,32 @@ public class SendEmailConfirmationEmailTests : BaseTestFixture
         var result = await SendAsync(command);
 
         result.Succeeded.ShouldBe(true);
+    }
+
+    [Test]
+    public async Task ShouldReturnSuccessForGymAdmin()
+    {
+        var gymAdmin = await RunAsGymAdminAsync();
+
+        var user = await ApplicationUserBuilder.BuildAsync();
+
+        var command = new SendEmailConfirmationEmailCommand(user.Email!);
+
+        var result = await SendAsync(command);
+
+        result.Succeeded.ShouldBeTrue();
+    }
+
+    [Test]
+    public async Task ShouldDenySendingEmailForOtherUsersForNonGymEmployee()
+    {
+        var appAdmin = await RunAsAppAdminAsync();
+
+        var user = await ApplicationUserBuilder.BuildAsync();
+
+        var command = new SendEmailConfirmationEmailCommand(user.Email!);
+
+        await Should.ThrowAsync<ForbiddenAccessException>(SendAsync(command));
     }
 
     [Test]

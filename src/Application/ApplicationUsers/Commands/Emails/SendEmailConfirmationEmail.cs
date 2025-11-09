@@ -14,7 +14,7 @@ namespace FitPass.Application.ApplicationUsers.Commands.Emails;
 
 [Authorize]
 public record SendEmailConfirmationEmailCommand(string Email) : IRequest<Result>;
-//instead of throwing exceptions it will return a result => user can always request a new email confirmation email
+//instead of throwing exceptions it will return a result so other commands can use this too => user can always request a new email confirmation email
 //in case of just solely sending email confirmation email the minimal api method will check the result and return a http result accordingly
 
 public class SendEmailConfirmationEmailCommandValidator : AbstractValidator<SendEmailConfirmationEmailCommand>
@@ -53,7 +53,7 @@ public class SendEmailConfirmationEmailCommandHandler : IRequestHandler<SendEmai
 
         Guard.Against.NotFound(command.Email, userId, "User");
 
-        if (_user.Id! != userId && _user.Roles!.First() != Roles.GymAdministrator)
+        if (_user.Id! != userId && (_user.Roles!.First() != Roles.GymAdministrator && _user.Roles!.First() != Roles.GymStaff))
         {
             throw new ForbiddenAccessException();
         }

@@ -23,8 +23,6 @@ public class ActivateUserAccountCommandValidator : AbstractValidator<ActivateUse
 
         RuleFor(v => v.EncodedEmailConfirmationToken).NotEmptyWithMessage(nameof(ActivateUserAccountCommand.EncodedEmailConfirmationToken));
 
-        RuleFor(v => v.SetPassword).NotEmptyWithMessage(nameof(ActivateUserAccountCommand.SetPassword));
-
         When(v => v.SetPassword == true, () =>
         {
             RuleFor(v => v.Password).NotNull(); //no message - malformed request

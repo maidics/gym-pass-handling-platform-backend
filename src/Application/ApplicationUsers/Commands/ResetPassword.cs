@@ -48,6 +48,11 @@ public class ResetPasswordCommandHandler : IRequestHandler<ResetPasswordCommand>
 
         var result = await _identityService.ResetPasswordAsync(userId, passwordResetToken, command.NewPassword);
 
+        if (result.IsResultFailureWithOneErrorMessage(ErrorMessages.UserNotFound()))
+        {
+            throw new NotFoundException(userId, "User");
+        }
+
         if (!result.Succeeded)
         {
             LogErrorMessages.IdentityServiceMethodFailed(

@@ -109,10 +109,12 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, J
         {
             await transaction.RollbackAsync();
 
+            /*
             if (ex.IsStripeServiceException())
             {
                 throw;
             }
+            */
 
             LogErrorMessages.UnhandledExceptionCaught(_logger, nameof(RegisterUserCommandHandler), ex);
 

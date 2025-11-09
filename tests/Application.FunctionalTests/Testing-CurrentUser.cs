@@ -7,47 +7,47 @@ namespace FitPass.Application.FunctionalTests;
 
 public partial class Testing
 {
-    public static string? GetUserId()
+    public static string? GetCurrentUserUserId()
     {
         return _userId;
     }
 
-    public static List<string>? GetRoles()
+    public static List<string>? GetCurrentUserRoles()
     {
         return _roles;
     }
 
     public static async Task<ApplicationUser> RunAsDefaultUserAsync()
     {
-        var user = await ApplicationUserBuilder.BuildAsync();
+        var user = await ApplicationUserBuilder.WithPassword("Password123_").BuildAsync();
 
         return await RunAsUserAsync(user);
     }
 
     public static async Task<ApplicationUser> RunAsAppAdminAsync()
     {
-        var user = await ApplicationUserBuilder.WithRole(Roles.AppAdministrator).BuildAsync();
+        var user = await ApplicationUserBuilder.WithPassword("Password123_").WithRole(Roles.AppAdministrator).BuildAsync();
 
         return await RunAsUserAsync(user);
     }
 
     public static async Task<ApplicationUser> RunAsGymAdminAsync()
     {
-        var user = await ApplicationUserBuilder.WithRole(Roles.GymAdministrator).BuildAsync();
+        var user = await ApplicationUserBuilder.WithPassword("Password123_").WithRole(Roles.GymAdministrator).BuildAsync();
 
         return await RunAsUserAsync(user);
     }
 
     public static async Task<ApplicationUser> RunAsGymStaffAsync()
     {
-        var user = await ApplicationUserBuilder.WithRole(Roles.GymStaff).BuildAsync();
+        var user = await ApplicationUserBuilder.WithPassword("Password123_").WithRole(Roles.GymStaff).BuildAsync();
 
         return await RunAsUserAsync(user);
     }
 
     public static async Task<ApplicationUser> RunAsPendingGymEmployeeAsync()
     {
-        var user = await ApplicationUserBuilder.WithRole(Roles.PendingGymEmployee).BuildAsync();
+        var user = await ApplicationUserBuilder.WithPassword("Password123_").WithRole(Roles.PendingGymEmployee).BuildAsync();
 
         return await RunAsUserAsync(user);
     }

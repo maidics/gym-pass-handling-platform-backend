@@ -66,7 +66,7 @@ public class GymEmployeeRegisterUserCommandHandler : IRequestHandler<GymEmployee
 
         if (await _identityService.IsEmailInUseAsync(command.Email))
         {
-            throw new ConflictException(ErrorMessages.PropertyIsAlreadyInUse(nameof(GymEmployeeRegisterUserCommand.Email)));
+            throw new ConflictException(nameof(GymEmployeeRegisterUserCommand.Email));
         }
 
         using var transaction = await _context.BeginTransactionAsync();

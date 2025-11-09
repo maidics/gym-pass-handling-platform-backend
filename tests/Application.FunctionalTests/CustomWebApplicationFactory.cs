@@ -38,8 +38,8 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
                 .AddTransient(provider =>
                 {
                     var mock = new Mock<IUser>();
-                    mock.SetupGet(x => x.Roles).Returns(GetRoles());
-                    mock.SetupGet(x => x.Id).Returns(GetUserId());
+                    mock.SetupGet(x => x.Roles).Returns(GetCurrentUserRoles());
+                    mock.SetupGet(x => x.Id).Returns(GetCurrentUserUserId());
                     return mock.Object;
                 });
             services

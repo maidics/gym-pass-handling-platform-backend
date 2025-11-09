@@ -59,7 +59,7 @@ public class RegisterPendingGymEmployeeCommandHandler : IRequestHandler<Register
     {
         if (await _identityService.IsEmailInUseAsync(command.Email))
         {
-            throw new ConflictException(ErrorMessages.PropertyIsAlreadyInUse(nameof(RegisterPendingGymEmployeeCommand.Email)));
+            throw new ConflictException(nameof(RegisterPendingGymEmployeeCommand.Email));
         }
 
         using var transaction = await _context.BeginTransactionAsync();

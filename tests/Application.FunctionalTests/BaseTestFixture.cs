@@ -11,5 +11,6 @@ public abstract class BaseTestFixture
         await ResetState();
     }
 
+    [Test]
     public abstract void AuthorizeAttributeCheck();
 }

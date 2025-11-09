@@ -38,7 +38,7 @@ public class RequestPasswordResetEmailCommandHandler : IRequestHandler<RequestPa
 
         if (passwordResetToken == null)
         {
-            throw new Exception(ErrorMessages.FailedtoGeneratePasswordResetToken());
+            throw new SystemException(ErrorMessages.FailedtoGeneratePasswordResetToken());
         }
 
         await _emailService.SendPasswordResetEmailAsync(command.Email, passwordResetToken, userId);

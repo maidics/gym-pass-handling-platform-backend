@@ -3,7 +3,7 @@ using FitPass.Application.Common.Exceptions;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 
-namespace FitPass.Application.FunctionalTests.Tests.ApplicationUserTests.Commands.RoleHandling;
+namespace FitPass.Application.FunctionalTests.Tests.ApplicationUserTests.Commands;
 
 using static Testing;
 
@@ -109,7 +109,7 @@ public class DemoteGymStaffToPendingGymEmployeeTests : BaseTestFixture
 
         await Should.NotThrowAsync(() => SendAsync(command));
 
-        var rolesAfterDemotion = await GetRoles(gymStaff.Id);
+        var rolesAfterDemotion = await GetUserRolesAsync(gymStaff.Id);
 
         rolesAfterDemotion.Count.ShouldBe(1);
         rolesAfterDemotion.First().ShouldBe(Roles.PendingGymEmployee);
