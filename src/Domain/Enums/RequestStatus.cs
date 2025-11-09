@@ -8,5 +8,6 @@ public enum RequestStatus
     Rejected,
     PayloadFailedToSerialize,
     CreatorNotFound,
-    RelatedRoleHandlingFailed
+    RelatedRoleHandlingFailed,
+    PayloadWasNull
 }

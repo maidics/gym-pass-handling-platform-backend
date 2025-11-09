@@ -1695,7 +1695,8 @@
           "Rejected",
           "PayloadFailedToSerialize",
           "CreatorNotFound",
-          "RelatedRoleHandlingFailed"
+          "RelatedRoleHandlingFailed",
+          "PayloadWasNull"
         ],
         "enum": [
           "Submitted",
@@ -1704,7 +1705,8 @@
           "Rejected",
           "PayloadFailedToSerialize",
           "CreatorNotFound",
-          "RelatedRoleHandlingFailed"
+          "RelatedRoleHandlingFailed",
+          "PayloadWasNull"
         ]
       },
       "GetRequestsQuery": {

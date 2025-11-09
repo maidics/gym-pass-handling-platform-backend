@@ -16,7 +16,7 @@ public class SqlTestcontainersTestDatabase : ITestDatabase
     private string _connectionString = null!;
     private Respawner _respawner = null!;
 
-    public SqlTestcontainersTestDatabase()
+    public  SqlTestcontainersTestDatabase()
     {
         _container = new MsSqlBuilder()
             .WithAutoRemove(true)

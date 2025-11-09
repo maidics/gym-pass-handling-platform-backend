@@ -59,6 +59,11 @@ public class RegisterGymFromRequestCommandHandler : IRequestHandler<RegisterGymF
             throw new ForbiddenAccessException();
         }
 
+        if (request.Type != RequestType.GymCreation)
+        {
+            throw new BadRequestException("Request is not of GymCreation type.");
+        }
+
         if (request.CreatedBy is null)
         {
             _logger.LogError("CreatedBy property of {Request} is null. Cannot nominate GymAdmin.", request);
@@ -68,6 +73,27 @@ public class RegisterGymFromRequestCommandHandler : IRequestHandler<RegisterGymF
             await _context.SaveChangesAsync();
 
             throw new ArgumentNullException(nameof(Request.CreatedBy));
+        } else
+        {
+            if (!await _identityService.IsInRoleAsync(request.CreatedBy, Roles.PendingGymEmployee))
+            {
+                request.Status |= RequestStatus.RelatedRoleHandlingFailed;
+
+                await _context.SaveChangesAsync();
+
+                throw new BadRequestException("User is no longer a PendingGymEmployee.");
+            }
+        }
+
+        if (request.Payload is null)
+        {
+            _logger.LogError("Found Request does not have a payload.");
+
+            request.Status = RequestStatus.PayloadWasNull;
+
+            await _context.SaveChangesAsync();
+
+            throw new ArgumentNullException(nameof(Request.Payload));
         }
 
         CreateGymDto? createGymDto;
@@ -109,7 +135,17 @@ public class RegisterGymFromRequestCommandHandler : IRequestHandler<RegisterGymF
 
             await _context.SaveChangesAsync();
 
-            throw;
+            throw new JsonException("Failed to deserialize payload.", ex);
+        }
+
+        var existingGym = await _context
+                .Gyms
+                .AsNoTracking()
+                .FirstOrDefaultAsync(g => g.Name == createGymDto.GymName); //TODO: make this more robust
+
+        if (existingGym is not null)
+        {
+            throw new ConflictException($"Gym with '{existingGym.Name}' name already exists.");
         }
 
         using var transaction = await _context.BeginTransactionAsync();
@@ -171,7 +207,8 @@ public class RegisterGymFromRequestCommandHandler : IRequestHandler<RegisterGymF
             {
                 ApplicationUserId = request.CreatedBy,
                 GymId = gym.Id,
-                Role = Roles.GymAdministrator
+                Role = Roles.GymAdministrator,
+                EscalationEmail = createGymDto.EscalationEmail
             };
 
             await _context.GymEmployments.AddAsync(gymEmployment);

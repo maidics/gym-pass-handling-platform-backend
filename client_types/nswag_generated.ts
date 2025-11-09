@@ -2796,7 +2796,7 @@ export type PriorityLevel = "None" | "Low" | "Medium" | "High";
 
 export type RequestType = "GymCreation" | "GymAdminNomination" | "Other";
 
-export type RequestStatus = "Submitted" | "Completed" | "Cancelled" | "Rejected" | "PayloadFailedToSerialize" | "CreatorNotFound" | "RelatedRoleHandlingFailed";
+export type RequestStatus = "Submitted" | "Completed" | "Cancelled" | "Rejected" | "PayloadFailedToSerialize" | "CreatorNotFound" | "RelatedRoleHandlingFailed" | "PayloadWasNull";
 
 export class GetRequestsQuery implements IGetRequestsQuery {
     requestType?: RequestType | undefined;

@@ -2,6 +2,7 @@
 using FitPass.Application.Common.Security;
 using FitPass.Application.FunctionalTests.TestData.EntityBuilders;
 using FitPass.Domain.Constants;
+using FitPass.Infrastructure.Data.Interceptors;
 using FitPass.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
@@ -77,6 +78,11 @@ public partial class Testing
 
     public static async Task ResetState()
     {
+        using var scope = _scopeFactory.CreateScope();
+        var service = scope.ServiceProvider.GetRequiredService<InterceptorStateService>();
+
+        service.IsAuditableEntityDisabled = true;
+
         try
         {
             await _database.ResetAsync();

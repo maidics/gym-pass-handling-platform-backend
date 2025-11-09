@@ -17,6 +17,14 @@ public partial class Testing
         return await context.FindAsync<TEntity>(keyValues);
     }
 
+    public static async Task<TEntity?> GetFirstAsync<TEntity>() where TEntity : class
+    {
+        using var scope = _scopeFactory.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+        return await context.Set<TEntity>().FirstAsync();
+    }
+
     public static async Task<TEntity?> FindByApplicationUserIdAsync<TEntity>(string applicationUserId)
         where TEntity : class
     {
