@@ -72,8 +72,6 @@ public class SendEmailConfirmationEmailTests : BaseTestFixture
     [Test]
     public override void AuthorizeAttributeCheck()
     {
-        var hasAuthorizeAttribute = HasAuthorizeAttribute<SendEmailConfirmationEmailCommand>();
-
-        hasAuthorizeAttribute.ShouldBeTrue();
+        ShouldRequireAuthorization<SendEmailConfirmationEmailCommand>();
     }
 }

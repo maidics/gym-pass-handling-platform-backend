@@ -122,8 +122,6 @@ public class DemoteGymStaffToPendingGymEmployeeTests : BaseTestFixture
     [Test]
     public override void AuthorizeAttributeCheck()
     {
-        var hasAuthorizationAttribute = HasAuthorizeAttribute<DemoteGymStaffToPendingGymEmployeeCommand>();
-
-        hasAuthorizationAttribute.ShouldBeTrue();
+        ShouldRequireAuthorization<DemoteGymStaffToPendingGymEmployeeCommand>(Roles.GymAdministrator);
     }
 }

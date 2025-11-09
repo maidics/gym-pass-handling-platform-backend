@@ -8,9 +8,7 @@ public class ResetPasswordTests : BaseTestFixture
     [Test]
     public override void AuthorizeAttributeCheck()
     {
-        var hasAuthorizeAttribute = HasAuthorizeAttribute<ResetPasswordCommand>();
-
-        hasAuthorizeAttribute.ShouldBeFalse();
+        ShouldNotRequireAuthorization<ResetPasswordCommand>();
     }
 
     [Test]

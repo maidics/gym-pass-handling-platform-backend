@@ -45,10 +45,6 @@ public class DeleteMyAccountTests : BaseTestFixture
     [Test]
     public override void AuthorizeAttributeCheck()
     {
-        var command = new DeleteMyAccountCommand();
-
-        var hasAuthorizeAttirbute = HasAuthorizeAttribute<DeleteMyAccountCommand>();
-
-        hasAuthorizeAttirbute.ShouldBeTrue();
+        ShouldRequireAuthorization<DeleteMyAccountCommand>();
     }
 }

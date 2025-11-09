@@ -3,7 +3,6 @@
 using FitPass.Application.Common.Exceptions;
 using FitPass.Application.ApplicationUsers.Commands;
 using FitPass.Application.ApplicationUsers.DTOs;
-using FitPass.Domain.Strings;
 using FitPass.Infrastructure.Identity;
 
 using static Testing;
@@ -13,9 +12,7 @@ public class ActivateUserAccountTests : BaseTestFixture
     [Test]
     public override void AuthorizeAttributeCheck()
     {
-        var hasAuthorizeAttribute = HasAuthorizeAttribute<ActivateUserAccountCommand>();
-
-        hasAuthorizeAttribute.ShouldBeFalse();
+        ShouldNotRequireAuthorization<ActivateUserAccountCommand>();
     }
 
     [Test]

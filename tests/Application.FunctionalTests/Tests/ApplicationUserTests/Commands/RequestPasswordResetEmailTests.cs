@@ -10,9 +10,7 @@ public class RequestPasswordResetEmailTests : BaseTestFixture
     [Test]
     public override void AuthorizeAttributeCheck()
     {
-        var hasAuthorizeAttribute = HasAuthorizeAttribute<RequestPasswordResetEmailCommand>();
-
-        hasAuthorizeAttribute.ShouldBeFalse();
+        ShouldNotRequireAuthorization<RequestPasswordResetEmailCommand>();
     }
 
     [Test]

@@ -13,11 +13,7 @@ public class PromotePendingGymEmployeeToGymStaffRoleTests : BaseTestFixture
     [Test]
     public override void AuthorizeAttributeCheck()
     {
-        var command = new PromotePendingGymEmployeeToGymStaffRoleCommand("UserId");
-
-        var hasAttribute = HasAuthorizeAttribute<PromotePendingGymEmployeeToGymStaffRoleCommand>();
-
-        hasAttribute.ShouldBeTrue();
+        ShouldRequireAuthorization<PromotePendingGymEmployeeToGymStaffRoleCommand>(Roles.GymAdministrator);
     }
 
     [Test]

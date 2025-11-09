@@ -14,9 +14,7 @@ public class GymEmployeeRegisterUserTests : BaseTestFixture
     [Test]
     public override void AuthorizeAttributeCheck()
     {
-        var hasAuthorziteAttribute = HasAuthorizeAttribute<GymEmployeeRegisterUserCommand>();
-
-        hasAuthorziteAttribute.ShouldBeTrue();
+        ShouldRequireAuthorization<GymEmployeeRegisterUserCommand>(Roles.GymAdministrator, Roles.GymStaff);
     }
 
     [Test]

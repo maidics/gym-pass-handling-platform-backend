@@ -11,9 +11,7 @@ public class UpdateMyUserProfileTests : BaseTestFixture
     [Test]
     public override void AuthorizeAttributeCheck()
     {
-        var hasAuthorizeAttribute = HasAuthorizeAttribute<UpdateMyUserProfileCommand>();
-
-        hasAuthorizeAttribute.ShouldBeTrue();
+        ShouldRequireAuthorization<UpdateMyUserProfileCommand>();
     }
 
     [Test]

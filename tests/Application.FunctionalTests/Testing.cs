@@ -25,6 +25,7 @@ public partial class Testing
     public static GymPassProductBuilder GymPassProductBuilder => new(_scopeFactory);
     public static GymPassUsageBuilder GymPassUsageBuilder => new(_scopeFactory);
     public static UserProfileBuilder UserProfileBuilder => new(_scopeFactory);
+    public static RequestBuilder RequestBuilder => new(_scopeFactory);
 
 
     [OneTimeSetUp]
@@ -86,12 +87,5 @@ public partial class Testing
 
         _userId = null;
         _roles = null;
-    }
-
-    public static bool HasAuthorizeAttribute<TRequest>() where TRequest : notnull
-    {
-        var type = typeof(TRequest);
-
-        return type.GetCustomAttribute<AuthorizeAttribute>() != null;
     }
 }

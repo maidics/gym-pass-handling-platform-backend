@@ -64,8 +64,6 @@ public class RegisterUserTests : BaseTestFixture
     
     public override void AuthorizeAttributeCheck()
     {
-        var hasAuthorizeAttribute = HasAuthorizeAttribute<RegisterUserCommand>();
-
-        hasAuthorizeAttribute.ShouldBeFalse();
+        ShouldNotRequireAuthorization<RegisterUserCommand>();
     }
 }

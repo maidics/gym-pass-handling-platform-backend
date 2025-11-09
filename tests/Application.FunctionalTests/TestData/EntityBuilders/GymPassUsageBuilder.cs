@@ -82,7 +82,7 @@ public class GymPassUsageBuilder : TestAuditableEntityBuilder<GymPassUsageBuilde
 
     public override GymPassUsage Build()
     {
-        return new GymPassUsage
+        var gympassUsage = new GymPassUsage
         {
             Id = _id,
             ApplicationUserId = _applicationUserId,
@@ -94,6 +94,10 @@ public class GymPassUsageBuilder : TestAuditableEntityBuilder<GymPassUsageBuilde
             PassId = _passId,
             GymSessionFinishedAt = _gymSessionFinishedAt,
         };
+
+        ApplyAuditProperties(gympassUsage);
+
+        return gympassUsage;
     }
 
     public override async Task<GymPassUsage> BuildAsync()
