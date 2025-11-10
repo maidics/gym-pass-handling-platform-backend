@@ -1,7 +1,6 @@
 ﻿namespace FitPass.Application.FunctionalTests.Tests.ApplicationUserTests.Commands;
 
 using FitPass.Application.ApplicationUsers.Commands;
-using FitPass.Application.ApplicationUsers.DTOs;
 using FitPass.Application.Common.Exceptions;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;

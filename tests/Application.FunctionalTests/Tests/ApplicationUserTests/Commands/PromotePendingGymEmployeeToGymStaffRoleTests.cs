@@ -19,7 +19,7 @@ public class PromotePendingGymEmployeeToGymStaffRoleTests : BaseTestFixture
     [Test]
     public async Task ShouldDenyInvalidUserId()
     {
-        await RunAsGymAdminAsync();
+        await RunAsGymEmployeeAsync(Roles.GymAdministrator);
 
         var command = new PromotePendingGymEmployeeToGymStaffRoleCommand(string.Empty);
 
@@ -29,23 +29,11 @@ public class PromotePendingGymEmployeeToGymStaffRoleTests : BaseTestFixture
     [Test]
     public async Task ShouldPromotePendingGymEmployee()
     {
-        var gym = await GymBuilder.BuildAsync();
-
-        var gymAdmin = await ApplicationUserBuilder
-            .WithRole(Roles.GymAdministrator)
-            .BuildAsync();
-
-        var gymAdminEmployment = await GymEmploymentBuilder
-            .WithRole(Roles.GymAdministrator)
-            .WithApplicationUserId(gymAdmin.Id)
-            .WithGymId(gym.Id)
-            .BuildAsync();
+        var gymAdminObj = await RunAsGymEmployeeAsync(Roles.GymAdministrator);
 
         var pendingGymEmployee = await ApplicationUserBuilder
             .WithRole(Roles.PendingGymEmployee)
             .BuildAsync();
-
-        await RunAsUserAsync(gymAdmin);
 
         var command = new PromotePendingGymEmployeeToGymStaffRoleCommand(pendingGymEmployee.Id);
 
@@ -59,7 +47,7 @@ public class PromotePendingGymEmployeeToGymStaffRoleTests : BaseTestFixture
         var gymStaffEmployment = await FindByApplicationUserIdAsync<GymEmployment>(pendingGymEmployee.Id);
 
         gymStaffEmployment.ShouldNotBeNull();
-        gymStaffEmployment.GymId.ShouldBe(gym.Id);
+        gymStaffEmployment.GymId.ShouldBe(gymAdminObj.gym.Id);
         gymStaffEmployment.ApplicationUserId.ShouldBe(pendingGymEmployee.Id);
     }
 

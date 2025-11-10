@@ -12,7 +12,7 @@ public class DemoteGymStaffToPendingGymEmployeeTests : BaseTestFixture
     [Test]
     public async Task ShouldDenyInvalidUserId() 
     {
-        var gymAdmin = await RunAsGymAdminAsync();
+        var gymAdmin = await RunAsGymEmployeeAsync(Roles.GymAdministrator);
 
         var command = new DemoteGymStaffToPendingGymEmployeeCommand(string.Empty);
 
@@ -24,19 +24,7 @@ public class DemoteGymStaffToPendingGymEmployeeTests : BaseTestFixture
     [Test]
     public async Task ShouldDenyDemotionToNonGymStaffUser()
     {
-        var gym = await GymBuilder.BuildAsync();
-
-        var gymAdmin = await ApplicationUserBuilder
-            .WithRole(Roles.GymAdministrator)
-            .BuildAsync();
-
-        var gymAdminEmployment = await GymEmploymentBuilder
-            .WithApplicationUserId(gymAdmin.Id)
-            .WithGymId(gym.Id)
-            .WithRole(Roles.GymAdministrator)
-            .BuildAsync();
-
-        await RunAsUserAsync(gymAdmin);
+        await RunAsGymEmployeeAsync(Roles.GymAdministrator);
 
         var user = await ApplicationUserBuilder.BuildAsync();
 
@@ -47,18 +35,6 @@ public class DemoteGymStaffToPendingGymEmployeeTests : BaseTestFixture
 
     public async Task ShouldDenyDemotionToGymStaffThatIsInAnotherGym()
     {
-        var gymAdminGym = await GymBuilder.BuildAsync();
-
-        var gymAdmin = await ApplicationUserBuilder
-            .WithRole(Roles.GymAdministrator)
-            .BuildAsync();
-
-        var gymAdminEmployment = await GymEmploymentBuilder
-            .WithApplicationUserId(gymAdmin.Id)
-            .WithGymId(gymAdminGym.Id)
-            .WithRole(Roles.GymAdministrator)
-            .BuildAsync();
-
         var gymStaffGym = await GymBuilder.BuildAsync();
 
         var gymStaff = await ApplicationUserBuilder
@@ -71,7 +47,7 @@ public class DemoteGymStaffToPendingGymEmployeeTests : BaseTestFixture
             .WithRole(Roles.GymStaff)
             .BuildAsync();
 
-        await RunAsUserAsync(gymAdmin);
+        await RunAsGymEmployeeAsync(Roles.GymAdministrator);
 
         var command = new DemoteGymStaffToPendingGymEmployeeCommand(gymStaff.Id);
 
@@ -81,17 +57,7 @@ public class DemoteGymStaffToPendingGymEmployeeTests : BaseTestFixture
     [Test]
     public async Task ShouldDemoteGymStaff()
     {
-        var gym = await GymBuilder.BuildAsync();
-
-        var gymAdmin = await ApplicationUserBuilder
-            .WithRole(Roles.GymAdministrator)
-            .BuildAsync();
-
-        var gymAdminEmployment = await GymEmploymentBuilder
-            .WithApplicationUserId(gymAdmin.Id)
-            .WithGymId(gym.Id)
-            .WithRole(Roles.GymAdministrator)
-            .BuildAsync();
+        var gymAdminObj = await RunAsGymEmployeeAsync(Roles.GymAdministrator);
 
         var gymStaff = await ApplicationUserBuilder
             .WithRole(Roles.GymStaff)
@@ -99,11 +65,9 @@ public class DemoteGymStaffToPendingGymEmployeeTests : BaseTestFixture
 
         var gymStaffEmployment = await GymEmploymentBuilder
             .WithApplicationUserId(gymStaff.Id)
-            .WithGymId(gym.Id)
+            .WithGymId(gymAdminObj.gym.Id)
             .WithRole(Roles.GymStaff)
             .BuildAsync();
-
-        await RunAsUserAsync(gymAdmin);
 
         var command = new DemoteGymStaffToPendingGymEmployeeCommand(gymStaff.Id);
 

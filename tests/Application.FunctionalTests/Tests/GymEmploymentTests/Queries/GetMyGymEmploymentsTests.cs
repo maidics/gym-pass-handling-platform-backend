@@ -1,7 +1,7 @@
 using FitPass.Application.GymEmployments.Queries;
 using FitPass.Domain.Constants;
 
-namespace FitPass.Application.FunctionalTests.Tests.GymEmploymentTests.Commands;
+namespace FitPass.Application.FunctionalTests.Tests.GymEmploymentTests.Queries;
 
 using static Testing;
 
@@ -16,7 +16,7 @@ public class GetMyGymEmploymentsTests : BaseTestFixture
     [Test]
     public async Task ShouldThrowIfGymEmployeeHasNoGymEmployment()
     {
-        await RunAsGymAdminAsync();
+        await RunAsGymEmployeeAsync(Roles.GymAdministrator);
 
         await Should.ThrowAsync<SystemException>(SendAsync(new GetMyGymEmploymentsQuery()));
     }
@@ -24,21 +24,7 @@ public class GetMyGymEmploymentsTests : BaseTestFixture
     [Test]
     public async Task ShouldReturnGymEmployments()
     {
-        var gym = await GymBuilder.BuildAsync();
-
-        var gymAdmin = await RunAsGymAdminAsync();
-
-        var gymAdminGymEmployment = await GymEmploymentBuilder
-            .WithApplicationUserId(gymAdmin.Id)
-            .WithGymId(gym.Id)
-            .WithRole(Roles.GymAdministrator)
-            .BuildAsync();
-
-        var gymAdminProfile = await UserProfileBuilder
-            .WithFirstName("GymAdminFirst")
-            .WithLastName("GymAdminLast")
-            .WithApplicationUserId(gymAdmin.Id)
-            .BuildAsync();
+        var gymAdminObj = await RunAsGymEmployeeAsync(Roles.GymAdministrator);
 
         var gymStaff = await ApplicationUserBuilder
             .WithRole(Roles.GymStaff)
@@ -46,7 +32,7 @@ public class GetMyGymEmploymentsTests : BaseTestFixture
 
         var gymStaffGymEmployment = await GymEmploymentBuilder
             .WithApplicationUserId(gymStaff.Id)
-            .WithGymId(gym.Id)
+            .WithGymId(gymAdminObj.gym.Id)
             .WithRole(Roles.GymStaff)
             .BuildAsync();
 
@@ -59,22 +45,22 @@ public class GetMyGymEmploymentsTests : BaseTestFixture
         var gymEmployments = await SendAsync(new GetMyGymEmploymentsQuery());
 
         gymEmployments.Count.ShouldBe(2);
-        var gymAdminGE = gymEmployments.FirstOrDefault(ge => ge.ApplicationUserId == gymAdmin.Id);
+        var gymAdminGE = gymEmployments.FirstOrDefault(ge => ge.ApplicationUserId == gymAdminObj.user.Id);
         gymAdminGE.ShouldNotBeNull();
-        gymAdminGE.GymId.ShouldBe(gym.Id);
-        gymAdminGE.ApplicationUserId.ShouldBe(gymAdmin.Id);
+        gymAdminGE.GymId.ShouldBe(gymAdminObj.gym.Id);
+        gymAdminGE.ApplicationUserId.ShouldBe(gymAdminObj.user.Id);
         gymAdminGE.Role.ShouldBe(Roles.GymAdministrator);
 
         var gymStaffGE = gymEmployments.FirstOrDefault(ge => ge.ApplicationUserId == gymStaff.Id);
         gymStaffGE.ShouldNotBeNull();
-        gymStaffGE.GymId.ShouldBe(gym.Id);
+        gymStaffGE.GymId.ShouldBe(gymAdminObj.gym.Id);
         gymStaffGE.ApplicationUserId.ShouldBe(gymStaff.Id);
         gymStaffGE.Role.ShouldBe(Roles.GymStaff);
 
         var userProfiles = gymEmployments.Select(ge => ge.UserProfile);
         userProfiles.ShouldNotBeNull();
         userProfiles.Count().ShouldBe(2);
-        var gymAdminUpWithEmail = userProfiles.FirstOrDefault(up => up.ApplicationUserId == gymAdmin.Id);
+        var gymAdminUpWithEmail = userProfiles.FirstOrDefault(up => up.ApplicationUserId == gymAdminObj.user.Id);
         gymAdminUpWithEmail.ShouldNotBeNull();
         gymAdminUpWithEmail.Email.ShouldNotBeNull();
         gymAdminUpWithEmail.FirstName.ShouldBe("GymAdminFirst");

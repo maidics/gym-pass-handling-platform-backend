@@ -28,5 +28,9 @@
     <ItemGroup>
         <ProjectReference Include="..\..\src\Web\Web.csproj" />
     </ItemGroup>
+    
+    <ItemGroup>
+      <Folder Include="Tests\GymEmploymentTests\Commands\" />
+    </ItemGroup>
 
 </Project>

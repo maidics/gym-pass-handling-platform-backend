@@ -1,5 +1,6 @@
 ﻿using FitPass.Application.ApplicationUsers.Commands.Emails;
 using FitPass.Application.Common.Exceptions;
+using FitPass.Domain.Constants;
 
 namespace FitPass.Application.FunctionalTests.Tests.ApplicationUserTests.Commands;
 
@@ -34,9 +35,9 @@ public class SendEmailConfirmationEmailTests : BaseTestFixture
     [Test]
     public async Task ShouldReturnSuccessForUser()
     {
-        var user = await RunAsDefaultUserAsync();
+        var userObj = await RunAsDefaultUserAsync();
 
-        var command = new SendEmailConfirmationEmailCommand(user.Email!);
+        var command = new SendEmailConfirmationEmailCommand(userObj.user.Email!);
 
         var result = await SendAsync(command);
 
@@ -46,7 +47,7 @@ public class SendEmailConfirmationEmailTests : BaseTestFixture
     [Test]
     public async Task ShouldReturnSuccessForGymAdmin()
     {
-        var gymAdmin = await RunAsGymAdminAsync();
+        await RunAsGymEmployeeAsync(Roles.GymAdministrator);
 
         var user = await ApplicationUserBuilder.BuildAsync();
 
@@ -60,7 +61,7 @@ public class SendEmailConfirmationEmailTests : BaseTestFixture
     [Test]
     public async Task ShouldDenySendingEmailForOtherUsersForNonGymEmployee()
     {
-        var appAdmin = await RunAsAppAdminAsync();
+        await RunAsAppAdminAsync();
 
         var user = await ApplicationUserBuilder.BuildAsync();
 

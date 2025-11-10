@@ -1,4 +1,5 @@
 ﻿using FitPass.Domain.Constants;
+using FitPass.Domain.Entities;
 using FitPass.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,45 +18,78 @@ public partial class Testing
         return _roles;
     }
 
-    public static async Task<ApplicationUser> RunAsDefaultUserAsync()
+    public static async Task<(ApplicationUser user, UserProfile userProfile)> RunAsDefaultUserAsync()
     {
-        var user = await ApplicationUserBuilder.WithPassword("Password123_").BuildAsync();
+        var user = await ApplicationUserBuilder
+            .WithPassword("Password123_")
+            .BuildAsync();
 
-        return await RunAsUserAsync(user);
+        var userProfile = await UserProfileBuilder
+            .WithApplicationUserId(user.Id)
+            .BuildAsync();
+
+        return (await RunAsUserAsync(user), userProfile);
     }
 
-    public static async Task<ApplicationUser> RunAsAppAdminAsync()
+    public static async Task<(ApplicationUser user, UserProfile userProfile)> RunAsAppAdminAsync()
     {
-        var user = await ApplicationUserBuilder.WithPassword("Password123_").WithRole(Roles.AppAdministrator).BuildAsync();
+        var user = await ApplicationUserBuilder
+            .WithPassword("Password123_")
+            .WithRole(Roles.AppAdministrator)
+            .BuildAsync();
 
-        return await RunAsUserAsync(user);
+        var userProfile = await UserProfileBuilder
+            .WithApplicationUserId(user.Id)
+            .BuildAsync();
+
+        return (await RunAsUserAsync(user), userProfile);
     }
 
-    public static async Task<ApplicationUser> RunAsGymAdminAsync()
+    public static async Task<(ApplicationUser user, Gym gym, GymEmployment gymEmployment, UserProfile userProfile)> RunAsGymEmployeeAsync(string gymEmployeeRole)
     {
-        var user = await ApplicationUserBuilder.WithPassword("Password123_").WithRole(Roles.GymAdministrator).BuildAsync();
+        if (gymEmployeeRole != Roles.GymAdministrator && gymEmployeeRole != Roles.GymStaff)
+        {
+            throw new InvalidOperationException("$'{role}' role is not a gym employee role.");
+        }
 
-        return await RunAsUserAsync(user);
+        var user = await ApplicationUserBuilder
+            .WithPassword("Password123_")
+            .WithRole(gymEmployeeRole)
+            .BuildAsync();
+
+        var gym = await GymBuilder
+            .BuildAsync();
+
+        var gymEmployment = await GymEmploymentBuilder
+            .WithApplicationUserId(user.Id)
+            .WithGym(gym)
+            .WithRole(gymEmployeeRole)
+            .BuildAsync();
+
+        var userProfile = await UserProfileBuilder
+            .WithApplicationUserId(user.Id)
+            .BuildAsync();
+
+        return (await RunAsUserAsync(user), gym, gymEmployment, userProfile);
     }
 
-    public static async Task<ApplicationUser> RunAsGymStaffAsync()
+    public static async Task<(ApplicationUser user, UserProfile userProfile)> RunAsPendingGymEmployeeAsync()
     {
-        var user = await ApplicationUserBuilder.WithPassword("Password123_").WithRole(Roles.GymStaff).BuildAsync();
+        var user = await ApplicationUserBuilder
+            .WithPassword("Password123_")
+            .WithRole(Roles.PendingGymEmployee)
+            .BuildAsync();
 
-        return await RunAsUserAsync(user);
-    }
+        var userProfile = await UserProfileBuilder
+            .WithApplicationUserId(user.Id)
+            .BuildAsync();
 
-    public static async Task<ApplicationUser> RunAsPendingGymEmployeeAsync()
-    {
-        var user = await ApplicationUserBuilder.WithPassword("Password123_").WithRole(Roles.PendingGymEmployee).BuildAsync();
-
-        return await RunAsUserAsync(user);
+        return (await RunAsUserAsync(user), userProfile);
     }
 
     public static async Task<ApplicationUser> RunAsUserAsync(ApplicationUser user)
     {
         using var scope = _scopeFactory.CreateScope();
-
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
         var roles = await userManager.GetRolesAsync(user);

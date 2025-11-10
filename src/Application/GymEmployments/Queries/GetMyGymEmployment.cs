@@ -40,7 +40,7 @@ public class GetMyGymEmploymentQueryHandler : IRequestHandler<GetMyGymEmployment
         if (gymEmployment == null)
         {
             LogCriticalMessages.AuthenticatedUserRelatedEntityNotFound(_logger, _user.Roles, _user.Id, nameof(gymEmployment));
-            throw new Exception(ErrorMessages.AuthenticatedUserRelatedEntityNotFound(nameof(gymEmployment)));
+            throw new SystemException(ErrorMessages.AuthenticatedUserRelatedEntityNotFound(nameof(gymEmployment)));
         }
 
         var gymEmploymentDto = await _queryService.GetGymEmploymentWithUserProfileAndEmailByApplicationUserId(_user.Id!);

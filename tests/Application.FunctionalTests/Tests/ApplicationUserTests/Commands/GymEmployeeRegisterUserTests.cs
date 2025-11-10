@@ -20,7 +20,7 @@ public class GymEmployeeRegisterUserTests : BaseTestFixture
     [Test]
     public async Task ShouldDenyInvalidParameters()
     {
-        await RunAsGymAdminAsync();
+        await RunAsGymEmployeeAsync(Roles.GymStaff);
 
         var command = new GymEmployeeRegisterUserCommand("invalidEmail", string.Empty, string.Empty);
 
@@ -30,11 +30,7 @@ public class GymEmployeeRegisterUserTests : BaseTestFixture
     [Test]
     public async Task ShouldThrowIfUserAlreadyExists()
     {
-        var gymStaff = await RunAsGymStaffAsync();
-
-        var gym = await GymBuilder.BuildAsync();
-
-        var gymEmployment = await GymEmploymentBuilder.WithApplicationUserId(gymStaff.Id).WithGymId(gym.Id).BuildAsync();
+        await RunAsGymEmployeeAsync(Roles.GymStaff);
 
         var user = await ApplicationUserBuilder.BuildAsync();
 
@@ -50,11 +46,7 @@ public class GymEmployeeRegisterUserTests : BaseTestFixture
     [Test]
     public async Task ShouldRegisterUser()
     {
-        var gymStaff = await RunAsGymStaffAsync();
-
-        var gym = await GymBuilder.BuildAsync();
-
-        var gymEmployment = await GymEmploymentBuilder.WithApplicationUserId(gymStaff.Id).WithGymId(gym.Id).BuildAsync();
+        var gymStaffObj = await RunAsGymEmployeeAsync(Roles.GymStaff);
 
         string email = "valid@email";
         string firstName = "First";
@@ -63,6 +55,7 @@ public class GymEmployeeRegisterUserTests : BaseTestFixture
         var command = new GymEmployeeRegisterUserCommand(email, firstName, lastName);
 
         var gymMembershipDto = await SendAsync(command);
+        gymMembershipDto.ShouldNotBeNull();
 
         var createdUserId = await GetUserIdByEmailAsync(email);
 
@@ -79,6 +72,6 @@ public class GymEmployeeRegisterUserTests : BaseTestFixture
 
         var gymMembership = await FindByApplicationUserIdAsync<GymMembership>(createdUserId);
         gymMembership.ShouldNotBeNull();
-        gymMembership.GymId.ShouldBe(gym.Id);
+        gymMembership.GymId.ShouldBe(gymStaffObj.gym.Id);
     }
 }

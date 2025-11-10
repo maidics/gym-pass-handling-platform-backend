@@ -8,8 +8,8 @@ namespace FitPass.Application.FunctionalTests.TestData.EntityBuilders;
 public class UserProfileBuilder : TestEntityBuilderBase<UserProfile>
 {
     private string _applicationUserId = string.Empty;
-    private string _firstName = string.Empty;
-    private string _lastName = string.Empty;
+    private string _firstName = $"First name - {Guid.NewGuid()}";
+    private string _lastName = $"Last name - {Guid.NewGuid()}";
 
     public UserProfileBuilder(IServiceScopeFactory scopeFactory) : base(scopeFactory) { }
 
