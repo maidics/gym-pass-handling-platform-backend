@@ -34,7 +34,7 @@ public class UpdateGymStatusCommandHandler : IRequestHandler<UpdateGymStatusComm
     {
         var gym = await _context.Gyms.FindAsync(command.GymId, cancellationToken);
 
-        Guard.Against.NotFound(command.GymId, gym, "Id");
+        Guard.Against.NotFound(command.GymId, gym, "Gym");
 
         gym.Status = command.NewGymStatus;
 

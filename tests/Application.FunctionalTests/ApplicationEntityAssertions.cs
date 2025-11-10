@@ -1,4 +1,5 @@
 using FitPass.Application.GymEmployments.DTOs;
+using FitPass.Application.Gyms.DTOs;
 using FitPass.Domain.Entities;
 using FitPass.Infrastructure.Identity;
 
@@ -17,5 +18,16 @@ public static class ApplicationEntityAssertions
         gymEmploymentDto.UserProfile.FirstName.ShouldBe(userProfile.FirstName);
         gymEmploymentDto.UserProfile.LastName.ShouldBe(userProfile.LastName);
         gymEmploymentDto.UserProfile.ApplicationUserId.ShouldBe(user.Id);
+    }
+
+    public static void AssertTo(this GymDto gymDto, Gym gym)
+    {
+        gymDto.Id.ShouldBe(gym.Id);
+        gymDto.Name.ShouldBe(gym.Name);
+        gymDto.Address.ShouldBe(gym.Address);
+        gymDto.Status.ShouldBe(gym.Status);
+        gymDto.Tier.ShouldBe(gym.Tier);
+        gymDto.OwnerName.ShouldBe(gym.OwnerName);
+        gymDto.GymPassProducts.ShouldBeEquivalentTo(gym.PassProducts);
     }
 }

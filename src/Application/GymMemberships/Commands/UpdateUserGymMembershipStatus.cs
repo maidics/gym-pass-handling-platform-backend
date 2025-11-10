@@ -1,3 +1,4 @@
+using FitPass.Application.Common.Exceptions;
 using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Logging;
@@ -61,7 +62,7 @@ public class UpdateGymMembershipStatusCommandHandler : IRequestHandler<UpdateGym
 
         if (userGymMembership.GymId != gymEmployment.GymId)
         {
-            throw new UnauthorizedAccessException();
+            throw new ForbiddenAccessException();
         }
 
         userGymMembership.Status = command.NewStatus;
