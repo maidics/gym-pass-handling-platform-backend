@@ -36,7 +36,7 @@ public class GetMyGymQueryHandler : IRequestHandler<GetMyGymQuery, GymDto>
         {
             LogCriticalMessages.AuthenticatedUserRelatedEntityNotFound(_logger, _user.Roles, _user.Id, nameof(GymEmployment));
 
-            throw new Exception(ErrorMessages.AuthenticatedUserRelatedEntityNotFound(nameof(GymEmployment)));
+            throw new SystemException(ErrorMessages.AuthenticatedUserRelatedEntityNotFound(nameof(GymEmployment)));
         }
 
         var gym = await _context
