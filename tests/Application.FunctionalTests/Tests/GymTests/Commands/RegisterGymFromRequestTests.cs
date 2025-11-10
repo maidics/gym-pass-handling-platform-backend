@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using FitPass.Application.Common.Exceptions;
+using FitPass.Application.FunctionalTests.TestData;
 using FitPass.Application.Gyms.Commands;
 using FitPass.Application.Requests.DTOs;
 using FitPass.Domain.Constants;
@@ -183,54 +184,37 @@ public class RegisterGymFromRequestTests : BaseTestFixture
     [Test]
     public async Task ShouldCreateGym()
     {
-        var pendingGymEmployee = await ApplicationUserBuilder
-            .WithRole(Roles.PendingGymEmployee)
-            .BuildAsync();
+        var obj = await TestEntityBuilder.BuildGymCreationRequest();
 
-        var createGymDto = new CreateGymDto
-        {
-            GymName = "Name",
-            GymAddress = "Address",
-            GymStatus = GymStatus.Active,
-            GymTier = GymTier.Local,
-            EscalationEmail = "valid@email"
-        };
-
-        await RunAsUserAsync(pendingGymEmployee);
-
-        var request = await RequestBuilder
-            .WithCreatedBy(pendingGymEmployee.Id)
-            .WithRequestType(RequestType.GymCreation)
-            .WithRequestStatus(RequestStatus.Submitted)
-            .WithPayload(createGymDto)
-            .BuildAsync();
+        await RunAsUserAsync(obj.pendingGymEmployee);
 
         await RunAsAppAdminAsync();
 
-        var command = new RegisterGymFromRequestCommand(request.Id);
+        var command = new RegisterGymFromRequestCommand(obj.request.Id);
 
         var gymDto = await SendAsync(command);
+        gymDto.ShouldNotBeNull();
 
         var gymCount = await CountAsync<Gym>();
         gymCount.ShouldBe(1);
         var createdGym = await GetFirstAsync<Gym>();
         createdGym.ShouldNotBeNull();
-        createdGym.Name.ShouldBe(createGymDto.GymName);
-        createdGym.Address.ShouldBe(createGymDto.GymAddress);
-        createdGym.Status.ShouldBe(createGymDto.GymStatus);
-        createdGym.Tier.ShouldBe(createGymDto.GymTier);
+        createdGym.Name.ShouldBe(obj.createGymDto.GymName);
+        createdGym.Address.ShouldBe(obj.createGymDto.GymAddress);
+        createdGym.Status.ShouldBe(obj.createGymDto.GymStatus);
+        createdGym.Tier.ShouldBe(obj.createGymDto.GymTier);
 
-        var nominatedGymAdmin = await FindAsync<ApplicationUser>(pendingGymEmployee.Id);
+        var nominatedGymAdmin = await FindAsync<ApplicationUser>(obj.pendingGymEmployee.Id);
         nominatedGymAdmin.ShouldNotBeNull();
         var roles = await GetUserRolesAsync(nominatedGymAdmin.Id);
         roles.Count.ShouldBe(1);
         roles.First().ShouldBe(Roles.GymAdministrator);
 
-        var createdGymEmployment = await FindByApplicationUserIdAsync<GymEmployment>(pendingGymEmployee.Id);
+        var createdGymEmployment = await FindByApplicationUserIdAsync<GymEmployment>(obj.pendingGymEmployee.Id);
         createdGymEmployment.ShouldNotBeNull();
-        createdGymEmployment.ApplicationUserId.ShouldBe(pendingGymEmployee.Id);
+        createdGymEmployment.ApplicationUserId.ShouldBe(obj.pendingGymEmployee.Id);
         createdGymEmployment.GymId.ShouldBe(createdGym.Id);
         createdGymEmployment.Role.ShouldBe(Roles.GymAdministrator);
-        createdGymEmployment.EscalationEmail.ShouldBe(createGymDto.EscalationEmail);
+        createdGymEmployment.EscalationEmail.ShouldBe(obj.createGymDto.EscalationEmail);
     }
 }

@@ -1,6 +1,4 @@
-﻿using System.Reflection;
-using FitPass.Application.Common.Security;
-using FitPass.Application.FunctionalTests.TestData.EntityBuilders;
+﻿using FitPass.Application.FunctionalTests.TestData.EntityBuilders;
 using FitPass.Domain.Constants;
 using FitPass.Infrastructure.Data.Interceptors;
 using FitPass.Infrastructure.Identity;
