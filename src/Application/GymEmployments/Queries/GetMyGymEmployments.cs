@@ -1,4 +1,3 @@
-using FitPass.Application.Common.Exceptions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Logging;
 using FitPass.Application.Common.Security;
@@ -36,14 +35,9 @@ public class GetMyGymEmploymentsQueryHandler : IRequestHandler<GetMyGymEmploymen
         if (gymEmployment == null)
         {
             LogCriticalMessages.AuthenticatedUserRelatedEntityNotFound(_logger, _user.Roles, _user.Id, nameof(GymEmployment));
-            throw new Exception(ErrorMessages.AuthenticatedUserRelatedEntityNotFound(nameof(GymEmployment)));
+            throw new SystemException(ErrorMessages.AuthenticatedUserRelatedEntityNotFound(nameof(GymEmployment)));
         }
 
-        if (gymEmployment.GymId == null)
-        {
-            throw new ForbiddenAccessException();
-        }
-
-        return await _queryService.GetGymEmploymentsWithUserProfileAndEmailByGymId(gymEmployment.GymId);
+        return await _queryService.GetGymEmploymentsWithUserProfileAndEmailByGymId(gymEmployment.GymId!);
     }
 }
