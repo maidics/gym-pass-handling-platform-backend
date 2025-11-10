@@ -41,7 +41,7 @@ public class QueryService : IQueryService
                     ApplicationUserId = user.Id,
                     FirstName = up.FirstName,
                     LastName = up.LastName,
-                    Email = user.Email
+                    Email = user.Email!
                 }
             }
         ).ToListAsync();
@@ -67,7 +67,7 @@ public class QueryService : IQueryService
                     ApplicationUserId = user.Id,
                     FirstName = up.FirstName,
                     LastName = up.LastName,
-                    Email = user.Email
+                    Email = user.Email!
                 }
             }
         ).FirstOrDefaultAsync();
@@ -84,7 +84,7 @@ public class QueryService : IQueryService
                 ApplicationUserId = user.Id,
                 FirstName = up.FirstName,
                 LastName = up.LastName,
-                Email = user.Email
+                Email = user.Email!
             }
         ).FirstOrDefaultAsync();
     }
@@ -107,7 +107,7 @@ public class QueryService : IQueryService
                         ApplicationUserId = user.Id,
                         FirstName = up.FirstName,
                         LastName = up.LastName,
-                        Email = user.Email
+                        Email = user.Email!
                     },
                     Passes = gm.Passes.Select(p => new GymMembershipPassDto
                     {
@@ -147,7 +147,7 @@ public class QueryService : IQueryService
                     ApplicationUserId = user.Id,
                     FirstName = up.FirstName,
                     LastName = up.LastName,
-                    Email = user.Email
+                    Email = user.Email!
                 },
                 Passes = gm.Passes.Select(p => new GymMembershipPassDto
                 {

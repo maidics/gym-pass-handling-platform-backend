@@ -30,17 +30,10 @@ public class GetMyGymEmploymentTests : BaseTestFixture
     [Test]
     public async Task ShouldReturnGymEmployment()
     {
-        var gymAdminObj = await RunAsGymEmployeeAsync(Roles.GymAdministrator);
+        var obj = await RunAsGymEmployeeAsync(Roles.GymAdministrator);
 
         var ge = await SendAsync(new GetMyGymEmploymentQuery());
         ge.ShouldNotBeNull();
-        ge.ApplicationUserId.ShouldBe(gymAdminObj.user.Id);
-        ge.GymId.ShouldBe(gymAdminObj.gym.Id);
-        ge.Role.ShouldBe(gymAdminObj.gymEmployment.Role);
-
-        ge.UserProfile.Email.ShouldBe(gymAdminObj.user.Email);
-        ge.UserProfile.FirstName.ShouldBe(gymAdminObj.userProfile.FirstName);
-        ge.UserProfile.LastName.ShouldBe(gymAdminObj.userProfile.LastName);
-        ge.UserProfile.ApplicationUserId.ShouldBe(gymAdminObj.user.Id);
+        ge.AssertTo(obj.gymEmployment, obj.userProfile, obj.user);
     }
 }

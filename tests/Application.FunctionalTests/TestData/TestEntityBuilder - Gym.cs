@@ -16,7 +16,7 @@ public partial class TestEntityBuilder
         UserProfile gymAdminUserProfile,
         ApplicationUser gymStaff,
         GymEmployment gymStaffGymEmployment,
-        UserProfile gymStaffUserProfile)> BuildGym()
+        UserProfile gymStaffUserProfile)> BuildGymAsync()
     {
         var obj = await BuildGymEmployeeAsync(Roles.GymAdministrator);
 

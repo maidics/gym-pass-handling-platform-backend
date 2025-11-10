@@ -37,11 +37,11 @@ public class Gyms : EndpointGroupBase
         return TypedResults.File(result, contentType: "image/png", fileDownloadName: "gymQrCode.png");
     }
 
-    public async Task<Ok<GymDto>> UpdateMyGymProfile(ISender sender, [FromBody] UpdateMyGymProfileCommand command, CancellationToken cancellationToken)
+    public async Task<NoContent> UpdateMyGymProfile(ISender sender, [FromBody] UpdateMyGymProfileCommand command, CancellationToken cancellationToken)
     {
-        var result = await sender.Send(command, cancellationToken);
+        await sender.Send(command, cancellationToken);
 
-        return TypedResults.Ok(result);
+        return TypedResults.NoContent();
     }
 
     public async Task<Ok<List<GymDto>>> GetAllGyms(ISender sender, CancellationToken cancellationToken)

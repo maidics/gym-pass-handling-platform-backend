@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using FitPass.Application.FunctionalTests.TestData;
 using FitPass.Application.GymEmployments.Queries;
 using FitPass.Domain.Constants;
@@ -6,20 +7,28 @@ namespace FitPass.Application.FunctionalTests.Tests.GymEmploymentTests.Queries;
 
 using static Testing;
 
-public class GetMyGymEmploymentsTests : BaseTestFixture
+public class GetGymEmploymentsByGymIdTests : BaseTestFixture
 {
     [Test]
     public override void AuthorizeAttributeCheck()
     {
-        ShouldRequireAuthorization<GetMyGymEmploymentsQuery>(Roles.GymAdministrator, Roles.GymStaff);
+        ShouldRequireAuthorization<GetGymEmploymentsByGymIdQuery>(Roles.AppAdministrator);
     }
 
     [Test]
-    public async Task ShouldThrowIfGymEmployeeHasNoGymEmployment()
+    public async Task ShouldDenyInvalidParameter()
     {
-        await RunAsGymEmployeeAsync(Roles.GymAdministrator);
+        await RunAsAppAdminAsync();
 
-        await Should.ThrowAsync<SystemException>(SendAsync(new GetMyGymEmploymentsQuery()));
+        await Should.ThrowAsync<ValidationException>(SendAsync(new GetGymEmploymentsByGymIdQuery(string.Empty)));
+    }
+
+    [Test]
+    public async Task ShouldThrowIfGymDoesNotExist()
+    {
+        await RunAsAppAdminAsync();
+
+        await Should.ThrowAsync<NotFoundException>(SendAsync(new GetGymEmploymentsByGymIdQuery("invalidGymId")));
     }
 
     [Test]
@@ -27,14 +36,16 @@ public class GetMyGymEmploymentsTests : BaseTestFixture
     {
         var obj = await TestEntityBuilder.BuildGymAsync();
 
-        await RunAsUserAsync(obj.gymAdmin);
+        await RunAsAppAdminAsync();
 
-        var gymEmployments = await SendAsync(new GetMyGymEmploymentsQuery());
+        var gymEmployments = await SendAsync(new GetGymEmploymentsByGymIdQuery(obj.gym.Id));
+        gymEmployments.ShouldNotBeNull();
         gymEmployments.Count.ShouldBe(2);
 
         gymEmployments
             .FirstOrDefault(ge => ge.ApplicationUserId == obj.gymAdmin.Id)
             .AssertTo(obj.gymAdminGymEmployment, obj.gymAdminUserProfile, obj.gymAdmin);
+
 
         gymEmployments
             .FirstOrDefault(ge => ge.ApplicationUserId == obj.gymStaff.Id)

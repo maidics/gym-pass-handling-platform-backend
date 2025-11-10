@@ -35,11 +35,11 @@ public class MappingTests
 
         var mappings = typeMaps.ToList();
 
-        TestContext.WriteLine($"\tFound {mappings.Count} mapping(s).");
+        TestContext.Out.WriteLine($"\tFound {mappings.Count} mapping(s).");
 
         foreach (var map in typeMaps)
         {
-            TestContext.WriteLine($"{map.SourceType.Name} -> {map.DestinationType.Name}");
+            TestContext.Out.WriteLine($"{map.SourceType.Name} -> {map.DestinationType.Name}");
         }
 
         Assert.That(mappings, Is.Not.Empty, "No mappings were discovered.");
