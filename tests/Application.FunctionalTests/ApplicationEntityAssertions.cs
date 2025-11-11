@@ -1,7 +1,9 @@
 using FitPass.Application.GymEmployments.DTOs;
 using FitPass.Application.GymMembershipPassUsages.DTOs;
+using FitPass.Application.GymMemberships.DTOs;
 using FitPass.Application.Gyms.DTOs;
 using FitPass.Application.Requests.DTOs;
+using FitPass.Application.UserProfiles.DTOs;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
 using FitPass.Infrastructure.Identity;
@@ -85,5 +87,26 @@ public static class ApplicationEntityAssertions
         gym.CreatedOn.ShouldBe(dto.CreatedOn);
         gym.OwnerName.ShouldBe(dto.OwnerName);
         gym.PassProducts.ShouldBeEquivalentTo(dto.PassProducts);
+    }
+
+    public static void AssertTo(this UserProfileWithEmailDto? dto, UserProfile userProfile, string email)
+    {
+        dto.ShouldNotBeNull();
+        dto.ApplicationUserId.ShouldBe(userProfile.ApplicationUserId);
+        dto.FirstName.ShouldBe(userProfile.FirstName);
+        dto.LastName.ShouldBe(userProfile.LastName);
+        dto.Email.ShouldBe(email);
+    }
+
+    public static void AssertTo(this GymMembershipDto? dto, GymMembership gymMembership, UserProfile userProfile, string email)
+    {
+        dto.ShouldNotBeNull();
+        dto.Id.ShouldBe(gymMembership.Id);
+        dto.ApplicationUserId.ShouldBe(gymMembership.ApplicationUserId);
+        dto.GymId.ShouldBe(gymMembership.GymId);
+        dto.Status.ShouldBe(gymMembership.Status);
+        dto.CreatedOn.ShouldBe(gymMembership.CreatedOn);
+        dto.CreatedBy.ShouldBe(gymMembership.CreatedBy);
+        dto.Passes.ShouldBeEquivalentTo(gymMembership.Passes);
     }
 }

@@ -30,7 +30,7 @@ public class GetMyUserProfileQueryHandler : IRequestHandler<GetMyUserProfileQuer
         if (userProfileWithEmailDto == null)
         {
             LogCriticalMessages.AuthenticatedUserRelatedEntityNotFound(_logger, _user.Roles, _user.Id, nameof(UserProfile));
-            throw new Exception(ErrorMessages.AuthenticatedUserRelatedEntityNotFound(nameof(UserProfile)));
+            throw new SystemException(ErrorMessages.AuthenticatedUserRelatedEntityNotFound(nameof(UserProfile)));
         }
 
         return userProfileWithEmailDto;
