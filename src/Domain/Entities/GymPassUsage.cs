@@ -11,7 +11,7 @@ public class GymPassUsage : BaseAuditableEntity
     public required PassUseResult PassUseResult { get; init; }
     public required string? LockerNumber { get; set; }
     //Started time can be retrieved from CreatedOn
-    public DateTimeOffset? GymSessionFinishedAt {  get; set; }
+    public DateTimeOffset? GymSessionEndedAt {  get; set; }
     public required string PassId { get; init; }
     //public GymMembershipPass Pass { get; set; } = null!;
 
@@ -22,12 +22,12 @@ public class GymPassUsage : BaseAuditableEntity
             throw new InvalidOperationException("Cannot end the GymPassUsage if it was not successful.");
         }
 
-        GymSessionFinishedAt = DateTimeOffset.UtcNow;
+        GymSessionEndedAt = DateTimeOffset.UtcNow;
 
         return this;
     }
 
-    public TimeSpan? GymSessionLengthToTimeSpan() => GymSessionFinishedAt?.Subtract(CreatedOn);
+    public TimeSpan? GymSessionLengthToTimeSpan() => GymSessionEndedAt?.Subtract(CreatedOn);
 
-    public bool HasGymSessionEnded() => GymSessionFinishedAt is not null;
+    public bool HasGymSessionEnded() => GymSessionEndedAt is not null;
 }

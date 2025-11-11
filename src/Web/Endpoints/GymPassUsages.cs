@@ -27,7 +27,7 @@ public class GymPassUsages : EndpointGroupBase
 
     public async Task<NoContent> GymEmployeeEndUserGymSession(ISender sender, string gymPassUsageId, CancellationToken cancellationToken)
     {
-        await sender.Send(new GymEmployeeEndUserGymSessionCommand(gymPassUsageId));
+        await sender.Send(new EndUserGymSessionCommand(gymPassUsageId));
 
         return TypedResults.NoContent();
     }

@@ -1,5 +1,4 @@
-﻿using FitPass.Application.Common.Extensions;
-using FitPass.Application.Common.Interfaces;
+﻿using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Logging;
 using FitPass.Application.Common.Security;
 using FitPass.Application.GymMembershipPassUsages.DTOs;
@@ -49,11 +48,11 @@ public class GetGymPassUsagesForMyGymTodayQueryHandler : IRequestHandler<GetGymP
             throw new SystemException(ErrorMessages.AuthenticatedUserRelatedEntityNotFound(nameof(GymEmployment)));
         }
 
+        var now = DateTimeOffset.UtcNow;
+
         return await _context
             .GymPassUsages
-            .Include(gpu => gpu.Pass)
-            .ThenInclude(p => p.GymMembership)
-            .Where(gpu => gpu.CreatedOn.IsToday() && gpu.Pass.GymMembership.GymId == gymEmployment.GymId)
+            .Where(gpu => gpu.CreatedOn.Date == now.Date && gpu.GymId == gymEmployment.GymId)
             .OrderByDescending(gpu => gpu.CreatedOn)
             .ProjectTo<GymPassUsageDto>(_mapper.ConfigurationProvider)
             .ToListAsync();

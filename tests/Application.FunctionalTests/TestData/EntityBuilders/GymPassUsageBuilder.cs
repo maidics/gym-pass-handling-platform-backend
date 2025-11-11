@@ -11,13 +11,14 @@ public class GymPassUsageBuilder : TestAuditableEntityBuilder<GymPassUsageBuilde
     private string _id = Guid.NewGuid().ToString();
     private string _applicationUserId = string.Empty;
     private string _gymId = string.Empty;
+    private PassType _passType = PassType.SingleUse;
+    private int? _totalPassUses = 1;
     private int? _remainingPassUses = 0;
     private DateOnly? _passExpirationDate;
     private PassUseResult _passUseResult = PassUseResult.Success;
     private string? _lockerNumber;
     private DateTimeOffset? _gymSessionFinishedAt;
     private string _passId = string.Empty;
-    private GymMembershipPass? _pass;
 
     public GymPassUsageBuilder(IServiceScopeFactory scopeFactory) : base(scopeFactory) { }
 
@@ -48,13 +49,14 @@ public class GymPassUsageBuilder : TestAuditableEntityBuilder<GymPassUsageBuilde
         return this;
     }
 
-    public GymPassUsageBuilder ForPass(GymMembershipPass pass)
+    public GymPassUsageBuilder WithPass(GymMembershipPass pass)
     {
         _passId = pass.Id;
-        _pass = pass;
 
         _remainingPassUses = pass.RemainingUses;
         _passExpirationDate = pass.ExpirationDate;
+        _passType = pass.Type;
+        _totalPassUses = pass.TotalUses;
 
         return this;
     }
@@ -87,12 +89,14 @@ public class GymPassUsageBuilder : TestAuditableEntityBuilder<GymPassUsageBuilde
             Id = _id,
             ApplicationUserId = _applicationUserId,
             GymId = _gymId,
+            PassType = _passType,
+            TotalPassUses = _totalPassUses,
             RemainingPassUses = _remainingPassUses,
             PassExpirationDate = _passExpirationDate,
             PassUseResult = _passUseResult,
             LockerNumber = _lockerNumber,
             PassId = _passId,
-            GymSessionFinishedAt = _gymSessionFinishedAt,
+            GymSessionEndedAt = _gymSessionFinishedAt,
         };
 
         ApplyAuditProperties(gympassUsage);

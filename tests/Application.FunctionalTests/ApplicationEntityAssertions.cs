@@ -1,4 +1,5 @@
 using FitPass.Application.GymEmployments.DTOs;
+using FitPass.Application.GymMembershipPassUsages.DTOs;
 using FitPass.Application.Gyms.DTOs;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
@@ -21,8 +22,9 @@ public static class ApplicationEntityAssertions
         gymEmploymentDto.UserProfile.ApplicationUserId.ShouldBe(user.Id);
     }
 
-    public static void AssertTo(this GymDto gymDto, Gym gym)
+    public static void AssertTo(this GymDto? gymDto, Gym gym)
     {
+        gymDto.ShouldNotBeNull();
         gymDto.Id.ShouldBe(gym.Id);
         gymDto.Name.ShouldBe(gym.Name);
         gymDto.Address.ShouldBe(gym.Address);
@@ -32,7 +34,7 @@ public static class ApplicationEntityAssertions
         gymDto.GymPassProducts.ShouldBeEquivalentTo(gym.PassProducts);
     }
 
-    public static void AssertTo(this GymPassUsage gymPassUsage, string userId, string gymId, GymMembershipPass pass, PassUseResult result, string? lockerNumber)
+    public static void AssertTo(this GymPassUsage? gymPassUsage, string userId, string gymId, GymMembershipPass pass, PassUseResult result, string? lockerNumber)
     {
         gymPassUsage.ShouldNotBeNull();
         gymPassUsage.ApplicationUserId.ShouldBe(userId);
@@ -43,7 +45,21 @@ public static class ApplicationEntityAssertions
         gymPassUsage.PassExpirationDate.ShouldBe(pass.ExpirationDate);
         gymPassUsage.PassUseResult.ShouldBe(result);
         gymPassUsage.LockerNumber.ShouldBe(lockerNumber);
-        gymPassUsage.GymSessionFinishedAt.ShouldBeNull();
-        gymPassUsage.PassId.ShouldBe(pass.Id); 
+        gymPassUsage.GymSessionEndedAt.ShouldBeNull();
+        gymPassUsage.PassId.ShouldBe(pass.Id);
+    }
+    
+    public static void AssertTo(this GymPassUsageDto? dto, GymPassUsage gymPassUsage)
+    {
+        dto.ShouldNotBeNull();
+        dto.ApplicationUserId.ShouldBe(gymPassUsage.ApplicationUserId);
+        dto.GymId.ShouldBe(gymPassUsage.GymId);
+        dto.PassType.ShouldBe(gymPassUsage.PassType);
+        dto.TotalPassUses.ShouldBe(gymPassUsage.TotalPassUses);
+        dto.RemainingPassUses.ShouldBe(gymPassUsage.RemainingPassUses);
+        dto.PassExpirationDate.ShouldBe(gymPassUsage.PassExpirationDate);
+        dto.PassUseResult.ShouldBe(gymPassUsage.PassUseResult);
+        dto.LockerNumber.ShouldBe(gymPassUsage.LockerNumber);
+        dto.GymSessionEndedAt.ShouldBe(gymPassUsage.GymSessionEndedAt);
     }
 }
