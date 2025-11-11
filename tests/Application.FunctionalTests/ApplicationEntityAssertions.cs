@@ -1,6 +1,7 @@
 using FitPass.Application.GymEmployments.DTOs;
 using FitPass.Application.Gyms.DTOs;
 using FitPass.Domain.Entities;
+using FitPass.Domain.Enums;
 using FitPass.Infrastructure.Identity;
 
 namespace FitPass.Application.FunctionalTests;
@@ -29,5 +30,20 @@ public static class ApplicationEntityAssertions
         gymDto.Tier.ShouldBe(gym.Tier);
         gymDto.OwnerName.ShouldBe(gym.OwnerName);
         gymDto.GymPassProducts.ShouldBeEquivalentTo(gym.PassProducts);
+    }
+
+    public static void AssertTo(this GymPassUsage gymPassUsage, string userId, string gymId, GymMembershipPass pass, PassUseResult result, string? lockerNumber)
+    {
+        gymPassUsage.ShouldNotBeNull();
+        gymPassUsage.ApplicationUserId.ShouldBe(userId);
+        gymPassUsage.GymId.ShouldBe(gymId);
+        gymPassUsage.PassType.ShouldBe(pass.Type);
+        gymPassUsage.TotalPassUses.ShouldBe(pass.TotalUses);
+        gymPassUsage.RemainingPassUses.ShouldBe(pass.RemainingUses);
+        gymPassUsage.PassExpirationDate.ShouldBe(pass.ExpirationDate);
+        gymPassUsage.PassUseResult.ShouldBe(result);
+        gymPassUsage.LockerNumber.ShouldBe(lockerNumber);
+        gymPassUsage.GymSessionFinishedAt.ShouldBeNull();
+        gymPassUsage.PassId.ShouldBe(pass.Id); 
     }
 }

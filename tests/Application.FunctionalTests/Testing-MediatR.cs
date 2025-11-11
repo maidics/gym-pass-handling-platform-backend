@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using FitPass.Application.Common.Exceptions;
+using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FitPass.Application.FunctionalTests;
@@ -21,5 +22,15 @@ public partial class Testing
         var mediator = scope.ServiceProvider.GetRequiredService<ISender>();
 
         await mediator.Send(request);
+    }
+
+    public static async Task ShouldThrowIfParametersAreInvalid(IBaseRequest request)
+    {
+        await Should.ThrowAsync<ValidationException>(SendAsync(request));
+    }
+
+    public static async Task ShouldThrowIfNotFound(IBaseRequest request)
+    {
+        await Should.ThrowAsync<NotFoundException>(SendAsync(request));
     }
 }

@@ -36,6 +36,8 @@ public class GymMembershipPass : BaseAuditableEntity
             {
                 ApplicationUserId = GymMembership.ApplicationUserId,
                 GymId = GymMembership.GymId!,
+                PassType = Type,
+                TotalPassUses = TotalUses,
                 RemainingPassUses = RemainingUses,
                 PassExpirationDate = ExpirationDate,
                 PassUseResult = PassUseResult.AlreadyHasNoUsesLeft,
@@ -52,9 +54,11 @@ public class GymMembershipPass : BaseAuditableEntity
             {
                 ApplicationUserId = GymMembership.ApplicationUserId,
                 GymId = GymMembership.GymId!,
+                PassType = Type,
+                TotalPassUses = TotalUses,
                 RemainingPassUses = RemainingUses,
                 PassExpirationDate = ExpirationDate,
-                PassUseResult = PassUseResult.Expired,
+                PassUseResult = PassUseResult.UnlimitedPassAlreadyExpired,
                 PassId = GymMembershipId,
                 LockerNumber = null
             };
@@ -74,6 +78,8 @@ public class GymMembershipPass : BaseAuditableEntity
         {
             ApplicationUserId = GymMembership.ApplicationUserId,
             GymId = GymMembership.GymId!,
+            PassType = Type,
+            TotalPassUses = TotalUses,
             RemainingPassUses = RemainingUses,
             PassExpirationDate = ExpirationDate,
             PassUseResult = PassUseResult.Success,

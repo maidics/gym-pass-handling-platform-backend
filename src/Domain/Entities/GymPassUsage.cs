@@ -4,8 +4,8 @@ public class GymPassUsage : BaseAuditableEntity
 {
     public required string ApplicationUserId { get; init; }
     public required string GymId { get; init; }
-    //public required PassType PassType { get; init; } - not going to change on GymMembershipPass
-    //public required int? TotalPassUses { get; init; } - not going to change on GymMembershipPass
+    public required PassType PassType { get; init; } //this is here so if the pass is archived then still available
+    public required int? TotalPassUses { get; init; } //same ^
     public required int? RemainingPassUses { get; init; }
     public required DateOnly? PassExpirationDate { get; init; }
     public required PassUseResult PassUseResult { get; init; }
@@ -13,7 +13,7 @@ public class GymPassUsage : BaseAuditableEntity
     //Started time can be retrieved from CreatedOn
     public DateTimeOffset? GymSessionFinishedAt {  get; set; }
     public required string PassId { get; init; }
-    public GymMembershipPass Pass { get; set; } = null!;
+    //public GymMembershipPass Pass { get; set; } = null!;
 
     public GymPassUsage FinishGymSession()
     {
