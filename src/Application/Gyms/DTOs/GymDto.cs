@@ -11,9 +11,9 @@ public class GymDto
     public required string Address { get; set; }
     public required GymStatus Status { get; set; }
     public required GymTier Tier { get; set; }
-    public required DateTimeOffset CreationDate { get; set; }
+    public required DateTimeOffset CreatedOn { get; set; }
     public string? OwnerName { get; set; }
-    public List<GymPassProductDto>? GymPassProducts { get; set; }
+    public List<GymPassProductDto>? PassProducts { get; set; }
 
     private class Mapping : Profile
     {

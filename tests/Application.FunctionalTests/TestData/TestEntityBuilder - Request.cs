@@ -14,14 +14,7 @@ public partial class TestEntityBuilder
     {
         var obj = await BuildPendingGymEmployeeAsync();
 
-        var createGymDto = new CreateGymDto
-        {
-            GymName = "Gym from Request",
-            GymAddress = "Gym from Request Address",
-            GymStatus = GymStatus.Active,
-            GymTier = GymTier.Local,
-            EscalationEmail = "escalation@email"
-        };
+        var createGymDto = BuildCreateGymDto();
 
         var request = await RequestBuilder
             .WithRequestType(RequestType.GymCreation)

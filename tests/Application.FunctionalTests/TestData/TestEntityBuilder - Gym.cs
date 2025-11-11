@@ -1,3 +1,4 @@
+using FitPass.Application.Requests.DTOs;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
@@ -94,5 +95,17 @@ public partial class TestEntityBuilder
             noUsePass,
             unlimitedUsePass,
             expiredPass);
+    }
+
+    public static CreateGymDto BuildCreateGymDto()
+    {
+        return new CreateGymDto
+        {
+            GymName = $"CreateGymDto GymName - {Guid.NewGuid()}",
+            GymAddress = "Address",
+            GymStatus = GymStatus.Active,
+            GymTier = GymTier.Local,
+            EscalationEmail = "escalation@email"
+        };
     }
 }

@@ -37,6 +37,6 @@ public class GetMyGymTests : BaseTestFixture
 
         var gymDto = await SendAsync(query);
 
-        gymDto.AssertTo(obj.gym);
+        gymDto.AssertToGym(obj.gym);
     }
 }

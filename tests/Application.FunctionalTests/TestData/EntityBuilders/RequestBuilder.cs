@@ -10,8 +10,8 @@ namespace FitPass.Application.FunctionalTests.TestData.EntityBuilders;
 public class RequestBuilder : TestAuditableEntityBuilder<RequestBuilder, Request>
 {
     private string _id = Guid.NewGuid().ToString();
-    private string _title = string.Empty;
-    private string _description = string.Empty;
+    private string _title = $"Request Title - {Guid.NewGuid()}";
+    private string _description = $"Request Description - {Guid.NewGuid()}";
     private PriorityLevel _priorityLevel = PriorityLevel.High;
     private RequestType _requestType = RequestType.Other;
     private RequestStatus _requestStatus = RequestStatus.Submitted;

@@ -1,6 +1,7 @@
 using FitPass.Application.GymEmployments.DTOs;
 using FitPass.Application.GymMembershipPassUsages.DTOs;
 using FitPass.Application.Gyms.DTOs;
+using FitPass.Application.Requests.DTOs;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
 using FitPass.Infrastructure.Identity;
@@ -22,7 +23,7 @@ public static class ApplicationEntityAssertions
         gymEmploymentDto.UserProfile.ApplicationUserId.ShouldBe(user.Id);
     }
 
-    public static void AssertTo(this GymDto? gymDto, Gym gym)
+    public static void AssertToGym(this GymDto? gymDto, Gym gym)
     {
         gymDto.ShouldNotBeNull();
         gymDto.Id.ShouldBe(gym.Id);
@@ -31,7 +32,7 @@ public static class ApplicationEntityAssertions
         gymDto.Status.ShouldBe(gym.Status);
         gymDto.Tier.ShouldBe(gym.Tier);
         gymDto.OwnerName.ShouldBe(gym.OwnerName);
-        gymDto.GymPassProducts.ShouldBeEquivalentTo(gym.PassProducts);
+        gymDto.PassProducts.ShouldBeEquivalentTo(gym.PassProducts);
     }
 
     public static void AssertTo(this GymPassUsage? gymPassUsage, string userId, string gymId, GymMembershipPass pass, PassUseResult result, string? lockerNumber)
@@ -48,7 +49,7 @@ public static class ApplicationEntityAssertions
         gymPassUsage.GymSessionEndedAt.ShouldBeNull();
         gymPassUsage.PassId.ShouldBe(pass.Id);
     }
-    
+
     public static void AssertTo(this GymPassUsageDto? dto, GymPassUsage gymPassUsage)
     {
         dto.ShouldNotBeNull();
@@ -61,5 +62,28 @@ public static class ApplicationEntityAssertions
         dto.PassUseResult.ShouldBe(gymPassUsage.PassUseResult);
         dto.LockerNumber.ShouldBe(gymPassUsage.LockerNumber);
         dto.GymSessionEndedAt.ShouldBe(gymPassUsage.GymSessionEndedAt);
+    }
+
+    public static void AssertToCreateGymDto(this GymDto? gymDto, CreateGymDto createGymDto)
+    {
+        gymDto.ShouldNotBeNull();
+        gymDto.Name.ShouldBe(createGymDto.GymName);
+        gymDto.Address.ShouldBe(createGymDto.GymAddress);
+        gymDto.Status.ShouldBe(createGymDto.GymStatus);
+        gymDto.Tier.ShouldBe(createGymDto.GymTier);
+        gymDto.OwnerName.ShouldBe(createGymDto.GymOwnerName);
+    }
+
+    public static void AssertToDto(this Gym? gym, GymDto dto)
+    {
+        gym.ShouldNotBeNull();
+        gym.Id.ShouldBe(dto.Id);
+        gym.Name.ShouldBe(dto.Name);
+        gym.Address.ShouldBe(dto.Address);
+        gym.Status.ShouldBe(dto.Status);
+        gym.Tier.ShouldBe(dto.Tier);
+        gym.CreatedOn.ShouldBe(dto.CreatedOn);
+        gym.OwnerName.ShouldBe(dto.OwnerName);
+        gym.PassProducts.ShouldBeEquivalentTo(dto.PassProducts);
     }
 }

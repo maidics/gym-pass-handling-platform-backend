@@ -28,14 +28,14 @@ public class GetAllGymsTests : BaseTestFixture
         gymDtos.Count.ShouldBe(3);
         gymDtos.FirstOrDefault(g => g.Id == obj1.gym.Id)
             .ShouldNotBeNull()
-            .AssertTo(obj1.gym);
+            .AssertToGym(obj1.gym);
 
         gymDtos.FirstOrDefault(g => g.Id == obj2.gym.Id)
             .ShouldNotBeNull()
-            .AssertTo(obj2.gym);
+            .AssertToGym(obj2.gym);
 
         gymDtos.FirstOrDefault(g => g.Id == obj3.gym.Id)
             .ShouldNotBeNull()
-            .AssertTo(obj3.gym);
+            .AssertToGym(obj3.gym);
     }
 }

@@ -43,17 +43,27 @@ public class CreateGymCreationRequestCommandValidator : AbstractValidator<Create
 
 public class CreateGymCreationRequestCommandHandler : IRequestHandler<CreateGymCreationRequestCommand>
 {
+    private readonly IIdentityService _identityService;
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
 
-    public CreateGymCreationRequestCommandHandler(IApplicationDbContext context, IUser user)
+    public CreateGymCreationRequestCommandHandler(
+        IIdentityService identityService,
+        IApplicationDbContext context,
+        IUser user)
     {
+        _identityService = identityService;
         _context = context;
         _user = user;
     }
 
     public async Task Handle(CreateGymCreationRequestCommand command, CancellationToken cancellationToken)
     {
+        if (!await _identityService.IsUserEmailConfirmed(_user.Id!))
+        {
+            throw new BadRequestException("You must confirm your email before this action.");
+        }
+
         var ongoingRequests = await _context.Requests
             .Where(r => r.CreatedBy == _user.Id && (r.Status == RequestStatus.Submitted))
             .ToListAsync();
