@@ -22,14 +22,10 @@ public class RegisterGymCommandValidator : AbstractValidator<RegisterGymCommand>
         RuleFor(v => v.CreateGymDto).NotEmptyWithMessage(nameof(RegisterGymCommand.CreateGymDto));
 
         RuleFor(v => v.CreateGymDto.GymName)
-            .NotEmptyWithMaxLenghtAndMessage(nameof(RegisterGymCommand.CreateGymDto.GymName), MaxStringLengths.Name);
+            .NotEmptyWithMaxLenghtAndMessage(nameof(RegisterGymCommand.CreateGymDto.GymName), MaxStringLengths.Description);
 
         RuleFor(v => v.CreateGymDto.GymAddress)
             .NotEmptyWithMaxLenghtAndMessage(nameof(RegisterGymCommand.CreateGymDto.GymAddress), MaxStringLengths.Address);
-
-        RuleFor(v => v.CreateGymDto.GymStatus).IsInEnumWithMessage();
-
-        RuleFor(v => v.CreateGymDto.GymTier).IsInEnumWithMessage();
 
         RuleFor(v => v.CreateGymDto.EscalationEmail)
             .ValidEmailAddress(nameof(RegisterGymCommand.CreateGymDto.EscalationEmail));

@@ -186,8 +186,6 @@ public class RegisterGymFromRequestTests : BaseTestFixture
     {
         var obj = await TestEntityBuilder.BuildGymCreationRequest();
 
-        await RunAsUserAsync(obj.pendingGymEmployee);
-
         await RunAsAppAdminAsync();
 
         var command = new RegisterGymFromRequestCommand(obj.request.Id);

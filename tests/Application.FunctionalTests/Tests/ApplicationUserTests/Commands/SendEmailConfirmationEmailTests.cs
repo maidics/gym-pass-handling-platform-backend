@@ -35,9 +35,14 @@ public class SendEmailConfirmationEmailTests : BaseTestFixture
     [Test]
     public async Task ShouldReturnSuccessForUser()
     {
-        var userObj = await RunAsDefaultUserAsync();
+        var user = await ApplicationUserBuilder
+            .WithEmailConfirmed(false)
+            .WithPassword("Password123_")
+            .BuildAsync();
 
-        var command = new SendEmailConfirmationEmailCommand(userObj.user.Email!);
+        await RunAsUserAsync(user);
+
+        var command = new SendEmailConfirmationEmailCommand(user.Email!);
 
         var result = await SendAsync(command);
 
@@ -49,7 +54,9 @@ public class SendEmailConfirmationEmailTests : BaseTestFixture
     {
         await RunAsGymEmployeeAsync(Roles.GymAdministrator);
 
-        var user = await ApplicationUserBuilder.BuildAsync();
+        var user = await ApplicationUserBuilder
+            .WithEmailConfirmed(false)
+            .BuildAsync();
 
         var command = new SendEmailConfirmationEmailCommand(user.Email!);
 

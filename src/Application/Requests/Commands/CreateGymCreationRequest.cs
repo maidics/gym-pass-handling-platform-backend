@@ -24,17 +24,11 @@ public class CreateGymCreationRequestCommandValidator : AbstractValidator<Create
         RuleFor(v => v.RequestDescription)
             .NotEmptyWithMaxLenghtAndMessage(nameof(CreateGymCreationRequestCommand.RequestDescription), MaxStringLengths.Description);
 
-        RuleFor(v => v.PriorityLevel).IsInEnumWithMessage();
-
         RuleFor(v => v.CreateGymDto.GymName)
-            .NotEmptyWithMaxLenghtAndMessage(nameof(CreateGymCreationRequestCommand.CreateGymDto.GymName), MaxStringLengths.Name);
+            .NotEmptyWithMaxLenghtAndMessage(nameof(CreateGymCreationRequestCommand.CreateGymDto.GymName), MaxStringLengths.Description);
 
         RuleFor(v => v.CreateGymDto.GymAddress)
             .NotEmptyWithMaxLenghtAndMessage(nameof(CreateGymCreationRequestCommand.CreateGymDto.GymAddress), MaxStringLengths.Address);
-
-        RuleFor(v => v.CreateGymDto.GymStatus).IsInEnumWithMessage();
-
-        RuleFor(v => v.CreateGymDto.GymTier).IsInEnumWithMessage();
 
         RuleFor(v => v.CreateGymDto.EscalationEmail)
             .ValidEmailAddress(nameof(CreateGymCreationRequestCommand.CreateGymDto.EscalationEmail));
@@ -90,7 +84,7 @@ public class CreateGymCreationRequestCommandHandler : IRequestHandler<CreateGymC
         var gymCreationRequest = new Request
         {
             Id = Guid.NewGuid().ToString(),
-            Title = $"'{command.CreateGymDto.GymName}' gym creation",
+            Title = "Gym creation",
             Description = command.RequestDescription,
             PriorityLevel = command.PriorityLevel,
             Type = RequestType.GymCreation,

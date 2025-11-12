@@ -16,7 +16,7 @@ public class GymConfiguration : IEntityTypeConfiguration<Gym>
 
         builder.HasIndex(g => g.Name).IsUnique();
 
-        builder.Property(g => g.Name).HasMaxLength(MaxStringLengths.Name);
+        builder.Property(g => g.Name).HasMaxLength(MaxStringLengths.Description);
 
         builder.Property(g => g.Address).HasMaxLength(MaxStringLengths.Address);
 

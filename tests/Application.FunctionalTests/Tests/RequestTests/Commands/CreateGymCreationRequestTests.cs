@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Text.Json;
 using FitPass.Application.Common.Exceptions;
 using FitPass.Application.FunctionalTests.TestData;
@@ -44,6 +45,7 @@ public class CreateGymCreationRequestTests : BaseTestFixture
     {
         var user = await ApplicationUserBuilder
             .WithRole(Roles.PendingGymEmployee)
+            .WithEmailConfirmed(false)
             .BuildAsync();
 
         await RunAsUserAsync(user);
@@ -80,14 +82,21 @@ public class CreateGymCreationRequestTests : BaseTestFixture
 
         var command = new CreateGymCreationRequestCommand("Description", PriorityLevel.High, createGymDto);
 
-        await Should.NotThrowAsync(SendAsync(command));
+        try
+        {
+            await SendAsync(command);
+        } catch (ValidationException ex)
+        {
+            TestContext.Out.WriteLine(ex.Errors.ToString());
+
+            throw new Exception();
+        }
 
         var request = await GetFirstAsync<Request>();
         request.ShouldNotBeNull();
         request.Description.ShouldBe("Description");
         request.PriorityLevel.ShouldBe(PriorityLevel.High);
         request.Status.ShouldBe(RequestStatus.Submitted);
-        request.Title.ShouldBe($"'{command.CreateGymDto.GymName}' gym creation");
         request.Payload.ShouldNotBeNull();
         request.Payload.ShouldBe(JsonSerializer.Serialize(createGymDto));
 

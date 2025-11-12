@@ -16,8 +16,7 @@ public class UpdateGymStatusCommandValidator : AbstractValidator<UpdateGymStatus
         RuleFor(v => v.GymId).NotEmptyWithMessage(nameof(UpdateGymStatusCommand.GymId));
 
         RuleFor(v => v.NewGymStatus)
-            .NotEmptyWithMessage(nameof(UpdateGymStatusCommand.NewGymStatus))
-            .IsInEnumWithMessage();
+            .NotEmptyWithMessage(nameof(UpdateGymStatusCommand.NewGymStatus));
     }
 }
 

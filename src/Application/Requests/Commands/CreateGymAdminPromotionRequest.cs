@@ -31,8 +31,6 @@ public class CreateGymAdminPromotionRequestCommandValidator : AbstractValidator<
         RuleFor(v => v.RequestDescription!)
             .NotEmptyWithMaxLenghtAndMessage(nameof(CreateGymAdminPromotionRequestCommand.RequestDescription), MaxStringLengths.Description);
 
-        RuleFor(v => v.RequestPriorityLevel).IsInEnumWithMessage();
-
         RuleFor(v => v.EscalationEmail).ValidEmailAddress(nameof(CreateGymAdminPromotionRequestCommand.EscalationEmail));
     }
 }

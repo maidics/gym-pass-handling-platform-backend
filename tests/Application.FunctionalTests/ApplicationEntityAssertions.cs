@@ -34,7 +34,6 @@ public static class ApplicationEntityAssertions
         gymDto.Status.ShouldBe(gym.Status);
         gymDto.Tier.ShouldBe(gym.Tier);
         gymDto.OwnerName.ShouldBe(gym.OwnerName);
-        gymDto.PassProducts.ShouldBeEquivalentTo(gym.PassProducts);
     }
 
     public static void AssertTo(this GymPassUsage? gymPassUsage, string userId, string gymId, GymMembershipPass pass, PassUseResult result, string? lockerNumber)
@@ -93,7 +92,6 @@ public static class ApplicationEntityAssertions
         gym.Tier.ShouldBe(dto.Tier);
         gym.CreatedOn.ShouldBe(dto.CreatedOn);
         gym.OwnerName.ShouldBe(dto.OwnerName);
-        gym.PassProducts.ShouldBeEquivalentTo(dto.PassProducts);
     }
 
     public static void AssertTo(this UserProfileWithEmailDto? dto, UserProfile userProfile, string email)

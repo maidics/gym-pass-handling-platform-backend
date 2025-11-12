@@ -16,12 +16,12 @@ public class GetRequestsQueryValidator : AbstractValidator<GetRequestsQuery>
     {
         When(v => v.RequestType != null, () =>
         {
-            RuleFor(v => (RequestType)v.RequestType!).IsInEnumWithMessage();
+            RuleFor(v => (RequestType)v.RequestType!).NotEmptyWithMessage(nameof(GetRequestsQuery.RequestType));
         });
 
         When(v => v.RequestStatus != null, () =>
         {
-            RuleFor(v => (RequestStatus)v.RequestStatus!).IsInEnumWithMessage();
+            RuleFor(v => (RequestStatus)v.RequestStatus!).NotEmptyWithMessage(nameof(GetRequestsQuery.RequestStatus));
         });
     }
 }

@@ -13,6 +13,7 @@ public class ApplicationUserBuilder : TestEntityBuilderBase<ApplicationUser>
     private string _email = $"user-{Guid.NewGuid()}@localhost";
     private string _role = Roles.User;
     private string? _password;
+    private bool _isEmailConfirmed = true;
 
     public ApplicationUserBuilder(IServiceScopeFactory serviceScopeFactory) : base(serviceScopeFactory) { }
 
@@ -83,6 +84,13 @@ public class ApplicationUserBuilder : TestEntityBuilderBase<ApplicationUser>
         return this;
     }
 
+    public ApplicationUserBuilder WithEmailConfirmed(bool isEmailConfirmed)
+    {
+        _isEmailConfirmed = isEmailConfirmed;
+
+        return this;
+    }
+
     protected override void AssertEntity()
     {
         throw new NotImplementedException();
@@ -94,7 +102,8 @@ public class ApplicationUserBuilder : TestEntityBuilderBase<ApplicationUser>
         {
             Id = _id,
             Email = _email,
-            UserName = _email
+            UserName = _email,
+            EmailConfirmed = _isEmailConfirmed
         };
 
         return user;
