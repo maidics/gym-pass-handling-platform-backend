@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+using FitPass.Application.Common.Exceptions;
 using FitPass.Application.FunctionalTests.TestData;
 using FitPass.Application.GymEmployments.Queries;
 using FitPass.Domain.Constants;

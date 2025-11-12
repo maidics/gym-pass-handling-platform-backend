@@ -101,7 +101,7 @@ public class QueryService : IQueryService
                     Id = gm.Id,
                     ApplicationUserId = user.Id,
                     GymId = gm.GymId!,
-                    GymMembershipStatus = gm.Status,
+                    Status = gm.Status,
                     UserProfile = new UserProfileWithEmailDto
                     {
                         ApplicationUserId = user.Id,
@@ -123,7 +123,7 @@ public class QueryService : IQueryService
 
         if (status is not null)
         {
-            query = query.Where(x => x.GymMembershipStatus == status);
+            query = query.Where(x => x.Status == status);
         }
 
         return await query.ToListAsync();
@@ -141,7 +141,7 @@ public class QueryService : IQueryService
                 Id = gm.Id,
                 ApplicationUserId = user.Id,
                 GymId = gm.GymId!,
-                GymMembershipStatus = gm.Status,
+                Status = gm.Status,
                 UserProfile = new UserProfileWithEmailDto
                 {
                     ApplicationUserId = user.Id,

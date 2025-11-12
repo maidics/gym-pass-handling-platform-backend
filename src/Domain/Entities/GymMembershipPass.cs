@@ -41,8 +41,8 @@ public class GymMembershipPass : BaseAuditableEntity
                 RemainingPassUses = RemainingUses,
                 PassExpirationDate = ExpirationDate,
                 PassUseResult = PassUseResult.AlreadyHasNoUsesLeft,
-                PassId = GymMembershipId,
-                LockerNumber = null
+                PassId = Id,
+                LockerNumber = lockerNumber
             };
         }
 
@@ -59,8 +59,8 @@ public class GymMembershipPass : BaseAuditableEntity
                 RemainingPassUses = RemainingUses,
                 PassExpirationDate = ExpirationDate,
                 PassUseResult = PassUseResult.UnlimitedPassAlreadyExpired,
-                PassId = GymMembershipId,
-                LockerNumber = null
+                PassId = Id,
+                LockerNumber = lockerNumber
             };
         }
 
@@ -83,7 +83,7 @@ public class GymMembershipPass : BaseAuditableEntity
             RemainingPassUses = RemainingUses,
             PassExpirationDate = ExpirationDate,
             PassUseResult = PassUseResult.Success,
-            PassId = GymMembershipId,
+            PassId = Id,
             LockerNumber = lockerNumber
         };
     }

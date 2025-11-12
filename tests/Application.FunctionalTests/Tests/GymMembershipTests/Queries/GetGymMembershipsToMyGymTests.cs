@@ -37,7 +37,7 @@ public class GetGymMembershipsToMyGymTests : BaseTestFixture
 
         var bannedGymMembership = await GymMembershipBuilder
             .WithApplicationUserId(user.Id)
-            .WithGym(obj.gym)
+            .WithGymId(obj.gym.Id)
             .WithStatus(GymMembershipStatus.Banned)
             .BuildAsync();
 
@@ -45,7 +45,7 @@ public class GetGymMembershipsToMyGymTests : BaseTestFixture
 
         var result = await SendAsync(new GetGymMembershipsQueryToMyGymQuery(GymMembershipStatus.Active));
         result.Count.ShouldBe(1);
-        result.All(gm => gm.GymMembershipStatus == GymMembershipStatus.Active).ShouldBeTrue();
+        result.All(gm => gm.Status == GymMembershipStatus.Active).ShouldBeTrue();
     }
 
     [Test]
@@ -53,11 +53,11 @@ public class GetGymMembershipsToMyGymTests : BaseTestFixture
     {
         var obj = await TestEntityBuilder.BuildGymAsync();
 
-        var user = await ApplicationUserBuilder.BuildAsync();
+        var userObj = await TestEntityBuilder.BuildDefaultUserAsync();
 
         var bannedGymMembership = await GymMembershipBuilder
-            .WithApplicationUserId(user.Id)
-            .WithGym(obj.gym)
+            .WithApplicationUserId(userObj.user.Id)
+            .WithGymId(obj.gym.Id)
             .WithStatus(GymMembershipStatus.Banned)
             .BuildAsync();
 
@@ -65,7 +65,7 @@ public class GetGymMembershipsToMyGymTests : BaseTestFixture
 
         var result = await SendAsync(new GetGymMembershipsQueryToMyGymQuery(GymMembershipStatus.Banned));
         result.Count.ShouldBe(1);
-        result.All(gm => gm.GymMembershipStatus == GymMembershipStatus.Banned).ShouldBeTrue();
+        result.All(gm => gm.Status == GymMembershipStatus.Banned).ShouldBeTrue();
     }
 
     [Test]
@@ -73,11 +73,11 @@ public class GetGymMembershipsToMyGymTests : BaseTestFixture
     {
         var obj = await TestEntityBuilder.BuildGymAsync();
 
-        var user = await ApplicationUserBuilder.BuildAsync();
+        var userObj = await TestEntityBuilder.BuildDefaultUserAsync();
 
         var bannedGymMembership = await GymMembershipBuilder
-            .WithApplicationUserId(user.Id)
-            .WithGym(obj.gym)
+            .WithApplicationUserId(userObj.user.Id)
+            .WithGymId(obj.gym.Id)
             .WithStatus(GymMembershipStatus.Banned)
             .BuildAsync();
 
@@ -85,7 +85,7 @@ public class GetGymMembershipsToMyGymTests : BaseTestFixture
 
         var result = await SendAsync(new GetGymMembershipsQueryToMyGymQuery(null));
         result.Count.ShouldBe(2);
-        result.Where(gm => gm.GymMembershipStatus == GymMembershipStatus.Active).Count().ShouldBe(1);
-        result.Where(gm => gm.GymMembershipStatus == GymMembershipStatus.Banned).Count().ShouldBe(1);
+        result.Where(gm => gm.Status == GymMembershipStatus.Active).Count().ShouldBe(1);
+        result.Where(gm => gm.Status == GymMembershipStatus.Banned).Count().ShouldBe(1);
     }
 }

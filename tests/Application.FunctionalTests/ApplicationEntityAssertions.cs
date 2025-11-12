@@ -44,12 +44,19 @@ public static class ApplicationEntityAssertions
         gymPassUsage.GymId.ShouldBe(gymId);
         gymPassUsage.PassType.ShouldBe(pass.Type);
         gymPassUsage.TotalPassUses.ShouldBe(pass.TotalUses);
-        gymPassUsage.RemainingPassUses.ShouldBe(pass.RemainingUses);
         gymPassUsage.PassExpirationDate.ShouldBe(pass.ExpirationDate);
         gymPassUsage.PassUseResult.ShouldBe(result);
         gymPassUsage.LockerNumber.ShouldBe(lockerNumber);
         gymPassUsage.GymSessionEndedAt.ShouldBeNull();
         gymPassUsage.PassId.ShouldBe(pass.Id);
+
+        if (result == PassUseResult.Success && pass.Type != PassType.Unlimited)
+        {
+            gymPassUsage.RemainingPassUses.ShouldBe(pass.RemainingUses - 1);
+        } else
+        {
+            gymPassUsage.RemainingPassUses.ShouldBe(pass.RemainingUses);
+        }
     }
 
     public static void AssertTo(this GymPassUsageDto? dto, GymPassUsage gymPassUsage)

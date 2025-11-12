@@ -45,7 +45,7 @@ public class UpdateGymMembershipStatusTests : BaseTestFixture
 
         var gymMembership = await GymMembershipBuilder
             .WithApplicationUserId(obj.user.Id)
-            .WithGym(anotherGym)
+            .WithGymId(anotherGym.Id)
             .BuildAsync();
 
         var command = new UpdateGymMembershipStatusCommand(gymMembership.Id, GymMembershipStatus.Banned);
@@ -62,7 +62,7 @@ public class UpdateGymMembershipStatusTests : BaseTestFixture
 
         var gymMembership = await GymMembershipBuilder
             .WithApplicationUserId(obj.user.Id)
-            .WithGym(gymAdminObj.gym)
+            .WithGymId(gymAdminObj.gym.Id)
             .BuildAsync();
 
         var command = new UpdateGymMembershipStatusCommand(gymMembership.Id, GymMembershipStatus.Banned);

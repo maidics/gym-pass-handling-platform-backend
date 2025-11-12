@@ -82,8 +82,7 @@ public class GymEmploymentBuilder : TestEntityBuilderBase<GymEmployment>
             EscalationEmail = _escalationEmail,
             Role = _role,
             EmploymentStart = _employmentStart,
-            EmploymentEnd = _employmentEnd,
-            Gym = _gym
+            EmploymentEnd = _employmentEnd
         };
 
         return gymEmployment;

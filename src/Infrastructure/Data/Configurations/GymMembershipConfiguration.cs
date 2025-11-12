@@ -16,9 +16,8 @@ public class GymMembershipConfiguration : IEntityTypeConfiguration<GymMembership
 
         builder
             .HasOne(gm => gm.Gym)
-            .WithOne()
-            .HasForeignKey<GymMembership>(gm => gm.GymId)
-            .OnDelete(DeleteBehavior.SetNull);
+            .WithMany()
+            .HasForeignKey(gm => gm.GymId);
 
         builder
             .HasMany(gm => gm.Passes)

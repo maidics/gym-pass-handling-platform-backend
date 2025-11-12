@@ -2182,7 +2182,7 @@ export class GymMembershipWithUserProfileAndEmailDto implements IGymMembershipWi
     id?: string;
     applicationUserId?: string | undefined;
     gymId?: string;
-    gymMembershipStatus?: GymMembershipStatus;
+    status?: GymMembershipStatus;
     passes?: GymMembershipPassDto[];
     userProfile?: UserProfileWithEmailDto;
 
@@ -2200,7 +2200,7 @@ export class GymMembershipWithUserProfileAndEmailDto implements IGymMembershipWi
             this.id = _data["id"];
             this.applicationUserId = _data["applicationUserId"];
             this.gymId = _data["gymId"];
-            this.gymMembershipStatus = _data["gymMembershipStatus"];
+            this.status = _data["status"];
             if (Array.isArray(_data["passes"])) {
                 this.passes = [] as any;
                 for (let item of _data["passes"])
@@ -2222,7 +2222,7 @@ export class GymMembershipWithUserProfileAndEmailDto implements IGymMembershipWi
         data["id"] = this.id;
         data["applicationUserId"] = this.applicationUserId;
         data["gymId"] = this.gymId;
-        data["gymMembershipStatus"] = this.gymMembershipStatus;
+        data["status"] = this.status;
         if (Array.isArray(this.passes)) {
             data["passes"] = [];
             for (let item of this.passes)
@@ -2237,7 +2237,7 @@ export interface IGymMembershipWithUserProfileAndEmailDto {
     id?: string;
     applicationUserId?: string | undefined;
     gymId?: string;
-    gymMembershipStatus?: GymMembershipStatus;
+    status?: GymMembershipStatus;
     passes?: GymMembershipPassDto[];
     userProfile?: UserProfileWithEmailDto;
 }

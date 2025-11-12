@@ -1352,7 +1352,7 @@
           "gymId": {
             "type": "string"
           },
-          "gymMembershipStatus": {
+          "status": {
             "$ref": "#/components/schemas/GymMembershipStatus"
           },
           "passes": {
