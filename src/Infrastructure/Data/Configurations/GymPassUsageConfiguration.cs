@@ -2,6 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
+/*
+
 namespace FitPass.Infrastructure.Data.Configurations;
 
 public class GymPassUsageConfiguration : IEntityTypeConfiguration<GymPassUsage>
@@ -14,3 +16,4 @@ public class GymPassUsageConfiguration : IEntityTypeConfiguration<GymPassUsage>
             .HasForeignKey(gpu => gpu.PassId);
     }
 }
+*/

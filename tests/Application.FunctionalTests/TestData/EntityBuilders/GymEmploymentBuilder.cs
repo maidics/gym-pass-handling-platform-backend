@@ -15,7 +15,6 @@ public class GymEmploymentBuilder : TestEntityBuilderBase<GymEmployment>
     private string _role = Roles.PendingGymEmployee;
     private DateTimeOffset _employmentStart = DateTimeOffset.UtcNow;
     private DateTimeOffset? _employmentEnd;
-    private Gym? _gym;
 
     public GymEmploymentBuilder(IServiceScopeFactory scopeFactory) : base(scopeFactory) { }
 
@@ -70,14 +69,6 @@ public class GymEmploymentBuilder : TestEntityBuilderBase<GymEmployment>
         }
 
         _employmentEnd= employmentEnd;
-
-        return this;
-    }
-
-    public GymEmploymentBuilder WithGym(Gym gym)
-    {
-        _gym = gym;
-        _gymId = gym.Id;
 
         return this;
     }

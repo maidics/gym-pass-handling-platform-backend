@@ -22,9 +22,7 @@ public class DeleteMyAccountTests : BaseTestFixture
     [Test]
     public async Task ShouldDeleteDefaultUserAccount()
     {
-        var userObj = await RunAsDefaultUserAsync();
-
-        var userProfile = await UserProfileBuilder.WithApplicationUserId(userObj.user.Id).BuildAsync();
+        var obj = await RunAsDefaultUserAsync();
 
         var command = new DeleteMyAccountCommand();
 
@@ -32,7 +30,7 @@ public class DeleteMyAccountTests : BaseTestFixture
 
         await action.ShouldNotThrowAsync();
 
-        var deletedUserProfile = await FindAsync<UserProfile>(userObj.userProfile.ApplicationUserId);
+        var deletedUserProfile = await FindAsync<UserProfile>(obj.userProfile.ApplicationUserId);
         deletedUserProfile.ShouldBeNull();
     }
 

@@ -13,7 +13,6 @@ public class GymMembershipBuilder : TestAuditableEntityBuilder<GymMembershipBuil
     private string _applicationUserId = string.Empty;
     private string? _gymId;
     private GymMembershipStatus _status = GymMembershipStatus.Active;
-    private Gym? _gym;
     //ICollection<GymMembershipPass> _passes = []; - cannot build a pass without the GymMembership first
 
     public GymMembershipBuilder(IServiceScopeFactory scopeFactory) : base(scopeFactory) { }
@@ -52,14 +51,6 @@ public class GymMembershipBuilder : TestAuditableEntityBuilder<GymMembershipBuil
         return this;
     }
 
-    public GymMembershipBuilder WithGym(Gym gym)
-    {
-        _gymId = gym.Id;
-        _gym = gym;
-
-        return this;
-    }
-
     public override GymMembership Build()
     {
         var gymMembership = new GymMembership
@@ -67,8 +58,7 @@ public class GymMembershipBuilder : TestAuditableEntityBuilder<GymMembershipBuil
             Id = _id,
             ApplicationUserId = _applicationUserId,
             Status = _status,
-            GymId = _gymId,
-            Gym = _gym
+            GymId = _gymId
         };
 
         ApplyAuditProperties(gymMembership);

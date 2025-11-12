@@ -67,7 +67,7 @@ public static partial class TestEntityBuilder
 
         var gymEmployment = await GymEmploymentBuilder
             .WithApplicationUserId(user.Id)
-            .WithGym(gym)
+            .WithGymId(gym.Id)
             .WithRole(employeeRole)
             .BuildAsync();
 

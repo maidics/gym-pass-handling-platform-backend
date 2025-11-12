@@ -15,7 +15,6 @@ public class GymMembershipPassBuilder : TestAuditableEntityBuilder<GymMembership
     private int? _totalUses = 1;
     private int? _remainingUses = 1;
     private DateOnly? _expirationDate;
-    private GymMembership? _gymMembership;
 
     public GymMembershipPassBuilder(IServiceScopeFactory scopeFactory) : base(scopeFactory) { }
 
@@ -63,14 +62,6 @@ public class GymMembershipPassBuilder : TestAuditableEntityBuilder<GymMembership
 
         return this;
     }
-
-    public GymMembershipPassBuilder WithGymMembership(GymMembership gymMembership)
-    {
-        _gymMembershipId = gymMembership.Id;
-        _gymMembership = gymMembership;
-
-        return this;
-    }
     
     public GymMembershipPassBuilder FromGymPassProduct(GymPassProduct gymPassProduct)
     {
@@ -94,11 +85,6 @@ public class GymMembershipPassBuilder : TestAuditableEntityBuilder<GymMembership
             RemainingUses = _remainingUses,
             ExpirationDate = _expirationDate,
         };
-
-        if (_gymMembership is not null)
-        {
-            gymMembershipPass.GymMembership = _gymMembership;
-        }
 
         ApplyAuditProperties(gymMembershipPass);
 

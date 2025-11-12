@@ -437,15 +437,8 @@
           "x-position": 1
         },
         "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GymDto"
-                }
-              }
-            }
+          "204": {
+            "description": ""
           }
         },
         "security": [
@@ -1270,8 +1263,7 @@
             "type": "string"
           },
           "email": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           }
         }
       },
@@ -1325,12 +1317,12 @@
         "description": "",
         "x-enumNames": [
           "Success",
-          "Expired",
+          "UnlimitedPassAlreadyExpired",
           "AlreadyHasNoUsesLeft"
         ],
         "enum": [
           "Success",
-          "Expired",
+          "UnlimitedPassAlreadyExpired",
           "AlreadyHasNoUsesLeft"
         ]
       },
@@ -1400,8 +1392,38 @@
               "applicationUserId": {
                 "type": "string"
               },
-              "pass": {
-                "$ref": "#/components/schemas/GymMembershipPassDto"
+              "gymId": {
+                "type": "string"
+              },
+              "passType": {
+                "$ref": "#/components/schemas/PassType"
+              },
+              "totalPassUses": {
+                "type": "integer",
+                "format": "int32",
+                "nullable": true
+              },
+              "remainingPassUses": {
+                "type": "integer",
+                "format": "int32",
+                "nullable": true
+              },
+              "passExpirationDate": {
+                "type": "string",
+                "format": "date",
+                "nullable": true
+              },
+              "passUseResult": {
+                "$ref": "#/components/schemas/PassUseResult"
+              },
+              "lockerNumber": {
+                "type": "string",
+                "nullable": true
+              },
+              "gymSessionEndedAt": {
+                "type": "string",
+                "format": "date-time",
+                "nullable": true
               }
             }
           }
@@ -1458,6 +1480,41 @@
         "x-abstract": true,
         "additionalProperties": false
       },
+      "UpdateMyGymProfileCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "gymName": {
+            "type": "string"
+          },
+          "gymAddress": {
+            "type": "string"
+          },
+          "gymTier": {
+            "$ref": "#/components/schemas/GymTier"
+          },
+          "gymOwnerName": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "GymTier": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "Local",
+          "MidRange",
+          "Premium",
+          "Elite"
+        ],
+        "enum": [
+          "Local",
+          "MidRange",
+          "Premium",
+          "Elite"
+        ]
+      },
       "GymDto": {
         "type": "object",
         "additionalProperties": false,
@@ -1477,7 +1534,7 @@
           "tier": {
             "$ref": "#/components/schemas/GymTier"
           },
-          "creationDate": {
+          "createdOn": {
             "type": "string",
             "format": "date-time"
           },
@@ -1485,7 +1542,7 @@
             "type": "string",
             "nullable": true
           },
-          "gymPassProducts": {
+          "passProducts": {
             "type": "array",
             "nullable": true,
             "items": {
@@ -1506,22 +1563,6 @@
           "Active",
           "Inactive",
           "Suspended"
-        ]
-      },
-      "GymTier": {
-        "type": "string",
-        "description": "",
-        "x-enumNames": [
-          "Local",
-          "MidRange",
-          "Premium",
-          "Elite"
-        ],
-        "enum": [
-          "Local",
-          "MidRange",
-          "Premium",
-          "Elite"
         ]
       },
       "GymPassProductDto": {
@@ -1550,28 +1591,6 @@
           },
           "isActive": {
             "type": "boolean"
-          }
-        }
-      },
-      "UpdateMyGymProfileCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "gymId": {
-            "type": "string"
-          },
-          "gymName": {
-            "type": "string"
-          },
-          "gymAddress": {
-            "type": "string"
-          },
-          "gymTier": {
-            "$ref": "#/components/schemas/GymTier"
-          },
-          "gymOwnerName": {
-            "type": "string",
-            "nullable": true
           }
         }
       },
@@ -1946,6 +1965,9 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
+          "id": {
+            "type": "string"
+          },
           "applicationUserId": {
             "type": "string",
             "nullable": true
@@ -1953,15 +1975,19 @@
           "gymId": {
             "type": "string"
           },
-          "gymMembershipStatus": {
+          "status": {
             "$ref": "#/components/schemas/GymMembershipStatus"
           },
-          "memberSince": {
+          "createdOn": {
             "type": "string",
             "format": "date-time",
             "nullable": true
           },
-          "ownedPasses": {
+          "createdBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "passes": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/GymMembershipPassDto"

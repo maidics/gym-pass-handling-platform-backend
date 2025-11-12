@@ -1,5 +1,6 @@
 ﻿using FitPass.Application.ApplicationUsers.Commands.RoleHandling;
 using FitPass.Application.Common.Exceptions;
+using FitPass.Application.FunctionalTests.TestData;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 
@@ -57,29 +58,20 @@ public class DemoteGymStaffToPendingGymEmployeeTests : BaseTestFixture
     [Test]
     public async Task ShouldDemoteGymStaff()
     {
-        var gymAdminObj = await RunAsGymEmployeeAsync(Roles.GymAdministrator);
+        var obj = await TestEntityBuilder.BuildGymAsync();
 
-        var gymStaff = await ApplicationUserBuilder
-            .WithRole(Roles.GymStaff)
-            .BuildAsync();
+        await RunAsUserAsync(obj.gymAdmin);
 
-        var gymStaffEmployment = await GymEmploymentBuilder
-            .WithApplicationUserId(gymStaff.Id)
-            .WithGymId(gymAdminObj.gym.Id)
-            .WithRole(Roles.GymStaff)
-            .BuildAsync();
-
-        var command = new DemoteGymStaffToPendingGymEmployeeCommand(gymStaff.Id);
+        var command = new DemoteGymStaffToPendingGymEmployeeCommand(obj.gymStaff.Id);
 
         await Should.NotThrowAsync(() => SendAsync(command));
 
-        var rolesAfterDemotion = await GetUserRolesAsync(gymStaff.Id);
+        var rolesAfterDemotion = await GetUserRolesAsync(obj.gymStaff.Id);
 
         rolesAfterDemotion.Count.ShouldBe(1);
         rolesAfterDemotion.First().ShouldBe(Roles.PendingGymEmployee);
 
-        var gymStaffGymEmployment = await FindAsync<GymEmployment>(gymStaffEmployment.Id);
-
+        var gymStaffGymEmployment = await FindAsync<GymEmployment>(obj.gymStaffGymEmployment.Id);
         gymStaffGymEmployment.ShouldBeNull();
     }
 

@@ -26,7 +26,7 @@ export interface IApiClient {
     gymEmployeeEndUserGymSession(gymPassUsageId: string): Promise<void>;
     updateGymPassUsageLockerNumberCommand(gymPassUsageId: string, lockerNumber: string): Promise<void>;
     getMyGymQrCode(): Promise<void>;
-    updateMyGymProfile(command: UpdateMyGymProfileCommand): Promise<GymDto>;
+    updateMyGymProfile(command: UpdateMyGymProfileCommand): Promise<void>;
     getAllGyms(): Promise<GymDto[]>;
     getGymDetails(gymId: string): Promise<GymDto>;
     getNewGymsThisMonth(): Promise<GymDto[]>;
@@ -702,7 +702,7 @@ export class ApiClient implements IApiClient {
         return Promise.resolve<void>(null as any);
     }
 
-    updateMyGymProfile(command: UpdateMyGymProfileCommand, cancelToken?: CancelToken): Promise<GymDto> {
+    updateMyGymProfile(command: UpdateMyGymProfileCommand, cancelToken?: CancelToken): Promise<void> {
         let url_ = this.baseUrl + "/api/Gyms/My/Profile";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -714,7 +714,6 @@ export class ApiClient implements IApiClient {
             url: url_,
             headers: {
                 "Content-Type": "application/json",
-                "Accept": "application/json"
             },
             cancelToken
         };
@@ -730,7 +729,7 @@ export class ApiClient implements IApiClient {
         });
     }
 
-    protected processUpdateMyGymProfile(response: AxiosResponse): Promise<GymDto> {
+    protected processUpdateMyGymProfile(response: AxiosResponse): Promise<void> {
         const status = response.status;
         let _headers: any = {};
         if (response.headers && typeof response.headers === "object") {
@@ -740,18 +739,15 @@ export class ApiClient implements IApiClient {
                 }
             }
         }
-        if (status === 200) {
+        if (status === 204) {
             const _responseText = response.data;
-            let result200: any = null;
-            let resultData200  = _responseText;
-            result200 = GymDto.fromJS(resultData200);
-            return Promise.resolve<GymDto>(result200);
+            return Promise.resolve<void>(null as any);
 
         } else if (status !== 200 && status !== 204) {
             const _responseText = response.data;
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
         }
-        return Promise.resolve<GymDto>(null as any);
+        return Promise.resolve<void>(null as any);
     }
 
     getAllGyms( cancelToken?: CancelToken): Promise<GymDto[]> {
@@ -2076,7 +2072,7 @@ export class UserProfileWithEmailDto implements IUserProfileWithEmailDto {
     applicationUserId?: string;
     firstName?: string;
     lastName?: string;
-    email?: string | undefined;
+    email?: string;
 
     constructor(data?: IUserProfileWithEmailDto) {
         if (data) {
@@ -2117,7 +2113,7 @@ export interface IUserProfileWithEmailDto {
     applicationUserId?: string;
     firstName?: string;
     lastName?: string;
-    email?: string | undefined;
+    email?: string;
 }
 
 export class GymMembershipPassDto implements IGymMembershipPassDto {
@@ -2178,7 +2174,7 @@ export interface IGymMembershipPassDto {
 
 export type PassType = "SingleUse" | "MultiUse" | "Unlimited";
 
-export type PassUseResult = "Success" | "Expired" | "AlreadyHasNoUsesLeft";
+export type PassUseResult = "Success" | "UnlimitedPassAlreadyExpired" | "AlreadyHasNoUsesLeft";
 
 export type GymMembershipStatus = "Active" | "Banned";
 
@@ -2373,7 +2369,14 @@ export interface IBaseAuditableEntity extends IBaseEntity {
 
 export class GymPassUsageDto extends BaseAuditableEntity implements IGymPassUsageDto {
     applicationUserId?: string;
-    pass?: GymMembershipPassDto;
+    gymId?: string;
+    passType?: PassType;
+    totalPassUses?: number | undefined;
+    remainingPassUses?: number | undefined;
+    passExpirationDate?: Date | undefined;
+    passUseResult?: PassUseResult;
+    lockerNumber?: string | undefined;
+    gymSessionEndedAt?: Date | undefined;
 
     constructor(data?: IGymPassUsageDto) {
         super(data);
@@ -2383,7 +2386,14 @@ export class GymPassUsageDto extends BaseAuditableEntity implements IGymPassUsag
         super.init(_data);
         if (_data) {
             this.applicationUserId = _data["applicationUserId"];
-            this.pass = _data["pass"] ? GymMembershipPassDto.fromJS(_data["pass"]) : <any>undefined;
+            this.gymId = _data["gymId"];
+            this.passType = _data["passType"];
+            this.totalPassUses = _data["totalPassUses"];
+            this.remainingPassUses = _data["remainingPassUses"];
+            this.passExpirationDate = _data["passExpirationDate"] ? new Date(_data["passExpirationDate"].toString()) : <any>undefined;
+            this.passUseResult = _data["passUseResult"];
+            this.lockerNumber = _data["lockerNumber"];
+            this.gymSessionEndedAt = _data["gymSessionEndedAt"] ? new Date(_data["gymSessionEndedAt"].toString()) : <any>undefined;
         }
     }
 
@@ -2397,7 +2407,14 @@ export class GymPassUsageDto extends BaseAuditableEntity implements IGymPassUsag
     override toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["applicationUserId"] = this.applicationUserId;
-        data["pass"] = this.pass ? this.pass.toJSON() : <any>undefined;
+        data["gymId"] = this.gymId;
+        data["passType"] = this.passType;
+        data["totalPassUses"] = this.totalPassUses;
+        data["remainingPassUses"] = this.remainingPassUses;
+        data["passExpirationDate"] = this.passExpirationDate ? formatDate(this.passExpirationDate) : <any>undefined;
+        data["passUseResult"] = this.passUseResult;
+        data["lockerNumber"] = this.lockerNumber;
+        data["gymSessionEndedAt"] = this.gymSessionEndedAt ? this.gymSessionEndedAt.toISOString() : <any>undefined;
         super.toJSON(data);
         return data;
     }
@@ -2405,7 +2422,14 @@ export class GymPassUsageDto extends BaseAuditableEntity implements IGymPassUsag
 
 export interface IGymPassUsageDto extends IBaseAuditableEntity {
     applicationUserId?: string;
-    pass?: GymMembershipPassDto;
+    gymId?: string;
+    passType?: PassType;
+    totalPassUses?: number | undefined;
+    remainingPassUses?: number | undefined;
+    passExpirationDate?: Date | undefined;
+    passUseResult?: PassUseResult;
+    lockerNumber?: string | undefined;
+    gymSessionEndedAt?: Date | undefined;
 }
 
 export abstract class BaseEvent implements IBaseEvent {
@@ -2436,15 +2460,65 @@ export abstract class BaseEvent implements IBaseEvent {
 export interface IBaseEvent {
 }
 
+export class UpdateMyGymProfileCommand implements IUpdateMyGymProfileCommand {
+    gymName?: string;
+    gymAddress?: string;
+    gymTier?: GymTier;
+    gymOwnerName?: string | undefined;
+
+    constructor(data?: IUpdateMyGymProfileCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.gymName = _data["gymName"];
+            this.gymAddress = _data["gymAddress"];
+            this.gymTier = _data["gymTier"];
+            this.gymOwnerName = _data["gymOwnerName"];
+        }
+    }
+
+    static fromJS(data: any): UpdateMyGymProfileCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateMyGymProfileCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["gymName"] = this.gymName;
+        data["gymAddress"] = this.gymAddress;
+        data["gymTier"] = this.gymTier;
+        data["gymOwnerName"] = this.gymOwnerName;
+        return data;
+    }
+}
+
+export interface IUpdateMyGymProfileCommand {
+    gymName?: string;
+    gymAddress?: string;
+    gymTier?: GymTier;
+    gymOwnerName?: string | undefined;
+}
+
+export type GymTier = "Local" | "MidRange" | "Premium" | "Elite";
+
 export class GymDto implements IGymDto {
     id?: string;
     name?: string;
     address?: string;
     status?: GymStatus;
     tier?: GymTier;
-    creationDate?: Date;
+    createdOn?: Date;
     ownerName?: string | undefined;
-    gymPassProducts?: GymPassProductDto[] | undefined;
+    passProducts?: GymPassProductDto[] | undefined;
 
     constructor(data?: IGymDto) {
         if (data) {
@@ -2462,12 +2536,12 @@ export class GymDto implements IGymDto {
             this.address = _data["address"];
             this.status = _data["status"];
             this.tier = _data["tier"];
-            this.creationDate = _data["creationDate"] ? new Date(_data["creationDate"].toString()) : <any>undefined;
+            this.createdOn = _data["createdOn"] ? new Date(_data["createdOn"].toString()) : <any>undefined;
             this.ownerName = _data["ownerName"];
-            if (Array.isArray(_data["gymPassProducts"])) {
-                this.gymPassProducts = [] as any;
-                for (let item of _data["gymPassProducts"])
-                    this.gymPassProducts!.push(GymPassProductDto.fromJS(item));
+            if (Array.isArray(_data["passProducts"])) {
+                this.passProducts = [] as any;
+                for (let item of _data["passProducts"])
+                    this.passProducts!.push(GymPassProductDto.fromJS(item));
             }
         }
     }
@@ -2486,12 +2560,12 @@ export class GymDto implements IGymDto {
         data["address"] = this.address;
         data["status"] = this.status;
         data["tier"] = this.tier;
-        data["creationDate"] = this.creationDate ? this.creationDate.toISOString() : <any>undefined;
+        data["createdOn"] = this.createdOn ? this.createdOn.toISOString() : <any>undefined;
         data["ownerName"] = this.ownerName;
-        if (Array.isArray(this.gymPassProducts)) {
-            data["gymPassProducts"] = [];
-            for (let item of this.gymPassProducts)
-                data["gymPassProducts"].push(item.toJSON());
+        if (Array.isArray(this.passProducts)) {
+            data["passProducts"] = [];
+            for (let item of this.passProducts)
+                data["passProducts"].push(item.toJSON());
         }
         return data;
     }
@@ -2503,14 +2577,12 @@ export interface IGymDto {
     address?: string;
     status?: GymStatus;
     tier?: GymTier;
-    creationDate?: Date;
+    createdOn?: Date;
     ownerName?: string | undefined;
-    gymPassProducts?: GymPassProductDto[] | undefined;
+    passProducts?: GymPassProductDto[] | undefined;
 }
 
 export type GymStatus = "Active" | "Inactive" | "Suspended";
-
-export type GymTier = "Local" | "MidRange" | "Premium" | "Elite";
 
 export class GymPassProductDto implements IGymPassProductDto {
     gymId?: string;
@@ -2566,58 +2638,6 @@ export interface IGymPassProductDto {
     daysAfterExpiring?: number | undefined;
     hufPrice?: number;
     isActive?: boolean;
-}
-
-export class UpdateMyGymProfileCommand implements IUpdateMyGymProfileCommand {
-    gymId?: string;
-    gymName?: string;
-    gymAddress?: string;
-    gymTier?: GymTier;
-    gymOwnerName?: string | undefined;
-
-    constructor(data?: IUpdateMyGymProfileCommand) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.gymId = _data["gymId"];
-            this.gymName = _data["gymName"];
-            this.gymAddress = _data["gymAddress"];
-            this.gymTier = _data["gymTier"];
-            this.gymOwnerName = _data["gymOwnerName"];
-        }
-    }
-
-    static fromJS(data: any): UpdateMyGymProfileCommand {
-        data = typeof data === 'object' ? data : {};
-        let result = new UpdateMyGymProfileCommand();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["gymId"] = this.gymId;
-        data["gymName"] = this.gymName;
-        data["gymAddress"] = this.gymAddress;
-        data["gymTier"] = this.gymTier;
-        data["gymOwnerName"] = this.gymOwnerName;
-        return data;
-    }
-}
-
-export interface IUpdateMyGymProfileCommand {
-    gymId?: string;
-    gymName?: string;
-    gymAddress?: string;
-    gymTier?: GymTier;
-    gymOwnerName?: string | undefined;
 }
 
 export class RegisterGymCommand implements IRegisterGymCommand {
@@ -3455,11 +3475,13 @@ export interface IActivateUserAccountCommand {
 }
 
 export class GymMembershipDto implements IGymMembershipDto {
+    id?: string;
     applicationUserId?: string | undefined;
     gymId?: string;
-    gymMembershipStatus?: GymMembershipStatus;
-    memberSince?: Date | undefined;
-    ownedPasses?: GymMembershipPassDto[];
+    status?: GymMembershipStatus;
+    createdOn?: Date | undefined;
+    createdBy?: string | undefined;
+    passes?: GymMembershipPassDto[];
 
     constructor(data?: IGymMembershipDto) {
         if (data) {
@@ -3472,14 +3494,16 @@ export class GymMembershipDto implements IGymMembershipDto {
 
     init(_data?: any) {
         if (_data) {
+            this.id = _data["id"];
             this.applicationUserId = _data["applicationUserId"];
             this.gymId = _data["gymId"];
-            this.gymMembershipStatus = _data["gymMembershipStatus"];
-            this.memberSince = _data["memberSince"] ? new Date(_data["memberSince"].toString()) : <any>undefined;
-            if (Array.isArray(_data["ownedPasses"])) {
-                this.ownedPasses = [] as any;
-                for (let item of _data["ownedPasses"])
-                    this.ownedPasses!.push(GymMembershipPassDto.fromJS(item));
+            this.status = _data["status"];
+            this.createdOn = _data["createdOn"] ? new Date(_data["createdOn"].toString()) : <any>undefined;
+            this.createdBy = _data["createdBy"];
+            if (Array.isArray(_data["passes"])) {
+                this.passes = [] as any;
+                for (let item of _data["passes"])
+                    this.passes!.push(GymMembershipPassDto.fromJS(item));
             }
         }
     }
@@ -3493,25 +3517,29 @@ export class GymMembershipDto implements IGymMembershipDto {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
         data["applicationUserId"] = this.applicationUserId;
         data["gymId"] = this.gymId;
-        data["gymMembershipStatus"] = this.gymMembershipStatus;
-        data["memberSince"] = this.memberSince ? this.memberSince.toISOString() : <any>undefined;
-        if (Array.isArray(this.ownedPasses)) {
-            data["ownedPasses"] = [];
-            for (let item of this.ownedPasses)
-                data["ownedPasses"].push(item.toJSON());
+        data["status"] = this.status;
+        data["createdOn"] = this.createdOn ? this.createdOn.toISOString() : <any>undefined;
+        data["createdBy"] = this.createdBy;
+        if (Array.isArray(this.passes)) {
+            data["passes"] = [];
+            for (let item of this.passes)
+                data["passes"].push(item.toJSON());
         }
         return data;
     }
 }
 
 export interface IGymMembershipDto {
+    id?: string;
     applicationUserId?: string | undefined;
     gymId?: string;
-    gymMembershipStatus?: GymMembershipStatus;
-    memberSince?: Date | undefined;
-    ownedPasses?: GymMembershipPassDto[];
+    status?: GymMembershipStatus;
+    createdOn?: Date | undefined;
+    createdBy?: string | undefined;
+    passes?: GymMembershipPassDto[];
 }
 
 export class GymEmployeeRegisterUserCommand implements IGymEmployeeRegisterUserCommand {

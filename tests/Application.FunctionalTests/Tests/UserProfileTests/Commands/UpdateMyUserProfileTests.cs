@@ -27,13 +27,7 @@ public class UpdateMyUserProfileTests : BaseTestFixture
     [Test]
     public async Task ShouldUpdateUserProfile()
     {
-        var user = await RunAsDefaultUserAsync();
-
-        var userProfile = await UserProfileBuilder
-            .WithApplicationUserId(user.Id)
-            .WithFirstName("First")
-            .WithLastName("Last")
-            .BuildAsync();
+        var obj = await RunAsDefaultUserAsync();
 
         var newFirstName = "FirstNew";
         var newLastName = "LastNew";
@@ -42,10 +36,10 @@ public class UpdateMyUserProfileTests : BaseTestFixture
 
         await Should.NotThrowAsync(SendAsync(command));
 
-        var updateUserProfile = await FindAsync<UserProfile>(userProfile.ApplicationUserId);
+        var updatedUserProfile = await FindAsync<UserProfile>(obj.userProfile.ApplicationUserId);
 
-        updateUserProfile.ShouldNotBeNull();
-        updateUserProfile.FirstName.ShouldBe(newFirstName);
-        updateUserProfile.LastName.ShouldBe(newLastName);
+        updatedUserProfile.ShouldNotBeNull();
+        updatedUserProfile.FirstName.ShouldBe(newFirstName);
+        updatedUserProfile.LastName.ShouldBe(newLastName);
     }
 }

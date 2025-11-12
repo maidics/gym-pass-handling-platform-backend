@@ -19,7 +19,6 @@ public class GymPassProductBuilder : TestAuditableEntityBuilder<GymPassProductBu
     private int? _daysAfterExpiring;
     private bool _isActive = true;
     private Money _price = Money.Eur(2);
-    private Gym? _gym;
 
     public GymPassProductBuilder(IServiceScopeFactory scopeFactory) : base(scopeFactory) { }
 
@@ -85,14 +84,6 @@ public class GymPassProductBuilder : TestAuditableEntityBuilder<GymPassProductBu
     public GymPassProductBuilder IsActive(bool isActive)
     {
         _isActive = isActive;
-
-        return this;
-    }
-
-    public GymPassProductBuilder WithGym(Gym gym)
-    {
-        _gym = gym;
-        _gymId = gym.Id;
 
         return this;
     }

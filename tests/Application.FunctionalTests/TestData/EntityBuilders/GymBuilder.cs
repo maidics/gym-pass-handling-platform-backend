@@ -15,7 +15,6 @@ public class GymBuilder : TestAuditableEntityBuilder<GymBuilder, Gym>
     private GymStatus _status = GymStatus.Active;
     private GymTier _tier = GymTier.Local;
     private string? _ownerName;
-    private ICollection<GymPassProduct> _passProducts = [];
 
     public GymBuilder(IServiceScopeFactory scopeFactory) : base(scopeFactory) { }
 
@@ -63,20 +62,6 @@ public class GymBuilder : TestAuditableEntityBuilder<GymBuilder, Gym>
         return this;
     }
 
-    public GymBuilder WithPassProducts(ICollection<GymPassProduct> passProducts)
-    {
-        _passProducts = passProducts;
-
-        return this;
-    }
-
-    public GymBuilder AddPassProducts(ICollection<GymPassProduct> passProducts)
-    {
-        _passProducts = [.._passProducts, ..passProducts];
-
-        return this;
-    }
-
     public override Gym Build()
     {
         var gym = new Gym
@@ -87,7 +72,6 @@ public class GymBuilder : TestAuditableEntityBuilder<GymBuilder, Gym>
             Status = _status,
             Tier = _tier,
             OwnerName = _ownerName,
-            PassProducts = _passProducts
         };
 
         ApplyAuditProperties(gym);

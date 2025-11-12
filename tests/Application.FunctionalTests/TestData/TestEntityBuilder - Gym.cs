@@ -34,7 +34,7 @@ public partial class TestEntityBuilder
             .BuildAsync();
 
         var gymStaffGymEmployment = await GymEmploymentBuilder
-            .WithGym(obj.gym)
+            .WithGymId(obj.gym.Id)
             .WithApplicationUserId(gymStaff.Id)
             .WithRole(Roles.GymStaff)
             .BuildAsync();
@@ -53,30 +53,30 @@ public partial class TestEntityBuilder
 
         var gymMembership = await GymMembershipBuilder
             .WithApplicationUserId(gymMember.Id)
-            .WithGym(obj.gym)
+            .WithGymId(obj.gym.Id)
             .WithStatus(GymMembershipStatus.Active)
             .BuildAsync();
 
         var singleUsePass = await GymMembershipPassBuilder
-            .WithGymMembership(gymMembership)
+            .WithGymMembershipId(gymMembership.Id)
             .BuildAsync();
 
         var noUsePass = await GymMembershipPassBuilder
-            .WithGymMembership(gymMembership)
+            .WithGymMembershipId(gymMembership.Id)
             .AsMultiUseType(2, 0)
             .BuildAsync();
 
         var nowPlus10Days = DateTimeOffset.Now.AddDays(10);
 
         var unlimitedUsePass = await GymMembershipPassBuilder
-            .WithGymMembership(gymMembership)
+            .WithGymMembershipId(gymMembership.Id)
             .AsUnlimitedUseType(new DateOnly(nowPlus10Days.Year, nowPlus10Days.Month, nowPlus10Days.Day))
             .BuildAsync();
 
         var nowMinus10Days = DateTimeOffset.Now.AddDays(-10);
 
         var expiredPass = await GymMembershipPassBuilder
-            .WithGymMembership(gymMembership)
+            .WithGymMembershipId(gymMembership.Id)
             .AsUnlimitedUseType(new DateOnly(nowMinus10Days.Year, nowMinus10Days.Month, nowMinus10Days.Day))
             .BuildAsync();
 
