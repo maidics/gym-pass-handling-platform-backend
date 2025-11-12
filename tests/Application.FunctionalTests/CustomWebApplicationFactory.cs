@@ -1,6 +1,7 @@
 ﻿using System.Data.Common;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Infrastructure.Data;
+using FitPass.Infrastructure.Data.Interceptors;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
@@ -42,11 +43,15 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
                     mock.SetupGet(x => x.Id).Returns(GetCurrentUserUserId());
                     return mock.Object;
                 });
+
+            services.RemoveAll<ISaveChangesInterceptor>();
+            services.AddScoped<ISaveChangesInterceptor, DispatchDomainEventsInterceptor>();
+
             services
                 .RemoveAll<DbContextOptions<ApplicationDbContext>>()
                 .AddDbContext<ApplicationDbContext>((sp, options) =>
                 {
-                    //options.AddInterceptors(sp.GetServices<ISaveChangesInterceptor>());
+                    options.AddInterceptors(sp.GetServices<ISaveChangesInterceptor>());
                     options.UseSqlServer(_connection);
                 });
         });

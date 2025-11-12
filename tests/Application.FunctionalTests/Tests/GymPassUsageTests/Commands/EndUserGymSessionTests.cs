@@ -32,7 +32,7 @@ public class EndUserGymSessionTests : BaseTestFixture
 
         var command = new EndUserGymSessionCommand("invalidGymPassUsageId");
 
-        await ShouldThrowIfParametersAreInvalid(command);
+        await ShouldThrowIfNotFound(command);
     }
 
     [Test]

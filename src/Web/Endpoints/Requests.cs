@@ -43,23 +43,11 @@ public class Requests : EndpointGroupBase
         return TypedResults.NoContent();
     }
 
-    public async Task<Results<Ok<Result>, ProblemHttpResult>> CreateGymAdminPromotionRequest(ISender sender, [FromBody] CreateGymAdminPromotionRequestCommand command)
+    public async Task<NoContent> CreateGymAdminPromotionRequest(ISender sender, [FromBody] CreateGymAdminPromotionRequestCommand command)
     {
-        var result = await sender.Send(command);
+        await sender.Send(command);
 
-        if (!result.Succeeded)
-        {
-            var problem = new ProblemDetails
-            {
-                Status = StatusCodes.Status409Conflict,
-                Title = "Business Rule Violation",
-                Detail = result.Errors[0]
-            };
-
-            return TypedResults.Problem(problem);
-        }
-
-        return TypedResults.Ok(result);
+        return TypedResults.NoContent();
     }
 
     public async Task<NoContent> RejectRequest(ISender sender, string requestId, CancellationToken cancellationToken)

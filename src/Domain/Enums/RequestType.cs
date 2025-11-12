@@ -3,6 +3,6 @@ namespace FitPass.Domain.Enums;
 public enum RequestType
 {
     GymCreation,
-    GymAdminNomination,
+    GymAdminPromotion,
     Other
 }

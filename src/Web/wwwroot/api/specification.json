@@ -794,15 +794,8 @@
           "x-position": 1
         },
         "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Result"
-                }
-              }
-            }
+          "204": {
+            "description": ""
           }
         },
         "security": [
@@ -1695,12 +1688,12 @@
         "description": "",
         "x-enumNames": [
           "GymCreation",
-          "GymAdminNomination",
+          "GymAdminPromotion",
           "Other"
         ],
         "enum": [
           "GymCreation",
-          "GymAdminNomination",
+          "GymAdminPromotion",
           "Other"
         ]
       },
@@ -1765,26 +1758,11 @@
           }
         }
       },
-      "Result": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "succeeded": {
-            "type": "boolean"
-          },
-          "errors": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          }
-        }
-      },
       "CreateGymAdminPromotionRequestCommand": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "userIdToNominate": {
+          "userIdToPromote": {
             "type": "string"
           },
           "requestDescription": {

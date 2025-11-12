@@ -33,7 +33,7 @@ public class GymPassUsageBuilder : TestAuditableEntityBuilder<GymPassUsageBuilde
 
     public GymPassUsageBuilder WithApplicationUserId(string applicationUserId)
     {
-        AssertId(_applicationUserId);
+        AssertId(applicationUserId);
 
         _applicationUserId = applicationUserId;
 
@@ -42,7 +42,7 @@ public class GymPassUsageBuilder : TestAuditableEntityBuilder<GymPassUsageBuilde
 
     public GymPassUsageBuilder WithGymId(string gymId)
     {
-        AssertId(_gymId);
+        AssertId(gymId);
 
         _gymId = gymId;
 

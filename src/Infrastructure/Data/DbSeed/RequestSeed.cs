@@ -31,9 +31,9 @@ public partial class ApplicationDbContextInitialiser
                     Title = "Gym Admin Nomination",
                     Description = "Gym admin nomination description",
                     PriorityLevel = PriorityLevel.Medium,
-                    Type = RequestType.GymAdminNomination,
+                    Type = RequestType.GymAdminPromotion,
                     Payload = JsonSerializer.Serialize(
-                            new GymAdminNominationDto {
+                            new GymAdminPromotionDto {
                                 GymId = gymId2,
                                 UserIdToNominate = "User2",
                                 EscalationEmail = "escalationemail@localhost"

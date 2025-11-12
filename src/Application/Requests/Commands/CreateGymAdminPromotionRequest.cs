@@ -3,30 +3,30 @@ using FitPass.Application.Requests.DTOs;
 using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Logging;
-using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Security;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
 using FitPass.Domain.Strings;
 using Microsoft.Extensions.Logging;
+using FitPass.Application.Common.Exceptions;
 
 namespace FitPass.Application.Requests.Commands;
 
 [Authorize(Roles = Roles.GymAdministrator)]
 public record CreateGymAdminPromotionRequestCommand
 (
-    string UserIdToNominate,
+    string UserIdToPromote,
     string RequestDescription,
     PriorityLevel RequestPriorityLevel,
     string EscalationEmail
-) : IRequest<Result>;
+) : IRequest;
 
 public class CreateGymAdminPromotionRequestCommandValidator : AbstractValidator<CreateGymAdminPromotionRequestCommand>
 {
     public CreateGymAdminPromotionRequestCommandValidator()
     {
-        RuleFor(v => v.UserIdToNominate).NotEmptyWithMessage(nameof(CreateGymAdminPromotionRequestCommand.UserIdToNominate));
+        RuleFor(v => v.UserIdToPromote).NotEmptyWithMessage(nameof(CreateGymAdminPromotionRequestCommand.UserIdToPromote));
 
         RuleFor(v => v.RequestDescription!)
             .NotEmptyWithMaxLenghtAndMessage(nameof(CreateGymAdminPromotionRequestCommand.RequestDescription), MaxStringLengths.Description);
@@ -35,7 +35,7 @@ public class CreateGymAdminPromotionRequestCommandValidator : AbstractValidator<
     }
 }
 
-public class CreateGymAdminPromotionRequestCommandHandler : IRequestHandler<CreateGymAdminPromotionRequestCommand, Result>
+public class CreateGymAdminPromotionRequestCommandHandler : IRequestHandler<CreateGymAdminPromotionRequestCommand>
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
@@ -53,7 +53,7 @@ public class CreateGymAdminPromotionRequestCommandHandler : IRequestHandler<Crea
         _logger = logger;
         _identityService = identityService;
     }
-    public async Task<Result> Handle(CreateGymAdminPromotionRequestCommand command, CancellationToken cancellationToken)
+    public async Task Handle(CreateGymAdminPromotionRequestCommand command, CancellationToken cancellationToken)
     {
         var requesterGymEmployment = await _context
             .GymEmployments
@@ -71,9 +71,14 @@ public class CreateGymAdminPromotionRequestCommandHandler : IRequestHandler<Crea
             throw new Exception(ErrorMessages.AuthenticatedUserRelatedEntityNotFound(nameof(GymEmployment)));
         }
 
-        if (!await _identityService.DoesUserExist(command.UserIdToNominate))
+        if (!await _identityService.DoesUserExist(command.UserIdToPromote))
         {
-            throw new NotFoundException(command.UserIdToNominate, "User to nominate");
+            throw new NotFoundException(command.UserIdToPromote, "User to nominate");
+        }
+
+        if (!await _identityService.IsInRoleAsync(command.UserIdToPromote, Roles.PendingGymEmployee))
+        {
+            throw new BadRequestException("User is not in PendingGymEmployee role.");
         }
 
         var request = new Request
@@ -82,18 +87,16 @@ public class CreateGymAdminPromotionRequestCommandHandler : IRequestHandler<Crea
             Title = "Gym Administrator Nomination",
             Description = command.RequestDescription,
             PriorityLevel = command.RequestPriorityLevel,
-            Type = RequestType.GymAdminNomination,
-            Payload = JsonSerializer.Serialize(new GymAdminNominationDto
+            Type = RequestType.GymAdminPromotion,
+            Payload = JsonSerializer.Serialize(new GymAdminPromotionDto
             {
                 GymId = requesterGymEmployment.GymId!,
-                UserIdToNominate = command.UserIdToNominate,
+                UserIdToNominate = command.UserIdToPromote,
                 EscalationEmail = command.EscalationEmail
             })
         };
 
         await _context.Requests.AddAsync(request);
         await _context.SaveChangesAsync();
-
-        return Result.Success();
     }
 }

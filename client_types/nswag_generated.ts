@@ -37,7 +37,7 @@ export interface IApiClient {
     getRequest(requestId: string): Promise<RequestDto>;
     getRequests(query: GetRequestsQuery): Promise<RequestDto[]>;
     createGymCreationRequest(command: CreateGymCreationRequestCommand): Promise<void>;
-    createGymAdminPromotionRequest(command: CreateGymAdminPromotionRequestCommand): Promise<Result>;
+    createGymAdminPromotionRequest(command: CreateGymAdminPromotionRequestCommand): Promise<void>;
     rejectRequest(requestId: string): Promise<void>;
     getMyUserProfile(): Promise<UserProfileWithEmailDto>;
     updateMyUserProfile(command: UpdateMyUserProfileCommand): Promise<void>;
@@ -1272,7 +1272,7 @@ export class ApiClient implements IApiClient {
         return Promise.resolve<void>(null as any);
     }
 
-    createGymAdminPromotionRequest(command: CreateGymAdminPromotionRequestCommand, cancelToken?: CancelToken): Promise<Result> {
+    createGymAdminPromotionRequest(command: CreateGymAdminPromotionRequestCommand, cancelToken?: CancelToken): Promise<void> {
         let url_ = this.baseUrl + "/api/Requests/GymAdminNomination";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -1284,7 +1284,6 @@ export class ApiClient implements IApiClient {
             url: url_,
             headers: {
                 "Content-Type": "application/json",
-                "Accept": "application/json"
             },
             cancelToken
         };
@@ -1300,7 +1299,7 @@ export class ApiClient implements IApiClient {
         });
     }
 
-    protected processCreateGymAdminPromotionRequest(response: AxiosResponse): Promise<Result> {
+    protected processCreateGymAdminPromotionRequest(response: AxiosResponse): Promise<void> {
         const status = response.status;
         let _headers: any = {};
         if (response.headers && typeof response.headers === "object") {
@@ -1310,18 +1309,15 @@ export class ApiClient implements IApiClient {
                 }
             }
         }
-        if (status === 200) {
+        if (status === 204) {
             const _responseText = response.data;
-            let result200: any = null;
-            let resultData200  = _responseText;
-            result200 = Result.fromJS(resultData200);
-            return Promise.resolve<Result>(result200);
+            return Promise.resolve<void>(null as any);
 
         } else if (status !== 200 && status !== 204) {
             const _responseText = response.data;
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
         }
-        return Promise.resolve<Result>(null as any);
+        return Promise.resolve<void>(null as any);
     }
 
     rejectRequest(requestId: string, cancelToken?: CancelToken): Promise<void> {
@@ -2814,7 +2810,7 @@ export interface IRequestDto {
 
 export type PriorityLevel = "None" | "Low" | "Medium" | "High";
 
-export type RequestType = "GymCreation" | "GymAdminNomination" | "Other";
+export type RequestType = "GymCreation" | "GymAdminPromotion" | "Other";
 
 export type RequestStatus = "Submitted" | "Completed" | "Cancelled" | "Rejected" | "PayloadFailedToSerialize" | "CreatorNotFound" | "RelatedRoleHandlingFailed" | "PayloadWasNull";
 
@@ -2902,56 +2898,8 @@ export interface ICreateGymCreationRequestCommand {
     createGymDto?: CreateGymDto;
 }
 
-export class Result implements IResult {
-    succeeded?: boolean;
-    errors?: string[];
-
-    constructor(data?: IResult) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.succeeded = _data["succeeded"];
-            if (Array.isArray(_data["errors"])) {
-                this.errors = [] as any;
-                for (let item of _data["errors"])
-                    this.errors!.push(item);
-            }
-        }
-    }
-
-    static fromJS(data: any): Result {
-        data = typeof data === 'object' ? data : {};
-        let result = new Result();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["succeeded"] = this.succeeded;
-        if (Array.isArray(this.errors)) {
-            data["errors"] = [];
-            for (let item of this.errors)
-                data["errors"].push(item);
-        }
-        return data;
-    }
-}
-
-export interface IResult {
-    succeeded?: boolean;
-    errors?: string[];
-}
-
 export class CreateGymAdminPromotionRequestCommand implements ICreateGymAdminPromotionRequestCommand {
-    userIdToNominate?: string;
+    userIdToPromote?: string;
     requestDescription?: string;
     requestPriorityLevel?: PriorityLevel;
     escalationEmail?: string;
@@ -2967,7 +2915,7 @@ export class CreateGymAdminPromotionRequestCommand implements ICreateGymAdminPro
 
     init(_data?: any) {
         if (_data) {
-            this.userIdToNominate = _data["userIdToNominate"];
+            this.userIdToPromote = _data["userIdToPromote"];
             this.requestDescription = _data["requestDescription"];
             this.requestPriorityLevel = _data["requestPriorityLevel"];
             this.escalationEmail = _data["escalationEmail"];
@@ -2983,7 +2931,7 @@ export class CreateGymAdminPromotionRequestCommand implements ICreateGymAdminPro
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["userIdToNominate"] = this.userIdToNominate;
+        data["userIdToPromote"] = this.userIdToPromote;
         data["requestDescription"] = this.requestDescription;
         data["requestPriorityLevel"] = this.requestPriorityLevel;
         data["escalationEmail"] = this.escalationEmail;
@@ -2992,7 +2940,7 @@ export class CreateGymAdminPromotionRequestCommand implements ICreateGymAdminPro
 }
 
 export interface ICreateGymAdminPromotionRequestCommand {
-    userIdToNominate?: string;
+    userIdToPromote?: string;
     requestDescription?: string;
     requestPriorityLevel?: PriorityLevel;
     escalationEmail?: string;
