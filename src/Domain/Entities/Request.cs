@@ -1,5 +1,3 @@
-using System.Text.Json;
-
 namespace FitPass.Domain.Entities;
 
 public class Request : BaseAuditableEntity
@@ -10,9 +8,4 @@ public class Request : BaseAuditableEntity
     public required RequestType Type { get; set; }
     public RequestStatus Status { get; set; } = RequestStatus.Submitted;
     public required string? Payload { get; set; } //Json serialized
-
-    public T? DeserializePayload<T>() where T : class
-    {
-        return Payload == null ? null : JsonSerializer.Deserialize<T>(Payload);
-    }
 }
