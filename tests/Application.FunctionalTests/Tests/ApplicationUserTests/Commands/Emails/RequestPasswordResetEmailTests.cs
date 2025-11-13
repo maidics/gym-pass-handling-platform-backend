@@ -1,7 +1,7 @@
 ﻿using FitPass.Application.ApplicationUsers.Commands.Emails;
 using FitPass.Application.Common.Exceptions;
 
-namespace FitPass.Application.FunctionalTests.Tests.ApplicationUserTests.Commands;
+namespace FitPass.Application.FunctionalTests.Tests.ApplicationUserTests.Commands.Emails;
 
 using static Testing;
 

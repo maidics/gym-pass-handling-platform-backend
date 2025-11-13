@@ -97,7 +97,7 @@ public class RegisterGymFromRequestTests : BaseTestFixture
 
         var command = new RegisterGymFromRequestCommand(request.Id);
 
-        await Should.ThrowAsync<ArgumentNullException>(SendAsync(command));
+        await Should.ThrowAsync<ArgumentException>(SendAsync(command));
     }
 
     [Test]
@@ -120,7 +120,7 @@ public class RegisterGymFromRequestTests : BaseTestFixture
 
         var command = new RegisterGymFromRequestCommand(request.Id);
 
-        await Should.ThrowAsync<JsonException>(SendAsync(command));
+        await Should.ThrowAsync<ArgumentException>(SendAsync(command));
     }
 
     [Test]

@@ -5,6 +5,7 @@ using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Logging;
 using FitPass.Application.Common.Security;
 using FitPass.Application.Gyms.DTOs;
+using FitPass.Application.Requests.Commands;
 using FitPass.Application.Requests.DTOs;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
@@ -30,6 +31,7 @@ public class RegisterGymFromRequestCommandHandler : IRequestHandler<RegisterGymF
     private readonly ILogger<RegisterGymFromRequestCommand> _logger;
     private readonly IUser _user;
     private readonly IIdentityService _identityService;
+    private readonly ISender _sender;
     private readonly IMapper _mapper;
 
     public RegisterGymFromRequestCommandHandler(
@@ -37,12 +39,14 @@ public class RegisterGymFromRequestCommandHandler : IRequestHandler<RegisterGymF
         ILogger<RegisterGymFromRequestCommand> logger,
         IUser user,
         IIdentityService identityService,
+        ISender sender,
         IMapper mapper)
     {
         _context = context;
         _logger = logger;
         _user = user;
         _identityService = identityService;
+        _sender = sender;
         _mapper = mapper;
     }
     
@@ -85,58 +89,18 @@ public class RegisterGymFromRequestCommandHandler : IRequestHandler<RegisterGymF
             }
         }
 
-        if (request.Payload is null)
-        {
-            _logger.LogError("Found Request does not have a payload.");
+        var deserializationResult = await _sender.Send(new DeserializeRequestPayloadCommand<CreateGymDto>(request));
 
-            request.Status = RequestStatus.PayloadWasNull;
+        if (!deserializationResult.Succeeded)
+        {
+            request.Status = deserializationResult.FailureType;
 
             await _context.SaveChangesAsync();
 
-            throw new ArgumentNullException(nameof(Request.Payload));
+            throw new ArgumentException("Failed to deserialize payload.");
         }
 
-        CreateGymDto? createGymDto;
-
-        try
-        {
-            createGymDto = request.DeserializePayload<CreateGymDto>();
-
-            if (createGymDto == null)
-            {
-                LogErrorMessages.JsonSerilaizationFailure(
-                    _logger,
-                    "Deserialization",
-                    nameof(Request.DeserializePayload),
-                    nameof(Request),
-                    request.Id,
-                    request.Payload,
-                    null);
-
-                request.Status = RequestStatus.PayloadFailedToSerialize;
-
-                await _context.SaveChangesAsync();
-
-                throw new JsonException("Failed to serialize request payload.");
-            }
-        }
-        catch (Exception ex)
-        {
-            LogErrorMessages.JsonSerilaizationFailure(
-                _logger,
-                "Deserialization",
-                nameof(Request.DeserializePayload),
-                nameof(Request),
-                request.Id,
-                request.Payload,
-                ex);
-
-            request.Status = RequestStatus.PayloadFailedToSerialize;
-
-            await _context.SaveChangesAsync();
-
-            throw new JsonException("Failed to deserialize payload.", ex);
-        }
+        var createGymDto = deserializationResult.Value;
 
         var existingGym = await _context
                 .Gyms

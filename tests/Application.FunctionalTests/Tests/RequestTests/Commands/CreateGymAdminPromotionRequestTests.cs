@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using FitPass.Application.Common.Exceptions;
 using FitPass.Application.Requests.Commands;
@@ -86,7 +87,8 @@ public class CreateGymAdminPromotionRequestTests : BaseTestFixture
         createdRequest.Type.ShouldBe(RequestType.GymAdminPromotion);
         createdRequest.Description.ShouldBe(command.RequestDescription);
         createdRequest.PriorityLevel.ShouldBe(PriorityLevel.High);
-        var payload = createdRequest.DeserializePayload<GymAdminPromotionDto>();
+        createdRequest.Payload.ShouldNotBeNull();
+        var payload = JsonSerializer.Deserialize<GymAdminPromotionDto>(createdRequest.Payload);
         payload.ShouldNotBeNull();
         payload.GymId.ShouldBe(gymAdminObj.gymEmployment.GymId);
         payload.UserIdToNominate.ShouldBe(pendingGymEmployee.Id);

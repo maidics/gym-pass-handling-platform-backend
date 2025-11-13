@@ -1,6 +1,10 @@
 ﻿using System.Reflection;
 using FitPass.Application.Common.Behaviours;
 using FitPass.Application.Common.Configuration;
+using FitPass.Application.Common.Models;
+using FitPass.Application.Requests.Commands;
+using FitPass.Application.Requests.DTOs;
+using FitPass.Domain.Enums;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -23,7 +27,15 @@ public static class DependencyInjection
             cfg.AddOpenBehavior(typeof(ValidationBehaviour<,>));
             cfg.AddOpenBehavior(typeof(PerformanceBehaviour<,>));
         });
-        
+
+        builder.Services.AddTransient(
+            typeof(IRequestHandler<DeserializeRequestPayloadCommand<CreateGymDto>, Result<CreateGymDto, RequestStatus>>),
+            typeof(DeserializeRequestPayloadCommandHandler<CreateGymDto>));
+
+        builder.Services.AddTransient(
+            typeof(IRequestHandler<DeserializeRequestPayloadCommand<GymAdminPromotionDto>, Result<GymAdminPromotionDto, RequestStatus>>),
+            typeof(DeserializeRequestPayloadCommandHandler<GymAdminPromotionDto>));
+
         builder.Services.Configure<FrontendSettings>(builder.Configuration.GetSection(ConfigurationSections.Frontend));
     }
 }

@@ -1,5 +1,4 @@
-﻿using System.Text.Json;
-using FitPass.Application.Common.Exceptions;
+﻿using FitPass.Application.Common.Exceptions;
 using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Logging;
@@ -9,33 +8,34 @@ using FitPass.Application.Requests.DTOs;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
+using FitPass.Domain.Strings;
 using Microsoft.Extensions.Logging;
 
 namespace FitPass.Application.ApplicationUsers.Commands.RoleHandling;
 
 
 [Authorize(Roles = Roles.AppAdministrator)]
-public record PromotePendingGymEmployeeFromToGymAdminFromRequestCommand(string RequestId) : IRequest;
+public record PromotePendingGymEmployeeToGymAdminFromRequestCommand(string RequestId) : IRequest;
 
-public class PromotePendingGymEmployeeFromToGymAdminFromRequestCommandValidator : AbstractValidator<PromotePendingGymEmployeeFromToGymAdminFromRequestCommand>
+public class PromotePendingGymEmployeeToGymAdminFromRequestCommandValidator : AbstractValidator<PromotePendingGymEmployeeToGymAdminFromRequestCommand>
 {
-    public PromotePendingGymEmployeeFromToGymAdminFromRequestCommandValidator()
+    public PromotePendingGymEmployeeToGymAdminFromRequestCommandValidator()
     {
-        RuleFor(v => v.RequestId).NotEmptyWithMessage(nameof(PromotePendingGymEmployeeFromToGymAdminFromRequestCommand.RequestId))
+        RuleFor(v => v.RequestId).NotEmptyWithMessage(nameof(PromotePendingGymEmployeeToGymAdminFromRequestCommand.RequestId));
     }
 }
 
-public class PromotePendingGymEmployeeFromToGymAdminFromRequestCommandHandler : IRequestHandler<PromotePendingGymEmployeeFromToGymAdminFromRequestCommand>
+public class PromotePendingGymEmployeeToGymAdminFromRequestCommandHandler : IRequestHandler<PromotePendingGymEmployeeToGymAdminFromRequestCommand>
 {
     private readonly IApplicationDbContext _context;
     private readonly ISender _sender;
-    private readonly ILogger<PromotePendingGymEmployeeFromToGymAdminFromRequestCommand> _logger;
+    private readonly ILogger<PromotePendingGymEmployeeToGymAdminFromRequestCommand> _logger;
     private readonly IIdentityService _identityService;
 
-    public PromotePendingGymEmployeeFromToGymAdminFromRequestCommandHandler(
+    public PromotePendingGymEmployeeToGymAdminFromRequestCommandHandler(
         IApplicationDbContext context,
         ISender sender,
-        ILogger<PromotePendingGymEmployeeFromToGymAdminFromRequestCommand> logger,
+        ILogger<PromotePendingGymEmployeeToGymAdminFromRequestCommand> logger,
         IIdentityService identityService)
     {
         _context = context;
@@ -44,7 +44,7 @@ public class PromotePendingGymEmployeeFromToGymAdminFromRequestCommandHandler : 
         _identityService = identityService;
     }
 
-    public async Task Handle(PromotePendingGymEmployeeFromToGymAdminFromRequestCommand command, CancellationToken cancellationToken)
+    public async Task Handle(PromotePendingGymEmployeeToGymAdminFromRequestCommand command, CancellationToken cancellationToken)
     {
         var request = await _context.Requests.FindAsync(command.RequestId);
 
@@ -71,6 +71,77 @@ public class PromotePendingGymEmployeeFromToGymAdminFromRequestCommandHandler : 
             throw new ArgumentException("Failed to deserialize payload.");
         }
 
-        throw new NotImplementedException();
+        var promotionDto = deserializationResult.Value;
+
+        if (!await _identityService.DoesUserExist(promotionDto.UserIdToNominate))
+        {
+            throw new NotFoundException(promotionDto.UserIdToNominate, "PendingGymEmployee to promote.");
+        }
+
+        if (!await _identityService.IsInRoleAsync(promotionDto.UserIdToNominate, Roles.PendingGymEmployee))
+        {
+            throw new BadRequestException("User is not a PendingGymEmployee.");
+        }
+
+        using var transaction = await _context.BeginTransactionAsync();
+
+        try
+        {
+            var demotionResult = await _identityService.RemoveFromRoleAsync(promotionDto.UserIdToNominate, Roles.PendingGymEmployee);
+
+            if (!demotionResult.Succeeded)
+            {
+                LogErrorMessages.IdentityServiceMethodFailed(
+                    _logger,
+                    nameof(IIdentityService.RemoveFromRoleAsync),
+                    [Roles.PendingGymEmployee],
+                    promotionDto.UserIdToNominate,
+                    demotionResult);
+
+                await transaction.RollbackAsync();
+
+                throw new SystemException(ErrorMessages.FailedToHandleRole(Roles.PendingGymEmployee, false, demotionResult.Errors));
+            }
+
+            var promotionResult = await _identityService.AddToRoleAsync(promotionDto.UserIdToNominate, Roles.GymAdministrator);
+
+            if (!promotionResult.Succeeded)
+            {
+                LogErrorMessages.IdentityServiceMethodFailed(
+                    _logger,
+                    nameof(IIdentityService.AddToRoleAsync),
+                    [Roles.GymAdministrator],
+                    promotionDto.UserIdToNominate,
+                    promotionResult);
+
+                await transaction.RollbackAsync();
+
+                throw new SystemException(ErrorMessages.FailedToHandleRole(Roles.GymAdministrator, true, demotionResult.Errors));
+            }
+
+            var gymEmployment = new GymEmployment
+            {
+                ApplicationUserId = promotionDto.UserIdToNominate,
+                GymId = promotionDto.GymId,
+                Role = Roles.GymAdministrator,
+                EscalationEmail = promotionDto.EscalationEmail
+            };
+
+            await _context.GymEmployments.AddAsync(gymEmployment);
+
+            request.Status = RequestStatus.Completed;
+
+            await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
+        } catch (Exception ex)
+        {
+            LogErrorMessages.UnhandledExceptionCaught(
+                _logger,
+                nameof(PromotePendingGymEmployeeToGymAdminFromRequestCommandHandler),
+                ex);
+
+            await transaction.RollbackAsync();
+            throw;
+        }
     }
 }

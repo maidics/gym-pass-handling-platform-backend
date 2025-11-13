@@ -3,7 +3,7 @@ using FitPass.Application.Common.Exceptions;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 
-namespace FitPass.Application.FunctionalTests.Tests.ApplicationUserTests.Commands;
+namespace FitPass.Application.FunctionalTests.Tests.ApplicationUserTests.Commands.RoleHandling;
 
 using static Testing;
 
