@@ -67,6 +67,11 @@ public class GymEmployeeUseGymMembershipPassCommandHandler : IRequestHandler<Gym
             throw new ForbiddenAccessException();
         }
 
+        if (pass.GymMembership.Status == GymMembershipStatus.Banned)
+        {
+            throw new BadRequestException("User is banned from the gym.");
+        }
+
         var passUsage = pass.Use(command.LockerNumber);
 
         if (passUsage.PassUseResult == PassUseResult.AlreadyHasNoUsesLeft)

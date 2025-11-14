@@ -2,12 +2,13 @@ using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Logging;
 using FitPass.Application.Common.Security;
+using FitPass.Domain.Constants;
 using FitPass.Domain.Strings;
 using Microsoft.Extensions.Logging;
 
 namespace FitPass.Application.ApplicationUsers.Commands;
 
-[Authorize]
+[Authorize(Roles = $"{Roles.User}, {Roles.PendingGymEmployee}, {Roles.GymStaff}, {Roles.GymAdministrator}")]
 public record DeleteMyAccountCommand : IRequest;
 
 public class DeleteMyAccountCommandHandler : IRequestHandler<DeleteMyAccountCommand>

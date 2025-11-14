@@ -35,6 +35,16 @@ public class DeleteMyAccountTests : BaseTestFixture
     }
 
     [Test]
+    public async Task ShouldNotDeleteAppAdminAccount()
+    {
+        await RunAsAppAdminAsync();
+
+        var command = new DeleteMyAccountCommand();
+
+        await Should.ThrowAsync<UnauthorizedAccessException>(SendAsync(command));
+    }
+
+    [Test]
     public override void AuthorizeAttributeCheck()
     {
         ShouldRequireAuthorization<DeleteMyAccountCommand>();

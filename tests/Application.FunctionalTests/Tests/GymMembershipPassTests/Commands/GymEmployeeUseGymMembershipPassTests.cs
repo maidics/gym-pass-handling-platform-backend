@@ -51,6 +51,30 @@ public class GymEmployeeUseGymMembershipPassTests : BaseTestFixture
     }
 
     [Test]
+    public async Task ShouldThrowIfGymMembershipStatusIsBanned()
+    {
+        var gymObj = await TestEntityBuilder.BuildGymAsync();
+
+        var userObj = await TestEntityBuilder.BuildDefaultUserAsync();
+
+        var bannedGymMembership = await GymMembershipBuilder
+            .WithApplicationUserId(userObj.user.Id)
+            .WithGymId(gymObj.gym.Id)
+            .WithStatus(GymMembershipStatus.Banned)
+            .BuildAsync();
+
+        var pass = await GymMembershipPassBuilder
+            .WithGymMembershipId(bannedGymMembership.Id)
+            .BuildAsync();
+
+        await RunAsUserAsync(gymObj.gymStaff);
+
+        var command = new GymEmployeeUseGymMembershipPassCommand(pass.Id, "20");
+
+        await Should.ThrowAsync<BadRequestException>(SendAsync(command));
+    }
+
+    [Test]
     public async Task ShouldReturnAlreadyHasNoUsesLeftAndPassShouldBeDeleted()
     {
         var obj = await TestEntityBuilder.BuildGymAsync();
