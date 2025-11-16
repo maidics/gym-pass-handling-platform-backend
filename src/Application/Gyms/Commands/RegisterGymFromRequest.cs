@@ -1,4 +1,3 @@
-using System.Text.Json;
 using FitPass.Application.Common.Exceptions;
 using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;

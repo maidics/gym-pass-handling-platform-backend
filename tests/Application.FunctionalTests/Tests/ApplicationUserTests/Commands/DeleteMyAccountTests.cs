@@ -1,4 +1,6 @@
 ﻿using FitPass.Application.ApplicationUsers.Commands;
+using FitPass.Application.Common.Exceptions;
+using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 
 namespace FitPass.Application.FunctionalTests.Tests.ApplicationUserTests.Commands;
@@ -41,12 +43,16 @@ public class DeleteMyAccountTests : BaseTestFixture
 
         var command = new DeleteMyAccountCommand();
 
-        await Should.ThrowAsync<UnauthorizedAccessException>(SendAsync(command));
+        await Should.ThrowAsync<ForbiddenAccessException>(SendAsync(command));
     }
 
     [Test]
     public override void AuthorizeAttributeCheck()
     {
-        ShouldRequireAuthorization<DeleteMyAccountCommand>();
+        ShouldRequireAuthorization<DeleteMyAccountCommand>(
+            Roles.User, 
+            Roles.PendingGymEmployee, 
+            Roles.GymAdministrator, 
+            Roles.GymStaff);
     }
 }
