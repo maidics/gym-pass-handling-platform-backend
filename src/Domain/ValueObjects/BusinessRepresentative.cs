@@ -5,7 +5,7 @@ public class BusinessRepresentative : ValueObject
 public string FirstName { get; private init; }
     public string LastName { get; private init; }
     public string Email { get; private init; }
-    public string Phone { get; private init; }
+    public PhoneNumber Phone { get; private init; }
     public DateTime DateOfBirth { get; private init; }
     public Address Address { get; private init; }
 
@@ -14,7 +14,7 @@ public string FirstName { get; private init; }
         FirstName = string.Empty;
         LastName = string.Empty;
         Email = string.Empty;
-        Phone = string.Empty;
+        Phone = null!;
         Address = null!;
     }
 
@@ -22,7 +22,7 @@ public string FirstName { get; private init; }
         string firstName,
         string lastName,
         string email,
-        string phone,
+        PhoneNumber phoneNumber,
         DateTime dateOfBirth,
         Address address)
     {
@@ -35,8 +35,8 @@ public string FirstName { get; private init; }
         if (string.IsNullOrWhiteSpace(email))
             throw new ArgumentException("Email is required", nameof(email));
         
-        if (string.IsNullOrWhiteSpace(phone))
-            throw new ArgumentException("Phone is required", nameof(phone));
+        if (phoneNumber is null)
+            throw new ArgumentNullException(nameof(phoneNumber));
         
         if (dateOfBirth >= DateTime.UtcNow.AddYears(-18))
             throw new ArgumentException("Representative must be at least 18 years old", nameof(dateOfBirth));
@@ -47,7 +47,7 @@ public string FirstName { get; private init; }
         FirstName = firstName.Trim();
         LastName = lastName.Trim();
         Email = email.Trim().ToLowerInvariant();
-        Phone = phone.Trim();
+        Phone = phoneNumber;
         DateOfBirth = dateOfBirth.Date;
         Address = address;
     }

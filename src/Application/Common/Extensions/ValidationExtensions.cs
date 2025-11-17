@@ -54,7 +54,7 @@ public static class ValidationExtensions
     {
         return rule
             .NotEmptyWithMaxLenghtAndMessage(propertyName, MaxStringLengths.PhoneNumber)
-            .Matches(@"^\+?[0-9]{7,15}$").WithMessage(ErrorMessages.InvalidPhoneNumber());
+            .Must(Domain.ValueObjects.PhoneNumber.IsValid).WithMessage(ErrorMessages.InvalidPhoneNumber());
     }
 
     public static IRuleBuilder<T, string> ValidEmailAddress<T>(this IRuleBuilder<T, string> rule, string emailPropertyName)
