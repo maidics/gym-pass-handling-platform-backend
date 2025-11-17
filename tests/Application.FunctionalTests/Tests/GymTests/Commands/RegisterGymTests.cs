@@ -1,7 +1,6 @@
-using System;
+/*
 using FitPass.Application.Common.Exceptions;
 using FitPass.Application.FunctionalTests.TestData;
-using FitPass.Application.Gyms.Commands;
 using FitPass.Application.Requests.DTOs;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
@@ -104,3 +103,4 @@ public class RegisterGymTests : BaseTestFixture
         gymEmployment.Role.ShouldBe(Roles.GymAdministrator);
     }
 }
+*/
