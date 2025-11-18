@@ -7,5 +7,7 @@ public enum PaymentProviderResult
     Unexpected,
     TooManyRequests,
     PaymentRequired,
-    InvalidRequest
+    InvalidRequest,
+    FailedToCreateConnectedAccount,
+    FailedToGenerateAccountLink
 }

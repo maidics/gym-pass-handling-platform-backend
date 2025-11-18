@@ -23,12 +23,10 @@ public class StripeConnectedAccountService : IPaymentTenantService
         _accountLinkService = accountLinkService;
     }
 
-    public async Task<Result<(string tenantAccountId, string onboardingUrl, DateTime expirationTime), PaymentProviderResult>> CreateTenantAccountAndGetOnboardingLinkAsync(
+    public async Task<Result<string, PaymentProviderResult>> CreateTenantAccount(
         string gymId,
         string email, 
-        string businessName, 
-        string returnUrl, 
-        string refreshUrl, 
+        string businessName,
         CancellationToken cancellationToken = default)
     {
         try
@@ -61,15 +59,12 @@ public class StripeConnectedAccountService : IPaymentTenantService
 
             var account = await _accountService.CreateAsync(accountOptions, cancellationToken: cancellationToken);
 
-            var onboardingUrl = await GenerateAccountLinkAsync(account.Id, returnUrl, refreshUrl, cancellationToken);
-
-            return Result<(string tenantAccountId, string onboardingUrl, DateTime expirationDate), PaymentProviderResult>
-                .Success((account.Id, onboardingUrl, DateTime.UtcNow.AddMinutes(5)), PaymentProviderResult.Success);
+            return Result<string, PaymentProviderResult>.Success(account.Id, PaymentProviderResult.Success);
         } catch (StripeException ex)
         {
-            ex.Log(_logger, nameof(StripeConnectedAccountService), nameof(CreateTenantAccountAndGetOnboardingLinkAsync));
+            ex.Log(_logger, nameof(StripeConnectedAccountService), nameof(CreateTenantAccount));
 
-            return ex.ToApplicationResult<(string, string, DateTime)>();
+            return ex.ToApplicationResult<string>();
         }
     }
 

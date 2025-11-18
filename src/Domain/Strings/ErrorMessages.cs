@@ -154,9 +154,9 @@ public static class ErrorMessages
         return "Authenticated user not found.";
     }
 
-    public static string AuthenticatedUserRelatedEntityNotFound(string relatedEntityType)
+    public static string AuthenticatedUserRelatedEntityNotFound(string relatedEntityName)
     {
-        return $"Authenticated user's {relatedEntityType} not found.";
+        return $"Authenticated user's {relatedEntityName} not found.";
     }
 
     public static string UnhandledErrorOccuredExternalService()

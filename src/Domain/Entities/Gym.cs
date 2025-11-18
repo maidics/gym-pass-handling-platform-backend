@@ -1,3 +1,5 @@
+using FitPass.Domain.Entities.Payment;
+
 namespace FitPass.Domain.Entities;
 
 public class Gym : BaseAuditableEntity
@@ -6,6 +8,6 @@ public class Gym : BaseAuditableEntity
     public required string Address { get; set; }
     public required GymStatus Status { get; set; }
     public required GymTier Tier { get; set; }
-    public string? OwnerName { get; set; }
+    public TenantPaymentProfile? PaymentProfile { get; set; }
     public ICollection<GymPassProduct> PassProducts { get; set; } = [];
 }

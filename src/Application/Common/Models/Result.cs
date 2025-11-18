@@ -22,7 +22,7 @@ public class Result
     }
 }
 
-public class Result<TValue> where TValue : notnull
+public class Result<TValue>
 {
     private readonly TValue _value;
     private Result(bool succeeded, IEnumerable<string> errors, TValue value)
