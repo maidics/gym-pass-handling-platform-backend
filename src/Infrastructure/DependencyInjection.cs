@@ -25,6 +25,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Polly;
 using Stripe;
+using FitPass.Application.Common.Interfaces.Payment;
 
 namespace FitPass.Infrastructure;
 
@@ -83,6 +84,9 @@ public static class DependencyInjection
         builder.Services.AddScoped<IStripeProductService, StripeProductService>();
         builder.Services.AddScoped<IStripePriceService, StripePriceService>();
         */
+
+        builder.Services.AddScoped<IPaymentTenantService, StripeConnectedAccountService>();
+        builder.Services.AddScoped<IPaymentWebhookService, StripeWebHookService>();
 
         builder.Services.AddScoped<IQueryService, QueryService>();
 

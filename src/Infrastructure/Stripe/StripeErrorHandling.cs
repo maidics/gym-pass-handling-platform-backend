@@ -8,20 +8,20 @@ namespace FitPass.Infrastructure.Stripe;
 
 public static class StripeExceptionExtensions
 {
-    public static Result<TValue, PaymentFailure> ToApplicationResult<TValue>(this StripeException stripeException)
+    public static Result<TValue, PaymentProviderResult> ToApplicationResult<TValue>(this StripeException stripeException)
     {
         return stripeException.HttpStatusCode switch
         {
-            HttpStatusCode.TooManyRequests => Result<TValue, PaymentFailure>.Failure([stripeException.StripeError.Message], PaymentFailure.TooManyRequests),
+            HttpStatusCode.TooManyRequests => Result<TValue, PaymentProviderResult>.Failure([stripeException.StripeError.Message], PaymentProviderResult.TooManyRequests),
 
-            HttpStatusCode.PaymentRequired => Result<TValue, PaymentFailure>.Failure([stripeException.StripeError.Message], PaymentFailure.PaymentRequired),
+            HttpStatusCode.PaymentRequired => Result<TValue, PaymentProviderResult>.Failure([stripeException.StripeError.Message], PaymentProviderResult.PaymentRequired),
 
             HttpStatusCode.BadRequest or
             HttpStatusCode.Unauthorized or
             HttpStatusCode.Forbidden or
-            HttpStatusCode.NotFound => Result<TValue, PaymentFailure>.Failure([stripeException.StripeError.Message], PaymentFailure.InternalServerError),
+            HttpStatusCode.NotFound => Result<TValue, PaymentProviderResult>.Failure([stripeException.StripeError.Message], PaymentProviderResult.InvalidRequest),
 
-            _ => Result<TValue, PaymentFailure>.Failure([stripeException.StripeError.Message], PaymentFailure.Unexpected)
+            _ => Result<TValue, PaymentProviderResult>.Failure([stripeException.StripeError.Message], PaymentProviderResult.Unexpected)
         };
     }
 

@@ -1,5 +1,6 @@
 using FitPass.Domain.ValueObjects;
 
+/*
 namespace FitPass.Domain.Entities;
 
 public class PaymentResult : BaseAuditableEntity
@@ -42,3 +43,4 @@ public class PaymentResult : BaseAuditableEntity
         };
     }
 }
+*/

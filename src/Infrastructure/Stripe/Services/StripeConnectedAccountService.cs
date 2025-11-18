@@ -23,7 +23,7 @@ public class StripeConnectedAccountService : IPaymentTenantService
         _accountLinkService = accountLinkService;
     }
 
-    public async Task<Result<(string tenantAccountId, string onboardingUrl, DateTime expirationTime), PaymentFailure>> CreateTenantAccountAndGetOnboardingLinkAsync(
+    public async Task<Result<(string tenantAccountId, string onboardingUrl, DateTime expirationTime), PaymentProviderResult>> CreateTenantAccountAndGetOnboardingLinkAsync(
         string gymId,
         string email, 
         string businessName, 
@@ -63,8 +63,8 @@ public class StripeConnectedAccountService : IPaymentTenantService
 
             var onboardingUrl = await GenerateAccountLinkAsync(account.Id, returnUrl, refreshUrl, cancellationToken);
 
-            return Result<(string tenantAccountId, string onboardingUrl, DateTime expirationDate), PaymentFailure>
-                .Success((account.Id, onboardingUrl, DateTime.UtcNow.AddMinutes(5)));
+            return Result<(string tenantAccountId, string onboardingUrl, DateTime expirationDate), PaymentProviderResult>
+                .Success((account.Id, onboardingUrl, DateTime.UtcNow.AddMinutes(5)), PaymentProviderResult.Success);
         } catch (StripeException ex)
         {
             ex.Log(_logger, nameof(StripeConnectedAccountService), nameof(CreateTenantAccountAndGetOnboardingLinkAsync));
@@ -73,7 +73,7 @@ public class StripeConnectedAccountService : IPaymentTenantService
         }
     }
 
-    public async Task<Result<string, PaymentFailure>> GetOnboardingLinkAsync(
+    public async Task<Result<string, PaymentProviderResult>> GetOnboardingLinkAsync(
         string tenantAccountId, 
         string returnUrl, 
         string refreshUrl, 
@@ -83,7 +83,7 @@ public class StripeConnectedAccountService : IPaymentTenantService
         {
             var accountLink = await GenerateAccountLinkAsync(tenantAccountId, returnUrl, refreshUrl, cancellationToken);
 
-            return Result<string, PaymentFailure>.Success(accountLink);
+            return Result<string, PaymentProviderResult>.Success(accountLink, PaymentProviderResult.Success);
         } catch (StripeException ex)
         {
             ex.Log(_logger, nameof(StripeConnectedAccountService), nameof(GetOnboardingLinkAsync));
@@ -92,7 +92,7 @@ public class StripeConnectedAccountService : IPaymentTenantService
         }
     }
 
-    public async Task<Result<bool, PaymentFailure>> IsOnboardingCompleteAsync(string tenantAccountId, CancellationToken cancellationToken = default)
+    public async Task<Result<bool, PaymentProviderResult>> IsOnboardingCompleteAsync(string tenantAccountId, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -100,7 +100,7 @@ public class StripeConnectedAccountService : IPaymentTenantService
 
             bool isAccountOnboardingCompleted = account.DetailsSubmitted && account.ChargesEnabled && account.PayoutsEnabled;
 
-            return Result<bool, PaymentFailure>.Success(isAccountOnboardingCompleted);
+            return Result<bool, PaymentProviderResult>.Success(isAccountOnboardingCompleted, PaymentProviderResult.Success);
         } catch (StripeException ex)
         {
             ex.Log(_logger, nameof(StripeConnectedAccountService), nameof(IsOnboardingCompleteAsync));

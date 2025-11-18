@@ -64,7 +64,7 @@ public class PromotePendingGymEmployeeToGymAdminFromRequestCommandHandler : IReq
 
         if (!deserializationResult.Succeeded)
         {
-            request.Status = deserializationResult.FailureType;
+            request.Status = deserializationResult.Type;
 
             await _context.SaveChangesAsync();
 

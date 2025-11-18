@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Domain.Entities;
+using FitPass.Domain.Entities.Payment;
 using FitPass.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -21,6 +22,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
 
     public DbSet<GymPassProduct> GymPassProducts => Set<GymPassProduct>();
     public DbSet<Request> Requests => Set<Request>();
+
+    public DbSet<TenantPaymentProfile> TenantPaymentProfiles => Set<TenantPaymentProfile>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

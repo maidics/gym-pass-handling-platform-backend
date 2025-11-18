@@ -1,4 +1,5 @@
 ﻿using FitPass.Domain.Entities;
+using FitPass.Domain.Entities.Payment;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace FitPass.Application.Common.Interfaces;
@@ -13,11 +14,9 @@ public interface IApplicationDbContext
     DbSet<GymPassUsage> GymPassUsages { get; }
     DbSet<Request> Requests { get; }
     DbSet<GymPassProduct> GymPassProducts { get; }
-    /*
-    DbSet<PaymentCustomer> PaymentCustomers { get; }
-    DbSet<PaymentPrice> PaymentPrices { get; }
-    DbSet<PaymentProduct> PaymentProducts { get; }
-    */
+    
+    DbSet<TenantPaymentProfile> TenantPaymentProfiles { get; }
+
     Task<int> SaveChangesAsync();
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
     Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default);

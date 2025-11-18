@@ -62,6 +62,8 @@ public static class DependencyInjection
                     .AllowCredentials();
             });
         });
+
+        builder.Services.AddScoped<StripeWebHookSignatureFilter>();
     }
 
     public static void AddKeyVaultIfConfigured(this IHostApplicationBuilder builder)

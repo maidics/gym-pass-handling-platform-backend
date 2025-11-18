@@ -92,7 +92,7 @@ public class RegisterGymFromRequestCommandHandler : IRequestHandler<RegisterGymF
 
         if (!deserializationResult.Succeeded)
         {
-            request.Status = deserializationResult.FailureType;
+            request.Status = deserializationResult.Type;
 
             await _context.SaveChangesAsync();
 

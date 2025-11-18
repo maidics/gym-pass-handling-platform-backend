@@ -1,10 +1,11 @@
 namespace FitPass.Domain.Enums;
 
-public enum PaymentFailure
+public enum PaymentProviderResult
 {
+    Success,
     ConnectedAccountNotFound,
     Unexpected,
     TooManyRequests,
     PaymentRequired,
-    InternalServerError
+    InvalidRequest
 }
