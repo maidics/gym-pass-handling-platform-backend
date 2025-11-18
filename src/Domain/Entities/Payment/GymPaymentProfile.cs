@@ -5,7 +5,7 @@ namespace FitPass.Domain.Entities.Payment;
 public class GymPaymentProfile : BaseAuditableEntity
 {
     public required string GymId { get; set; }
-    public string? ConnectedAccountId { get; set; }
+    public string? PaymentTenantAccountId { get; set; }
 
     public required bool PaymentSetupCompleted { get; set; }
     public required bool ChargesEnabledPayoutsEnabled { get; set; }
