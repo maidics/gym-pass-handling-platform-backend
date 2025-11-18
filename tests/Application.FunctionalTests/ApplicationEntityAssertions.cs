@@ -1,6 +1,6 @@
 using FitPass.Application.GymEmployments.DTOs;
-using FitPass.Application.GymMembershipPassUsages.DTOs;
 using FitPass.Application.GymMemberships.DTOs;
+using FitPass.Application.GymPassUsages.DTOs;
 using FitPass.Application.Gyms.DTOs;
 using FitPass.Application.Requests.DTOs;
 using FitPass.Application.UserProfiles.DTOs;

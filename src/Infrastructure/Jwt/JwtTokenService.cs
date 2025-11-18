@@ -6,7 +6,7 @@ using FitPass.Application.Common.Interfaces;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
-namespace FitPass.Infrastructure.Services.Jwt;
+namespace FitPass.Infrastructure.Jwt;
 
 public class JwtTokenService : IJwtTokenService
 {

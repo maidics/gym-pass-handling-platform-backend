@@ -18,12 +18,7 @@ public class CustomExceptionHandler : IExceptionHandler
                 { typeof(ValidationException), HandleValidationException },
                 { typeof(NotFoundException), HandleNotFoundException },
                 { typeof(UnauthorizedAccessException), HandleUnauthorizedAccessException },
-                { typeof(ForbiddenAccessException), HandleForbiddenAccessException },
-                { typeof(ConflictException), HandleConflictException },
-                { typeof(BadRequestException), HandleBadRequestException },
-                { typeof(PaymentRequiredException), HandlePaymentRequiredException },
-                { typeof(ExternalServiceUnavailableException), HandleServiceUnavailableException },
-                { typeof(InvalidCredentialException), HandleInvalidCredentialException}
+                { typeof(ForbiddenAccessException), HandleForbiddenAccessException }
             };
     }
 

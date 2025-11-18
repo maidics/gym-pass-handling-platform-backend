@@ -64,7 +64,8 @@ public class PromotePendingGymEmployeeToGymAdminFromRequestCommandHandler : IReq
 
         if (!deserializationResult.Succeeded)
         {
-            request.Status = deserializationResult.Type;
+            request.Status = RequestStatus.Error;
+            request.Error = string.Join(", ", deserializationResult.Errors);
 
             await _context.SaveChangesAsync();
 

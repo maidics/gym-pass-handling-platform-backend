@@ -5,10 +5,10 @@ namespace FitPass.Infrastructure.Identity;
 
 public static class IdentityResultExtensions
 {
-    public static Result ToApplicationResult(this IdentityResult result)
+    public static Result ToApplicationResult(this IdentityResult result, ResultType type = ResultType.InternalError)
     {
         return result.Succeeded
             ? Result.Success()
-            : Result.Failure(result.Errors.Select(e => e.Description));
+            : Result.Failure(result.Errors.Select(e => e.Description), type);
     }
 }

@@ -71,7 +71,8 @@ public class RegisterGymFromRequestCommandHandler : IRequestHandler<RegisterGymF
         {
             _logger.LogError("CreatedBy property of {Request} is null. Cannot nominate GymAdmin.", request);
 
-            request.Status = RequestStatus.CreatorNotFound;
+            request.Status = RequestStatus.Error;
+            request.Error = "Request creator is empty.";
 
             await _context.SaveChangesAsync();
 
@@ -80,7 +81,8 @@ public class RegisterGymFromRequestCommandHandler : IRequestHandler<RegisterGymF
         {
             if (!await _identityService.IsInRoleAsync(request.CreatedBy, Roles.PendingGymEmployee))
             {
-                request.Status |= RequestStatus.RelatedRoleHandlingFailed;
+                request.Status = RequestStatus.Error;
+                request.Error = "Request creator is no longer eligible for request completion.";
 
                 await _context.SaveChangesAsync();
 
@@ -92,11 +94,14 @@ public class RegisterGymFromRequestCommandHandler : IRequestHandler<RegisterGymF
 
         if (!deserializationResult.Succeeded)
         {
-            request.Status = deserializationResult.Type;
+            string errorMessage = "Failed to deserialize payload.";
+
+            request.Status = RequestStatus.Error;
+            request.Error = errorMessage;
 
             await _context.SaveChangesAsync();
 
-            throw new ArgumentException("Failed to deserialize payload.");
+            throw new ArgumentException(errorMessage);
         }
 
         var createGymDto = deserializationResult.Value;
@@ -121,7 +126,6 @@ public class RegisterGymFromRequestCommandHandler : IRequestHandler<RegisterGymF
                 Address = createGymDto.GymAddress,
                 Status = createGymDto.GymStatus,
                 Tier = createGymDto.GymTier,
-                OwnerName = createGymDto.GymOwnerName
             };
 
             await _context.Gyms.AddAsync(gym);
@@ -139,7 +143,8 @@ public class RegisterGymFromRequestCommandHandler : IRequestHandler<RegisterGymF
                     request.CreatedBy,
                     demotionResult);
 
-                request.Status = RequestStatus.RelatedRoleHandlingFailed;
+                request.Status = RequestStatus.Error;
+                request.Error = $"Failed to remove user from {Roles.PendingGymEmployee} role.";
 
                 await _context.SaveChangesAsync();
 
@@ -159,7 +164,8 @@ public class RegisterGymFromRequestCommandHandler : IRequestHandler<RegisterGymF
                     request.CreatedBy,
                     promotionResult);
 
-                request.Status = RequestStatus.RelatedRoleHandlingFailed;
+                request.Status = RequestStatus.Error;
+                request.Error = $"Failed to add user to {Roles.GymAdministrator} role.";
 
                 await _context.SaveChangesAsync();
 

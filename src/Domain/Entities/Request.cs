@@ -7,5 +7,6 @@ public class Request : BaseAuditableEntity
     public required PriorityLevel PriorityLevel { get; set; }
     public required RequestType Type { get; set; }
     public RequestStatus Status { get; set; } = RequestStatus.Submitted;
+    public string? Error { get; set; }
     public required string? Payload { get; set; } //Json serialized
 }

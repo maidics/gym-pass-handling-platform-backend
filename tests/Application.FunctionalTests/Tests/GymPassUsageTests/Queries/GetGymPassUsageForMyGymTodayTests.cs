@@ -1,6 +1,6 @@
 using System;
 using FitPass.Application.FunctionalTests.TestData;
-using FitPass.Application.GymMembershipPassUsages.Queries;
+using FitPass.Application.GymPassUsages.Queries;
 using FitPass.Domain.Constants;
 
 namespace FitPass.Application.FunctionalTests.Tests.GymPassUsageTests.Queries;

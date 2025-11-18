@@ -1,12 +1,12 @@
-using FitPass.Application.Common.Exceptions;
+/*
 using FitPass.Application.Common.Interfaces;
+using FitPass.Application.Common.Interfaces.Payment;
 using FitPass.Application.Common.Logging;
 using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Security;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Entities.Payment;
-using FitPass.Domain.Enums;
 using FitPass.Domain.Strings;
 using Microsoft.Extensions.Logging;
 
@@ -16,9 +16,9 @@ namespace FitPass.Application.TenantPaymentProfiles.Commands;
 public record SetupTenantPaymentProfileCommand(
     string PaymentAccountHolderEmail,
     string BusinessName
-) : IRequest<Result<(string url, DateTime expirationDateTime), PaymentProviderResult>>;
+) : IRequest<Result<(string url, DateTime expirationDateTime)>>;
 
-public class SetupTenantPaymentProfileCommandHandler : IRequestHandler<SetupTenantPaymentProfileCommand, Result<(string url, DateTime expirationDateTime), PaymentProviderResult>>
+public class SetupTenantPaymentProfileCommandHandler : IRequestHandler<SetupTenantPaymentProfileCommand, Result<(string url, DateTime expirationDateTime)>>
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
@@ -37,7 +37,7 @@ public class SetupTenantPaymentProfileCommandHandler : IRequestHandler<SetupTena
         _paymentTenantService = paymentTenantService;
     }
 
-    public async Task<Result<(string url, DateTime expirationDateTime), PaymentProviderResult>> Handle(SetupTenantPaymentProfileCommand command, CancellationToken cancellationToken)
+    public async Task<Result<(string url, DateTime expirationDateTime)>> Handle(SetupTenantPaymentProfileCommand command, CancellationToken cancellationToken)
     {
         var gymEmployment = await _context
             .GymEmployments
@@ -69,7 +69,7 @@ public class SetupTenantPaymentProfileCommandHandler : IRequestHandler<SetupTena
 
             if (!creationResult.Succeeded)
             {
-                return Result<(string url, DateTime expirationDateTime), PaymentProviderResult>
+                return Result<(string url, DateTime expirationDateTime)>
                     .Failure(creationResult.Errors, creationResult.Type);
             }
 
@@ -82,19 +82,18 @@ public class SetupTenantPaymentProfileCommandHandler : IRequestHandler<SetupTena
         var result = await _paymentTenantService.CreateTenantAccount(
             gym.Id, 
             command.PaymentAccountHolderEmail, 
-            command.BusinessName,
-            "TODO: set return url",
-            "TODO: set refresh url");
+            command.BusinessName);
 
         if (!result.Succeeded)
         {
-            return Result<(string url, DateTime expirationDateTime), PaymentProviderResult>
+            return Result<(string url, DateTime expirationDateTime)>
                 .Failure(["Failed to create payment account or generate onboarding link."], result.Type);
         }
 
 
 
-        return Result<(string url, DateTime expirationDateTime), PaymentProviderResult>
+        return Result<(string url, DateTime expirationDateTime)>
             .Success((result.Value.onboardingUrl, result.Value.expirationTime), result.Type);
     }
 }
+*/

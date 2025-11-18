@@ -1,6 +1,6 @@
 using FitPass.Domain.Entities;
 
-namespace FitPass.Application.Common.Interfaces;
+namespace FitPass.Application.Common.Interfaces.Payment;
 
 public interface IPaymentProductService
 {

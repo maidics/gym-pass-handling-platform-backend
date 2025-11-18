@@ -29,11 +29,11 @@ public static class DependencyInjection
         });
 
         builder.Services.AddTransient(
-            typeof(IRequestHandler<DeserializeRequestPayloadCommand<CreateGymDto>, Result<CreateGymDto, RequestStatus>>),
+            typeof(IRequestHandler<DeserializeRequestPayloadCommand<CreateGymDto>, Result<CreateGymDto>>),
             typeof(DeserializeRequestPayloadCommandHandler<CreateGymDto>));
 
         builder.Services.AddTransient(
-            typeof(IRequestHandler<DeserializeRequestPayloadCommand<GymAdminPromotionDto>, Result<GymAdminPromotionDto, RequestStatus>>),
+            typeof(IRequestHandler<DeserializeRequestPayloadCommand<GymAdminPromotionDto>, Result<GymAdminPromotionDto>>),
             typeof(DeserializeRequestPayloadCommandHandler<GymAdminPromotionDto>));
 
         builder.Services.Configure<FrontendSettings>(builder.Configuration.GetSection(ConfigurationSections.Frontend));

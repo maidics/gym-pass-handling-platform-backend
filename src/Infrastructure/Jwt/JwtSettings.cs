@@ -1,4 +1,4 @@
-namespace FitPass.Infrastructure.Services.Jwt;
+namespace FitPass.Infrastructure.Jwt;
 
 public class JwtSettings
 {

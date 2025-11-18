@@ -68,7 +68,6 @@ public class UpdateMyGymProfileCommandHandler : IRequestHandler<UpdateMyGymProfi
         gym.Name = command.GymName;
         gym.Address = command.GymAddress;
         gym.Tier = command.GymTier;
-        gym.OwnerName = command.GymOwnerName;
 
         await _context.SaveChangesAsync(cancellationToken);
     }

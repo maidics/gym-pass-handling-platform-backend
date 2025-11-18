@@ -1,4 +1,4 @@
-namespace FitPass.Domain.Events.GymMembershipPasses;
+namespace FitPass.Domain.Events.OwnedPasses;
 
 public class PassExpiredEvent : BaseEvent
 {

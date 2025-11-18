@@ -2,7 +2,6 @@
 using System.Security.Claims;
 using System.Text;
 using FitPass.Infrastructure.Data.Interceptors;
-using FitPass.Infrastructure.Services.Email;
 using FitPass.Infrastructure.Stripe.Services;
 using FitPass.Application.Common.Configuration;
 using FitPass.Application.Common.Interfaces;
@@ -10,8 +9,6 @@ using FitPass.Infrastructure.Data;
 using FitPass.Infrastructure.Data.DbSeed;
 using FitPass.Infrastructure.Data.Queries;
 using FitPass.Infrastructure.Identity;
-using FitPass.Infrastructure.Services;
-using FitPass.Infrastructure.Services.Jwt;
 using FitPass.Infrastructure.Stripe;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -26,6 +23,9 @@ using Microsoft.IdentityModel.Tokens;
 using Polly;
 using Stripe;
 using FitPass.Application.Common.Interfaces.Payment;
+using FitPass.Infrastructure.Email;
+using FitPass.Infrastructure.QRCode;
+using FitPass.Infrastructure.Jwt;
 
 namespace FitPass.Infrastructure;
 

@@ -58,6 +58,6 @@ public class StripeWebHookService : IPaymentWebhookService
     {
         _logger.LogError("Unhandled Stripe Webhook event: {StripeEvent}.", stripeEvent);
 
-        return Task.FromResult(Result.Failure(["Unhandled payment provider webhook."]));
+        return Task.FromResult(Result.Failure(["Unhandled payment provider webhook."], ResultType.InternalError));
     }
 }

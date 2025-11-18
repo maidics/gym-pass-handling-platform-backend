@@ -1,13 +1,13 @@
 ﻿using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Logging;
 using FitPass.Application.Common.Security;
-using FitPass.Application.GymMembershipPassUsages.DTOs;
+using FitPass.Application.GymPassUsages.DTOs;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Strings;
 using Microsoft.Extensions.Logging;
 
-namespace FitPass.Application.GymMembershipPassUsages.Queries;
+namespace FitPass.Application.GymPassUsages.Queries;
 
 [Authorize(Roles = $"{Roles.GymAdministrator},{Roles.GymStaff}")]
 public record GetGymPassUsagesForMyGymTodayQuery : IRequest<List<GymPassUsageDto>>;

@@ -17,9 +17,12 @@ var app = builder.Build();
 
 app.UseCors("AllowFrontent");
 
-/*
 var httpClientFactory = app.Services.GetRequiredService<IHttpClientFactory>();
 var resilientHttpClient = httpClientFactory.CreateClient("StripeClient");
+var stripeSettings = new StripeSettings();
+app.Configuration.GetSection("Stripe").Bind(stripeSettings);
+
+Guard.Against.NullOrEmpty(stripeSettings.TestKey);
 
 var stripeAdapter = new SystemNetHttpClient(resilientHttpClient);
 
@@ -29,7 +32,6 @@ var stripeClient = new StripeClient(
 );
 
 StripeConfiguration.StripeClient = stripeClient;
-*/
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

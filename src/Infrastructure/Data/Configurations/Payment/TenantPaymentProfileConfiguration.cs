@@ -8,6 +8,8 @@ public class TenantPaymentProfileConfiguration : IEntityTypeConfiguration<Tenant
 {
     public void Configure(EntityTypeBuilder<TenantPaymentProfile> builder)
     {
+        builder.HasKey(tpp => tpp.GymId);
+
         builder.OwnsOne(tpp => tpp.AccountStatus);
     }
 }

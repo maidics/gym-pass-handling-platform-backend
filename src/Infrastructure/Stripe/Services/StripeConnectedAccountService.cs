@@ -1,6 +1,6 @@
-using FitPass.Application.Common.Interfaces;
+using FitPass.Application.Common.Interfaces.Payment;
 using FitPass.Application.Common.Models;
-using FitPass.Domain.Enums;
+using FitPass.Domain.Entities.Payment;
 using Microsoft.Extensions.Logging;
 
 using Stripe;
@@ -23,7 +23,7 @@ public class StripeConnectedAccountService : IPaymentTenantService
         _accountLinkService = accountLinkService;
     }
 
-    public async Task<Result<string, PaymentProviderResult>> CreateTenantAccount(
+    public async Task<Result<string>> CreateTenantAccount(
         string gymId,
         string email, 
         string businessName,
@@ -59,7 +59,7 @@ public class StripeConnectedAccountService : IPaymentTenantService
 
             var account = await _accountService.CreateAsync(accountOptions, cancellationToken: cancellationToken);
 
-            return Result<string, PaymentProviderResult>.Success(account.Id, PaymentProviderResult.Success);
+            return Result<string>.Success(account.Id);
         } catch (StripeException ex)
         {
             ex.Log(_logger, nameof(StripeConnectedAccountService), nameof(CreateTenantAccount));
@@ -68,7 +68,12 @@ public class StripeConnectedAccountService : IPaymentTenantService
         }
     }
 
-    public async Task<Result<string, PaymentProviderResult>> GetOnboardingLinkAsync(
+    public Task<Result<TenantPaymentAccountStatus>> GetAccountStatusAsync(string tenantAccountId, CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
+
+    public async Task<Result<string>> GetOnboardingLinkAsync(
         string tenantAccountId, 
         string returnUrl, 
         string refreshUrl, 
@@ -78,7 +83,7 @@ public class StripeConnectedAccountService : IPaymentTenantService
         {
             var accountLink = await GenerateAccountLinkAsync(tenantAccountId, returnUrl, refreshUrl, cancellationToken);
 
-            return Result<string, PaymentProviderResult>.Success(accountLink, PaymentProviderResult.Success);
+            return Result<string>.Success(accountLink);
         } catch (StripeException ex)
         {
             ex.Log(_logger, nameof(StripeConnectedAccountService), nameof(GetOnboardingLinkAsync));
@@ -87,7 +92,7 @@ public class StripeConnectedAccountService : IPaymentTenantService
         }
     }
 
-    public async Task<Result<bool, PaymentProviderResult>> IsOnboardingCompleteAsync(string tenantAccountId, CancellationToken cancellationToken = default)
+    public async Task<Result<bool>> IsOnboardingCompleteAsync(string tenantAccountId, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -95,13 +100,18 @@ public class StripeConnectedAccountService : IPaymentTenantService
 
             bool isAccountOnboardingCompleted = account.DetailsSubmitted && account.ChargesEnabled && account.PayoutsEnabled;
 
-            return Result<bool, PaymentProviderResult>.Success(isAccountOnboardingCompleted, PaymentProviderResult.Success);
+            return Result<bool>.Success(isAccountOnboardingCompleted);
         } catch (StripeException ex)
         {
             ex.Log(_logger, nameof(StripeConnectedAccountService), nameof(IsOnboardingCompleteAsync));
 
             return ex.ToApplicationResult<bool>();
         }
+    }
+
+    Task<Result<string>> IPaymentTenantService.CreateTenantAccount(string gymId, string email, string businessName, CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
     }
 
     private async Task<string> GenerateAccountLinkAsync(string accountId, string returnUrl, string refreshUrl, CancellationToken cancellationToken = default)
@@ -121,5 +131,15 @@ public class StripeConnectedAccountService : IPaymentTenantService
         var accountLink = await _accountLinkService.CreateAsync(accountLinkOptions, cancellationToken: cancellationToken);
 
         return accountLink.Url;
+    }
+
+    Task<Result<string>> IPaymentTenantService.GetOnboardingLinkAsync(string tenantAccountId, string returnUrl, string refreshUrl, CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
+    }
+
+    Task<Result<bool>> IPaymentTenantService.IsOnboardingCompleteAsync(string tenantAccountId, CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
     }
 }

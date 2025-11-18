@@ -1,4 +1,4 @@
-namespace FitPass.Domain.Enums;
+namespace FitPass.Domain.Enums.Payment;
 
 public enum PaymentProviderResult
 {

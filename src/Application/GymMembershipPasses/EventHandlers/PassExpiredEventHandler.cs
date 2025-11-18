@@ -1,5 +1,5 @@
 using FitPass.Application.Common.Interfaces;
-using FitPass.Domain.Events.GymMembershipPasses;
+using FitPass.Domain.Events.OwnedPasses;
 
 namespace FitPass.Application.GymMembershipPasses.EventHandlers;
 

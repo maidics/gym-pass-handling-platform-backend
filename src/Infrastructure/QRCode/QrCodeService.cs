@@ -1,7 +1,7 @@
 using FitPass.Application.Common.Interfaces;
 using QRCoder;
 
-namespace FitPass.Infrastructure.Services;
+namespace FitPass.Infrastructure.QRCode;
 
 public class QrCodeService : IQrCodeService
 {

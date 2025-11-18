@@ -74,7 +74,7 @@ public class SendEmailConfirmationEmailCommandHandler : IRequestHandler<SendEmai
                 userId,
                 null);
 
-            return Result.Failure([ErrorMessages.FailedtoGenerateEmailConfirmationToken()]);
+            return Result.Failure([ErrorMessages.FailedtoGenerateEmailConfirmationToken()], ResultType.InternalError);
         }
 
         var encodedToken = Uri.EscapeDataString(token);

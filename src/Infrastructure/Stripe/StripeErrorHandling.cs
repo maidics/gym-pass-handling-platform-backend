@@ -1,6 +1,6 @@
 using System.Net;
 using FitPass.Application.Common.Models;
-using FitPass.Domain.Enums;
+using FitPass.Domain.Enums.Payment;
 using Microsoft.Extensions.Logging;
 using Stripe;
 
@@ -8,20 +8,20 @@ namespace FitPass.Infrastructure.Stripe;
 
 public static class StripeExceptionExtensions
 {
-    public static Result<TValue, PaymentProviderResult> ToApplicationResult<TValue>(this StripeException stripeException)
+    public static Result<TValue> ToApplicationResult<TValue>(this StripeException stripeException)
     {
         return stripeException.HttpStatusCode switch
         {
-            HttpStatusCode.TooManyRequests => Result<TValue, PaymentProviderResult>.Failure([stripeException.StripeError.Message], PaymentProviderResult.TooManyRequests),
+            HttpStatusCode.TooManyRequests => Result<TValue>.Failure([stripeException.StripeError.Message], ResultType.ExternalServiceUnavailable),
 
-            HttpStatusCode.PaymentRequired => Result<TValue, PaymentProviderResult>.Failure([stripeException.StripeError.Message], PaymentProviderResult.PaymentRequired),
+            HttpStatusCode.PaymentRequired => Result<TValue>.Failure([stripeException.StripeError.Message], ResultType.PaymentRequired),
 
             HttpStatusCode.BadRequest or
             HttpStatusCode.Unauthorized or
             HttpStatusCode.Forbidden or
-            HttpStatusCode.NotFound => Result<TValue, PaymentProviderResult>.Failure([stripeException.StripeError.Message], PaymentProviderResult.InvalidRequest),
+            HttpStatusCode.NotFound => Result<TValue>.Failure([stripeException.StripeError.Message], ResultType.InternalError),
 
-            _ => Result<TValue, PaymentProviderResult>.Failure([stripeException.StripeError.Message], PaymentProviderResult.Unexpected)
+            _ => Result<TValue>.Failure([stripeException.StripeError.Message], ResultType.InternalError)
         };
     }
 

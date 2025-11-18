@@ -2,7 +2,7 @@
 using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
 
-namespace FitPass.Application.GymMembershipPassUsages.DTOs;
+namespace FitPass.Application.GymPassUsages.DTOs;
 
 public class GymPassUsageDto : BaseAuditableEntity
 {

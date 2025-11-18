@@ -4,16 +4,15 @@ using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Security;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
-using FitPass.Domain.Enums;
 using Microsoft.Extensions.Logging;
 
 namespace FitPass.Application.Requests.Commands;
 
 [Authorize(Roles = Roles.AppAdministrator)]
-internal record DeserializeRequestPayloadCommand<TPayload>(Request Request) : IRequest<Result<TPayload, RequestStatus>>;
+internal record DeserializeRequestPayloadCommand<TPayload>(Request Request) : IRequest<Result<TPayload>>;
 
 internal class DeserializeRequestPayloadCommandHandler<TPayload>
-    : IRequestHandler<DeserializeRequestPayloadCommand<TPayload>, Result<TPayload, RequestStatus>>
+    : IRequestHandler<DeserializeRequestPayloadCommand<TPayload>, Result<TPayload>>
 {
     private readonly ILogger<DeserializeRequestPayloadCommandHandler<TPayload>> _logger;
 
@@ -22,13 +21,13 @@ internal class DeserializeRequestPayloadCommandHandler<TPayload>
         _logger = logger;
     }
 
-    public async Task<Result<TPayload, RequestStatus>> Handle(DeserializeRequestPayloadCommand<TPayload> command, CancellationToken cancellationToken)
+    public async Task<Result<TPayload>> Handle(DeserializeRequestPayloadCommand<TPayload> command, CancellationToken cancellationToken)
     {
         if (command.Request.Payload is null)
         {
             _logger.LogError("{Request} request has no payload.", command.Request);
 
-            return Result<TPayload, RequestStatus>.Failure(["Request has no payload."], RequestStatus.PayloadWasNull);
+            return Result<TPayload>.Failure(["Request has no payload."], ResultType.InternalError);
         }
 
         TPayload? payload;
@@ -48,7 +47,7 @@ internal class DeserializeRequestPayloadCommandHandler<TPayload>
                     command.Request.Payload,
                     null);
 
-                return Result<TPayload, RequestStatus>.Failure(["Failed to deserialize request payload."], RequestStatus.PayloadFailedToSerialize);
+                return Result<TPayload>.Failure(["Failed to deserialize request payload."], ResultType.InternalError);
             }
         } catch (Exception ex)
         {
@@ -61,9 +60,9 @@ internal class DeserializeRequestPayloadCommandHandler<TPayload>
                     command.Request.Payload,
                     ex);
 
-            return Result<TPayload, RequestStatus>.Failure(["Failed to deserialize request payload."], RequestStatus.PayloadFailedToSerialize, ex);
+            return Result<TPayload>.Failure(["Failed to deserialize request payload."], ResultType.InternalError);
         }
 
-        return Result<TPayload, RequestStatus>.Success(payload);
+        return Result<TPayload>.Success(payload);
     }
 }

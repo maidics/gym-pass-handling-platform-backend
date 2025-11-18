@@ -1,6 +1,6 @@
 using System.Net.Mail;
 
-namespace FitPass.Infrastructure.Services.Email;
+namespace FitPass.Infrastructure.Email;
 
 public class EmailSettings
 {

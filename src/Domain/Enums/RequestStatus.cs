@@ -6,8 +6,5 @@ public enum RequestStatus
     Completed,
     Cancelled,
     Rejected,
-    PayloadFailedToSerialize,
-    CreatorNotFound,
-    RelatedRoleHandlingFailed,
-    PayloadWasNull
+    Error //when request should be completed but fails to be completed
 }
