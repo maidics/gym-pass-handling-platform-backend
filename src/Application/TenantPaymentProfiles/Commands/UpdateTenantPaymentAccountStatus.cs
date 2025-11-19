@@ -46,7 +46,7 @@ public class UpdateTenantPaymentProfileAccountStatusCommandHandler : IRequestHan
     {
         var tenantPaymentProfile = await _context
             .TenantPaymentProfiles
-            .FirstOrDefaultAsync(tpp => tpp != null && command.TenantAccountId == tpp.PaymentTenantAccountId);
+            .FirstOrDefaultAsync(tpp => tpp != null && command.TenantAccountId == tpp.TenantPaymentAccountId);
 
         Guard.Against.NotFound(command.TenantAccountId, tenantPaymentProfile);
 

@@ -1,4 +1,6 @@
-﻿namespace FitPass.Application.Common.Models;
+﻿using System.Runtime.CompilerServices;
+
+namespace FitPass.Application.Common.Models;
 
 //Result object to pass around instead of throwing Exceptions
 //used starting from Application Layer 
@@ -66,6 +68,11 @@ public class Result<TValue>
     { 
         return new Result<TValue>(false, errors, default!, type);
     }
+
+    public Result<TNewValue> ToNewFailure<TNewValue>()
+    {
+        return Result<TNewValue>.Failure(Errors, Type);
+    }
 }
 
 public enum ResultType
@@ -73,8 +80,7 @@ public enum ResultType
     Success, //Ok, NoContent
     NotFound,
     Conflict,
-    ExternalServiceInvalidCall, //InternalServerError
-    ExternalServiceUnavailable, //ExternalServiceUnavailable => TypedResults.Problem
+    ExternalServiceError, //ExternalServiceUnavailable => TypedResults.Problem
     BusinessRuleViolation,
     InternalError, //internal server error
     PaymentRequired,

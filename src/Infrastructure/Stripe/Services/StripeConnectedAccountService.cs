@@ -64,32 +64,13 @@ public class StripeConnectedAccountService : IPaymentTenantService
         {
             ex.Log(_logger, nameof(StripeConnectedAccountService), nameof(CreateTenantAccount));
 
-            return ex.ToApplicationResult<string>();
+            return ex.ToApplicationResult<string>("Failed to create payment account.");
         }
     }
 
     public Task<Result<TenantPaymentAccountStatus>> GetAccountStatusAsync(string tenantAccountId, CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
-    }
-
-    public async Task<Result<string>> GetOnboardingLinkAsync(
-        string tenantAccountId, 
-        string returnUrl, 
-        string refreshUrl, 
-        CancellationToken cancellationToken = default)
-    {
-        try
-        {
-            var accountLink = await GenerateAccountLinkAsync(tenantAccountId, returnUrl, refreshUrl, cancellationToken);
-
-            return Result<string>.Success(accountLink);
-        } catch (StripeException ex)
-        {
-            ex.Log(_logger, nameof(StripeConnectedAccountService), nameof(GetOnboardingLinkAsync));
-
-            return ex.ToApplicationResult<string>();
-        }
     }
 
     public async Task<Result<bool>> IsOnboardingCompleteAsync(string tenantAccountId, CancellationToken cancellationToken = default)
@@ -105,41 +86,40 @@ public class StripeConnectedAccountService : IPaymentTenantService
         {
             ex.Log(_logger, nameof(StripeConnectedAccountService), nameof(IsOnboardingCompleteAsync));
 
-            return ex.ToApplicationResult<bool>();
+            return ex.ToApplicationResult<bool>("Failed to retrieve wether onboarding is completed or not.");
         }
     }
 
-    Task<Result<string>> IPaymentTenantService.CreateTenantAccount(string gymId, string email, string businessName, CancellationToken cancellationToken)
+    public async Task<Result<(string url, DateTime expiration)>> GenerateAccountLinkAsync(string accountId, string returnUrl, string refreshUrl, bool isOnboarding = false, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
-    }
-
-    private async Task<string> GenerateAccountLinkAsync(string accountId, string returnUrl, string refreshUrl, CancellationToken cancellationToken = default)
-    {
-        var accountLinkOptions = new AccountLinkCreateOptions 
+        try
         {
-            Account = accountId,
-            RefreshUrl = refreshUrl,
-            ReturnUrl = returnUrl,
-            Type = "account_onboarding", //??
-            CollectionOptions = new AccountLinkCollectionOptionsOptions
+            var accountLinkOptions = new AccountLinkCreateOptions
             {
-                Fields = "eventually_due"
+                Account = accountId,
+                RefreshUrl = refreshUrl,
+                ReturnUrl = returnUrl,
+                Type = isOnboarding ? "account_onboarding" : "account_update",
+                CollectionOptions = new AccountLinkCollectionOptionsOptions
+                {
+                    Fields = "eventually_due"
+                },
+            };
+
+            var accountLink = await _accountLinkService.CreateAsync(accountLinkOptions, cancellationToken: cancellationToken);
+
+            if (accountLink is null)
+            {
+                return Result<(string url, DateTime expiration)>
+                    .Failure(["Failed to generate account link"], ResultType.ExternalServiceError);
             }
-        };
 
-        var accountLink = await _accountLinkService.CreateAsync(accountLinkOptions, cancellationToken: cancellationToken);
+            return Result<(string url, DateTime expiration)>.Success((accountLink.Url, DateTime.UtcNow.AddMinutes(5)));
+        } catch (StripeException ex)
+        {
+            ex.Log(_logger, nameof(StripeConnectedAccountService), nameof(GenerateAccountLinkAsync));
 
-        return accountLink.Url;
-    }
-
-    Task<Result<string>> IPaymentTenantService.GetOnboardingLinkAsync(string tenantAccountId, string returnUrl, string refreshUrl, CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException();
-    }
-
-    Task<Result<bool>> IPaymentTenantService.IsOnboardingCompleteAsync(string tenantAccountId, CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException();
+            return ex.ToApplicationResult<(string url, DateTime expiration)>("Failed to generate account link.");
+        }
     }
 }

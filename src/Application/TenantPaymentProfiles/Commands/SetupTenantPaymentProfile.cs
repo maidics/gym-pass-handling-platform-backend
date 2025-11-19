@@ -1,4 +1,3 @@
-/*
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Interfaces.Payment;
 using FitPass.Application.Common.Logging;
@@ -55,45 +54,38 @@ public class SetupTenantPaymentProfileCommandHandler : IRequestHandler<SetupTena
             throw new SystemException(ErrorMessages.AuthenticatedUserRelatedEntityNotFound(nameof(GymEmployment)));
         }
 
-        var gym = await _context
-            .Gyms
-            .Include(g => g.PaymentProfile)
-            .FirstOrDefaultAsync(g => g.Id == gymEmployment.GymId);
+        var paymentProfile = await _context
+            .TenantPaymentProfiles
+            .FindAsync(gymEmployment.GymId);
 
-        Guard.Against.Null(gym, nameof(Gym));
+        bool isOnboarding = paymentProfile is null;
 
-        if (gym!.PaymentProfile is null)
+        if (paymentProfile is null)
         {
             var creationResult = await _paymentTenantService
-                .CreateTenantAccount(gym.Id, command.PaymentAccountHolderEmail, command.BusinessName);
+                .CreateTenantAccount(gymEmployment.GymId, command.PaymentAccountHolderEmail, command.BusinessName);
 
             if (!creationResult.Succeeded)
             {
-                return Result<(string url, DateTime expirationDateTime)>
-                    .Failure(creationResult.Errors, creationResult.Type);
+                return creationResult.ToNewFailure<(string url, DateTime expirationDateTime)>();
             }
 
-            var paymentProfile = new TenantPaymentProfile
+            paymentProfile = new TenantPaymentProfile
             {
-                GymId = gym.Id
+                GymId = gymEmployment.GymId,
+                TenantPaymentAccountId = creationResult.Value
             };
+
+            await _context.TenantPaymentProfiles.AddAsync(paymentProfile);
         }
 
-        var result = await _paymentTenantService.CreateTenantAccount(
-            gym.Id, 
-            command.PaymentAccountHolderEmail, 
-            command.BusinessName);
-
-        if (!result.Succeeded)
-        {
-            return Result<(string url, DateTime expirationDateTime)>
-                .Failure(["Failed to create payment account or generate onboarding link."], result.Type);
-        }
-
-
+        var linkGenerationResult = await _paymentTenantService.GenerateAccountLinkAsync(
+            paymentProfile.TenantPaymentAccountId!,
+            "TODO: set return url",
+            "TODO: set refresh url",
+            isOnboarding);
 
         return Result<(string url, DateTime expirationDateTime)>
-            .Success((result.Value.onboardingUrl, result.Value.expirationTime), result.Type);
+            .Success((linkGenerationResult.Value.url, linkGenerationResult.Value.expiration));
     }
 }
-*/

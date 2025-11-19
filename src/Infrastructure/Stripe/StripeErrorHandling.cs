@@ -1,6 +1,5 @@
 using System.Net;
 using FitPass.Application.Common.Models;
-using FitPass.Domain.Enums.Payment;
 using Microsoft.Extensions.Logging;
 using Stripe;
 
@@ -8,20 +7,20 @@ namespace FitPass.Infrastructure.Stripe;
 
 public static class StripeExceptionExtensions
 {
-    public static Result<TValue> ToApplicationResult<TValue>(this StripeException stripeException)
+    public static Result<TValue> ToApplicationResult<TValue>(this StripeException stripeException, string errorMessage)
     {
         return stripeException.HttpStatusCode switch
         {
-            HttpStatusCode.TooManyRequests => Result<TValue>.Failure([stripeException.StripeError.Message], ResultType.ExternalServiceUnavailable),
+            HttpStatusCode.TooManyRequests => Result<TValue>.Failure([errorMessage], ResultType.ExternalServiceError),
 
-            HttpStatusCode.PaymentRequired => Result<TValue>.Failure([stripeException.StripeError.Message], ResultType.PaymentRequired),
+            HttpStatusCode.PaymentRequired => Result<TValue>.Failure([errorMessage], ResultType.PaymentRequired),
 
-            HttpStatusCode.BadRequest or
+            /*HttpStatusCode.BadRequest or
             HttpStatusCode.Unauthorized or
             HttpStatusCode.Forbidden or
-            HttpStatusCode.NotFound => Result<TValue>.Failure([stripeException.StripeError.Message], ResultType.InternalError),
+            HttpStatusCode.NotFound => Result<TValue>.Failure([errorMessage], ResultType.InternalError),*/
 
-            _ => Result<TValue>.Failure([stripeException.StripeError.Message], ResultType.InternalError)
+            _ => Result<TValue>.Failure([errorMessage], ResultType.InternalError)
         };
     }
 
