@@ -637,43 +637,6 @@
         ]
       }
     },
-    "/api/Gyms/Register": {
-      "post": {
-        "tags": [
-          "Gyms"
-        ],
-        "operationId": "RegisterGym",
-        "requestBody": {
-          "x-name": "command",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RegisterGymCommand"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GymDto"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "JWT": []
-          }
-        ]
-      }
-    },
     "/api/Requests/{requestId}": {
       "get": {
         "tags": [
@@ -1214,6 +1177,19 @@
           }
         ]
       }
+    },
+    "/api/Webhooks/Stripe": {
+      "post": {
+        "tags": [
+          "Webhooks"
+        ],
+        "operationId": "HandleStripeWebhook",
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        }
+      }
     }
   },
   "components": {
@@ -1587,42 +1563,6 @@
           }
         }
       },
-      "RegisterGymCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "createGymDto": {
-            "$ref": "#/components/schemas/CreateGymDto"
-          },
-          "pendingGymEmployeeToPromoteEmail": {
-            "type": "string"
-          }
-        }
-      },
-      "CreateGymDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "gymName": {
-            "type": "string"
-          },
-          "gymAddress": {
-            "type": "string"
-          },
-          "gymStatus": {
-            "$ref": "#/components/schemas/GymStatus"
-          },
-          "gymTier": {
-            "$ref": "#/components/schemas/GymTier"
-          },
-          "gymOwnerName": {
-            "type": "string"
-          },
-          "escalationEmail": {
-            "type": "string"
-          }
-        }
-      },
       "RequestDto": {
         "type": "object",
         "additionalProperties": false,
@@ -1705,20 +1645,14 @@
           "Completed",
           "Cancelled",
           "Rejected",
-          "PayloadFailedToSerialize",
-          "CreatorNotFound",
-          "RelatedRoleHandlingFailed",
-          "PayloadWasNull"
+          "Error"
         ],
         "enum": [
           "Submitted",
           "Completed",
           "Cancelled",
           "Rejected",
-          "PayloadFailedToSerialize",
-          "CreatorNotFound",
-          "RelatedRoleHandlingFailed",
-          "PayloadWasNull"
+          "Error"
         ]
       },
       "GetRequestsQuery": {
@@ -1755,6 +1689,30 @@
           },
           "createGymDto": {
             "$ref": "#/components/schemas/CreateGymDto"
+          }
+        }
+      },
+      "CreateGymDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "gymName": {
+            "type": "string"
+          },
+          "gymAddress": {
+            "type": "string"
+          },
+          "gymStatus": {
+            "$ref": "#/components/schemas/GymStatus"
+          },
+          "gymTier": {
+            "$ref": "#/components/schemas/GymTier"
+          },
+          "gymOwnerName": {
+            "type": "string"
+          },
+          "escalationEmail": {
+            "type": "string"
           }
         }
       },

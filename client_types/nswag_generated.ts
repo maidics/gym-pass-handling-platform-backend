@@ -33,7 +33,6 @@ export interface IApiClient {
     updateGymStatus(gymId: string, newGymStatus: GymStatus): Promise<void>;
     getMyGymDetails(): Promise<GymDto>;
     registerGymFromRequest(requestId: string): Promise<GymDto>;
-    registerGym(command: RegisterGymCommand): Promise<GymDto>;
     getRequest(requestId: string): Promise<RequestDto>;
     getRequests(query: GetRequestsQuery): Promise<RequestDto[]>;
     createGymCreationRequest(command: CreateGymCreationRequestCommand): Promise<void>;
@@ -52,6 +51,7 @@ export interface IApiClient {
     sendEmailConfirmationEmail(command: SendEmailConfirmationEmailCommand): Promise<void>;
     activateUserAccount(command: ActivateUserAccountCommand): Promise<JwtToken>;
     gymEmployeeRegisterUser(command: GymEmployeeRegisterUserCommand): Promise<GymMembershipDto>;
+    handleStripeWebhook(): Promise<void>;
 }
 
 export class ApiClient implements IApiClient {
@@ -1062,58 +1062,6 @@ export class ApiClient implements IApiClient {
         return Promise.resolve<GymDto>(null as any);
     }
 
-    registerGym(command: RegisterGymCommand, cancelToken?: CancelToken): Promise<GymDto> {
-        let url_ = this.baseUrl + "/api/Gyms/Register";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(command);
-
-        let options_: AxiosRequestConfig = {
-            data: content_,
-            method: "POST",
-            url: url_,
-            headers: {
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            },
-            cancelToken
-        };
-
-        return this.instance.request(options_).catch((_error: any) => {
-            if (isAxiosError(_error) && _error.response) {
-                return _error.response;
-            } else {
-                throw _error;
-            }
-        }).then((_response: AxiosResponse) => {
-            return this.processRegisterGym(_response);
-        });
-    }
-
-    protected processRegisterGym(response: AxiosResponse): Promise<GymDto> {
-        const status = response.status;
-        let _headers: any = {};
-        if (response.headers && typeof response.headers === "object") {
-            for (const k in response.headers) {
-                if (response.headers.hasOwnProperty(k)) {
-                    _headers[k] = response.headers[k];
-                }
-            }
-        }
-        if (status === 200) {
-            const _responseText = response.data;
-            let result200: any = null;
-            let resultData200  = _responseText;
-            result200 = GymDto.fromJS(resultData200);
-            return Promise.resolve<GymDto>(result200);
-
-        } else if (status !== 200 && status !== 204) {
-            const _responseText = response.data;
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-        }
-        return Promise.resolve<GymDto>(null as any);
-    }
-
     getRequest(requestId: string, cancelToken?: CancelToken): Promise<RequestDto> {
         let url_ = this.baseUrl + "/api/Requests/{requestId}";
         if (requestId === undefined || requestId === null)
@@ -2010,6 +1958,50 @@ export class ApiClient implements IApiClient {
         }
         return Promise.resolve<GymMembershipDto>(null as any);
     }
+
+    handleStripeWebhook( cancelToken?: CancelToken): Promise<void> {
+        let url_ = this.baseUrl + "/api/Webhooks/Stripe";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_: AxiosRequestConfig = {
+            method: "POST",
+            url: url_,
+            headers: {
+            },
+            cancelToken
+        };
+
+        return this.instance.request(options_).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processHandleStripeWebhook(_response);
+        });
+    }
+
+    protected processHandleStripeWebhook(response: AxiosResponse): Promise<void> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (const k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 204) {
+            const _responseText = response.data;
+            return Promise.resolve<void>(null as any);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<void>(null as any);
+    }
 }
 
 export class GymEmploymentDto implements IGymEmploymentDto {
@@ -2636,102 +2628,6 @@ export interface IGymPassProductDto {
     isActive?: boolean;
 }
 
-export class RegisterGymCommand implements IRegisterGymCommand {
-    createGymDto?: CreateGymDto;
-    pendingGymEmployeeToPromoteEmail?: string;
-
-    constructor(data?: IRegisterGymCommand) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.createGymDto = _data["createGymDto"] ? CreateGymDto.fromJS(_data["createGymDto"]) : <any>undefined;
-            this.pendingGymEmployeeToPromoteEmail = _data["pendingGymEmployeeToPromoteEmail"];
-        }
-    }
-
-    static fromJS(data: any): RegisterGymCommand {
-        data = typeof data === 'object' ? data : {};
-        let result = new RegisterGymCommand();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["createGymDto"] = this.createGymDto ? this.createGymDto.toJSON() : <any>undefined;
-        data["pendingGymEmployeeToPromoteEmail"] = this.pendingGymEmployeeToPromoteEmail;
-        return data;
-    }
-}
-
-export interface IRegisterGymCommand {
-    createGymDto?: CreateGymDto;
-    pendingGymEmployeeToPromoteEmail?: string;
-}
-
-export class CreateGymDto implements ICreateGymDto {
-    gymName?: string;
-    gymAddress?: string;
-    gymStatus?: GymStatus;
-    gymTier?: GymTier;
-    gymOwnerName?: string;
-    escalationEmail?: string;
-
-    constructor(data?: ICreateGymDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.gymName = _data["gymName"];
-            this.gymAddress = _data["gymAddress"];
-            this.gymStatus = _data["gymStatus"];
-            this.gymTier = _data["gymTier"];
-            this.gymOwnerName = _data["gymOwnerName"];
-            this.escalationEmail = _data["escalationEmail"];
-        }
-    }
-
-    static fromJS(data: any): CreateGymDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new CreateGymDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["gymName"] = this.gymName;
-        data["gymAddress"] = this.gymAddress;
-        data["gymStatus"] = this.gymStatus;
-        data["gymTier"] = this.gymTier;
-        data["gymOwnerName"] = this.gymOwnerName;
-        data["escalationEmail"] = this.escalationEmail;
-        return data;
-    }
-}
-
-export interface ICreateGymDto {
-    gymName?: string;
-    gymAddress?: string;
-    gymStatus?: GymStatus;
-    gymTier?: GymTier;
-    gymOwnerName?: string;
-    escalationEmail?: string;
-}
-
 export class RequestDto implements IRequestDto {
     id?: string;
     createdOn?: Date;
@@ -2812,7 +2708,7 @@ export type PriorityLevel = "None" | "Low" | "Medium" | "High";
 
 export type RequestType = "GymCreation" | "GymAdminPromotion" | "Other";
 
-export type RequestStatus = "Submitted" | "Completed" | "Cancelled" | "Rejected" | "PayloadFailedToSerialize" | "CreatorNotFound" | "RelatedRoleHandlingFailed" | "PayloadWasNull";
+export type RequestStatus = "Submitted" | "Completed" | "Cancelled" | "Rejected" | "Error";
 
 export class GetRequestsQuery implements IGetRequestsQuery {
     requestType?: RequestType | undefined;
@@ -2896,6 +2792,62 @@ export interface ICreateGymCreationRequestCommand {
     requestDescription?: string;
     priorityLevel?: PriorityLevel;
     createGymDto?: CreateGymDto;
+}
+
+export class CreateGymDto implements ICreateGymDto {
+    gymName?: string;
+    gymAddress?: string;
+    gymStatus?: GymStatus;
+    gymTier?: GymTier;
+    gymOwnerName?: string;
+    escalationEmail?: string;
+
+    constructor(data?: ICreateGymDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.gymName = _data["gymName"];
+            this.gymAddress = _data["gymAddress"];
+            this.gymStatus = _data["gymStatus"];
+            this.gymTier = _data["gymTier"];
+            this.gymOwnerName = _data["gymOwnerName"];
+            this.escalationEmail = _data["escalationEmail"];
+        }
+    }
+
+    static fromJS(data: any): CreateGymDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateGymDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["gymName"] = this.gymName;
+        data["gymAddress"] = this.gymAddress;
+        data["gymStatus"] = this.gymStatus;
+        data["gymTier"] = this.gymTier;
+        data["gymOwnerName"] = this.gymOwnerName;
+        data["escalationEmail"] = this.escalationEmail;
+        return data;
+    }
+}
+
+export interface ICreateGymDto {
+    gymName?: string;
+    gymAddress?: string;
+    gymStatus?: GymStatus;
+    gymTier?: GymTier;
+    gymOwnerName?: string;
+    escalationEmail?: string;
 }
 
 export class CreateGymAdminPromotionRequestCommand implements ICreateGymAdminPromotionRequestCommand {

@@ -119,10 +119,15 @@ public static class DependencyInjection
                 };
             });
 
-        builder.Services.AddHttpClient();
+        builder.Services.AddStripeServices();
+    }
+
+    private static void AddStripeServices(this IServiceCollection services)
+    {
+        string stripeClientName = "StripeClient";
 
         //Stripe Resilience:
-        builder.Services.AddHttpClient("StripeClient")
+        services.AddHttpClient(stripeClientName)
             .AddResilienceHandler("StripeResiliencePolicy", pipelineBuilder =>
             {
                 pipelineBuilder.AddRetry(new HttpRetryStrategyOptions
@@ -140,7 +145,7 @@ public static class DependencyInjection
 
                     OnRetry = args =>
                     {
-                        var loggerFactory = builder.Services.BuildServiceProvider().GetRequiredService<ILoggerFactory>();
+                        var loggerFactory = services.BuildServiceProvider().GetRequiredService<ILoggerFactory>();
                         var logger = loggerFactory.CreateLogger("StripeResilience");
 
                         logger.LogWarning(
@@ -153,5 +158,24 @@ public static class DependencyInjection
                     }
                 });
             });
+
+        services.AddSingleton<IStripeClient>(provider =>
+        {
+            var httpClientFactory = provider.GetRequiredService<IHttpClientFactory>();
+            var resilientHttpClient = httpClientFactory.CreateClient(stripeClientName);
+
+            var config = provider.GetRequiredService<IConfiguration>();
+            var apiKey = config["Stripe:TestKey"];
+
+            var stripeAdapter = new SystemNetHttpClient(resilientHttpClient);
+
+            return new StripeClient(httpClient: stripeAdapter, apiKey: apiKey);
+        });
+
+        services.AddScoped(provider => new AccountService(provider.GetRequiredService<IStripeClient>()));
+        services.AddScoped(provider => new AccountLinkService(provider.GetRequiredService<IStripeClient>()));
+        services.AddScoped(provider => new CustomerService(provider.GetRequiredService<IStripeClient>()));
+        services.AddScoped(provider => new PriceService(provider.GetRequiredService<IStripeClient>()));
+        services.AddScoped(provider => new ProductService(provider.GetRequiredService<IStripeClient>()));
     }
 }
