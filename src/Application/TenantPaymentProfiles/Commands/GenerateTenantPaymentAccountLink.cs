@@ -12,7 +12,7 @@ using Microsoft.Extensions.Logging;
 namespace FitPass.Application.TenantPaymentProfiles.Commands;
 
 [Authorize(Roles = Roles.GymAdministrator)]
-public record GenerateTenantPaymentAccountLinkCommand() : IRequest<Result<(string url, DateTime expiration)>>;
+public record GenerateTenantPaymentAccountLinkCommand : IRequest<Result<(string url, DateTime expiration)>>;
 
 public class GenerateTenantPaymentAccountLinkCommandHandler : IRequestHandler<GenerateTenantPaymentAccountLinkCommand, Result<(string url, DateTime expiration)>>
 {

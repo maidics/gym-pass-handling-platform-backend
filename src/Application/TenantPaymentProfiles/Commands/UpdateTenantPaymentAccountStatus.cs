@@ -12,7 +12,8 @@ public record UpdateTenantPaymentProfileAccountStatusCommand(
     bool ChargesEnabled, 
     bool PayoutsEnabled, 
     List<string> RequirementsDue, 
-    List<string> RequirementsEventuallyDue) : IRequest;
+    List<string> RequirementsEventuallyDue
+) : IRequest;
 
 public class UpdateTenantPaymentProfileAccountStatusCommandValidator : AbstractValidator<UpdateTenantPaymentProfileAccountStatusCommand>
 {
