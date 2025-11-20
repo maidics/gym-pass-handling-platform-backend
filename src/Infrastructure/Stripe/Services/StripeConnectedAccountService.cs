@@ -2,7 +2,7 @@ using FitPass.Application.Common.Interfaces.Payment;
 using FitPass.Application.Common.Models;
 using FitPass.Domain.Entities.Payment;
 using Microsoft.Extensions.Logging;
-
+using Microsoft.Extensions.Options;
 using Stripe;
 
 namespace FitPass.Infrastructure.Stripe.Services;
@@ -12,15 +12,18 @@ public class StripeConnectedAccountService : IPaymentTenantService
     private readonly ILogger<StripeConnectedAccountService> _logger;
     private readonly AccountService _accountService;
     private readonly AccountLinkService _accountLinkService;
+    private readonly StripeAccountLinkSettings _stripeAccountLinkSettings;
 
     public StripeConnectedAccountService(
         ILogger<StripeConnectedAccountService> logger, 
         AccountService accountService, 
-        AccountLinkService accountLinkService)
+        AccountLinkService accountLinkService,
+        IOptions<StripeSettings> options)
     {
         _logger = logger;
         _accountService = accountService;
         _accountLinkService = accountLinkService;
+        _stripeAccountLinkSettings = options.Value.AccountLinks;
     }
 
     public async Task<Result<string>> CreateTenantAccount(
@@ -90,15 +93,15 @@ public class StripeConnectedAccountService : IPaymentTenantService
         }
     }
 
-    public async Task<Result<(string url, DateTime expiration)>> GenerateAccountLinkAsync(string accountId, string returnUrl, string refreshUrl, bool isOnboarding = false, CancellationToken cancellationToken = default)
+    public async Task<Result<(string url, DateTime expiration)>> GenerateAccountLinkAsync(string accountId, bool isOnboarding = false, CancellationToken cancellationToken = default)
     {
         try
         {
             var accountLinkOptions = new AccountLinkCreateOptions
             {
                 Account = accountId,
-                RefreshUrl = refreshUrl,
-                ReturnUrl = returnUrl,
+                RefreshUrl = _stripeAccountLinkSettings.RefreshUrl,
+                ReturnUrl = _stripeAccountLinkSettings.ReturnUrl,
                 Type = isOnboarding ? "account_onboarding" : "account_update",
                 CollectionOptions = new AccountLinkCollectionOptionsOptions
                 {
@@ -111,7 +114,7 @@ public class StripeConnectedAccountService : IPaymentTenantService
             if (accountLink is null)
             {
                 return Result<(string url, DateTime expiration)>
-                    .Failure(["Failed to generate account link"], ResultType.ExternalServiceError);
+                    .Failure(["Failed to generate account link"], ResultTypes.ExternalServiceUnavailable);
             }
 
             return Result<(string url, DateTime expiration)>.Success((accountLink.Url, DateTime.UtcNow.AddMinutes(5)));

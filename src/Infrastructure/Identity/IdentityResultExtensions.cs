@@ -5,7 +5,7 @@ namespace FitPass.Infrastructure.Identity;
 
 public static class IdentityResultExtensions
 {
-    public static Result ToApplicationResult(this IdentityResult result, ResultType type = ResultType.InternalError)
+    public static Result ToApplicationResult(this IdentityResult result, ResultTypes type = ResultTypes.InternalError)
     {
         return result.Succeeded
             ? Result.Success()

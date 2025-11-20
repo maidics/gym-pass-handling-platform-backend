@@ -4,11 +4,18 @@ public class StripeSettings
 {
     public string TestKey { get; init; } = string.Empty;
     public string Currency { get; init; } = string.Empty;
-    public TaxCodeSettings TaxCodeSettings { get; init; } = null!;
+    public required StripeTaxCodeSettings TaxCodeSettings { get; init; }
+    public required StripeAccountLinkSettings AccountLinks { get; init; }
 }
 
-public class TaxCodeSettings
+public class StripeTaxCodeSettings
 {
     public required string Membership {  get; init; }
     public required string SingleUseAccess { get; init; }
+}
+
+public class StripeAccountLinkSettings
+{
+    public required string ReturnUrl { get; init; }
+    public required string RefreshUrl { get; init; }
 }

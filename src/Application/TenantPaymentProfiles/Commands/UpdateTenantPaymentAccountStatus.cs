@@ -5,6 +5,7 @@ using FitPass.Domain.Strings;
 
 namespace FitPass.Application.TenantPaymentProfiles.Commands;
 
+//Webhook only - updated from Stripe
 public record UpdateTenantPaymentProfileAccountStatusCommand(
     string TenantAccountId,
     bool DetailsSubmitted, 

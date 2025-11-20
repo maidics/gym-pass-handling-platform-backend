@@ -1,6 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-
-namespace FitPass.Application.Common.Models;
+﻿namespace FitPass.Application.Common.Models;
 
 //Result object to pass around instead of throwing Exceptions
 //used starting from Application Layer 
@@ -9,43 +7,83 @@ namespace FitPass.Application.Common.Models;
 //logger would already log it so client only needs a user friendly error message anyways
 public class Result
 {
-    private Result(bool succeeded, IEnumerable<string> errors, ResultType type)
+    protected Result(bool succeeded, string message, IEnumerable<string> errors, ResultTypes type)
     {
         Succeeded = succeeded;
         Errors = errors.ToArray();
         Type = type;
+        Message = message;
+    }
+
+    protected Result(ResultFailure failure)
+    {
+        Succeeded = false;
+        Message = failure.Message;
+        Errors = failure.Errors;
+        Type = failure.Type;
     }
 
     public bool Succeeded { get; }
+    public string Message { get; }
     public string[] Errors { get; }
-    public ResultType Type { get; }
+    public ResultTypes Type { get; }
 
     public static Result Success()
     {
-        return new Result(true, [], ResultType.Success);
+        return new Result(true, string.Empty, [], ResultTypes.Success);
     }
 
-    public static Result Failure(IEnumerable<string> errors, ResultType type)
+    public static Result<T> Success<T>(T value)
     {
-        return new Result(false, errors, type);
+        ArgumentNullException.ThrowIfNull(value);
+        return Result<T>.Success(value);
     }
+
+    public static implicit operator Result(ResultFailure failure)
+    {
+        return new Result(failure);
+    }
+
+    public static ResultFailure NotFound(string parameterName, IEnumerable<string> errors = default!) =>
+        new ResultFailure(ResultTypes.NotFound, $"'{parameterName}' not found.", [..errors ?? []]);
+
+    public static ResultFailure Conflict(string parameterName, IEnumerable<string> errors = default!) =>
+        new ResultFailure(ResultTypes.Conflict, $"'{parameterName}' is already taken.", [..errors ?? []]);
+
+    public static ResultFailure ExternalServiceError(string externalServiceName, IEnumerable<string> errors = default!) =>
+        new ResultFailure(ResultTypes.ExternalServiceUnavailable, $"'{externalServiceName}' is currently not available.", [..errors ?? []]);
+
+    public static ResultFailure BusinessRuleViolation(IEnumerable<string> errors = default!) =>
+        new ResultFailure(ResultTypes.BusinessRuleViolation, "Business rule violation.", [..errors ?? []]);
+
+    public static ResultFailure InternalError(IEnumerable<string> errors = default!) => 
+        new ResultFailure(ResultTypes.InternalError, "Internal server error.", [..errors ?? []]);
+
+    public static ResultFailure PaymentRequired(IEnumerable<string> errors = default!) =>
+        new ResultFailure(ResultTypes.PaymentRequired, "Payment required.", [..errors ?? []]);
+
+    public static ResultFailure Unauthorized() => 
+        new ResultFailure(ResultTypes.Unauthorized, "Unauthorized access.", []);
+
+    public static ResultFailure Forbidden() => 
+        new ResultFailure(ResultTypes.Forbidden, "Forbidden access.", []);
 }
 
-public class Result<TValue>
+public class Result<T> : Result
 {
-    private readonly TValue _value;
-    private Result(bool succeeded, IEnumerable<string> errors, TValue value, ResultType type)
+    private readonly T _value;
+    protected Result(bool succeeded, string message, IEnumerable<string> errors, T value, ResultTypes type)
+        : base(succeeded, message, errors, type)
     {
-        Succeeded = succeeded;
-        Errors = errors.ToArray();
         _value = value;
-        Type = type;
     }
 
-    public bool Succeeded { get; }
-    public string[] Errors { get; }
-    public ResultType Type { get; }
-    public TValue Value
+    protected Result(ResultFailure failure) : base(failure)
+    {
+        _value = default!;
+    }
+
+    public T Value
     {
         get
         {
@@ -58,32 +96,52 @@ public class Result<TValue>
         }
     }
 
-    public static Result<TValue> Success(TValue value)
+    public static implicit operator Result<T>(ResultFailure failure)
+    {
+        return new Result<T>(failure);
+    }
+
+    public static Result<T> Success(T value)
     {
         ArgumentNullException.ThrowIfNull(value);
-        return new Result<TValue>(true, [], value, ResultType.Success);
+        return new Result<T>(true, string.Empty, [], value, ResultTypes.Success);
     }
 
-    public static Result<TValue> Failure(IEnumerable<string> errors, ResultType type)
-    { 
-        return new Result<TValue>(false, errors, default!, type);
-    }
-
-    public Result<TNewValue> ToNewFailure<TNewValue>()
+    public Result<T2> ToFailure<T2>()
     {
-        return Result<TNewValue>.Failure(Errors, Type);
+        return new Result<T2>(
+            succeeded: false,
+            message: Message,
+            errors: Errors,
+            value: default!,
+            type: Type
+        );
     }
 }
 
-public enum ResultType
+public enum ResultTypes
 {
     Success, //Ok, NoContent
     NotFound,
     Conflict,
-    ExternalServiceError, //ExternalServiceUnavailable => TypedResults.Problem
-    BusinessRuleViolation,
+    ExternalServiceUnavailable, //TypedResults.Problem
+    BusinessRuleViolation, //BadRequest
     InternalError, //internal server error
     PaymentRequired,
     Unauthorized,
     Forbidden
+}
+
+public class ResultFailure
+{
+    public ResultTypes Type { get; }
+    public string Message { get; }
+    public string[] Errors { get; }
+
+    public ResultFailure(ResultTypes type, string message, IEnumerable<string> errors)
+    {
+        Type = type;
+        Message = message;
+        Errors = errors.ToArray();
+    }
 }

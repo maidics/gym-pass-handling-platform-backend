@@ -11,16 +11,16 @@ public static class StripeExceptionExtensions
     {
         return stripeException.HttpStatusCode switch
         {
-            HttpStatusCode.TooManyRequests => Result<TValue>.Failure([errorMessage], ResultType.ExternalServiceError),
+            HttpStatusCode.TooManyRequests => Result<TValue>.Failure([errorMessage], ResultTypes.ExternalServiceUnavailable),
 
-            HttpStatusCode.PaymentRequired => Result<TValue>.Failure([errorMessage], ResultType.PaymentRequired),
+            HttpStatusCode.PaymentRequired => Result<TValue>.Failure([errorMessage], ResultTypes.PaymentRequired),
 
             /*HttpStatusCode.BadRequest or
             HttpStatusCode.Unauthorized or
             HttpStatusCode.Forbidden or
             HttpStatusCode.NotFound => Result<TValue>.Failure([errorMessage], ResultType.InternalError),*/
 
-            _ => Result<TValue>.Failure([errorMessage], ResultType.InternalError)
+            _ => Result<TValue>.Failure([errorMessage], ResultTypes.InternalError)
         };
     }
 

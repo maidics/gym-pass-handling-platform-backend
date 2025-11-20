@@ -63,7 +63,7 @@ public class IdentityService : IIdentityService
 
         if (user == null)
         {
-            return Result.Failure([ErrorMessages.UserNotFound()], ResultType.NotFound);
+            return Result.Failure([ErrorMessages.UserNotFound()], ResultTypes.NotFound);
         }
 
         var result = await _userManager.DeleteAsync(user);
@@ -109,19 +109,19 @@ public class IdentityService : IIdentityService
 
         if (user == null)
         {
-            return Result.Failure([ErrorMessages.InvalidCredentials()], ResultType.Unauthorized);
+            return Result.Failure([ErrorMessages.InvalidCredentials()], ResultTypes.Unauthorized);
         }
 
         if (user.PasswordHash == null)
         {
-            return Result.Failure([ErrorMessages.UserAccountIsNotActivated()], ResultType.Unauthorized);
+            return Result.Failure([ErrorMessages.UserAccountIsNotActivated()], ResultTypes.Unauthorized);
         }
 
         cancellationToken.ThrowIfCancellationRequested();
 
         if (!await _userManager.CheckPasswordAsync(user, password))
         {
-            return Result.Failure([ErrorMessages.InvalidCredentials()], ResultType.Unauthorized);
+            return Result.Failure([ErrorMessages.InvalidCredentials()], ResultTypes.Unauthorized);
         }
 
         return Result.Success();
@@ -140,7 +140,7 @@ public class IdentityService : IIdentityService
 
         if (user == null)
         {
-            return Result.Failure([ErrorMessages.UserNotFound()], ResultType.NotFound);
+            return Result.Failure([ErrorMessages.UserNotFound()], ResultTypes.NotFound);
         }
 
         var transactionOptions = new TransactionOptions
@@ -227,7 +227,7 @@ public class IdentityService : IIdentityService
 
         if (user == null)
         {
-            return Result.Failure([ErrorMessages.UserNotFound()], ResultType.NotFound);
+            return Result.Failure([ErrorMessages.UserNotFound()], ResultTypes.NotFound);
         }
 
         var result = await _userManager.AddToRoleAsync(user, role);
@@ -241,7 +241,7 @@ public class IdentityService : IIdentityService
 
         if (user == null)
         {
-            return Result.Failure([ErrorMessages.UserNotFound()], ResultType.NotFound);
+            return Result.Failure([ErrorMessages.UserNotFound()], ResultTypes.NotFound);
         }
 
         var result = await _userManager.RemoveFromRoleAsync(user, role);
@@ -269,12 +269,12 @@ public class IdentityService : IIdentityService
 
         if (user == null)
         {
-            return Result.Failure([ErrorMessages.UserNotFound()], ResultType.NotFound);
+            return Result.Failure([ErrorMessages.UserNotFound()], ResultTypes.NotFound);
         }
 
         if (user.PasswordHash != null)
         {
-            return Result.Failure([ResultErrorMessages.UserAlreadyHasPassword()], ResultType.Forbidden);
+            return Result.Failure([ResultErrorMessages.UserAlreadyHasPassword()], ResultTypes.Forbidden);
         }
 
         var result = await _userManager.AddPasswordAsync(user, password);
@@ -300,14 +300,14 @@ public class IdentityService : IIdentityService
 
         if (user == null)
         {
-            return Result.Failure([ErrorMessages.UserNotFound()], ResultType.NotFound);
+            return Result.Failure([ErrorMessages.UserNotFound()], ResultTypes.NotFound);
         }
 
         var result = await _userManager.ConfirmEmailAsync(user, emailConfirmationToken);
 
         if (!result.Succeeded && result.Errors.Any(e => e.Code == "Invalidtoken"))
         {
-            return Result.Failure([ErrorMessages.TokenIsInvalid("Error confirmation")], ResultType.Unauthorized);
+            return Result.Failure([ErrorMessages.TokenIsInvalid("Error confirmation")], ResultTypes.Unauthorized);
         }
 
         return result.ToApplicationResult();

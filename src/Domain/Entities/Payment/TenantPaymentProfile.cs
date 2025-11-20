@@ -1,6 +1,3 @@
-
-using System.ComponentModel.DataAnnotations.Schema;
-
 namespace FitPass.Domain.Entities.Payment;
 
 public class TenantPaymentProfile : BaseAuditableEntity
