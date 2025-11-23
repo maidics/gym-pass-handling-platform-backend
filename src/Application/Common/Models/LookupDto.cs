@@ -8,6 +8,7 @@ public class LookupDto
 
     public string? Title { get; init; }
 
+    /*
     private class Mapping : Profile
     {
         public Mapping()
@@ -15,4 +16,5 @@ public class LookupDto
             
         }
     }
+    */
 }

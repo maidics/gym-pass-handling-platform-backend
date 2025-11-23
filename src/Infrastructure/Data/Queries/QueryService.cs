@@ -1,4 +1,3 @@
-using AutoMapper;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.GymEmployments.DTOs;
 using FitPass.Application.GymMembershipPasses.DTOs;
@@ -12,13 +11,10 @@ namespace FitPass.Infrastructure.Data.Queries;
 public class QueryService : IQueryService
 {
     private readonly ApplicationDbContext _context;
-    private readonly IMapper _mapper;
     public QueryService(
-        ApplicationDbContext context,
-        IMapper mapper)
+        ApplicationDbContext context)
     {
         _context = context;
-        _mapper = mapper;
     }
 
     public async Task<List<GymEmploymentDto>> GetGymEmploymentsWithUserProfileAndEmailByGymId(string gymId)

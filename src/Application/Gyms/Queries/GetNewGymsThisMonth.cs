@@ -11,12 +11,10 @@ public record GetNewGymsThisMonthQuery : IRequest<List<GymDto>>;
 public class GetNewGymsThisMonthHandler : IRequestHandler<GetNewGymsThisMonthQuery, List<GymDto>>
 {
     private readonly IApplicationDbContext _context;
-    private readonly IMapper _mapper;
 
-    public GetNewGymsThisMonthHandler(IApplicationDbContext context, IMapper mapper)
+    public GetNewGymsThisMonthHandler(IApplicationDbContext context)
     {
         _context = context;
-        _mapper = mapper;
     }
 
     public async Task<List<GymDto>> Handle(GetNewGymsThisMonthQuery request, CancellationToken cancellationToken)
@@ -31,6 +29,6 @@ public class GetNewGymsThisMonthHandler : IRequestHandler<GetNewGymsThisMonthQue
             .Where(g => g.CreatedOn >= startOfThisMonth && g.CreatedOn < startOfNextMonth)
             .ToListAsync(cancellationToken);
 
-        return _mapper.Map<List<GymDto>>(newGyms);
+        return newGyms.Select(g => g.MapToDto()).ToList();
     }
 }

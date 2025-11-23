@@ -12,14 +12,25 @@ public class GymDto
     public required GymStatus Status { get; set; }
     public required GymTier Tier { get; set; }
     public required DateTimeOffset CreatedOn { get; set; }
-    public string? OwnerName { get; set; }
     public List<GymPassProductDto>? PassProducts { get; set; }
+}
 
-    private class Mapping : Profile
+public static partial class Mappings
+{
+    extension(Gym gym)
     {
-        public Mapping()
+        public GymDto MapToDto()
         {
-            CreateMap<Gym, GymDto>();
+            return new GymDto
+            {
+                Id = gym.Id,
+                Name = gym.Name,
+                Address = gym.Address,
+                Status = gym.Status,
+                Tier = gym.Tier,
+                CreatedOn = gym.CreatedOn,
+                PassProducts = gym.PassProducts.Select(p => p.MapToDto()).ToList()
+            };
         }
     }
 }

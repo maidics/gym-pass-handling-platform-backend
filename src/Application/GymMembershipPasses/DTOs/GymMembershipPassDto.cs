@@ -1,6 +1,5 @@
 ﻿using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
-using FitPass.Domain.ValueObjects;
 
 namespace FitPass.Application.GymMembershipPasses.DTOs;
 
@@ -12,12 +11,23 @@ public class GymMembershipPassDto
     public required int? TotalUses { get; set; }
     public required int? RemainingUses { get; set; }
     public required DateOnly? ExpirationDate { get; set; }
+}
 
-    private class Mapping : Profile
+public static partial class Mappings
+{
+    extension(GymMembershipPass gymMembershipPass)
     {
-        public Mapping()
+        public GymMembershipPassDto MapToDto()
         {
-            CreateMap<GymMembershipPass, GymMembershipPassDto>();
+            return new GymMembershipPassDto
+            {
+                Id = gymMembershipPass.Id,
+                GymMembershipId = gymMembershipPass.GymMembershipId,
+                Type = gymMembershipPass.Type,
+                TotalUses = gymMembershipPass.TotalUses,
+                RemainingUses = gymMembershipPass.RemainingUses,
+                ExpirationDate = gymMembershipPass.ExpirationDate
+            };
         }
     }
 }

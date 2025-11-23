@@ -8,17 +8,29 @@ public class GymMembershipDto
 {
     public required string Id { get; set; }
     public required string? ApplicationUserId { get; set; }
-    public required string GymId { get; set; }
+    public required string? GymId { get; set; }
     public required GymMembershipStatus Status { get; set; }
     public required DateTimeOffset? CreatedOn { get; set; }
     public required string? CreatedBy { get; set; }
     public required List<GymMembershipPassDto> Passes { get; set; }
+}
 
-    private class Mapping : Profile
+public static partial class Mappings
+{
+    extension(GymMembership gymMembership)
     {
-        public Mapping()
+        public GymMembershipDto MapToDto()
         {
-            CreateMap<GymMembership, GymMembershipDto>();
+            return new GymMembershipDto
+            {
+                Id = gymMembership.Id,
+                ApplicationUserId = gymMembership.ApplicationUserId,
+                GymId = gymMembership.GymId,
+                Status = gymMembership.Status,
+                CreatedOn = gymMembership.CreatedOn,
+                CreatedBy = gymMembership.CreatedBy,
+                Passes = gymMembership.Passes.Select(p => p.MapToDto()).ToList()
+            };
         }
     }
 }

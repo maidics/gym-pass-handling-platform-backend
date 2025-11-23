@@ -17,18 +17,15 @@ public class GetGymPassUsagesForMyGymTodayQueryHandler : IRequestHandler<GetGymP
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
     private readonly ILogger<GetGymPassUsagesForMyGymTodayQueryHandler> _logger;
-    private readonly IMapper _mapper;
 
     public GetGymPassUsagesForMyGymTodayQueryHandler(
         IApplicationDbContext context,
         IUser user,
-        ILogger<GetGymPassUsagesForMyGymTodayQueryHandler> logger,
-        IMapper mapper)
+        ILogger<GetGymPassUsagesForMyGymTodayQueryHandler> logger)
     {
         _context = context;
         _user = user;
         _logger = logger;
-        _mapper = mapper;
     }
     public async Task<List<GymPassUsageDto>> Handle(GetGymPassUsagesForMyGymTodayQuery request, CancellationToken cancellationToken)
     {
@@ -50,11 +47,12 @@ public class GetGymPassUsagesForMyGymTodayQueryHandler : IRequestHandler<GetGymP
 
         var now = DateTimeOffset.UtcNow;
 
-        return await _context
+        var gymPassUsages =  await _context
             .GymPassUsages
             .Where(gpu => gpu.CreatedOn.Date == now.Date && gpu.GymId == gymEmployment.GymId)
             .OrderByDescending(gpu => gpu.CreatedOn)
-            .ProjectTo<GymPassUsageDto>(_mapper.ConfigurationProvider)
             .ToListAsync();
+
+        return gymPassUsages.Select(gpu => gpu.MapToDto()).ToList();
     }
 }

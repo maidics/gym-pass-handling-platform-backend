@@ -14,16 +14,19 @@ public record TenantPaymentProfileDto
 
 public static partial class Mappings
 {
-    public static TenantPaymentProfileDto MapToDto(this TenantPaymentProfile tenantPaymentProfile)
+    extension(TenantPaymentProfile tenantPaymentProfile)
     {
-        return new TenantPaymentProfileDto
+        public TenantPaymentProfileDto MapToDto()
         {
-            GymId = tenantPaymentProfile.GymId,
-            AccountStatus = tenantPaymentProfile.AccountStatus.MapToDto(),
-            LastUpdatedByOnPaymentProvidersSide = tenantPaymentProfile.LastUpdatedByOnPaymentProvidersSide,
-            LastUpdatedOnPaymentProvidersSide = tenantPaymentProfile.LastUpdatedOnPaymentProvidersSide,
-            LastAccountLinkGeneratedOn = tenantPaymentProfile.LastAccountLinkGeneratedOn,
-            LastAccountLinkGeneratedBy = tenantPaymentProfile.LastAccountLinkGeneratedBy
-        };
+            return new TenantPaymentProfileDto
+            {
+                GymId = tenantPaymentProfile.GymId,
+                AccountStatus = tenantPaymentProfile.AccountStatus.MapToDto(),
+                LastUpdatedByOnPaymentProvidersSide = tenantPaymentProfile.LastUpdatedByOnPaymentProvidersSide,
+                LastUpdatedOnPaymentProvidersSide = tenantPaymentProfile.LastUpdatedOnPaymentProvidersSide,
+                LastAccountLinkGeneratedOn = tenantPaymentProfile.LastAccountLinkGeneratedOn,
+                LastAccountLinkGeneratedBy = tenantPaymentProfile.LastAccountLinkGeneratedBy
+            };
+        }
     }
 }

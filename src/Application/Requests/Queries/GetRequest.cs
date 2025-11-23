@@ -20,12 +20,10 @@ public class GetRequestQueryValidator : AbstractValidator<GetRequestQuery>
 public class GetRequestQueryHandler : IRequestHandler<GetRequestQuery, RequestDto>
 {
     private readonly IApplicationDbContext _context;
-    private readonly IMapper _mapper;
 
-    public GetRequestQueryHandler(IApplicationDbContext context, IMapper mapper)
+    public GetRequestQueryHandler(IApplicationDbContext context)
     {
         _context = context;
-        _mapper = mapper;
     }
     public async Task<RequestDto> Handle(GetRequestQuery query, CancellationToken cancellationToken)
     {
@@ -33,6 +31,6 @@ public class GetRequestQueryHandler : IRequestHandler<GetRequestQuery, RequestDt
 
         Guard.Against.NotFound(query.RequestId, gymCreationRequest, "Id");
 
-        return _mapper.Map<RequestDto>(gymCreationRequest);
+        return gymCreationRequest.MapToDto();
     }
 }

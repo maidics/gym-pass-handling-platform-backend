@@ -34,22 +34,19 @@ public class GymEmployeeRegisterUserCommandHandler : IRequestHandler<GymEmployee
     private readonly ILogger<GymEmployeeRegisterUserCommand> _logger;
     private readonly IIdentityService _identityService;
     private readonly ISender _sender;
-    private readonly IMapper _mapper;
 
     public GymEmployeeRegisterUserCommandHandler(
         IApplicationDbContext context,
         IUser user,
         ILogger<GymEmployeeRegisterUserCommand> logger,
         IIdentityService identityService,
-        ISender sender,
-        IMapper mapper)
+        ISender sender)
     {
         _context = context;
         _user = user;
         _logger = logger;
         _identityService = identityService;
         _sender = sender;
-        _mapper = mapper;
     }
     public async Task<GymMembershipDto> Handle(GymEmployeeRegisterUserCommand command, CancellationToken cancellationToken)
     {
@@ -127,7 +124,7 @@ public class GymEmployeeRegisterUserCommandHandler : IRequestHandler<GymEmployee
 
             await _sender.Send(new SendEmailConfirmationEmailCommand(command.Email)); //fire and forget?
 
-            return _mapper.Map<GymMembershipDto>(gymMembership);
+            return gymMembership.MapToDto();
         } catch (Exception ex)
         {
             await transaction.RollbackAsync();

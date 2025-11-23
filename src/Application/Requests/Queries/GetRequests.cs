@@ -29,12 +29,10 @@ public class GetRequestsQueryValidator : AbstractValidator<GetRequestsQuery>
 public class GetRequestsQueryHandler : IRequestHandler<GetRequestsQuery, List<RequestDto>>
 {
     private readonly IApplicationDbContext _context;
-    private readonly IMapper _mapper;
 
-    public GetRequestsQueryHandler(IApplicationDbContext context, IMapper mapper)
+    public GetRequestsQueryHandler(IApplicationDbContext context)
     {
         _context = context;
-        _mapper = mapper;
     }
     public async Task<List<RequestDto>> Handle(GetRequestsQuery query, CancellationToken cancellationToken)
     {
@@ -50,6 +48,8 @@ public class GetRequestsQueryHandler : IRequestHandler<GetRequestsQuery, List<Re
             requestsQuery = requestsQuery.Where(r => r.Type == query.RequestType);
         }
 
-        return await requestsQuery.ProjectTo<RequestDto>(_mapper.ConfigurationProvider).ToListAsync(cancellationToken);
+        var requests =  await requestsQuery.ToListAsync();
+
+        return requests.Select(r => r.MapToDto()).ToList();
     }
 }

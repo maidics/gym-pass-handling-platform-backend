@@ -20,12 +20,10 @@ public class GetGymDetailsQueryValidator : AbstractValidator<GetGymDetailsQuery>
 public class GetGymDetailsQueryHandler : IRequestHandler<GetGymDetailsQuery, GymDto>
 {
     private readonly IApplicationDbContext _context;
-    private readonly IMapper _mapper;
 
-    public GetGymDetailsQueryHandler(IApplicationDbContext context, IMapper mapper)
+    public GetGymDetailsQueryHandler(IApplicationDbContext context)
     {
         _context = context;
-        _mapper = mapper;
     }
 
     public async Task<GymDto> Handle(GetGymDetailsQuery query, CancellationToken cancellationToken)
@@ -37,6 +35,6 @@ public class GetGymDetailsQueryHandler : IRequestHandler<GetGymDetailsQuery, Gym
 
         Guard.Against.NotFound(query.GymId, gym, "Id");
 
-        return _mapper.Map<GymDto>(gym);
+        return gym.MapToDto();
     }
 }

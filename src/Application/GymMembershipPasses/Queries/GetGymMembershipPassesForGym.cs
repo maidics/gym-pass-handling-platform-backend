@@ -23,13 +23,11 @@ public class GetGymMembershipPassesForGymQueryHandler : IRequestHandler<GetGymMe
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user; //currently logged in user
-    private readonly IMapper _mapper;
 
-    public GetGymMembershipPassesForGymQueryHandler(IApplicationDbContext context, IUser user, IMapper mapper)
+    public GetGymMembershipPassesForGymQueryHandler(IApplicationDbContext context, IUser user)
     {
         _context = context;
         _user = user;
-        _mapper = mapper;
     }
     public async Task<List<GymMembershipPassDto>> Handle(GetGymMembershipPassesForGymQuery query, CancellationToken cancellationToken)
     {
@@ -43,6 +41,6 @@ public class GetGymMembershipPassesForGymQueryHandler : IRequestHandler<GetGymMe
 
         Guard.Against.Null(gymMembership, _user.Id, "User is not a member of this gym.");
 
-        return _mapper.Map<List<GymMembershipPassDto>>(gymMembership.Passes);
+        return gymMembership.Passes.Select(p => p.MapToDto()).ToList();
     }
 }

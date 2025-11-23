@@ -16,14 +16,12 @@ public class GetMyGymQueryHandler : IRequestHandler<GetMyGymQuery, GymDto>
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
-    private readonly IMapper _mapper;
     private readonly ILogger<GetMyGymQueryHandler> _logger;
 
-    public GetMyGymQueryHandler(IApplicationDbContext context, IUser user, IMapper mapper, ILogger<GetMyGymQueryHandler> logger)
+    public GetMyGymQueryHandler(IApplicationDbContext context, IUser user, ILogger<GetMyGymQueryHandler> logger)
     {
         _context = context;
         _user = user;
-        _mapper = mapper;
         _logger = logger;
     }
     public async Task<GymDto> Handle(GetMyGymQuery query, CancellationToken cancellationToken)
@@ -46,6 +44,6 @@ public class GetMyGymQueryHandler : IRequestHandler<GetMyGymQuery, GymDto>
 
         Guard.Against.Null(gym, "Id", "No gym found for authenticated gym employee.");
 
-        return _mapper.Map<GymDto>(gym);
+        return gym.MapToDto();
     }
 }

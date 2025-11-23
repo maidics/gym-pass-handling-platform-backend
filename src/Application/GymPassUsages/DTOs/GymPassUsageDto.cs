@@ -17,12 +17,26 @@ public class GymPassUsageDto : BaseAuditableEntity
     public required string? LockerNumber { get; set; }
     //Started time can be retrieved from CreatedOn
     public DateTimeOffset? GymSessionEndedAt {  get; set; }
+}
 
-    private class Mapping : Profile
+public static partial class Mappings
+{
+    extension(GymPassUsage gymPassUsage)
     {
-        public Mapping() 
+        public GymPassUsageDto MapToDto()
         {
-            CreateMap<GymPassUsage, GymPassUsageDto>();
+            return new GymPassUsageDto
+            {
+                ApplicationUserId = gymPassUsage.ApplicationUserId,
+                GymId = gymPassUsage.GymId,
+                PassType = gymPassUsage.PassType,
+                TotalPassUses = gymPassUsage.TotalPassUses,
+                RemainingPassUses = gymPassUsage.RemainingPassUses,
+                PassExpirationDate = gymPassUsage.PassExpirationDate,
+                PassUseResult = gymPassUsage.PassUseResult,
+                LockerNumber = gymPassUsage.LockerNumber,
+                GymSessionEndedAt = gymPassUsage.GymSessionEndedAt
+            };
         }
     }
 }

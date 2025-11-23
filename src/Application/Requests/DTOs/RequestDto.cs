@@ -15,13 +15,29 @@ public class RequestDto
     public required PriorityLevel PriorityLevel { get; set; }
     public required RequestType Type { get; set; }
     public required RequestStatus Status { get; set; }
-    public required string? Payload { get; set; }
+    public string? Payload { get; set; }
+}
 
-    private class Mapping : Profile
+public static partial class Mappings
+{
+    extension(Request request)
     {
-        public Mapping()
+        public RequestDto MapToDto()
         {
-            CreateMap<Request, RequestDto>();
+            return new RequestDto
+            {
+                Id = request.Id,
+                CreatedOn = request.CreatedOn,
+                CreatedBy = request.CreatedBy,
+                LastModifiedOn = request.LastModifiedOn,
+                LastModifiedBy = request.LastModifiedBy,
+                Title = request.Title,
+                Description = request.Description,
+                PriorityLevel = request.PriorityLevel,
+                Type = request.Type,
+                Status = request.Status,
+                //Payload = request.Payload
+            };
         }
     }
 }

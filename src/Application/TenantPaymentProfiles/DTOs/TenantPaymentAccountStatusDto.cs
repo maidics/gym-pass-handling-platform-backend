@@ -13,15 +13,18 @@ public record TenantPaymentAccountStatusDto
 
 public static partial class Mappings
 {
-    public static TenantPaymentAccountStatusDto MapToDto(this TenantPaymentAccountStatus tenantPaymentAccountStatus)
+    extension(TenantPaymentAccountStatus tenantPaymentAccountStatus)
     {
-        return new TenantPaymentAccountStatusDto
+        public TenantPaymentAccountStatusDto MapToDto()
         {
-            ChargesEnabled = tenantPaymentAccountStatus.ChargesEnabled,
-            DetailsSubmitted = tenantPaymentAccountStatus.DetailsSubmitted,
-            PayoutsEnabled = tenantPaymentAccountStatus.PayoutsEnabled,
-            RequirementsDue = tenantPaymentAccountStatus.RequirementsDue,
-            RequirementsEventuallyDue = tenantPaymentAccountStatus.RequirementsEventuallyDue
-        };
+            return new TenantPaymentAccountStatusDto
+            {
+                ChargesEnabled = tenantPaymentAccountStatus.ChargesEnabled,
+                DetailsSubmitted = tenantPaymentAccountStatus.DetailsSubmitted,
+                PayoutsEnabled = tenantPaymentAccountStatus.PayoutsEnabled,
+                RequirementsDue = tenantPaymentAccountStatus.RequirementsDue,
+                RequirementsEventuallyDue = tenantPaymentAccountStatus.RequirementsEventuallyDue
+            };
+        }
     }
 }

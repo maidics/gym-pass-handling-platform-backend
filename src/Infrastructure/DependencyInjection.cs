@@ -24,7 +24,6 @@ using Polly;
 using Stripe;
 using FitPass.Application.Common.Interfaces.Payment;
 using FitPass.Infrastructure.Email;
-using FitPass.Infrastructure.QRCode;
 using FitPass.Infrastructure.Jwt;
 
 namespace FitPass.Infrastructure;
@@ -70,8 +69,6 @@ public static class DependencyInjection
 
         builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection(ConfigurationSections.Email));
         builder.Services.AddTransient<IEmailService, LocalDevEmailService>();
-
-        builder.Services.AddTransient<IQrCodeService, QrCodeService>();
 
         builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection(ConfigurationSections.Stripe));
 

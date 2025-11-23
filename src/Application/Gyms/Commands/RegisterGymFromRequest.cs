@@ -31,22 +31,19 @@ public class RegisterGymFromRequestCommandHandler : IRequestHandler<RegisterGymF
     private readonly IUser _user;
     private readonly IIdentityService _identityService;
     private readonly ISender _sender;
-    private readonly IMapper _mapper;
 
     public RegisterGymFromRequestCommandHandler(
         IApplicationDbContext context,
         ILogger<RegisterGymFromRequestCommand> logger,
         IUser user,
         IIdentityService identityService,
-        ISender sender,
-        IMapper mapper)
+        ISender sender)
     {
         _context = context;
         _logger = logger;
         _user = user;
         _identityService = identityService;
         _sender = sender;
-        _mapper = mapper;
     }
     
     public async Task<GymDto> Handle(RegisterGymFromRequestCommand command, CancellationToken cancellationToken)
@@ -187,7 +184,7 @@ public class RegisterGymFromRequestCommandHandler : IRequestHandler<RegisterGymF
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();
 
-            return _mapper.Map<GymDto>(gym);
+            return gym.MapToDto();
         } catch (Exception ex)
         {
             LogErrorMessages.UnhandledExceptionCaught(
