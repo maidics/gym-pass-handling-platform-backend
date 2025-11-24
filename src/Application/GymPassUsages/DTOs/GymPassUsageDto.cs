@@ -27,7 +27,7 @@ public static partial class Mappings
         {
             return new GymPassUsageDto
             {
-                ApplicationUserId = gymPassUsage.ApplicationUserId,
+                ApplicationUserId = gymPassUsage.UserId,
                 GymId = gymPassUsage.GymId,
                 PassType = gymPassUsage.PassType,
                 TotalPassUses = gymPassUsage.TotalPassUses,

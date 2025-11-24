@@ -53,7 +53,7 @@ public class GymEmployeeRegisterUserCommandHandler : IRequestHandler<GymEmployee
         var gymEmployment = await _context
             .GymEmployments
             .AsNoTracking()
-            .FirstOrDefaultAsync(ge => ge.ApplicationUserId != null && ge.ApplicationUserId == _user.Id);
+            .FirstOrDefaultAsync(ge => ge.UserId != null && ge.UserId == _user.Id);
 
         if (gymEmployment == null)
         {
@@ -104,7 +104,7 @@ public class GymEmployeeRegisterUserCommandHandler : IRequestHandler<GymEmployee
 
             var userProfile = new UserProfile
             {
-                ApplicationUserId = creationResultObj.userId!,
+                UserId = creationResultObj.userId!,
                 FirstName = command.FirstName,
                 LastName = command.LastName
             };
@@ -113,7 +113,7 @@ public class GymEmployeeRegisterUserCommandHandler : IRequestHandler<GymEmployee
 
             var gymMembership = new GymMembership
             {
-                ApplicationUserId = creationResultObj.userId!,
+                UserId = creationResultObj.userId!,
                 GymId = gymEmployment.GymId!
             };
 

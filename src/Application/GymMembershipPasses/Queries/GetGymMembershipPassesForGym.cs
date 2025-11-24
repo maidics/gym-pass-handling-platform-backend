@@ -37,7 +37,7 @@ public class GetGymMembershipPassesForGymQueryHandler : IRequestHandler<GetGymMe
         var gymMembership = await _context.GymMemberships
             .AsNoTracking()
             .Include(gm => gm.Passes.Where(p => (p.RemainingUses != null && p.RemainingUses > 0) || (p.ExpirationDate != null && p.ExpirationDate < today)))
-            .FirstOrDefaultAsync(gm => gm.ApplicationUserId == _user.Id && gm.GymId == query.GymId);
+            .FirstOrDefaultAsync(gm => gm.UserId == _user.Id && gm.GymId == query.GymId);
 
         Guard.Against.Null(gymMembership, _user.Id, "User is not a member of this gym.");
 

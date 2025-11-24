@@ -210,7 +210,7 @@ public class RegisterGymFromRequestTests : BaseTestFixture
 
         var createdGymEmployment = await FindByApplicationUserIdAsync<GymEmployment>(obj.pendingGymEmployee.Id);
         createdGymEmployment.ShouldNotBeNull();
-        createdGymEmployment.ApplicationUserId.ShouldBe(obj.pendingGymEmployee.Id);
+        createdGymEmployment.UserId.ShouldBe(obj.pendingGymEmployee.Id);
         createdGymEmployment.GymId.ShouldBe(createdGym.Id);
         createdGymEmployment.Role.ShouldBe(Roles.GymAdministrator);
         createdGymEmployment.EscalationEmail.ShouldBe(obj.createGymDto.EscalationEmail);

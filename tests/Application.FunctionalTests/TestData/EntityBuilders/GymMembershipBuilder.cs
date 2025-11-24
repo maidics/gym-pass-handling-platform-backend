@@ -56,7 +56,7 @@ public class GymMembershipBuilder : TestAuditableEntityBuilder<GymMembershipBuil
         var gymMembership = new GymMembership
         {
             Id = _id,
-            ApplicationUserId = _applicationUserId,
+            UserId = _applicationUserId,
             Status = _status,
             GymId = _gymId
         };

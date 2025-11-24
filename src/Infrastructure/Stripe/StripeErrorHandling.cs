@@ -7,20 +7,22 @@ namespace FitPass.Infrastructure.Stripe;
 
 public static class StripeExceptionExtensions
 {
-    public static Result<TValue> ToApplicationResult<TValue>(this StripeException stripeException, string errorMessage)
+    public static ResultFailure ToResultFailure(this StripeException stripeException, string errorMessage)
     {
         return stripeException.HttpStatusCode switch
         {
-            HttpStatusCode.TooManyRequests => Result<TValue>.Failure([errorMessage], ResultTypes.ExternalServiceUnavailable),
+            HttpStatusCode.TooManyRequests => new ResultFailure(ResultTypes.ExternalServiceUnavailable, errorMessage, []),
 
-            HttpStatusCode.PaymentRequired => Result<TValue>.Failure([errorMessage], ResultTypes.PaymentRequired),
+            HttpStatusCode.PaymentRequired => new ResultFailure(ResultTypes.PaymentRequired, errorMessage, []),
 
-            /*HttpStatusCode.BadRequest or
-            HttpStatusCode.Unauthorized or
-            HttpStatusCode.Forbidden or
-            HttpStatusCode.NotFound => Result<TValue>.Failure([errorMessage], ResultType.InternalError),*/
+            /*
+                HttpStatusCode.BadRequest or
+                HttpStatusCode.Unauthorized or
+                HttpStatusCode.Forbidden or
+                HttpStatusCode.NotFound => 
+            */
 
-            _ => Result<TValue>.Failure([errorMessage], ResultTypes.InternalError)
+            _ => new ResultFailure(ResultTypes.InternalError, errorMessage, [])
         };
     }
 

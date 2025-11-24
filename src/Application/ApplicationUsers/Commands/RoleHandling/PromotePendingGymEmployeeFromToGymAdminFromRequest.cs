@@ -122,7 +122,7 @@ public class PromotePendingGymEmployeeToGymAdminFromRequestCommandHandler : IReq
 
             var gymEmployment = new GymEmployment
             {
-                ApplicationUserId = promotionDto.UserIdToNominate,
+                UserId = promotionDto.UserIdToNominate,
                 GymId = promotionDto.GymId,
                 Role = Roles.GymAdministrator,
                 EscalationEmail = promotionDto.EscalationEmail

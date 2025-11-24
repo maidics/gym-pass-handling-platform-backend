@@ -39,7 +39,7 @@ public class GenerateTenantPaymentAccountLinkCommandHandler : IRequestHandler<Ge
         var gymEmployment = await _context
             .GymEmployments
             .AsNoTracking()
-            .FirstOrDefaultAsync(ge => ge.ApplicationUserId != null && ge.ApplicationUserId == _user.Id);
+            .FirstOrDefaultAsync(ge => ge.UserId != null && ge.UserId == _user.Id);
 
         if (gymEmployment is null)
         {

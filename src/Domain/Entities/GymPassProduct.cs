@@ -17,13 +17,15 @@ public class GymPassProduct : BaseAuditableEntity
     public required int? DaysAfterExpiring { get; set; }
     public required bool IsActive { get; set; }
     public required Money Price { get; set; }
+    public required string PaymentProviderProductId { get; set; }
+    public required string PaymentProviderPriceId { get; set; }
     public Gym Gym { get; set; } = null!;
 
-    public DateOnly? GetExpirationDate()
+    public DateOnly GetExpirationDate()
     {
         if (DaysAfterExpiring == null)
         {
-            return null;
+            throw new InvalidOperationException("Use based pass type does not have an expiration date.");
         }
 
         var utcNow = DateTimeOffset.UtcNow;

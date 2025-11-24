@@ -38,7 +38,7 @@ public class UpdateMyGymStatusCommandHandler : IRequestHandler<UpdateMyGymStatus
     {
         var gymEmployment = await _context.GymEmployments
             .AsNoTracking()
-            .FirstOrDefaultAsync(gsa => gsa.ApplicationUserId == _user.Id, cancellationToken);
+            .FirstOrDefaultAsync(gsa => gsa.UserId == _user.Id, cancellationToken);
 
         if (gymEmployment == null)
         {

@@ -34,7 +34,7 @@ public class GymMembershipPass : BaseAuditableEntity
 
             return new GymPassUsage
             {
-                ApplicationUserId = GymMembership.ApplicationUserId,
+                UserId = GymMembership.UserId,
                 GymId = GymMembership.GymId!,
                 PassType = Type,
                 TotalPassUses = TotalUses,
@@ -52,7 +52,7 @@ public class GymMembershipPass : BaseAuditableEntity
 
             return new GymPassUsage
             {
-                ApplicationUserId = GymMembership.ApplicationUserId,
+                UserId = GymMembership.UserId,
                 GymId = GymMembership.GymId!,
                 PassType = Type,
                 TotalPassUses = TotalUses,
@@ -76,7 +76,7 @@ public class GymMembershipPass : BaseAuditableEntity
 
         return new GymPassUsage
         {
-            ApplicationUserId = GymMembership.ApplicationUserId,
+            UserId = GymMembership.UserId,
             GymId = GymMembership.GymId!,
             PassType = Type,
             TotalPassUses = TotalUses,

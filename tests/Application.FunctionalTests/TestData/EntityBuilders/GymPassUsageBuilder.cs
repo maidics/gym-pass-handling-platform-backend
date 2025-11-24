@@ -87,7 +87,7 @@ public class GymPassUsageBuilder : TestAuditableEntityBuilder<GymPassUsageBuilde
         var gympassUsage = new GymPassUsage
         {
             Id = _id,
-            ApplicationUserId = _applicationUserId,
+            UserId = _applicationUserId,
             GymId = _gymId,
             PassType = _passType,
             TotalPassUses = _totalPassUses,

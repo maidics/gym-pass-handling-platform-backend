@@ -53,7 +53,7 @@ public class CreateTenantPaymentProfileCommandHandler : IRequestHandler<CreateTe
         var gymEmployment = await _context
             .GymEmployments
             .AsNoTracking()
-            .FirstOrDefaultAsync(ge => ge.ApplicationUserId == _user.Id);
+            .FirstOrDefaultAsync(ge => ge.UserId == _user.Id);
 
         if (gymEmployment is null)
         {

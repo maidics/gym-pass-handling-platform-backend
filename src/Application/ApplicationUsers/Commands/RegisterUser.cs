@@ -94,7 +94,7 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, J
 
             var userProfile = new UserProfile
             {
-                ApplicationUserId = userId,
+                UserId = userId,
                 FirstName = command.FirstName,
                 LastName = command.LastName
             };

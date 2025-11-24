@@ -21,8 +21,8 @@ public class QueryService : IQueryService
     {
         return await (
             from ge in _context.GymEmployments
-            join user in _context.Users on ge.ApplicationUserId equals user.Id
-            join up in _context.UserProfiles on user.Id equals up.ApplicationUserId
+            join user in _context.Users on ge.UserId equals user.Id
+            join up in _context.UserProfiles on user.Id equals up.UserId
             where ge.GymId == gymId
             select new GymEmploymentDto
             {
@@ -47,8 +47,8 @@ public class QueryService : IQueryService
     {
         return await (
             from ge in _context.GymEmployments
-            join user in _context.Users on ge.ApplicationUserId equals user.Id
-            join up in _context.UserProfiles on user.Id equals up.ApplicationUserId
+            join user in _context.Users on ge.UserId equals user.Id
+            join up in _context.UserProfiles on user.Id equals up.UserId
             where user.Id == applicationUserId
             select new GymEmploymentDto
             {
@@ -73,8 +73,8 @@ public class QueryService : IQueryService
     {
         return await (
             from up in _context.UserProfiles
-            join user in _context.Users on up.ApplicationUserId equals user.Id
-            where up.ApplicationUserId == applicationUserId
+            join user in _context.Users on up.UserId equals user.Id
+            where up.UserId == applicationUserId
             select new UserProfileWithEmailDto
             {
                 ApplicationUserId = user.Id,
@@ -89,8 +89,8 @@ public class QueryService : IQueryService
     {
         var query = (
                 from gm in _context.GymMemberships
-                join user in _context.Users on gm.ApplicationUserId equals user.Id
-                join up in _context.UserProfiles on user.Id equals up.ApplicationUserId
+                join user in _context.Users on gm.UserId equals user.Id
+                join up in _context.UserProfiles on user.Id equals up.UserId
                 where gm.GymId == gymId
                 select new GymMembershipWithUserProfileAndEmailDto
                 {
@@ -129,8 +129,8 @@ public class QueryService : IQueryService
     {
         return await (
             from gm in _context.GymMemberships
-            join user in _context.Users on gm.ApplicationUserId equals user.Id
-            join up in _context.UserProfiles on user.Id equals up.ApplicationUserId
+            join user in _context.Users on gm.UserId equals user.Id
+            join up in _context.UserProfiles on user.Id equals up.UserId
             where gm.Id == gymMembershipId
             select new GymMembershipWithUserProfileAndEmailDto
             {

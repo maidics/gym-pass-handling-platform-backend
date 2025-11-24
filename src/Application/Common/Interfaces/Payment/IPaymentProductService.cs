@@ -1,8 +1,10 @@
+using FitPass.Application.Common.Models;
 using FitPass.Domain.Entities;
+using FitPass.Domain.Enums;
 
 namespace FitPass.Application.Common.Interfaces.Payment;
 
 public interface IPaymentProductService
 {
-    Task CreateProduct(GymPassProduct gymPassProduct);
+    Task<Result<string>> CreateProduct(string name, string description, PassType type);
 }

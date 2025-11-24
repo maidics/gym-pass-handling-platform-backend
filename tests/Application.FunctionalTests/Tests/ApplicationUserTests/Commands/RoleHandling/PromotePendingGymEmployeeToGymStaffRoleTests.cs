@@ -48,7 +48,7 @@ public class PromotePendingGymEmployeeToGymStaffRoleTests : BaseTestFixture
 
         gymStaffEmployment.ShouldNotBeNull();
         gymStaffEmployment.GymId.ShouldBe(gymAdminObj.gym.Id);
-        gymStaffEmployment.ApplicationUserId.ShouldBe(pendingGymEmployee.Id);
+        gymStaffEmployment.UserId.ShouldBe(pendingGymEmployee.Id);
     }
 
     [Test]

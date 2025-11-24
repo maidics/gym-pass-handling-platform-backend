@@ -2,7 +2,7 @@
 
 public class GymPassUsage : BaseAuditableEntity
 {
-    public required string ApplicationUserId { get; init; }
+    public required string UserId { get; init; }
     public required string GymId { get; init; }
     public required PassType PassType { get; init; } //this is here so if the pass is archived then still available
     public required int? TotalPassUses { get; init; } //same ^

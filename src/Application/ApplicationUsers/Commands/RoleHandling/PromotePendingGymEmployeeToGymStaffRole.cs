@@ -44,7 +44,7 @@ public class PromotePendingGymEmployeeToGymStaffRoleCommandHandler : IRequestHan
         var promoterGymAdminEmployment = await _context
             .GymEmployments
             .AsNoTracking()
-            .FirstOrDefaultAsync(ge => ge.ApplicationUserId == _user.Id);
+            .FirstOrDefaultAsync(ge => ge.UserId == _user.Id);
 
         if (promoterGymAdminEmployment == null)
         {
@@ -96,7 +96,7 @@ public class PromotePendingGymEmployeeToGymStaffRoleCommandHandler : IRequestHan
 
             var gymEmployment = new GymEmployment
             {
-                ApplicationUserId = command.UserId,
+                UserId = command.UserId,
                 GymId = promoterGymAdminEmployment.GymId,
                 Role = Roles.GymStaff
             };

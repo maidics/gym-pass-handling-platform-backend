@@ -171,7 +171,7 @@ public class RegisterGymFromRequestCommandHandler : IRequestHandler<RegisterGymF
 
             var gymEmployment = new GymEmployment
             {
-                ApplicationUserId = request.CreatedBy,
+                UserId = request.CreatedBy,
                 GymId = gym.Id,
                 Role = Roles.GymAdministrator,
                 EscalationEmail = createGymDto.EscalationEmail

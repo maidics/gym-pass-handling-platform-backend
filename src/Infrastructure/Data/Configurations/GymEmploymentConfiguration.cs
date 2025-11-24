@@ -13,7 +13,7 @@ public class GymEmploymentConfiguration : IEntityTypeConfiguration<GymEmployment
         builder
             .HasOne<ApplicationUser>()
             .WithOne()
-            .HasForeignKey<GymEmployment>(ge => ge.ApplicationUserId)
+            .HasForeignKey<GymEmployment>(ge => ge.UserId)
             .OnDelete(DeleteBehavior.SetNull);
 
         builder

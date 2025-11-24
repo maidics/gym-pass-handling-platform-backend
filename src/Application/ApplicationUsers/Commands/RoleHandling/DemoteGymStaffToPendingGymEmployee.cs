@@ -44,7 +44,7 @@ public class DemoteGymStaffToPendingGymEmployeeCommandHandler : IRequestHandler<
         var demoterGymAdminEmployment = await _context
             .GymEmployments
             .AsNoTracking()
-            .FirstOrDefaultAsync(ge => ge.ApplicationUserId == _user.Id);
+            .FirstOrDefaultAsync(ge => ge.UserId == _user.Id);
 
         if (demoterGymAdminEmployment == null)
         {
@@ -54,7 +54,7 @@ public class DemoteGymStaffToPendingGymEmployeeCommandHandler : IRequestHandler<
 
         var gymStaffGymEmployment = await _context
             .GymEmployments
-            .FirstOrDefaultAsync(ge => ge.ApplicationUserId == command.UserId);
+            .FirstOrDefaultAsync(ge => ge.UserId == command.UserId);
 
         Guard.Against.NotFound(command.UserId, gymStaffGymEmployment, "GymEmployment");
 

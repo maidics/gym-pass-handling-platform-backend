@@ -67,7 +67,7 @@ public class StripeConnectedAccountService : IPaymentTenantService
         {
             ex.Log(_logger, nameof(StripeConnectedAccountService), nameof(CreateTenantAccount));
 
-            return ex.ToApplicationResult<string>("Failed to create payment account.");
+            return ex.ToResultFailure<string>("Failed to create payment account.");
         }
     }
 
@@ -89,7 +89,7 @@ public class StripeConnectedAccountService : IPaymentTenantService
         {
             ex.Log(_logger, nameof(StripeConnectedAccountService), nameof(IsOnboardingCompleteAsync));
 
-            return ex.ToApplicationResult<bool>("Failed to retrieve wether onboarding is completed or not.");
+            return ex.ToResultFailure<bool>("Failed to retrieve wether onboarding is completed or not.");
         }
     }
 
@@ -122,7 +122,7 @@ public class StripeConnectedAccountService : IPaymentTenantService
         {
             ex.Log(_logger, nameof(StripeConnectedAccountService), nameof(GenerateAccountLinkAsync));
 
-            return ex.ToApplicationResult<(string url, DateTime expiration)>("Failed to generate account link.");
+            return ex.ToResultFailure<(string url, DateTime expiration)>("Failed to generate account link.");
         }
     }
 }

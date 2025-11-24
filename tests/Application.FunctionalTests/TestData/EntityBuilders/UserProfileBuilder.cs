@@ -40,7 +40,7 @@ public class UserProfileBuilder : TestEntityBuilderBase<UserProfile>
     {
         var userProfile = new UserProfile
         {
-            ApplicationUserId = _applicationUserId,
+            UserId = _applicationUserId,
             FirstName = _firstName,
             LastName = _lastName
         };
@@ -62,7 +62,7 @@ public class UserProfileBuilder : TestEntityBuilderBase<UserProfile>
 
         var createdUserProfile = await context
             .UserProfiles
-            .FindAsync(userProfile.ApplicationUserId);
+            .FindAsync(userProfile.UserId);
 
         Guard.Against.Null(createdUserProfile);
 

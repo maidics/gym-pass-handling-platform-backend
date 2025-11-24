@@ -39,7 +39,7 @@ public static class ApplicationEntityAssertions
     public static void AssertTo(this GymPassUsage? gymPassUsage, string userId, string gymId, GymMembershipPass pass, PassUseResult result, string? lockerNumber)
     {
         gymPassUsage.ShouldNotBeNull();
-        gymPassUsage.ApplicationUserId.ShouldBe(userId);
+        gymPassUsage.UserId.ShouldBe(userId);
         gymPassUsage.GymId.ShouldBe(gymId);
         gymPassUsage.PassType.ShouldBe(pass.Type);
         gymPassUsage.TotalPassUses.ShouldBe(pass.TotalUses);
@@ -61,7 +61,7 @@ public static class ApplicationEntityAssertions
     public static void AssertTo(this GymPassUsageDto? dto, GymPassUsage gymPassUsage)
     {
         dto.ShouldNotBeNull();
-        dto.ApplicationUserId.ShouldBe(gymPassUsage.ApplicationUserId);
+        dto.ApplicationUserId.ShouldBe(gymPassUsage.UserId);
         dto.GymId.ShouldBe(gymPassUsage.GymId);
         dto.PassType.ShouldBe(gymPassUsage.PassType);
         dto.TotalPassUses.ShouldBe(gymPassUsage.TotalPassUses);
@@ -97,7 +97,7 @@ public static class ApplicationEntityAssertions
     public static void AssertTo(this UserProfileWithEmailDto? dto, UserProfile userProfile, string email)
     {
         dto.ShouldNotBeNull();
-        dto.ApplicationUserId.ShouldBe(userProfile.ApplicationUserId);
+        dto.ApplicationUserId.ShouldBe(userProfile.UserId);
         dto.FirstName.ShouldBe(userProfile.FirstName);
         dto.LastName.ShouldBe(userProfile.LastName);
         dto.Email.ShouldBe(email);
@@ -107,7 +107,7 @@ public static class ApplicationEntityAssertions
     {
         dto.ShouldNotBeNull();
         dto.Id.ShouldBe(gymMembership.Id);
-        dto.ApplicationUserId.ShouldBe(gymMembership.ApplicationUserId);
+        dto.ApplicationUserId.ShouldBe(gymMembership.UserId);
         dto.GymId.ShouldBe(gymMembership.GymId);
         dto.Status.ShouldBe(gymMembership.Status);
         dto.CreatedOn.ShouldBe(gymMembership.CreatedOn);

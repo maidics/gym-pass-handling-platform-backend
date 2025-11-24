@@ -77,7 +77,7 @@ public class GymEmploymentBuilder : TestEntityBuilderBase<GymEmployment>
     {
         var gymEmployment = new GymEmployment
         {
-            ApplicationUserId = _applicationUserId,
+            UserId = _applicationUserId,
             GymId = _gymId,
             EscalationEmail = _escalationEmail,
             Role = _role,

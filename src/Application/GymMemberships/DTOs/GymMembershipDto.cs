@@ -24,7 +24,7 @@ public static partial class Mappings
             return new GymMembershipDto
             {
                 Id = gymMembership.Id,
-                ApplicationUserId = gymMembership.ApplicationUserId,
+                ApplicationUserId = gymMembership.UserId,
                 GymId = gymMembership.GymId,
                 Status = gymMembership.Status,
                 CreatedOn = gymMembership.CreatedOn,

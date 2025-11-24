@@ -12,7 +12,7 @@ public class GymMembershipConfiguration : IEntityTypeConfiguration<GymMembership
         builder
             .HasOne<ApplicationUser>()
             .WithMany()
-            .HasForeignKey(gm => gm.ApplicationUserId);
+            .HasForeignKey(gm => gm.UserId);
 
         builder
             .HasOne(gm => gm.Gym)
