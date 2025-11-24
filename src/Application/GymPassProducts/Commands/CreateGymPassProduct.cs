@@ -7,6 +7,7 @@ using FitPass.Application.Common.Security;
 using FitPass.Application.GymPassProducts.DTOs;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
+using FitPass.Domain.Entities.Payment;
 using FitPass.Domain.Enums;
 using FitPass.Domain.Strings;
 using FitPass.Domain.ValueObjects;
@@ -113,22 +114,25 @@ public class CreateGymPassProductCommandHandler : IRequestHandler<CreateGymPassP
 
         //TODO: ensure atomicity
 
-        var productResult = await _paymentProductService.CreateProductAsync(command.Name, command.Description, command.Type);
+        var productResult = await _paymentProductService.CreateProductAsync(command.Name, command.Description, command.Type, command.IsActive);
 
         if (!productResult.Succeeded)
         {
             return productResult.ToFailure<GymPassProductDto>();
         }
 
-        var priceResult = await _paymentPriceService.CreatePriceAsync(productResult.Value, command.Price);
+        var priceResult = await _paymentPriceService.CreatePriceAsync(productResult.Value, command.Price, command.IsActive);
 
         if (!priceResult.Succeeded)
         {
             return priceResult.ToFailure<GymPassProductDto>();
         }
 
+        var gymPassProductId = Guid.NewGuid().ToString();
+
         var product = new GymPassProduct
         {
+            Id = gymPassProductId,
             GymId = gymEmployment.GymId,
             Name = command.Name,
             Description = command.Description,
@@ -137,8 +141,12 @@ public class CreateGymPassProductCommandHandler : IRequestHandler<CreateGymPassP
             DaysAfterExpiring = command.DaysAfterExpiring,
             IsActive = command.IsActive,
             Price = command.Price,
-            PaymentProviderProductId = productResult.Value,
-            PaymentProviderPriceId = priceResult.Value
+            PaymentIdentity = new ProductPaymentIdentity
+            {
+                Id = productResult.Value,
+                GymPassProductId = gymPassProductId,
+                PriceId = priceResult.Value
+            }
         };
 
         await _context.GymPassProducts.AddAsync(product);

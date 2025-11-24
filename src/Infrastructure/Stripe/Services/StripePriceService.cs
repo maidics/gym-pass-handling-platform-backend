@@ -19,7 +19,7 @@ public class StripePriceService : IPaymentPriceService
         _priceService = priceService;
     }
 
-    public async Task<Result<string>> CreatePriceAsync(string productId, Money priceMoney)
+    public async Task<Result<string>> CreatePriceAsync(string productId, Money priceMoney, bool isActive)
     {
         try
         {
@@ -27,7 +27,8 @@ public class StripePriceService : IPaymentPriceService
             {
                 Product = productId,
                 Currency = priceMoney.Currency,
-                UnitAmountDecimal = priceMoney.ToStripeAmount()
+                UnitAmountDecimal = priceMoney.ToStripeAmount(),
+                Active = isActive
             };
 
             var price = await _priceService.CreateAsync(priceOptions, null);
@@ -41,7 +42,7 @@ public class StripePriceService : IPaymentPriceService
         }
     }
 
-    public async Task<Result<string>> UpdatePriceAsync(string priceId, string productId, Money newPrice)
+    public async Task<Result<string>> UpdatePriceAsync(string priceId, string productId, Money newPrice, bool isActive)
     {
         try
         {
@@ -52,7 +53,7 @@ public class StripePriceService : IPaymentPriceService
 
             await _priceService.UpdateAsync(priceId, priceUpdateOptions);
 
-            return await CreatePriceAsync(productId, newPrice);
+            return await CreatePriceAsync(productId, newPrice, isActive);
         } catch (StripeException ex)
         {
             ex.Log(_logger, nameof(StripePriceService), nameof(UpdatePriceAsync));
@@ -61,7 +62,7 @@ public class StripePriceService : IPaymentPriceService
         }
     }
 
-    public async Task<Result> SetActiveFlagAsync(string priceId, bool isActive)
+    public async Task<Result> UpdateActiveStatusAsync(string priceId, bool isActive)
     {
         try
         {
@@ -75,7 +76,7 @@ public class StripePriceService : IPaymentPriceService
             return Result.Success();
         } catch (StripeException ex)
         {
-            ex.Log(_logger, nameof(StripePriceService), nameof(SetActiveFlagAsync));
+            ex.Log(_logger, nameof(StripePriceService), nameof(UpdateActiveStatusAsync));
 
             return ex.ToResultFailure("Failed to update active flag on Stripe price.");
         }

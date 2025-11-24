@@ -16,6 +16,7 @@ public interface IApplicationDbContext
     DbSet<GymPassProduct> GymPassProducts { get; }
     
     DbSet<TenantPaymentProfile> TenantPaymentProfiles { get; }
+    DbSet<ProductPaymentIdentity> PaymentProducts { get; }
 
     Task<int> SaveChangesAsync();
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);

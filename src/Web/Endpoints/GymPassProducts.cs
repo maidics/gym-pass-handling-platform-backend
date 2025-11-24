@@ -10,6 +10,8 @@ public class GymPassProducts : EndpointGroupBase
         groupBuilder.MapPost(CreateGymPassProduct).RequireAuthorization();
 
         groupBuilder.MapPut(UpdateGymPassProduct, "{gymPassProductId}").RequireAuthorization();
+
+        groupBuilder.MapPut(UpdateGymPassProductActiveStatus, "{gymPassProductId}/Status").RequireAuthorization();
     }
 
     public async Task<IResult> CreateGymPassProduct(ISender sender, [FromBody] CreateGymPassProductCommand command, CancellationToken cancellationToken)
@@ -27,6 +29,13 @@ public class GymPassProducts : EndpointGroupBase
         }
 
         var result = await sender.Send(command);
+
+        return result.ToTypedResult();
+    }
+
+    public async Task<IResult> UpdateGymPassProductActiveStatus(ISender sender, string gymPassProductId, [FromBody] bool isActive, CancellationToken cancellationToken)
+    {
+        var result = await sender.Send(new UpdateGymPassProductActiveStatusCommand(gymPassProductId, isActive));
 
         return result.ToTypedResult();
     }

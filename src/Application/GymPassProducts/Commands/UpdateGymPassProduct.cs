@@ -1,4 +1,3 @@
-
 using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Interfaces.Payment;
@@ -20,7 +19,6 @@ public record UpdateGymPassProductCommand(
     string Description,
     int? TotalUses,
     int? DaysAfterExpiring,
-    bool IsActive,
     Money Price
 ) : IRequest<Result>;
 
@@ -50,8 +48,6 @@ public class UpdateGymPassProductCommandValidator : AbstractValidator<UpdateGymP
            RuleFor(v => v.TotalUses).Null().WithMessage(ErrorMessages.UnlimitedPassTypeNoUses()); 
         });
 
-        RuleFor(v => v.IsActive).NotEmptyWithMessage(nameof(UpdateGymPassProductCommand.IsActive));
-
         RuleFor(v => v.Price).NotEmptyWithMessage(nameof(UpdateGymPassProductCommand.Price));
     }
 }
@@ -62,18 +58,21 @@ public class UpdateGymPassProductCommandHandler : IRequestHandler<UpdateGymPassP
     private readonly IUser _user;
     private readonly ILogger<UpdateGymPassProductCommandHandler> _logger;
     private readonly IPaymentPriceService _paymentPriceService;
+    private readonly IPaymentProductService _paymentProductService;
     
     public UpdateGymPassProductCommandHandler(
         IApplicationDbContext context,
         IUser user,
         ILogger<UpdateGymPassProductCommandHandler> logger,
-        IPaymentPriceService paymentPriceService
+        IPaymentPriceService paymentPriceService,
+        IPaymentProductService paymentProductService
     )
     {
         _context = context;
         _user = user;
         _logger = logger;
         _paymentPriceService = paymentPriceService;
+        _paymentProductService = paymentProductService;
     }
 
     public async Task<Result> Handle(UpdateGymPassProductCommand command, CancellationToken cancellationToken)
@@ -93,48 +92,49 @@ public class UpdateGymPassProductCommandHandler : IRequestHandler<UpdateGymPassP
             return Result.InternalError(ErrorMessages.AuthenticatedUserRelatedEntityNotFound(nameof(GymEmployment)));
         }
 
-        var product = await _context.GymPassProducts.FindAsync(command.GymPassProductId);
+        var product = await _context.GymPassProducts
+            .Include(gpp => gpp.PaymentIdentity)
+            .FirstOrDefaultAsync(gpp => gpp.Id == command.GymPassProductId && gpp.GymId == gymEmployment.GymId);
 
         if (product is null)
         {
             return Result.NotFound(nameof(GymPassProduct));
         }
 
-        if (product.GymId != gymEmployment.GymId)
-        {
-            return Result.Forbidden();
-        }
-
         if (product.Price != command.Price)
         {
-            var result = await _paymentPriceService.UpdatePriceAsync(
-                product.PaymentProviderPriceId, 
-                product.PaymentProviderProductId, 
-                command.Price);
+            var result = await _paymentPriceService.UpdatePriceAsync( //new price created
+                product.PaymentIdentity.PriceId, 
+                product.PaymentIdentity.Id, 
+                command.Price,
+                product.IsActive); //active handled elsewhere
 
             if (!result.Succeeded)
             {
                 return result;
             }
 
+            product.PaymentIdentity.ArchivedPaymentProviderPriceIds.Add(product.PaymentIdentity.PriceId, DateTimeOffset.UtcNow);
             product.Price = command.Price;
-            product.PaymentProviderPriceId = result.Value;
+            product.PaymentIdentity.PriceId = result.Value;
         }
 
-        if (product.IsActive != command.IsActive)
+        if (product.Name != command.Name || product.Description != command.Description)
         {
-            var result = await _paymentPriceService.SetActiveFlagAsync(product.PaymentProviderPriceId, command.IsActive);
+            var result = await _paymentProductService.UpdateProductAsync(
+                productId: product.PaymentIdentity.Id, 
+                name: command.Name, 
+                description: command.Description);
 
             if (!result.Succeeded)
             {
                 return result;
             }
 
-            product.IsActive = command.IsActive;
+            product.Name = command.Name;
+            product.Description = command.Description;
         }
 
-        product.Name = command.Name;
-        product.Description = command.Description;
         product.TotalUses = command.TotalUses;
         product.DaysAfterExpiring = command.DaysAfterExpiring;
 

@@ -24,6 +24,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
     public DbSet<Request> Requests => Set<Request>();
 
     public DbSet<TenantPaymentProfile> TenantPaymentProfiles => Set<TenantPaymentProfile>();
+    public DbSet<ProductPaymentIdentity> PaymentProducts => Set<ProductPaymentIdentity>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
