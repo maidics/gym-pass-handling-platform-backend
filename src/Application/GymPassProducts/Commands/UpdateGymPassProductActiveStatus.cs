@@ -3,12 +3,15 @@ using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Interfaces.Payment;
 using FitPass.Application.Common.Logging;
 using FitPass.Application.Common.Models;
+using FitPass.Application.Common.Security;
+using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Strings;
 using Microsoft.Extensions.Logging;
 
 namespace FitPass.Application.GymPassProducts.Commands;
 
+[Authorize(Roles = Roles.GymAdministrator)]
 public record UpdateGymPassProductActiveStatusCommand(
     string GymPassProductId,
     bool IsActive

@@ -1,4 +1,5 @@
 using FitPass.Application.GymPassProducts.Commands;
+using FitPass.Application.GymPassProducts.Queries;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FitPass.Web.Endpoints;
@@ -12,6 +13,8 @@ public class GymPassProducts : EndpointGroupBase
         groupBuilder.MapPut(UpdateGymPassProduct, "{gymPassProductId}").RequireAuthorization();
 
         groupBuilder.MapPut(UpdateGymPassProductActiveStatus, "{gymPassProductId}/Status").RequireAuthorization();
+
+        groupBuilder.MapGet(GetGymPassProductsByGymId, "{gymId}");
     }
 
     public async Task<IResult> CreateGymPassProduct(ISender sender, [FromBody] CreateGymPassProductCommand command, CancellationToken cancellationToken)
@@ -36,6 +39,13 @@ public class GymPassProducts : EndpointGroupBase
     public async Task<IResult> UpdateGymPassProductActiveStatus(ISender sender, string gymPassProductId, [FromBody] bool isActive, CancellationToken cancellationToken)
     {
         var result = await sender.Send(new UpdateGymPassProductActiveStatusCommand(gymPassProductId, isActive));
+
+        return result.ToTypedResult();
+    }
+
+    public async Task<IResult> GetGymPassProductsByGymId(ISender sender, string gymId, CancellationToken cancellationToken)
+    {
+        var result = await sender.Send(new GetGymPassProductsByGymIdQuery(gymId));
 
         return result.ToTypedResult();
     }
