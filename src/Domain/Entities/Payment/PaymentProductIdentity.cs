@@ -1,6 +1,6 @@
 namespace FitPass.Domain.Entities.Payment;
 
-public class ProductPaymentIdentity : BaseEntity
+public class ProductPaymentIdentity : BaseAuditableEntity
 {
     public required string GymPassProductId { get; set; }
     public required string PriceId { get; set; }
