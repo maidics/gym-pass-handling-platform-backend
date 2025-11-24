@@ -62,11 +62,11 @@ public class Result
     public static ResultFailure PaymentRequired(IEnumerable<string> errors = default!) =>
         new ResultFailure(ResultTypes.PaymentRequired, "Payment required.", [..errors ?? []]);
 
-    public static ResultFailure Unauthorized() => 
-        new ResultFailure(ResultTypes.Unauthorized, "Unauthorized access.", []);
+    public static ResultFailure Unauthorized(string? message = default) => 
+        new ResultFailure(ResultTypes.Unauthorized, message is null ? "Unauthorized access." : message, []);
 
-    public static ResultFailure Forbidden() => 
-        new ResultFailure(ResultTypes.Forbidden, "Forbidden access.", []);
+    public static ResultFailure Forbidden(string? message = default) => 
+        new ResultFailure(ResultTypes.Forbidden, message is null ? "Forbidden access." : message, []);
 }
 
 public class Result<T> : Result
