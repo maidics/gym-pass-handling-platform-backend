@@ -6,5 +6,5 @@ namespace FitPass.Application.Common.Interfaces.Payment;
 
 public interface IPaymentProductService
 {
-    Task<Result<string>> CreateProduct(string name, string description, PassType type);
+    Task<Result<string>> CreateProductAsync(string name, string description, PassType type);
 }

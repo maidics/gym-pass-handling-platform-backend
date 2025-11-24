@@ -19,6 +19,7 @@ public class GymPassProduct : BaseAuditableEntity
     public required Money Price { get; set; }
     public required string PaymentProviderProductId { get; set; }
     public required string PaymentProviderPriceId { get; set; }
+    public Dictionary<string, DateTimeOffset> ArchivedPaymentProviderProductIds { get; set;} = [];
     public Gym Gym { get; set; } = null!;
 
     public DateOnly GetExpirationDate()

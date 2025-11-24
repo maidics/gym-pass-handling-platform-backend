@@ -57,8 +57,6 @@ public class CreateGymPassProductCommandValidator : AbstractValidator<CreateGymP
 
         When(v => v.Type == PassType.Unlimited, () =>
         {
-            var now = DateTimeOffset.UtcNow;
-
             RuleFor(v => v.DaysAfterExpiring)
                 .NotEmptyWithMessage(nameof(CreateGymPassProductCommand.DaysAfterExpiring))
                 .GreaterThan(0).WithMessage(ErrorMessages.UnlimitedPassTypeExpirationDayAtleastOne());
@@ -100,7 +98,7 @@ public class CreateGymPassProductCommandHandler : IRequestHandler<CreateGymPassP
     {
         var gymEmployment = await _context.GymEmployments
             .AsNoTracking()
-            .FirstOrDefaultAsync(ge => ge.UserId == _user.Id);
+            .FirstOrDefaultAsync(ge => ge.UserId != null && ge.UserId == _user.Id);
 
         if (gymEmployment is null)
         {
@@ -110,19 +108,19 @@ public class CreateGymPassProductCommandHandler : IRequestHandler<CreateGymPassP
                 _user.Id,
                 nameof(GymEmployment));
 
-            return Result.InternalError([ErrorMessages.AuthenticatedUserRelatedEntityNotFound(nameof(GymEmployment))]);
+            return Result.InternalError(ErrorMessages.AuthenticatedUserRelatedEntityNotFound(nameof(GymEmployment)));
         }
 
         //TODO: ensure atomicity
 
-        var productResult = await _paymentProductService.CreateProduct(command.Name, command.Description, command.Type);
+        var productResult = await _paymentProductService.CreateProductAsync(command.Name, command.Description, command.Type);
 
         if (!productResult.Succeeded)
         {
             return productResult.ToFailure<GymPassProductDto>();
         }
 
-        var priceResult = await _paymentPriceService.CreatePrice(productResult.Value, command.Price);
+        var priceResult = await _paymentPriceService.CreatePriceAsync(productResult.Value, command.Price);
 
         if (!priceResult.Succeeded)
         {

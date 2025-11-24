@@ -24,7 +24,7 @@ public class StripeProductService : IPaymentProductService
         _productService = productService;
     }
 
-    public async Task<Result<string>> CreateProduct(string name, string description, PassType type)
+    public async Task<Result<string>> CreateProductAsync(string name, string description, PassType type)
     {
         try
         {
@@ -42,7 +42,7 @@ public class StripeProductService : IPaymentProductService
             return Result.Success(product.Id);
         } catch (StripeException ex)
         {
-            ex.Log(_logger, nameof(StripeProductService), nameof(CreateProduct));
+            ex.Log(_logger, nameof(StripeProductService), nameof(CreateProductAsync));
 
             return ex.ToResultFailure("Failed to create product on Stripe.");
         }

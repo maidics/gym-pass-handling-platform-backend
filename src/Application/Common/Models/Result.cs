@@ -56,8 +56,8 @@ public class Result
     public static ResultFailure BusinessRuleViolation(IEnumerable<string> errors = default!) =>
         new ResultFailure(ResultTypes.BusinessRuleViolation, "Business rule violation.", [..errors ?? []]);
 
-    public static ResultFailure InternalError(IEnumerable<string> errors = default!) => 
-        new ResultFailure(ResultTypes.InternalError, "Internal server error.", [..errors ?? []]);
+    public static ResultFailure InternalError(string? message = default, IEnumerable<string> errors = default!) => 
+        new ResultFailure(ResultTypes.InternalError, message is null ? "Internal server error." : message, [..errors ?? []]);
 
     public static ResultFailure PaymentRequired(IEnumerable<string> errors = default!) =>
         new ResultFailure(ResultTypes.PaymentRequired, "Payment required.", [..errors ?? []]);
