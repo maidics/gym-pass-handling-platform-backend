@@ -1,5 +1,6 @@
 using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces.Payment;
+using FitPass.Application.Common.Models;
 using Microsoft.Extensions.Logging;
 
 namespace FitPass.Application.PaymentProviderWebhooks.Commands;
@@ -7,7 +8,7 @@ namespace FitPass.Application.PaymentProviderWebhooks.Commands;
 public record HandlePaymentProviderWebhookCommand(
     string Json,
     string SignatureHeader
-) : IRequest;
+) : IRequest<Result>;
 
 public class HandlePaymentProviderWebhookCommandValidator : AbstractValidator<HandlePaymentProviderWebhookCommand>
 {
@@ -19,7 +20,7 @@ public class HandlePaymentProviderWebhookCommandValidator : AbstractValidator<Ha
     }
 }
 
-public class HandlePaymentProviderWebhookCommandHandler : IRequestHandler<HandlePaymentProviderWebhookCommand>
+public class HandlePaymentProviderWebhookCommandHandler : IRequestHandler<HandlePaymentProviderWebhookCommand, Result>
 {
     private readonly IPaymentWebhookService _paymentWebhookService;
     private readonly ILogger<HandlePaymentProviderWebhookCommandHandler> _logger;
@@ -32,8 +33,8 @@ public class HandlePaymentProviderWebhookCommandHandler : IRequestHandler<Handle
         _logger = logger;
     }
 
-    public async Task Handle(HandlePaymentProviderWebhookCommand command, CancellationToken cancellationToken)
+    public async Task<Result> Handle(HandlePaymentProviderWebhookCommand command, CancellationToken cancellationToken)
     {
-        await _paymentWebhookService.ProcessAsync(command.Json, command.SignatureHeader);
+        return await _paymentWebhookService.ProcessAsync(command.Json, command.SignatureHeader);
     }
 }
