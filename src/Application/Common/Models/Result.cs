@@ -53,8 +53,8 @@ public class Result
     public static ResultFailure ExternalServiceError(string externalServiceName, IEnumerable<string> errors = default!) =>
         new ResultFailure(ResultTypes.ExternalServiceUnavailable, $"'{externalServiceName}' is currently not available.", [..errors ?? []]);
 
-    public static ResultFailure BusinessRuleViolation(IEnumerable<string> errors = default!) =>
-        new ResultFailure(ResultTypes.BusinessRuleViolation, "Business rule violation.", [..errors ?? []]);
+    public static ResultFailure BusinessRuleViolation(string? message = default, IEnumerable<string> errors = default!) =>
+        new ResultFailure(ResultTypes.BusinessRuleViolation, message is null ? "Business rule violation." : message, [..errors ?? []]);
 
     public static ResultFailure InternalError(string? message = default, IEnumerable<string> errors = default!) => 
         new ResultFailure(ResultTypes.InternalError, message is null ? "Internal server error." : message, [..errors ?? []]);
@@ -143,5 +143,29 @@ public class ResultFailure
         Type = type;
         Message = message;
         Errors = errors.ToArray();
+    }
+
+    public ResultFailure(Result result)
+    {
+        ThrowIfNotFailedResult(result);
+
+        Type = result.Type;
+        Message = result.Message;
+        Errors = result.Errors.ToArray();
+    }
+
+    public static implicit operator ResultFailure(Result result) //does this convert from Result<T> as well?
+    {
+        ThrowIfNotFailedResult(result);
+
+        return new ResultFailure(result);
+    }
+
+    private static void ThrowIfNotFailedResult(Result result)
+    {
+        if (result.Succeeded)
+        {
+            throw new InvalidOperationException($"Cannot create {nameof(ResultFailure)} from {nameof(Result.Succeeded)} {nameof(Result)}");
+        }
     }
 }

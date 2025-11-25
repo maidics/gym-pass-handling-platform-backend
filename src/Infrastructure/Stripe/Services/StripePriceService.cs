@@ -81,4 +81,9 @@ public class StripePriceService : IPaymentPriceService
             return ex.ToResultFailure("Failed to update active flag on Stripe price.");
         }
     }
+
+    public Result ValidateMoney(Money money)
+    {
+        return money.ValidateForStripe();
+    }
 }

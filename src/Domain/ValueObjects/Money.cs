@@ -1,4 +1,5 @@
 
+using System.Collections.Frozen;
 using System.Globalization;
 
 namespace FitPass.Domain.ValueObjects;
@@ -9,8 +10,8 @@ public class Money : ValueObject
     public string Currency { get; }
 
     public static Money Zero(string currency) => new(0, currency);
-    public static Money Usd(decimal amount) => new(amount, "USD");
-    public static Money Eur(decimal amount) => new(amount, "EUR");
+    public static Money Usd(decimal amount) => new(amount, "usd");
+    public static Money Eur(decimal amount) => new(amount, "eur");
 
     private Money()
     {
@@ -19,28 +20,34 @@ public class Money : ValueObject
 
     public Money(decimal amount, string currency)
     {
-        if (amount < 0)
-        {
-            throw new ArgumentException("Amount cannot be negative", nameof(amount));
-        }
-
-        amount = Math.Round(amount, 2);
+        currency = currency.Trim().ToLowerInvariant();
 
         if (string.IsNullOrWhiteSpace(currency) || string.IsNullOrEmpty(currency))
         {
             throw new ArgumentException("Currency code is required.", nameof(currency));
         }
 
-        currency = currency.Trim().ToUpperInvariant();
-
         if (currency.Length != 3)
         {
             throw new ArgumentException("Currency code must be a 3-letter ISO code.", nameof(currency));
         }
 
-        if (!IsValidCurrencyCode(currency))
+        if (!IsValidCurrency(currency))
         {
             throw new InvalidCurrencyException($"'{currency}' is not a valid ISO currency code.");
+        }
+
+        if (amount < 0)
+        {
+            throw new ArgumentException("Amount cannot be negative", nameof(amount));
+        }
+
+        if (IsZeroDecimal(currency))
+        {
+            amount = Math.Round(amount, 0, MidpointRounding.AwayFromZero);
+        } else
+        {
+            amount = Math.Round(amount, 2, MidpointRounding.AwayFromZero);
         }
 
         Amount = amount;
@@ -242,7 +249,10 @@ public class Money : ValueObject
     public override string ToString()
     {
         var cultureInfo = GetCultureInfoForCurrency(Currency);
-        return $"{Amount.ToString("C", cultureInfo)} {Currency}";
+
+        string format = IsZeroDecimal(Currency) ? "N0" : "N2";
+
+        return $"{Amount.ToString(format, cultureInfo)} {Currency.ToUpperInvariant()}";
     }
     
     public string ToStringWithoutSymbol()
@@ -256,29 +266,61 @@ public class Money : ValueObject
         currency = Currency;
     }
 
-    private static bool IsValidCurrencyCode(string code)
+    private static bool IsValidCurrency(string code)
     {
-        var validCodes = new HashSet<string>
-        {
-            "USD", "EUR", "GBP", "JPY", "CHF", "CAD", "AUD", "NZD",
-            "SEK", "NOK", "DKK", "PLN", "CZK", "HUF", "RON", "BGN",
-            "HRK", "RUB", "TRY", "CNY", "INR", "KRW", "SGD", "HKD",
-            "MXN", "ZAR", "BRL", "ARS", "CLP", "COP", "PEN", "UYU"
-        };
-
-        return validCodes.Contains(code);
+        return Currencies.Contains(code);
     }
+
+    public static readonly FrozenSet<string> Currencies = [
+        // North America
+        "usd", "cad", "mxn", 
+
+        // Europe
+        "eur", "gbp", "chf", "sek", "nok", "dkk", "pln", "czk", "huf", "ron", 
+        "bgn", "all", "amd", "bam", "gel", "gip", "mdl", "mkd", "rsd", "uah", 
+
+        // Asia / Pacific
+        "aud", "nzd", "jpy", "cny", "hkd", "sgd", "inr", "idr", "krw", "myr", 
+        "php", "thb", "vnd", "pkr", "bdt", "lkr", "mvr", "npr", "aed", 
+        "ils", "sar", "qar", "lbp", "afn", "azn", 
+        "bnd", "khr", "kgs", "kzt", "lak", "mnt", "mmk", "pgk", "tjs", "top", 
+        "uzs", "vuv", "wst", "yer", 
+
+        // Latin America & Caribbean
+        "brl", "ars", "clp", "cop", "pen", "uyu", "bob", "crc", "dop", "gtq", 
+        "hnl", "nio", "pab", "pyg", "ang", "awg", "bbd", "bmd", "bsd", "bzd", 
+        "fjd", "gyd", "htg", "jmd", "kyd", "srd", "ttd", "xcd", 
+
+        // Africa
+        "zar", "egp", "ngn", "kes", "mad", "tzs", "ugx", "aoa", "bif", "bwp", 
+        "cdf", "cve", "djf", "dzd", "etb", "gmd", "gnf", "lsl", "lrd", "mga", 
+        "mro", "mur", "mwk", "mzn", "nad", "rwf", "scr", "sll", "sos", "std", 
+        "szl", "xaf", "xof", "zmw",
+
+        // Others / Special
+        "try", "rub", "xpf"
+    ];
+
+    public static bool IsZeroDecimal(string currency)
+    {
+        return ZeroDecimalCurrencies.Contains(currency.ToLowerInvariant());
+    }
+
+    public static readonly FrozenSet<string> ZeroDecimalCurrencies = [
+        "bif", "clp", "djf", "gnf", "jpy", "krw", 
+        "mga", "pyg", "rwf", "ugx", "vnd", "vuv", "xaf", "xof", "xpf" 
+    ];
 
     private static CultureInfo GetCultureInfoForCurrency(string currency)
     {
         return currency switch
         {
-            "USD" => new CultureInfo("en-US"),
-            "EUR" => new CultureInfo("de-DE"),
-            "GBP" => new CultureInfo("en-GB"),
-            "JPY" => new CultureInfo("ja-JP"),
-            "CAD" => new CultureInfo("en-CA"),
-            "AUD" => new CultureInfo("en-AU"),
+            "usd" => new CultureInfo("en-US"),
+            "eur" => new CultureInfo("de-DE"),
+            "gbp" => new CultureInfo("en-GB"),
+            "jpy" => new CultureInfo("ja-JP"),
+            "cad" => new CultureInfo("en-CA"),
+            "aud" => new CultureInfo("en-AU"),
             _ => CultureInfo.InvariantCulture
         };
     }

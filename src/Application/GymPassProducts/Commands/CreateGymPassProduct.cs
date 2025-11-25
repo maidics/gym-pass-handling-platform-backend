@@ -97,6 +97,13 @@ public class CreateGymPassProductCommandHandler : IRequestHandler<CreateGymPassP
 
     public async Task<Result<GymPassProductDto>> Handle(CreateGymPassProductCommand command, CancellationToken cancellationToken)
     {
+        var moneyValidationResult = _paymentPriceService.ValidateMoney(command.Price);
+
+        if (!moneyValidationResult.Succeeded)
+        {
+            return new ResultFailure(moneyValidationResult);
+        }
+        
         var gymEmployment = await _context.GymEmployments
             .AsNoTracking()
             .FirstOrDefaultAsync(ge => ge.UserId != null && ge.UserId == _user.Id);
