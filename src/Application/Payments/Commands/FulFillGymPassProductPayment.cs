@@ -1,5 +1,6 @@
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Models;
+using FitPass.Application.GymMembershipPasses.DTOs;
 using FitPass.Application.GymMemberships.Commands;
 using FitPass.Domain.Entities;
 
@@ -12,11 +13,16 @@ public class FulFillGymPassProdcutPaymentCommandHandler : IRequestHandler<FulFil
 {
     private readonly IApplicationDbContext _context;
     private readonly ISender _sender;
+    private readonly IClientNotificationSender _notificationSender;
 
-    public FulFillGymPassProdcutPaymentCommandHandler(IApplicationDbContext context, ISender sender)
+    public FulFillGymPassProdcutPaymentCommandHandler(
+        IApplicationDbContext context, 
+        ISender sender,
+        IClientNotificationSender notificationSender)
     {
         _context = context;
         _sender = sender;
+        _notificationSender = notificationSender;
     }
     
     public async Task<Result> Handle(FulFillGymPassProductPaymentCommand command, CancellationToken cancellationToken)
@@ -36,6 +42,13 @@ public class FulFillGymPassProdcutPaymentCommandHandler : IRequestHandler<FulFil
 
         await _context.GymMembershipPasses.AddAsync(pass);
         await _context.SaveChangesAsync();
+
+        var notification = ClientNotification.Create(
+            "Successful payment, pass received!", 
+            ClientNotificationType.GymMembershipPassPurchaseSuccessful, 
+            pass.MapToDto());
+        
+        await _notificationSender.SendUserEvent(command.UserId, notification); //TODO create this in Domain event & create PurchaseReceipt
 
         return Result.Success();
     }

@@ -64,6 +64,15 @@ public static class DependencyInjection
         });
 
         builder.Services.AddScoped<StripeWebHookSignatureFilter>();
+
+        //Server Sent Event service:
+        builder.Services.AddSingleton<ClientNotificationService>();
+
+        builder.Services.AddSingleton<IClientNotificationSender>(provider =>
+            provider.GetRequiredService<ClientNotificationService>());
+
+        builder.Services.AddSingleton<IClientNotificationStreamer>(provider => 
+            provider.GetRequiredService<ClientNotificationService>());
     }
 
     public static void AddKeyVaultIfConfigured(this IHostApplicationBuilder builder)
