@@ -5,16 +5,15 @@ using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Security;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
-using FitPass.Domain.Entities.Payment;
 using FitPass.Domain.Strings;
 using Microsoft.Extensions.Logging;
 
 namespace FitPass.Application.TenantPaymentProfiles.Commands;
 
 [Authorize(Roles = Roles.GymAdministrator)]
-public record GenerateTenantPaymentAccountLinkCommand : IRequest<Result<(string url, DateTime expiration)>>;
+public record GenerateTenantPaymentAccountLinkCommand : IRequest<Result<(string url, DateTimeOffset expiration)>>;
 
-public class GenerateTenantPaymentAccountLinkCommandHandler : IRequestHandler<GenerateTenantPaymentAccountLinkCommand, Result<(string url, DateTime expiration)>>
+public class GenerateTenantPaymentAccountLinkCommandHandler : IRequestHandler<GenerateTenantPaymentAccountLinkCommand, Result<(string url, DateTimeOffset expiration)>>
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
@@ -34,7 +33,7 @@ public class GenerateTenantPaymentAccountLinkCommandHandler : IRequestHandler<Ge
         _paymentTenantService = paymentTenantService;
     }
 
-    public async Task<Result<(string url, DateTime expiration)>> Handle(GenerateTenantPaymentAccountLinkCommand command, CancellationToken cancellationToken)
+    public async Task<Result<(string url, DateTimeOffset expiration)>> Handle(GenerateTenantPaymentAccountLinkCommand command, CancellationToken cancellationToken)
     {
         var gymEmployment = await _context
             .GymEmployments
@@ -49,7 +48,7 @@ public class GenerateTenantPaymentAccountLinkCommandHandler : IRequestHandler<Ge
                 _user.Id,
                 nameof(GymEmployment));
 
-            return Result.InternalError([ErrorMessages.AuthenticatedUserRelatedEntityNotFound(nameof(GymEmployment))]);
+            return Result.InternalError(ErrorMessages.AuthenticatedUserRelatedEntityNotFound(nameof(GymEmployment)));
         }
 
         var paymentProfile = await _context
@@ -59,7 +58,7 @@ public class GenerateTenantPaymentAccountLinkCommandHandler : IRequestHandler<Ge
 
         if (paymentProfile?.TenantPaymentAccountId is null)
         {
-            return Result.BusinessRuleViolation(["Gym has no payment profile."]);
+            return Result.BusinessRuleViolation("Gym has no payment profile.");
         }
 
         return await _paymentTenantService.GenerateAccountLinkAsync(paymentProfile.TenantPaymentAccountId, false);

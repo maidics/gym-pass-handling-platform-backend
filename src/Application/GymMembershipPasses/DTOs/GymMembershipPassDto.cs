@@ -10,7 +10,7 @@ public class GymMembershipPassDto
     public required PassType Type { get; set; }
     public required int? TotalUses { get; set; }
     public required int? RemainingUses { get; set; }
-    public required DateOnly? ExpirationDate { get; set; }
+    public required DateTimeOffset? ExpirationDate { get; set; }
 }
 
 public static partial class Mappings

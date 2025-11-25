@@ -10,17 +10,21 @@ public record GetNewGymsThisMonthQuery : IRequest<List<GymDto>>;
 
 public class GetNewGymsThisMonthHandler : IRequestHandler<GetNewGymsThisMonthQuery, List<GymDto>>
 {
+    private readonly TimeProvider _timeProvider;
     private readonly IApplicationDbContext _context;
 
-    public GetNewGymsThisMonthHandler(IApplicationDbContext context)
+    public GetNewGymsThisMonthHandler(
+        TimeProvider timeProvider,
+        IApplicationDbContext context)
     {
+        _timeProvider = timeProvider;
         _context = context;
     }
 
     public async Task<List<GymDto>> Handle(GetNewGymsThisMonthQuery request, CancellationToken cancellationToken)
     {
-        var now = DateTimeOffset.UtcNow;
-        var startOfThisMonth = new DateTimeOffset(now.Year, now.Month, 1, 0, 0, 0, TimeSpan.Zero);
+        var now = _timeProvider.GetUtcNow();
+        var startOfThisMonth = new DateTimeOffset(now.UtcDateTime.Year, now.UtcDateTime.Month, 1, 0, 0, 0, TimeSpan.Zero);
         var startOfNextMonth = startOfThisMonth.AddMonths(1);
 
         var newGyms = await _context

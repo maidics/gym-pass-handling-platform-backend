@@ -13,17 +13,20 @@ public class StripeConnectedAccountService : IPaymentTenantService
     private readonly AccountService _accountService;
     private readonly AccountLinkService _accountLinkService;
     private readonly StripeAccountLinkSettings _stripeAccountLinkSettings;
+    private readonly TimeProvider _timeProvider;
 
     public StripeConnectedAccountService(
         ILogger<StripeConnectedAccountService> logger, 
         AccountService accountService, 
         AccountLinkService accountLinkService,
-        IOptions<StripeSettings> options)
+        IOptions<StripeSettings> options,
+        TimeProvider timeProvider)
     {
         _logger = logger;
         _accountService = accountService;
         _accountLinkService = accountLinkService;
         _stripeAccountLinkSettings = options.Value.AccountLinks;
+        _timeProvider = timeProvider;
     }
 
     public async Task<Result<string>> CreateTenantAccount(
@@ -67,7 +70,7 @@ public class StripeConnectedAccountService : IPaymentTenantService
         {
             ex.Log(_logger, nameof(StripeConnectedAccountService), nameof(CreateTenantAccount));
 
-            return ex.ToResultFailure<string>("Failed to create payment account.");
+            return ex.ToResultFailure("Failed to create payment account.");
         }
     }
 
@@ -89,11 +92,11 @@ public class StripeConnectedAccountService : IPaymentTenantService
         {
             ex.Log(_logger, nameof(StripeConnectedAccountService), nameof(IsOnboardingCompleteAsync));
 
-            return ex.ToResultFailure<bool>("Failed to retrieve wether onboarding is completed or not.");
+            return ex.ToResultFailure("Failed to retrieve wether onboarding is completed or not.");
         }
     }
 
-    public async Task<Result<(string url, DateTime expiration)>> GenerateAccountLinkAsync(string accountId, bool isOnboarding = false, CancellationToken cancellationToken = default)
+    public async Task<Result<(string url, DateTimeOffset expiration)>> GenerateAccountLinkAsync(string accountId, bool isOnboarding = false, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -113,16 +116,15 @@ public class StripeConnectedAccountService : IPaymentTenantService
 
             if (accountLink is null)
             {
-                return Result<(string url, DateTime expiration)>
-                    .Failure(["Failed to generate account link"], ResultTypes.ExternalServiceUnavailable);
+                return Result.ExternalServiceUnavailable("Failed to generate account link");
             }
 
-            return Result<(string url, DateTime expiration)>.Success((accountLink.Url, DateTime.UtcNow.AddMinutes(5)));
+            return Result<(string url, DateTimeOffset expiration)>.Success((accountLink.Url, _timeProvider.GetUtcNow().AddMinutes(5)));
         } catch (StripeException ex)
         {
             ex.Log(_logger, nameof(StripeConnectedAccountService), nameof(GenerateAccountLinkAsync));
 
-            return ex.ToResultFailure<(string url, DateTime expiration)>("Failed to generate account link.");
+            return ex.ToResultFailure("Failed to generate account link.");
         }
     }
 }

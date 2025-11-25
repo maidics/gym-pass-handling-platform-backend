@@ -31,17 +31,20 @@ public class PromotePendingGymEmployeeToGymAdminFromRequestCommandHandler : IReq
     private readonly ISender _sender;
     private readonly ILogger<PromotePendingGymEmployeeToGymAdminFromRequestCommand> _logger;
     private readonly IIdentityService _identityService;
+    private readonly TimeProvider _timeProvider;
 
     public PromotePendingGymEmployeeToGymAdminFromRequestCommandHandler(
         IApplicationDbContext context,
         ISender sender,
         ILogger<PromotePendingGymEmployeeToGymAdminFromRequestCommand> logger,
-        IIdentityService identityService)
+        IIdentityService identityService,
+        TimeProvider timeProvider)
     {
         _context = context;
         _sender = sender;
         _logger = logger;
         _identityService = identityService;
+        _timeProvider = timeProvider;
     }
 
     public async Task Handle(PromotePendingGymEmployeeToGymAdminFromRequestCommand command, CancellationToken cancellationToken)
@@ -125,7 +128,8 @@ public class PromotePendingGymEmployeeToGymAdminFromRequestCommandHandler : IReq
                 UserId = promotionDto.UserIdToNominate,
                 GymId = promotionDto.GymId,
                 Role = Roles.GymAdministrator,
-                EscalationEmail = promotionDto.EscalationEmail
+                EscalationEmail = promotionDto.EscalationEmail,
+                EmploymentStart = _timeProvider.GetUtcNow()
             };
 
             await _context.GymEmployments.AddAsync(gymEmployment);

@@ -11,8 +11,6 @@ public class Gyms : EndpointGroupBase
 {
     public override void Map(RouteGroupBuilder groupBuilder)
     {
-        groupBuilder.MapGet(GetMyGymQrCode, "My/QrCode").RequireAuthorization();
-
         groupBuilder.MapPut(UpdateMyGymProfile, "My/Profile").RequireAuthorization();
 
         groupBuilder.MapGet(GetAllGyms);
@@ -28,13 +26,6 @@ public class Gyms : EndpointGroupBase
         groupBuilder.MapPost(RegisterGymFromRequest, "Register/FromRequest").RequireAuthorization();
 
         //groupBuilder.MapPost(RegisterGym, "Register").RequireAuthorization();
-    }
-
-    public async Task<IResult> GetMyGymQrCode(ISender sender, CancellationToken cancellationToken)
-    {
-        var result = await sender.Send(new GetMyGymQrCodeQuery(), cancellationToken);
-
-        return TypedResults.File(result, contentType: "image/png", fileDownloadName: "gymQrCode.png");
     }
 
     public async Task<NoContent> UpdateMyGymProfile(ISender sender, [FromBody] UpdateMyGymProfileCommand command, CancellationToken cancellationToken)

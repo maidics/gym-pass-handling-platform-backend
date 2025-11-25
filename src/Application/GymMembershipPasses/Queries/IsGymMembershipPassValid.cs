@@ -19,10 +19,14 @@ public class IsGymMembershipPassValidQueryValidator : AbstractValidator<IsGymMem
 public class IsGymMembershipPassValidQueryHandler : IRequestHandler<IsGymMembershipPassValidQuery, bool>
 {
     private readonly IApplicationDbContext _context;
+    private readonly TimeProvider _timeProvider;
 
-    public IsGymMembershipPassValidQueryHandler(IApplicationDbContext context)
+    public IsGymMembershipPassValidQueryHandler(
+        IApplicationDbContext context,
+        TimeProvider timeProvider)
     {
         _context = context;
+        _timeProvider = timeProvider;
     }
 
     public async Task<bool> Handle(IsGymMembershipPassValidQuery query, CancellationToken cancellationToken)
@@ -34,6 +38,6 @@ public class IsGymMembershipPassValidQueryHandler : IRequestHandler<IsGymMembers
 
         Guard.Against.NotFound(query.GymMembershipPassId, pass);
 
-        return !pass.IsExpired() && !pass.HasNoUsesLeft();
+        return !pass.IsExpired(_timeProvider.GetUtcNow()) && !pass.HasNoUsesLeft();
     }
 }

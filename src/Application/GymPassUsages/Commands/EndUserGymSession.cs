@@ -19,10 +19,14 @@ public class EndUserGymSessionCommandValidator : AbstractValidator<EndUserGymSes
 public class EndUserGymSessionCommandHandler : IRequestHandler<EndUserGymSessionCommand>
 {
     private readonly IApplicationDbContext _context;
+    private readonly TimeProvider _timeProvider;
 
-    public EndUserGymSessionCommandHandler(IApplicationDbContext context)
+    public EndUserGymSessionCommandHandler(
+        IApplicationDbContext context,
+        TimeProvider timeProvider)
     {
         _context = context;
+        _timeProvider = timeProvider;
     }
 
     public async Task Handle(EndUserGymSessionCommand command, CancellationToken cancellationToken)
@@ -31,7 +35,7 @@ public class EndUserGymSessionCommandHandler : IRequestHandler<EndUserGymSession
 
         Guard.Against.NotFound(command.GymPassUsageId, gymPassUsage);
 
-        gymPassUsage.FinishGymSession();
+        gymPassUsage.FinishGymSession(_timeProvider.GetUtcNow());
 
         await _context.SaveChangesAsync();
     }

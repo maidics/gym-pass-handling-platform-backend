@@ -27,7 +27,7 @@ internal class DeserializeRequestPayloadCommandHandler<TPayload>
         {
             _logger.LogError("{Request} request has no payload.", command.Request);
 
-            return Result.InternalError(["Request has no payload."]);
+            return Result.InternalError("Request has no payload.");
         }
 
         TPayload? payload;
@@ -47,7 +47,7 @@ internal class DeserializeRequestPayloadCommandHandler<TPayload>
                     command.Request.Payload,
                     null);
 
-                return Result.InternalError(["Failed to deserialize request payload."]);
+                return Result.InternalError("Failed to deserialize request payload.");
             }
         } catch (Exception ex)
         {
@@ -60,7 +60,7 @@ internal class DeserializeRequestPayloadCommandHandler<TPayload>
                     command.Request.Payload,
                     ex);
 
-            return Result.InternalError(["Failed to deserialize request payload."]);
+            return Result.InternalError("Failed to deserialize request payload.");
         }
 
         return Result<TPayload>.Success(payload);

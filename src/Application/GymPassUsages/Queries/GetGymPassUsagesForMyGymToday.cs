@@ -1,4 +1,5 @@
-﻿using FitPass.Application.Common.Interfaces;
+﻿using FitPass.Application.Common.Extensions;
+using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Logging;
 using FitPass.Application.Common.Security;
 using FitPass.Application.GymPassUsages.DTOs;
@@ -17,15 +18,18 @@ public class GetGymPassUsagesForMyGymTodayQueryHandler : IRequestHandler<GetGymP
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
     private readonly ILogger<GetGymPassUsagesForMyGymTodayQueryHandler> _logger;
+    private readonly TimeProvider _timeProvider;
 
     public GetGymPassUsagesForMyGymTodayQueryHandler(
         IApplicationDbContext context,
         IUser user,
-        ILogger<GetGymPassUsagesForMyGymTodayQueryHandler> logger)
+        ILogger<GetGymPassUsagesForMyGymTodayQueryHandler> logger,
+        TimeProvider timeProvider)
     {
         _context = context;
         _user = user;
         _logger = logger;
+        _timeProvider = timeProvider;
     }
     public async Task<List<GymPassUsageDto>> Handle(GetGymPassUsagesForMyGymTodayQuery request, CancellationToken cancellationToken)
     {
@@ -45,11 +49,9 @@ public class GetGymPassUsagesForMyGymTodayQueryHandler : IRequestHandler<GetGymP
             throw new SystemException(ErrorMessages.AuthenticatedUserRelatedEntityNotFound(nameof(GymEmployment)));
         }
 
-        var now = DateTimeOffset.UtcNow;
-
         var gymPassUsages =  await _context
             .GymPassUsages
-            .Where(gpu => gpu.CreatedOn.Date == now.Date && gpu.GymId == gymEmployment.GymId)
+            .Where(gpu => gpu.CreatedOn.IsToday(_timeProvider.GetUtcNow()) && gpu.GymId == gymEmployment.GymId)
             .OrderByDescending(gpu => gpu.CreatedOn)
             .ToListAsync();
 

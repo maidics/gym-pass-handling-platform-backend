@@ -8,7 +8,7 @@ public class GymEmploymentDto
     public required string? GymId { get; set; }
     public required string? EscalationEmail { get; set; }
     public required string Role { get; set; }
-    public DateTimeOffset EmploymentStart = DateTimeOffset.UtcNow;
+    public required DateTimeOffset EmploymentStart { get; set; }
     public DateTimeOffset? EmploymentEnd = null;
     public required UserProfileWithEmailDto UserProfile { get; set; }
 }

@@ -6,6 +6,7 @@ namespace FitPass.Infrastructure.Data.DbSeed;
 
 public partial class ApplicationDbContextInitialiser
 {
+    /*
     public async Task SeedGymPassProductsAsync()
     {
         List<GymPassProduct> gymPassProducts = [
@@ -57,4 +58,5 @@ public partial class ApplicationDbContextInitialiser
 
         await _context.GymPassProducts.AddRangeAsync(gymPassProducts);
     }
+    */
 }

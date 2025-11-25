@@ -13,7 +13,7 @@ public class GymEmploymentBuilder : TestEntityBuilderBase<GymEmployment>
     private string? _gymId;
     private string? _escalationEmail;
     private string _role = Roles.PendingGymEmployee;
-    private DateTimeOffset _employmentStart = DateTimeOffset.UtcNow;
+    private DateTimeOffset _employmentStart;
     private DateTimeOffset? _employmentEnd;
 
     public GymEmploymentBuilder(IServiceScopeFactory scopeFactory) : base(scopeFactory) { }

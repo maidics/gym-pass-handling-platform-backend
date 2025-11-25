@@ -8,20 +8,16 @@ public class GymMembershipPass : BaseAuditableEntity
     public required PassType Type { get; set; }
     public required int? TotalUses { get; set; }
     public required int? RemainingUses { get; set; }
-    public required DateOnly? ExpirationDate { get; set; }
+    public required DateTimeOffset? ExpirationDate { get; set; }
     public GymMembership GymMembership { get; set; } = null!;
 
-    public bool IsExpired()
+    public bool IsExpired(DateTimeOffset utcNow)
     {
-        var utcNow = DateTimeOffset.UtcNow;
-
-        var now = new DateOnly(utcNow.Year, utcNow.Month, utcNow.Day);
-
-        return Type == PassType.Unlimited && ExpirationDate.HasValue && ExpirationDate.Value < now;
+        return Type == PassType.Unlimited && ExpirationDate.HasValue && ExpirationDate?.UtcDateTime.Date < utcNow.UtcDateTime.Date;
     }
     public bool HasNoUsesLeft() => Type != PassType.Unlimited && RemainingUses.HasValue && RemainingUses <= 0;
 
-    public GymPassUsage Use(string? lockerNumber) //GymMembershipMust be loaded
+    public GymPassUsage Use(string lockerNumber, DateTimeOffset utcNow) //GymMembership must be loaded
     {
         if (GymMembership is null)
         {
@@ -46,7 +42,7 @@ public class GymMembershipPass : BaseAuditableEntity
             };
         }
 
-        if (IsExpired())
+        if (IsExpired(utcNow))
         {
             AddDomainEvent(new PassExpiredEvent(this));
 

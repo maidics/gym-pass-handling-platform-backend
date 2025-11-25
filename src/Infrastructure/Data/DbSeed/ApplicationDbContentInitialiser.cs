@@ -55,7 +55,7 @@ public partial class ApplicationDbContextInitialiser
             await SeedUserGymMembershipsAsync();
             await SeedOwnedPassesAsync();
             await SeedRequestAsync();
-            await SeedGymPassProductsAsync();
+            //await SeedGymPassProductsAsync();
 
             await _context.SaveChangesAsync();
 

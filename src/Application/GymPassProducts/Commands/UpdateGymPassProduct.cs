@@ -59,13 +59,15 @@ public class UpdateGymPassProductCommandHandler : IRequestHandler<UpdateGymPassP
     private readonly ILogger<UpdateGymPassProductCommandHandler> _logger;
     private readonly IPaymentPriceService _paymentPriceService;
     private readonly IPaymentProductService _paymentProductService;
+    private readonly TimeProvider _timeProvider;
     
     public UpdateGymPassProductCommandHandler(
         IApplicationDbContext context,
         IUser user,
         ILogger<UpdateGymPassProductCommandHandler> logger,
         IPaymentPriceService paymentPriceService,
-        IPaymentProductService paymentProductService
+        IPaymentProductService paymentProductService,
+        TimeProvider timeProvider
     )
     {
         _context = context;
@@ -73,6 +75,7 @@ public class UpdateGymPassProductCommandHandler : IRequestHandler<UpdateGymPassP
         _logger = logger;
         _paymentPriceService = paymentPriceService;
         _paymentProductService = paymentProductService;
+        _timeProvider = timeProvider;
     }
 
     public async Task<Result> Handle(UpdateGymPassProductCommand command, CancellationToken cancellationToken)
@@ -114,14 +117,14 @@ public class UpdateGymPassProductCommandHandler : IRequestHandler<UpdateGymPassP
                 product.PaymentIdentity.PriceId, 
                 product.PaymentIdentity.Id, 
                 command.Price,
-                product.IsActive); //active handled elsewhere
+                product.IsActive);
 
             if (!result.Succeeded)
             {
                 return result;
             }
 
-            product.PaymentIdentity.ArchivedPaymentProviderPriceIds.Add(product.PaymentIdentity.PriceId, DateTimeOffset.UtcNow);
+            product.PaymentIdentity.ArchivedPaymentProviderPriceIds.Add(product.PaymentIdentity.PriceId, _timeProvider.GetUtcNow());
             product.Price = command.Price;
             product.PaymentIdentity.PriceId = result.Value;
         }

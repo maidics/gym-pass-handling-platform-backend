@@ -3,5 +3,5 @@
 namespace FitPass.Infrastructure.Identity;
 public class ApplicationUser : IdentityUser
 {
-    public DateTimeOffset CreatedOn {  get; set; } = DateTimeOffset.UtcNow;
+    //TODO: Add created on date?
 }

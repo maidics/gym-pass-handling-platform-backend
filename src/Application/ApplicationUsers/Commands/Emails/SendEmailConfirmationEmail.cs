@@ -53,7 +53,7 @@ public class SendEmailConfirmationEmailCommandHandler : IRequestHandler<SendEmai
 
         Guard.Against.NotFound(command.Email, userId, "User");
 
-        if (_user.Id! != userId && (_user.Roles!.First() != Roles.GymAdministrator && _user.Roles!.First() != Roles.GymStaff))
+        if (_user.Id! != userId && _user.Roles!.First() != Roles.GymAdministrator && _user.Roles!.First() != Roles.GymStaff)
         {
             throw new ForbiddenAccessException();
         }
@@ -74,7 +74,7 @@ public class SendEmailConfirmationEmailCommandHandler : IRequestHandler<SendEmai
                 userId,
                 null);
 
-            return Result.InternalError([ErrorMessages.FailedtoGenerateEmailConfirmationToken()]);
+            return Result.InternalError(ErrorMessages.FailedtoGenerateEmailConfirmationToken());
         }
 
         var encodedToken = Uri.EscapeDataString(token);

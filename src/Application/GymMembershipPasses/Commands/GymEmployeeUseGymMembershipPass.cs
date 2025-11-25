@@ -29,12 +29,18 @@ public class GymEmployeeUseGymMembershipPassCommandHandler : IRequestHandler<Gym
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
     private readonly ILogger<GymEmployeeUseGymMembershipPassCommandHandler> _logger;
+    private readonly TimeProvider _timeProvider;
 
-    public GymEmployeeUseGymMembershipPassCommandHandler(IApplicationDbContext context, IUser user, ILogger<GymEmployeeUseGymMembershipPassCommandHandler> logger)
+    public GymEmployeeUseGymMembershipPassCommandHandler(
+        IApplicationDbContext context, 
+        IUser user, 
+        ILogger<GymEmployeeUseGymMembershipPassCommandHandler> logger,
+        TimeProvider timeProvider)
     {
         _context = context;
         _user = user;
         _logger = logger;
+        _timeProvider = timeProvider;
     }
 
     public async Task<PassUseResult> Handle(GymEmployeeUseGymMembershipPassCommand command, CancellationToken cancellationToken)
@@ -72,7 +78,7 @@ public class GymEmployeeUseGymMembershipPassCommandHandler : IRequestHandler<Gym
             throw new BadRequestException("User is banned from the gym.");
         }
 
-        var passUsage = pass.Use(command.LockerNumber);
+        var passUsage = pass.Use(command.LockerNumber, _timeProvider.GetUtcNow());
 
         if (passUsage.PassUseResult == PassUseResult.AlreadyHasNoUsesLeft)
         {

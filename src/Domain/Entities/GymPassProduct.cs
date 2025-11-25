@@ -21,26 +21,24 @@ public class GymPassProduct : BaseAuditableEntity
     public required ProductPaymentIdentity PaymentIdentity { get; set; }
     public Gym Gym { get; set; } = null!;
 
-    public DateOnly GetExpirationDate()
+    public DateTimeOffset GetExpirationDate(DateTimeOffset utcNow)
     {
         if (DaysAfterExpiring == null)
         {
             throw new InvalidOperationException("Use based pass type does not have an expiration date.");
         }
 
-        var utcNow = DateTimeOffset.UtcNow;
-
-        return new DateOnly(utcNow.Year, utcNow.Month, utcNow.Day).AddDays((int)DaysAfterExpiring);
+        return utcNow.AddDays((int)DaysAfterExpiring);
     }
 
-    public GymMembershipPass ToGymMembershipPass(string gymMembershipId)
+    public GymMembershipPass ToGymMembershipPass(string gymMembershipId, DateTimeOffset utcNow)
     {
         return new GymMembershipPass
         {
             GymMembershipId = gymMembershipId,
             Type = Type,
             TotalUses = TotalUses,
-            ExpirationDate = GetExpirationDate(),
+            ExpirationDate = GetExpirationDate(utcNow),
             RemainingUses = TotalUses
         };
     }

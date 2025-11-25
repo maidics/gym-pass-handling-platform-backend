@@ -46,7 +46,7 @@ public class GetTenantPaymentProfileQueryHandler : IRequestHandler<GetTenantPaym
                 _user.Id, 
                 nameof(GymEmployment));
 
-            return Result.InternalError([ErrorMessages.AuthenticatedUserRelatedEntityNotFound(nameof(GymEmployment))]);
+            return Result.InternalError(ErrorMessages.AuthenticatedUserRelatedEntityNotFound(nameof(GymEmployment)));
         }
 
         var tenantPaymentProfile = await _context

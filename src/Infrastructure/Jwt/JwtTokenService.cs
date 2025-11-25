@@ -12,11 +12,16 @@ public class JwtTokenService : IJwtTokenService
 {
     private readonly IIdentityService _identityService;
     private readonly JwtSettings _settings;
+    private readonly TimeProvider _timeProvider;
 
-    public JwtTokenService(IIdentityService identityService, IOptions<JwtSettings> options)
+    public JwtTokenService(
+        IIdentityService identityService, 
+        IOptions<JwtSettings> options,
+        TimeProvider timeProvider)
     {
         _identityService = identityService;
         _settings = options.Value;
+        _timeProvider = timeProvider;
     }
     public async Task<JwtToken> GenerateTokenAsync(string userId, CancellationToken cancellationToken)
     {
@@ -41,7 +46,7 @@ public class JwtTokenService : IJwtTokenService
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_settings.Key));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-        var utcNow = DateTime.UtcNow;
+        var utcNow = _timeProvider.GetUtcNow();
 
         var expiryMinutes = Convert.ToInt32(_settings.ExpiryInMinutes);
         var expires = utcNow.AddMinutes(expiryMinutes);
@@ -49,8 +54,8 @@ public class JwtTokenService : IJwtTokenService
         var token = new JwtSecurityToken(
             issuer: _settings.Issuer,
             audience: _settings.Audience,
-            notBefore: utcNow,
-            expires: expires,
+            notBefore: utcNow.UtcDateTime, //TODO: check if this is safe
+            expires: expires.UtcDateTime,
             claims: claims,
             signingCredentials: creds
         );

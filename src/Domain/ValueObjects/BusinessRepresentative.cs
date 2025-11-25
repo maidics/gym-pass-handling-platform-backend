@@ -24,7 +24,8 @@ public string FirstName { get; private init; }
         string email,
         PhoneNumber phoneNumber,
         DateTime dateOfBirth,
-        Address address)
+        Address address,
+        DateTimeOffset utcNow)
     {
         if (string.IsNullOrWhiteSpace(firstName))
             throw new ArgumentException("First name is required", nameof(firstName));
@@ -38,7 +39,7 @@ public string FirstName { get; private init; }
         if (phoneNumber is null)
             throw new ArgumentNullException(nameof(phoneNumber));
         
-        if (dateOfBirth >= DateTime.UtcNow.AddYears(-18))
+        if (dateOfBirth >= utcNow.AddYears(-18))
             throw new ArgumentException("Representative must be at least 18 years old", nameof(dateOfBirth));
         
         if (address == null)

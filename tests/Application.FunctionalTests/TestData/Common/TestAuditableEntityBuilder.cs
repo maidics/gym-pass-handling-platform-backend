@@ -7,9 +7,9 @@ public abstract class TestAuditableEntityBuilder<TInheritor, TAuditableEntity> :
     where TInheritor : TestAuditableEntityBuilder<TInheritor, TAuditableEntity>
     where TAuditableEntity : BaseAuditableEntity
 {
-    protected DateTimeOffset _createdOn = DateTimeOffset.UtcNow;
+    protected DateTimeOffset _createdOn;
     protected string? _createdBy = null;
-    protected DateTimeOffset _lastModifiedOn = DateTimeOffset.UtcNow;
+    protected DateTimeOffset _lastModifiedOn;
     protected string? _lastModifiedBy = null;
 
     protected TestAuditableEntityBuilder(IServiceScopeFactory scopeFactory) : base(scopeFactory) { }

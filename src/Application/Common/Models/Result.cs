@@ -55,7 +55,7 @@ public class Result
     public static ResultFailure Conflict(string parameterName, IEnumerable<string> errors = default!) =>
         new ResultFailure(ResultTypes.Conflict, $"'{parameterName}' is already taken.", [..errors ?? []]);
 
-    public static ResultFailure ExternalServiceError(string externalServiceName, IEnumerable<string> errors = default!) =>
+    public static ResultFailure ExternalServiceUnavailable(string externalServiceName, IEnumerable<string> errors = default!) =>
         new ResultFailure(ResultTypes.ExternalServiceUnavailable, $"'{externalServiceName}' is currently not available.", [..errors ?? []]);
 
     public static ResultFailure BusinessRuleViolation(string? message = default, IEnumerable<string> errors = default!) =>

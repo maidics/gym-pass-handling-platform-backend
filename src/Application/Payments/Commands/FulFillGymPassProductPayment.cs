@@ -15,15 +15,18 @@ public class FulFillGymPassProductPaymentCommandHandler : IRequestHandler<FulFil
     private readonly IApplicationDbContext _context;
     private readonly ISender _sender;
     private readonly IClientNotificationSender _notificationSender;
+    private readonly TimeProvider _timeProvider;
 
     public FulFillGymPassProductPaymentCommandHandler(
         IApplicationDbContext context, 
         ISender sender,
-        IClientNotificationSender notificationSender)
+        IClientNotificationSender notificationSender,
+        TimeProvider timeProvider)
     {
         _context = context;
         _sender = sender;
         _notificationSender = notificationSender;
+        _timeProvider = timeProvider;
     }
     
     public async Task<Result> Handle(FulFillGymPassProductPaymentCommand command, CancellationToken cancellationToken)
@@ -39,7 +42,7 @@ public class FulFillGymPassProductPaymentCommandHandler : IRequestHandler<FulFil
 
         var membership = await _sender.Send(new GetOrCreateGymMembershipCommand(command.UserId, command.GymId));
 
-        var pass = product.ToGymMembershipPass(membership.Id);
+        var pass = product.ToGymMembershipPass(membership.Id, _timeProvider.GetUtcNow());
 
         await _context.GymMembershipPasses.AddAsync(pass);
 

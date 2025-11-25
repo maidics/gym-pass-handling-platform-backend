@@ -31,19 +31,22 @@ public class RegisterGymFromRequestCommandHandler : IRequestHandler<RegisterGymF
     private readonly IUser _user;
     private readonly IIdentityService _identityService;
     private readonly ISender _sender;
+    private readonly TimeProvider _timeProvider;
 
     public RegisterGymFromRequestCommandHandler(
         IApplicationDbContext context,
         ILogger<RegisterGymFromRequestCommand> logger,
         IUser user,
         IIdentityService identityService,
-        ISender sender)
+        ISender sender,
+        TimeProvider timeProvider)
     {
         _context = context;
         _logger = logger;
         _user = user;
         _identityService = identityService;
         _sender = sender;
+        _timeProvider = timeProvider;
     }
     
     public async Task<GymDto> Handle(RegisterGymFromRequestCommand command, CancellationToken cancellationToken)
@@ -174,7 +177,8 @@ public class RegisterGymFromRequestCommandHandler : IRequestHandler<RegisterGymF
                 UserId = request.CreatedBy,
                 GymId = gym.Id,
                 Role = Roles.GymAdministrator,
-                EscalationEmail = createGymDto.EscalationEmail
+                EscalationEmail = createGymDto.EscalationEmail,
+                EmploymentStart = _timeProvider.GetUtcNow()
             };
 
             await _context.GymEmployments.AddAsync(gymEmployment);
