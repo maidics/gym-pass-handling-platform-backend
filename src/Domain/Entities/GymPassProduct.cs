@@ -32,4 +32,16 @@ public class GymPassProduct : BaseAuditableEntity
 
         return new DateOnly(utcNow.Year, utcNow.Month, utcNow.Day).AddDays((int)DaysAfterExpiring);
     }
+
+    public GymMembershipPass ToGymMembershipPass(string gymMembershipId)
+    {
+        return new GymMembershipPass
+        {
+            GymMembershipId = gymMembershipId,
+            Type = Type,
+            TotalUses = TotalUses,
+            ExpirationDate = GetExpirationDate(),
+            RemainingUses = TotalUses
+        };
+    }
 }

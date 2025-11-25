@@ -20,7 +20,7 @@ public class StripePaymentService : IPaymentService
         _logger = logger;
     }
 
-    public async Task<Result<string>> CreateOneTimePaymentIntent(Money money, string userId, string gymPassProductId, string tenantPaymentAccountId)
+    public async Task<Result<string>> CreateOneTimePaymentIntent(Money money, string userId, string gymId, string gymPassProductId, string tenantPaymentAccountId)
     {
         try
         {
@@ -35,6 +35,7 @@ public class StripePaymentService : IPaymentService
                 Metadata = new Dictionary<string, string>()
                 {
                     { "UserId", userId },
+                    { "GymId", gymId },
                     { "GymPassProductId", gymPassProductId }
                 },
             };

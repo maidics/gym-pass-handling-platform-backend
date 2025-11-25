@@ -44,6 +44,11 @@ public class Result
         return new Result(failure);
     }
 
+    public static Result Failure(string message, IEnumerable<string> errors, ResultTypes type)
+    {
+        return new Result(false, message, errors, type);
+    } 
+
     public static ResultFailure NotFound(string parameterName, IEnumerable<string> errors = default!) =>
         new ResultFailure(ResultTypes.NotFound, $"'{parameterName}' not found.", [..errors ?? []]);
 

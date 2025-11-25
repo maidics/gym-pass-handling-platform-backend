@@ -1,5 +1,6 @@
 using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
+using FitPass.Application.Common.Models;
 using FitPass.Domain.Entities.Payment;
 using FitPass.Domain.Strings;
 
@@ -13,12 +14,14 @@ public record UpdateTenantPaymentProfileAccountStatusCommand(
     bool PayoutsEnabled, 
     List<string> RequirementsDue, 
     List<string> RequirementsEventuallyDue
-) : IRequest;
+) : IRequest<Result>;
 
 public class UpdateTenantPaymentProfileAccountStatusCommandValidator : AbstractValidator<UpdateTenantPaymentProfileAccountStatusCommand>
 {
     public UpdateTenantPaymentProfileAccountStatusCommandValidator()
     {
+        RuleFor(v => v.TenantAccountId).NotEmptyWithMessage(nameof(UpdateTenantPaymentProfileAccountStatusCommand.TenantAccountId));
+
         RuleFor(v => v.DetailsSubmitted).NotEmptyWithMessage(nameof(UpdateTenantPaymentProfileAccountStatusCommand.DetailsSubmitted));
 
         RuleFor(v => v.ChargesEnabled).NotEmptyWithMessage(nameof(UpdateTenantPaymentProfileAccountStatusCommand.ChargesEnabled));
@@ -35,7 +38,7 @@ public class UpdateTenantPaymentProfileAccountStatusCommandValidator : AbstractV
     }
 }
 
-public class UpdateTenantPaymentProfileAccountStatusCommandHandler : IRequestHandler<UpdateTenantPaymentProfileAccountStatusCommand>
+public class UpdateTenantPaymentProfileAccountStatusCommandHandler : IRequestHandler<UpdateTenantPaymentProfileAccountStatusCommand, Result>
 {
     private readonly IApplicationDbContext _context;
 
@@ -44,13 +47,13 @@ public class UpdateTenantPaymentProfileAccountStatusCommandHandler : IRequestHan
         _context = context;
     }
 
-    public async Task Handle(UpdateTenantPaymentProfileAccountStatusCommand command, CancellationToken cancellationToken)
+    public async Task<Result> Handle(UpdateTenantPaymentProfileAccountStatusCommand command, CancellationToken cancellationToken)
     {
         var tenantPaymentProfile = await _context
             .TenantPaymentProfiles
             .FirstOrDefaultAsync(tpp => tpp != null && command.TenantAccountId == tpp.TenantPaymentAccountId);
 
-        Guard.Against.NotFound(command.TenantAccountId, tenantPaymentProfile);
+        Guard.Against.Null(tenantPaymentProfile, nameof(TenantPaymentProfile));
 
         var status = new TenantPaymentAccountStatus
         {
@@ -64,5 +67,7 @@ public class UpdateTenantPaymentProfileAccountStatusCommandHandler : IRequestHan
         tenantPaymentProfile.AccountStatus = status;
 
         await _context.SaveChangesAsync();
+
+        return Result.Success();
     }
 }

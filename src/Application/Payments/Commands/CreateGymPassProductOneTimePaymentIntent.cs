@@ -7,6 +7,7 @@ using FitPass.Application.Payments.DTOs;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Entities.Payment;
+using FitPass.Domain.Enums;
 
 namespace FitPass.Application.Payments.Commands;
 
@@ -44,11 +45,22 @@ public class CreateGymPassProductOneTimePaymentIntentCommandHandler : IRequestHa
     {
         var product = await _context.GymPassProducts
             .AsNoTracking()
+            .Include(p => p.Gym)
             .FirstOrDefaultAsync(p => p.Id == command.GymPassProductId);
 
         if (product is null)
         {
             return Result.NotFound(nameof(GymPassProduct));
+        }
+
+        if (!product.IsActive)
+        {
+            return Result.BusinessRuleViolation("You cannot buy a pass that is not currently active.");
+        }
+
+        if (product.Gym.Status != GymStatus.Active)
+        {
+            return Result.BusinessRuleViolation("You cannot buy a pass to a gym that is not currently active.");
         }
 
         var tenantPaymentProfile = await _context.TenantPaymentProfiles
@@ -57,7 +69,13 @@ public class CreateGymPassProductOneTimePaymentIntentCommandHandler : IRequestHa
 
         Guard.Against.Null(tenantPaymentProfile, nameof(TenantPaymentProfile));
 
-        var result = await _paymentService.CreateOneTimePaymentIntent(product.Price, _user.Id!, product.Id, tenantPaymentProfile.TenantPaymentAccountId);
+
+        var result = await _paymentService.CreateOneTimePaymentIntent(
+            product.Price, 
+            _user.Id!,
+            product.GymId,
+            product.Id, 
+            tenantPaymentProfile.TenantPaymentAccountId);
 
         if (!result.Succeeded)
         {
