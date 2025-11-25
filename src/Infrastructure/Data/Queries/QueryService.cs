@@ -43,7 +43,7 @@ public class QueryService : IQueryService
         ).ToListAsync();
     }
 
-    public async Task<GymEmploymentDto?> GetGymEmploymentWithUserProfileAndEmailByApplicationUserId(string applicationUserId)
+    public async Task<GymEmploymentDto?> GetGymEmploymentWithUserProfileAndEmailByUserId(string applicationUserId)
     {
         return await (
             from ge in _context.GymEmployments

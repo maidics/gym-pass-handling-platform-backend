@@ -1,18 +1,16 @@
-﻿using FitPass.Application.Common.Exceptions;
-using FitPass.Application.Common.Extensions;
+﻿using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
-using FitPass.Application.Common.Logging;
+using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Security;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
-using FitPass.Domain.Strings;
 using Microsoft.Extensions.Logging;
 
 namespace FitPass.Application.GymMembershipPasses.Commands;
 
 [Authorize(Roles = $"{Roles.GymAdministrator},{Roles.GymStaff}")]
-public record GymEmployeeUseGymMembershipPassCommand(string GymMembershipPassId, string LockerNumber) : IRequest<PassUseResult>;
+public record GymEmployeeUseGymMembershipPassCommand(string GymMembershipPassId, string LockerNumber) : IRequest<Result<PassUseResult>>;
 
 public class GymEmployeeUseGymMembershipPassCommandValidator : AbstractValidator<GymEmployeeUseGymMembershipPassCommand>
 {
@@ -24,7 +22,7 @@ public class GymEmployeeUseGymMembershipPassCommandValidator : AbstractValidator
     }
 }
 
-public class GymEmployeeUseGymMembershipPassCommandHandler : IRequestHandler<GymEmployeeUseGymMembershipPassCommand, PassUseResult>
+public class GymEmployeeUseGymMembershipPassCommandHandler : IRequestHandler<GymEmployeeUseGymMembershipPassCommand, Result<PassUseResult>>
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
@@ -43,39 +41,33 @@ public class GymEmployeeUseGymMembershipPassCommandHandler : IRequestHandler<Gym
         _timeProvider = timeProvider;
     }
 
-    public async Task<PassUseResult> Handle(GymEmployeeUseGymMembershipPassCommand command, CancellationToken cancellationToken)
+    public async Task<Result<PassUseResult>> Handle(GymEmployeeUseGymMembershipPassCommand command, CancellationToken cancellationToken)
     {
         var gymEmployment = await _context
             .GymEmployments
             .AsNoTracking()
             .FirstOrDefaultAsync(ge => ge.UserId != null && ge.UserId == _user.Id);
 
-        if (gymEmployment is null)
-        {
-            LogCriticalMessages.AuthenticatedUserRelatedEntityNotFound(
-                _logger,
-                _user.Roles,
-                _user.Id,
-                nameof(GymEmployment));
-
-            throw new SystemException(ErrorMessages.AuthenticatedUserRelatedEntityNotFound(nameof(GymEmployment)));
-        }
+        Guard.Against.NullEntityRelatedToCurrentUser(gymEmployment, nameof(GymEmployment), _user.Id);
 
         var pass = await _context
             .GymMembershipPasses
             .Include(p => p.GymMembership)
             .FirstOrDefaultAsync(p => p.Id == command.GymMembershipPassId);
 
-        Guard.Against.NotFound(command.GymMembershipPassId, pass);
+        if (pass is null)
+        {
+            return Result.NotFound(nameof(GymMembershipPass));
+        }
 
         if (pass.GymMembership.GymId != gymEmployment.GymId)
         {
-            throw new ForbiddenAccessException();
+            return Result.Forbidden();
         }
 
         if (pass.GymMembership.Status == GymMembershipStatus.Banned)
         {
-            throw new BadRequestException("User is banned from the gym.");
+            return Result.BusinessRuleViolation("User is banned from the gym.");
         }
 
         var passUsage = pass.Use(command.LockerNumber, _timeProvider.GetUtcNow());
@@ -88,6 +80,6 @@ public class GymEmployeeUseGymMembershipPassCommandHandler : IRequestHandler<Gym
         await _context.GymPassUsages.AddAsync(passUsage);
         await _context.SaveChangesAsync();
 
-        return passUsage.PassUseResult;
+        return Result.Success(passUsage.PassUseResult);
     }
 }

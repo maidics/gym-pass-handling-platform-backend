@@ -25,11 +25,11 @@ public class GymMembershipPasses : EndpointGroupBase
         return TypedResults.Ok(result);
     }
 
-    public async Task<Ok<PassUseResult>> GymEmployeeUseGymMembershipPass(ISender sender, string gymMembershipPassId, [FromBody] string lockerNumber, CancellationToken cancellationToken)
+    public async Task<IResult> GymEmployeeUseGymMembershipPass(ISender sender, string gymMembershipPassId, [FromBody] string lockerNumber, CancellationToken cancellationToken)
     {
         var result = await sender.Send(new GymEmployeeUseGymMembershipPassCommand(gymMembershipPassId, lockerNumber));
 
-        return TypedResults.Ok(result);
+        return result.ToTypedResult();
     }
 
     public async Task<Ok<bool>> IsGymMembershipPassValid(ISender sender, string gymMembershipPassId, CancellationToken cancellationToken)

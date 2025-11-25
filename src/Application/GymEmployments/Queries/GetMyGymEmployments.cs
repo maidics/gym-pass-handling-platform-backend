@@ -1,5 +1,5 @@
+using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
-using FitPass.Application.Common.Logging;
 using FitPass.Application.Common.Security;
 using FitPass.Application.GymEmployments.DTOs;
 using FitPass.Domain.Constants;
@@ -16,14 +16,15 @@ public class GetMyGymEmploymentsQueryHandler : IRequestHandler<GetMyGymEmploymen
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
-    private readonly ILogger<GetMyGymEmploymentsQuery> _logger;
     private readonly IQueryService _queryService;
 
-    public GetMyGymEmploymentsQueryHandler(IApplicationDbContext context, IUser user, ILogger<GetMyGymEmploymentsQuery> logger, IQueryService queryService)
+    public GetMyGymEmploymentsQueryHandler(
+        IApplicationDbContext context, 
+        IUser user, 
+        IQueryService queryService)
     {
         _context = context;
         _user = user;
-        _logger = logger;
         _queryService = queryService;
     }
     public async Task<List<GymEmploymentDto>> Handle(GetMyGymEmploymentsQuery query, CancellationToken cancellationToken)
@@ -32,11 +33,7 @@ public class GetMyGymEmploymentsQueryHandler : IRequestHandler<GetMyGymEmploymen
             .AsNoTracking()
             .FirstOrDefaultAsync(ge => ge.UserId != null && ge.UserId == _user.Id, cancellationToken);
 
-        if (gymEmployment == null)
-        {
-            LogCriticalMessages.AuthenticatedUserRelatedEntityNotFound(_logger, _user.Roles, _user.Id, nameof(GymEmployment));
-            throw new SystemException(ErrorMessages.AuthenticatedUserRelatedEntityNotFound(nameof(GymEmployment)));
-        }
+        Guard.Against.NullEntityRelatedToCurrentUser(gymEmployment, nameof(GymEmployment), _user.Id);
 
         return await _queryService.GetGymEmploymentsWithUserProfileAndEmailByGymId(gymEmployment.GymId!);
     }

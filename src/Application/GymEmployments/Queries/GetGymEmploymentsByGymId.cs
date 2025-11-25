@@ -1,13 +1,15 @@
 using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
+using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Security;
 using FitPass.Application.GymEmployments.DTOs;
 using FitPass.Domain.Constants;
+using FitPass.Domain.Entities;
 
 namespace FitPass.Application.GymEmployments.Queries;
 
 [Authorize(Roles = Roles.AppAdministrator)]
-public record GetGymEmploymentsByGymIdQuery(string GymId) : IRequest<List<GymEmploymentDto>>;
+public record GetGymEmploymentsByGymIdQuery(string GymId) : IRequest<Result<List<GymEmploymentDto>>>;
 
 public class GetGymEmploymentsByGymIdQueryValidator : AbstractValidator<GetGymEmploymentsByGymIdQuery>
 {
@@ -17,7 +19,7 @@ public class GetGymEmploymentsByGymIdQueryValidator : AbstractValidator<GetGymEm
     }
 }
 
-public class GetGymEmploymentsByGymIdQueryHandler : IRequestHandler<GetGymEmploymentsByGymIdQuery, List<GymEmploymentDto>>
+public class GetGymEmploymentsByGymIdQueryHandler : IRequestHandler<GetGymEmploymentsByGymIdQuery, Result<List<GymEmploymentDto>>>
 {
     private readonly IApplicationDbContext _context;
     private readonly IQueryService _queryService;    
@@ -28,12 +30,15 @@ public class GetGymEmploymentsByGymIdQueryHandler : IRequestHandler<GetGymEmploy
         _queryService = queryService;
     }
 
-    public async Task<List<GymEmploymentDto>> Handle(GetGymEmploymentsByGymIdQuery query, CancellationToken cancellationToken)
+    public async Task<Result<List<GymEmploymentDto>>> Handle(GetGymEmploymentsByGymIdQuery query, CancellationToken cancellationToken)
     {
         var gym = await _context.Gyms.AsNoTracking().FirstOrDefaultAsync(g => g.Id == query.GymId, cancellationToken);
 
-        Guard.Against.NotFound(query.GymId, gym, "GymId");
+        if (gym is null)
+        {
+            return Result.NotFound(nameof(Gym));
+        }
 
-        return await _queryService.GetGymEmploymentsWithUserProfileAndEmailByGymId(gym.Id);
+        return Result.Success(await _queryService.GetGymEmploymentsWithUserProfileAndEmailByGymId(gym.Id));
     }
 }
