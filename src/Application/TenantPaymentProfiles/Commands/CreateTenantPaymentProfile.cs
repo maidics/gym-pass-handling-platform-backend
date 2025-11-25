@@ -66,11 +66,11 @@ public class CreateTenantPaymentProfileCommandHandler : IRequestHandler<CreateTe
             throw new SystemException(ErrorMessages.AuthenticatedUserRelatedEntityNotFound(nameof(GymEmployment)));
         }
 
-        var existingPaymentProfile = await _context
+        var paymentProfile = await _context
             .TenantPaymentProfiles
             .FindAsync(gymEmployment.GymId);
 
-        if (existingPaymentProfile is not null)
+        if (paymentProfile is not null)
         {
             throw new ForbiddenAccessException();
         }
@@ -83,13 +83,13 @@ public class CreateTenantPaymentProfileCommandHandler : IRequestHandler<CreateTe
             return creationResult.ToFailure<(string url, DateTime expirationDateTime)>();
         }
 
-        existingPaymentProfile = new TenantPaymentProfile
+        paymentProfile = new TenantPaymentProfile
         {
             GymId = gymEmployment.GymId,
             TenantPaymentAccountId = creationResult.Value
         };
 
-        await _context.TenantPaymentProfiles.AddAsync(existingPaymentProfile);
+        await _context.TenantPaymentProfiles.AddAsync(paymentProfile);
 
         return await _paymentTenantService.GenerateAccountLinkAsync(creationResult.Value, true);
     }

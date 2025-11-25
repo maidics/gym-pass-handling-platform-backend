@@ -154,13 +154,6 @@ public class ResultFailure
         Errors = result.Errors.ToArray();
     }
 
-    public static implicit operator ResultFailure(Result result) //does this convert from Result<T> as well?
-    {
-        ThrowIfNotFailedResult(result);
-
-        return new ResultFailure(result);
-    }
-
     private static void ThrowIfNotFailedResult(Result result)
     {
         if (result.Succeeded)
