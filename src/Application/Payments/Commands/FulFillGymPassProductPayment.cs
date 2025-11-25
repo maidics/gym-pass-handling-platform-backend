@@ -3,19 +3,20 @@ using FitPass.Application.Common.Models;
 using FitPass.Application.GymMembershipPasses.DTOs;
 using FitPass.Application.GymMemberships.Commands;
 using FitPass.Domain.Entities;
+using FitPass.Domain.Events.GymPassProducts;
 
 namespace FitPass.Application.Payments.Commands;
 
 //Webhook only
 public record FulFillGymPassProductPaymentCommand(string UserId, string GymId, string GymPassProductId) : IRequest<Result>;
 
-public class FulFillGymPassProdcutPaymentCommandHandler : IRequestHandler<FulFillGymPassProductPaymentCommand, Result>
+public class FulFillGymPassProductPaymentCommandHandler : IRequestHandler<FulFillGymPassProductPaymentCommand, Result>
 {
     private readonly IApplicationDbContext _context;
     private readonly ISender _sender;
     private readonly IClientNotificationSender _notificationSender;
 
-    public FulFillGymPassProdcutPaymentCommandHandler(
+    public FulFillGymPassProductPaymentCommandHandler(
         IApplicationDbContext context, 
         ISender sender,
         IClientNotificationSender notificationSender)
@@ -36,19 +37,15 @@ public class FulFillGymPassProdcutPaymentCommandHandler : IRequestHandler<FulFil
             return Result.NotFound(nameof(GymPassProduct), ["Failed to fulfill payment because the GymPassProduct was not found."]);
         }
 
-        var gymMembership = await _sender.Send(new GetOrCreateGymMembershipCommand(command.UserId, command.GymId));
+        var membership = await _sender.Send(new GetOrCreateGymMembershipCommand(command.UserId, command.GymId));
 
-        var pass = product.ToGymMembershipPass(gymMembership.Id);
+        var pass = product.ToGymMembershipPass(membership.Id);
 
         await _context.GymMembershipPasses.AddAsync(pass);
-        await _context.SaveChangesAsync();
 
-        var notification = ClientNotification.Create(
-            "Successful payment, pass received!", 
-            ClientNotificationType.GymMembershipPassPurchaseSuccessful, 
-            pass.MapToDto());
+        pass.AddDomainEvent(new GymPassProductPurchasedEvent(membership, product));
         
-        await _notificationSender.SendUserEvent(command.UserId, notification); //TODO create this in Domain event & create PurchaseReceipt
+        await _context.SaveChangesAsync();
 
         return Result.Success();
     }

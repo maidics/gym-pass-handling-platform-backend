@@ -17,6 +17,7 @@ public interface IApplicationDbContext
     
     DbSet<TenantPaymentProfile> TenantPaymentProfiles { get; }
     DbSet<ProductPaymentIdentity> PaymentProducts { get; }
+    DbSet<PurchaseReceipt> PurchaseReceipts { get; }
 
     Task<int> SaveChangesAsync();
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);

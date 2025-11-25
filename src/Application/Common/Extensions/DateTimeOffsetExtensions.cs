@@ -2,10 +2,8 @@
 
 public static class DateTimeOffsetExtensions
 {
-    public static bool IsToday(this DateTimeOffset dateTimeOffset)
+    public static bool IsToday(this DateTimeOffset dateTimeOffset, DateTimeOffset utcNow)
     {
-        var now = DateTimeOffset.UtcNow;
-
-        return now.Date == dateTimeOffset.Date;
+        return utcNow.UtcDateTime.Date == dateTimeOffset.UtcDateTime.Date;
     }
 }
