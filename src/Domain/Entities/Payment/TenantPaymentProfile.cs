@@ -4,6 +4,8 @@ public class TenantPaymentProfile : BaseAuditableEntity
 {
     public required string GymId { get; set; }
     public required string TenantPaymentAccountId { get; set; }
+    public TimeIntervals? PayoutInterval { get; set; }
+    public string? PayoutAnchor { get; set; }
     public TenantPaymentAccountStatus AccountStatus { get; set; } = TenantPaymentAccountStatus.Default();
     public DateTimeOffset? LastUpdatedOnPaymentProvidersSide { get; set; }
     public string? LastUpdatedByOnPaymentProvidersSide { get; set; }

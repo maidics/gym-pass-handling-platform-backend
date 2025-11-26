@@ -1,6 +1,6 @@
 using FitPass.Application.Common.Interfaces.Payment;
 using FitPass.Application.Common.Models;
-using FitPass.Domain.Entities.Payment;
+using FitPass.Domain.Enums;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Stripe;
@@ -74,11 +74,6 @@ public class StripeConnectedAccountService : IPaymentTenantService
         }
     }
 
-    public Task<Result<TenantPaymentAccountStatus>> GetAccountStatusAsync(string tenantAccountId, CancellationToken cancellationToken = default)
-    {
-        throw new NotImplementedException();
-    }
-
     public async Task<Result<bool>> IsOnboardingCompleteAsync(string tenantAccountId, CancellationToken cancellationToken = default)
     {
         try
@@ -125,6 +120,52 @@ public class StripeConnectedAccountService : IPaymentTenantService
             ex.Log(_logger, nameof(StripeConnectedAccountService), nameof(GenerateAccountLinkAsync));
 
             return ex.ToResultFailure("Failed to generate account link.");
+        }
+    }
+
+    public async Task<Result> UpdateTenantAccountPayoutInterval(string tenantAccountId, TimeIntervals interval, int? monthlyAnchor, DayOfWeek? weeklyAnchor, int? delayDays)
+    {
+        try
+        {
+            var options = new AccountUpdateOptions
+            {
+                Settings = new AccountSettingsOptions
+                {
+                    Payouts = new AccountSettingsPayoutsOptions
+                    {
+                        Schedule = new AccountSettingsPayoutsScheduleOptions
+                        {
+                            Interval = interval.ToString().ToLowerInvariant()
+                        }
+                    }
+                }
+            };
+
+            if (interval == TimeIntervals.Daily)
+            {
+                Guard.Against.Null(delayDays);
+
+                options.Settings.Payouts.Schedule.DelayDays = delayDays;
+            } else if (interval == TimeIntervals.Weekly)
+            {
+                Guard.Against.Null(weeklyAnchor);
+
+                options.Settings.Payouts.Schedule.WeeklyAnchor = weeklyAnchor.ToString()!.ToLowerInvariant();
+            } else if (interval == TimeIntervals.Monthly)
+            {
+                Guard.Against.Null(monthlyAnchor);
+
+                options.Settings.Payouts.Schedule.MonthlyAnchor = monthlyAnchor;
+            }
+
+            await _accountService.UpdateAsync(tenantAccountId, options);
+
+            return Result.Success();
+        } catch (StripeException ex)
+        {
+            ex.Log(_logger, nameof(StripeConnectedAccountService), nameof(UpdateTenantAccountPayoutInterval));
+
+            return ex.ToResultFailure("Failed to update payment account's payout interval.");
         }
     }
 }
