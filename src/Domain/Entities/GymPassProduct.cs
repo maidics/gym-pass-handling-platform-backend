@@ -31,11 +31,12 @@ public class GymPassProduct : BaseAuditableEntity
         return utcNow.AddDays((int)DaysAfterExpiring);
     }
 
-    public GymMembershipPass ToGymMembershipPass(string gymMembershipId, DateTimeOffset utcNow)
+    public GymMembershipPass ToGymMembershipPass(string gymMembershipId, string userId, DateTimeOffset utcNow)
     {
         return new GymMembershipPass
         {
             GymMembershipId = gymMembershipId,
+            UserId = userId,
             Type = Type,
             TotalUses = TotalUses,
             ExpirationDate = GetExpirationDate(utcNow),

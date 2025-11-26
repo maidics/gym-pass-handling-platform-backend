@@ -1,12 +1,13 @@
 ﻿using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
+using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Security;
 using FitPass.Domain.Constants;
 
 namespace FitPass.Application.GymMembershipPasses.Queries;
 
 [Authorize(Roles = $"{Roles.GymAdministrator},{Roles.GymStaff}")]
-public record IsGymMembershipPassValidQuery(string GymMembershipPassId) : IRequest<bool>;
+public record IsGymMembershipPassValidQuery(string GymMembershipPassId) : IRequest<Result<bool>>;
 
 public class IsGymMembershipPassValidQueryValidator : AbstractValidator<IsGymMembershipPassValidQuery>
 {
@@ -16,7 +17,7 @@ public class IsGymMembershipPassValidQueryValidator : AbstractValidator<IsGymMem
     }
 }
 
-public class IsGymMembershipPassValidQueryHandler : IRequestHandler<IsGymMembershipPassValidQuery, bool>
+public class IsGymMembershipPassValidQueryHandler : IRequestHandler<IsGymMembershipPassValidQuery, Result<bool>>
 {
     private readonly IApplicationDbContext _context;
     private readonly TimeProvider _timeProvider;
@@ -29,15 +30,18 @@ public class IsGymMembershipPassValidQueryHandler : IRequestHandler<IsGymMembers
         _timeProvider = timeProvider;
     }
 
-    public async Task<bool> Handle(IsGymMembershipPassValidQuery query, CancellationToken cancellationToken)
+    public async Task<Result<bool>> Handle(IsGymMembershipPassValidQuery query, CancellationToken cancellationToken)
     {
         var pass = await _context
             .GymMembershipPasses
             .AsNoTracking()
             .FirstOrDefaultAsync(p => p.Id == query.GymMembershipPassId);
 
-        Guard.Against.NotFound(query.GymMembershipPassId, pass);
+        if (pass is null)
+        {
+            return Result.NotFound("Pass not found.");
+        }
 
-        return !pass.IsExpired(_timeProvider.GetUtcNow()) && !pass.HasNoUsesLeft();
+        return Result.Success(!pass.IsExpired(_timeProvider.GetUtcNow()) && !pass.HasNoUsesLeft());
     }
 }

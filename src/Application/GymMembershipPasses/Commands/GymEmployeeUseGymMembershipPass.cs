@@ -10,7 +10,8 @@ using Microsoft.Extensions.Logging;
 namespace FitPass.Application.GymMembershipPasses.Commands;
 
 [Authorize(Roles = $"{Roles.GymAdministrator},{Roles.GymStaff}")]
-public record GymEmployeeUseGymMembershipPassCommand(string GymMembershipPassId, string LockerNumber) : IRequest<Result<PassUseResult>>;
+//Take user id from the qr code as well, if this request does not come from qr code we can do a check to make it more safe
+public record GymEmployeeUseGymMembershipPassCommand(string GymMembershipPassId, string UserId, string LockerNumber) : IRequest<Result<PassUseResult>>;
 
 public class GymEmployeeUseGymMembershipPassCommandValidator : AbstractValidator<GymEmployeeUseGymMembershipPassCommand>
 {
@@ -60,6 +61,11 @@ public class GymEmployeeUseGymMembershipPassCommandHandler : IRequestHandler<Gym
             return Result.NotFound(nameof(GymMembershipPass));
         }
 
+        if (pass.UserId != command.UserId)
+        {
+            return Result.Forbidden("This pass does not belong to user.");
+        }
+
         if (pass.GymMembership.GymId != gymEmployment.GymId)
         {
             return Result.Forbidden();
@@ -74,7 +80,7 @@ public class GymEmployeeUseGymMembershipPassCommandHandler : IRequestHandler<Gym
 
         if (passUsage.PassUseResult == PassUseResult.AlreadyHasNoUsesLeft)
         {
-            _logger.LogCritical("User request to use an already expired pass.");
+            _logger.LogError("User request to use an already expired pass.");
         }
 
         await _context.GymPassUsages.AddAsync(passUsage);
