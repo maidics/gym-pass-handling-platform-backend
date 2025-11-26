@@ -16,7 +16,7 @@ public class ClientNotificationService : IClientNotificationSender, IClientNotif
     private readonly ConcurrentDictionary<string, ConcurrentDictionary<Guid, ChannelWriter<ClientNotification>>> _connectedClients = new();
     //one user can have many connections: if multiple devices are connected all of them get the notification
 
-    public async Task SendUserEvent(string userId, ClientNotification notification)
+    public async Task Send(string userId, ClientNotification notification)
     {
         if (_connectedClients.TryGetValue(userId, out var activeConnections))
         {
@@ -24,6 +24,14 @@ public class ClientNotificationService : IClientNotificationSender, IClientNotif
             {
                 await writer.WriteAsync(notification);
             }
+        }
+    }
+
+    public async Task Send(IEnumerable<string> userIds, ClientNotification notification)
+    {
+        foreach (var id in userIds)
+        {
+            await Send(id, notification);
         }
     }
 

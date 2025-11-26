@@ -83,7 +83,7 @@ public static class DependencyInjection
         */
 
         builder.Services.AddScoped<IPaymentTenantService, StripeConnectedAccountService>();
-        builder.Services.AddScoped<IPaymentWebhookService, StripeWebHookService>();
+        builder.Services.AddScoped<IPaymentWebhookService, StripeWebhookService>();
 
         builder.Services.AddScoped<IQueryService, QueryService>();
 

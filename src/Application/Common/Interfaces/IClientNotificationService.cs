@@ -5,5 +5,6 @@ namespace FitPass.Application.Common.Interfaces;
 
 public interface IClientNotificationSender
 {
-    Task SendUserEvent(string userId, ClientNotification notification);
+    Task Send(string userId, ClientNotification notification);
+    Task Send(IEnumerable<string> userIds, ClientNotification notification);
 }

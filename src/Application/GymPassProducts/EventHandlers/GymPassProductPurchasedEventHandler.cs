@@ -48,6 +48,6 @@ public class GymPassProductPurchasedEventHandler : INotificationHandler<GymPassP
             ClientNotificationType.GymMembershipPassPurchaseSuccessful, 
             notification.GymPassProduct.MapToDto());
         
-        await _clientNotificationSender.SendUserEvent(purchaseReceipt.UserId, clientNotification);
+        await _clientNotificationSender.Send(purchaseReceipt.UserId, clientNotification);
     }
 }

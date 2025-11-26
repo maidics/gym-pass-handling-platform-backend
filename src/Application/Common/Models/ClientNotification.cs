@@ -4,7 +4,8 @@ public enum ClientNotificationType
 {
     GymMembershipPassPurchaseSuccessful,
     Default,
-    Error
+    Error,
+    PaymentFailed
 }
 
 public class ClientNotification

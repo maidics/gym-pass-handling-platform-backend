@@ -14,7 +14,7 @@ public record UpdateTenantPaymentProfileAccountStatusCommand(
     bool PayoutsEnabled, 
     List<string> RequirementsDue, 
     List<string> RequirementsEventuallyDue
-) : IRequest<Result>;
+) : IRequest;
 
 public class UpdateTenantPaymentProfileAccountStatusCommandValidator : AbstractValidator<UpdateTenantPaymentProfileAccountStatusCommand>
 {
@@ -38,7 +38,7 @@ public class UpdateTenantPaymentProfileAccountStatusCommandValidator : AbstractV
     }
 }
 
-public class UpdateTenantPaymentProfileAccountStatusCommandHandler : IRequestHandler<UpdateTenantPaymentProfileAccountStatusCommand, Result>
+public class UpdateTenantPaymentProfileAccountStatusCommandHandler : IRequestHandler<UpdateTenantPaymentProfileAccountStatusCommand>
 {
     private readonly IApplicationDbContext _context;
 
@@ -47,7 +47,7 @@ public class UpdateTenantPaymentProfileAccountStatusCommandHandler : IRequestHan
         _context = context;
     }
 
-    public async Task<Result> Handle(UpdateTenantPaymentProfileAccountStatusCommand command, CancellationToken cancellationToken)
+    public async Task Handle(UpdateTenantPaymentProfileAccountStatusCommand command, CancellationToken cancellationToken)
     {
         var tenantPaymentProfile = await _context
             .TenantPaymentProfiles
@@ -67,7 +67,5 @@ public class UpdateTenantPaymentProfileAccountStatusCommandHandler : IRequestHan
         tenantPaymentProfile.AccountStatus = status;
 
         await _context.SaveChangesAsync();
-
-        return Result.Success();
     }
 }

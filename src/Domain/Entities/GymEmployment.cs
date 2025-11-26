@@ -8,5 +8,5 @@ public class GymEmployment : BaseEntity
     public required string Role { get; set; }
     public required DateTimeOffset EmploymentStart { get; set; }
     public DateTimeOffset? EmploymentEnd { get; set; } = null;
-    public Gym? Gym { get; set; }
+    public Gym Gym { get; set; } = null!;
 }

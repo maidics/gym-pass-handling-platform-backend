@@ -1,5 +1,4 @@
 ﻿using System.Text.Json;
-using FitPass.Application.Common.Logging;
 using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Security;
 using FitPass.Domain.Constants;
@@ -38,28 +37,10 @@ internal class DeserializeRequestPayloadCommandHandler<TPayload>
 
             if (payload is null)
             {
-                LogErrorMessages.JsonSerilaizationFailure(
-                    _logger,
-                    "Deserialization",
-                    nameof(JsonSerializer.Deserialize),
-                    nameof(Request),
-                    command.Request.CreatedBy,
-                    command.Request.Payload,
-                    null);
-
                 return Result.InternalError("Failed to deserialize request payload.");
             }
-        } catch (Exception ex)
+        } catch
         {
-            LogErrorMessages.JsonSerilaizationFailure(
-                    _logger,
-                    "Deserialization",
-                    nameof(JsonSerializer.Deserialize),
-                    nameof(Request),
-                    command.Request.CreatedBy,
-                    command.Request.Payload,
-                    ex);
-
             return Result.InternalError("Failed to deserialize request payload.");
         }
 
