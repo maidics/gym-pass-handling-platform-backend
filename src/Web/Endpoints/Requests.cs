@@ -1,6 +1,5 @@
 using FitPass.Application.Requests.DTOs;
 using FitPass.Application.Requests.Queries;
-using FitPass.Application.Common.Models;
 using FitPass.Application.Requests.Commands;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -22,11 +21,11 @@ public class Requests : EndpointGroupBase
         groupBuilder.MapPut(RejectRequest, "Reject/{requestId}").RequireAuthorization();
     }
 
-    public async Task<Ok<RequestDto>> GetRequest(ISender sender, string requestId, CancellationToken cancellationToken)
+    public async Task<IResult> GetRequest(ISender sender, string requestId, CancellationToken cancellationToken)
     {
         var result = await sender.Send(new GetRequestQuery(requestId), cancellationToken);
 
-        return TypedResults.Ok(result);
+        return result.ToTypedResult();
     }
 
     public async Task<Ok<List<RequestDto>>> GetRequests(ISender sender, [FromBody] GetRequestsQuery query, CancellationToken cancellationToken)
@@ -36,24 +35,24 @@ public class Requests : EndpointGroupBase
         return TypedResults.Ok(result);
     }
 
-    public async Task<NoContent> CreateGymCreationRequest(ISender sender, [FromBody] CreateGymCreationRequestCommand command)
+    public async Task<IResult> CreateGymCreationRequest(ISender sender, [FromBody] CreateGymCreationRequestCommand command)
     {
-        await sender.Send(command);
+        var result = await sender.Send(command);
 
-        return TypedResults.NoContent();
+        return result.ToTypedResult();
     }
 
-    public async Task<NoContent> CreateGymAdminPromotionRequest(ISender sender, [FromBody] CreateGymAdminPromotionRequestCommand command)
+    public async Task<IResult> CreateGymAdminPromotionRequest(ISender sender, [FromBody] CreateGymAdminPromotionRequestCommand command)
     {
-        await sender.Send(command);
+        var result = await sender.Send(command);
 
-        return TypedResults.NoContent();
+        return result.ToTypedResult();
     }
 
-    public async Task<NoContent> RejectRequest(ISender sender, string requestId, CancellationToken cancellationToken)
+    public async Task<IResult> RejectRequest(ISender sender, string requestId, CancellationToken cancellationToken)
     {
-        await sender.Send(new RejectRequestCommand(requestId));
+        var result = await sender.Send(new RejectRequestCommand(requestId));
 
-        return TypedResults.NoContent();
+        return result.ToTypedResult();
     }
 }

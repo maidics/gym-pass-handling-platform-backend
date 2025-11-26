@@ -24,17 +24,17 @@ public class GymPassUsages : EndpointGroupBase
         return TypedResults.Ok(result);
     }
 
-    public async Task<NoContent> GymEmployeeEndUserGymSession(ISender sender, string gymPassUsageId, CancellationToken cancellationToken)
+    public async Task<IResult> GymEmployeeEndUserGymSession(ISender sender, string gymPassUsageId, CancellationToken cancellationToken)
     {
-        await sender.Send(new EndUserGymSessionCommand(gymPassUsageId));
+        var result = await sender.Send(new EndUserGymSessionCommand(gymPassUsageId));
 
-        return TypedResults.NoContent();
+        return result.ToTypedResult();
     }
 
-    public async Task<NoContent> UpdateGymPassUsageLockerNumberCommand(ISender sender, string gymPassUsageId, [FromBody] string lockerNumber, CancellationToken cancellationToken)
+    public async Task<IResult> UpdateGymPassUsageLockerNumberCommand(ISender sender, string gymPassUsageId, [FromBody] string lockerNumber, CancellationToken cancellationToken)
     {
-        await sender.Send(new UpdateGymPassUsageLockerNumberCommand(gymPassUsageId, lockerNumber));
+        var result = await sender.Send(new UpdateGymPassUsageLockerNumberCommand(gymPassUsageId, lockerNumber));
 
-        return TypedResults.NoContent();
+        return result.ToTypedResult();
     }
 }

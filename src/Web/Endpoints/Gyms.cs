@@ -28,11 +28,11 @@ public class Gyms : EndpointGroupBase
         //groupBuilder.MapPost(RegisterGym, "Register").RequireAuthorization();
     }
 
-    public async Task<NoContent> UpdateMyGymProfile(ISender sender, [FromBody] UpdateMyGymProfileCommand command, CancellationToken cancellationToken)
+    public async Task<IResult> UpdateMyGymProfile(ISender sender, [FromBody] UpdateMyGymProfileCommand command, CancellationToken cancellationToken)
     {
-        await sender.Send(command, cancellationToken);
+        var result = await sender.Send(command, cancellationToken);
 
-        return TypedResults.NoContent();
+        return result.ToTypedResult();
     }
 
     public async Task<Ok<List<GymDto>>> GetAllGyms(ISender sender, CancellationToken cancellationToken)
@@ -42,11 +42,11 @@ public class Gyms : EndpointGroupBase
         return TypedResults.Ok(result);
     }
 
-    public async Task<Ok<GymDto>> GetGymDetails(ISender sender, string gymId, CancellationToken cancellationToken)
+    public async Task<IResult> GetGymDetails(ISender sender, string gymId, CancellationToken cancellationToken)
     {
         var result = await sender.Send(new GetGymDetailsQuery(gymId), cancellationToken);
 
-        return TypedResults.Ok(result);
+        return result.ToTypedResult();
     }
 
     public async Task<Ok<List<GymDto>>> GetNewGymsThisMonth(ISender sender, CancellationToken cancellationToken)
@@ -56,11 +56,11 @@ public class Gyms : EndpointGroupBase
         return TypedResults.Ok(result);
     }
 
-    public async Task<NoContent> UpdateGymStatus(ISender sender, string gymId, [FromBody] GymStatus newGymStatus, CancellationToken cancellationToken)
+    public async Task<IResult> UpdateGymStatus(ISender sender, string gymId, [FromBody] GymStatus newGymStatus, CancellationToken cancellationToken)
     {
-        await sender.Send(new UpdateGymStatusCommand(gymId, newGymStatus), cancellationToken);
+        var result = await sender.Send(new UpdateGymStatusCommand(gymId, newGymStatus), cancellationToken);
 
-        return TypedResults.NoContent();
+        return result.ToTypedResult();
     }
 
     public async Task<Ok<GymDto>> GetMyGymDetails(ISender sender, CancellationToken cancellationToken)
@@ -70,18 +70,18 @@ public class Gyms : EndpointGroupBase
         return TypedResults.Ok(result);
     }
 
-    public async Task<NoContent> UpdateMyGymStatus(ISender sender, [FromBody] UpdateMyGymStatusCommand command, CancellationToken cancellationToken)
+    public async Task<IResult> UpdateMyGymStatus(ISender sender, [FromBody] UpdateMyGymStatusCommand command, CancellationToken cancellationToken)
     {
-        await sender.Send(command, cancellationToken);
+        var result = await sender.Send(command, cancellationToken);
 
-        return TypedResults.NoContent();
+        return result.ToTypedResult();
     }
     
-    public async Task<Ok<GymDto>> RegisterGymFromRequest(ISender sender, string requestId, CancellationToken cancellationToken)
+    public async Task<IResult> RegisterGymFromRequest(ISender sender, string requestId, CancellationToken cancellationToken)
     {
         var result = await sender.Send(new RegisterGymFromRequestCommand(requestId));
 
-        return TypedResults.Ok(result);
+        return result.ToTypedResult();
     }
 
     /*
