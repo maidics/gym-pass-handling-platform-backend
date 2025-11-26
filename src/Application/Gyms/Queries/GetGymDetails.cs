@@ -3,11 +3,13 @@ using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Security;
 using FitPass.Domain.Constants;
+using FitPass.Application.Common.Models;
+using FitPass.Domain.Entities;
 
 namespace FitPass.Application.Gyms.Queries;
 
 [Authorize(Roles = $"{Roles.AppAdministrator},{Roles.GymAdministrator},{Roles.GymStaff}")]
-public record GetGymDetailsQuery(string GymId) : IRequest<GymDto>;
+public record GetGymDetailsQuery(string GymId) : IRequest<Result<GymDto>>;
 
 public class GetGymDetailsQueryValidator : AbstractValidator<GetGymDetailsQuery>
 {
@@ -17,7 +19,7 @@ public class GetGymDetailsQueryValidator : AbstractValidator<GetGymDetailsQuery>
     }
 }
 
-public class GetGymDetailsQueryHandler : IRequestHandler<GetGymDetailsQuery, GymDto>
+public class GetGymDetailsQueryHandler : IRequestHandler<GetGymDetailsQuery, Result<GymDto>>
 {
     private readonly IApplicationDbContext _context;
 
@@ -26,15 +28,18 @@ public class GetGymDetailsQueryHandler : IRequestHandler<GetGymDetailsQuery, Gym
         _context = context;
     }
 
-    public async Task<GymDto> Handle(GetGymDetailsQuery query, CancellationToken cancellationToken)
+    public async Task<Result<GymDto>> Handle(GetGymDetailsQuery query, CancellationToken cancellationToken)
     {
         var gym = await _context
             .Gyms
             .AsNoTracking()
             .FirstOrDefaultAsync(g => g.Id == query.GymId, cancellationToken);
 
-        Guard.Against.NotFound(query.GymId, gym, "Id");
+        if (gym is null)
+        {
+            return Result.NotFound(nameof(Gym));
+        }
 
-        return gym.MapToDto();
+        return Result.Success(gym.MapToDto());
     }
 }

@@ -1,8 +1,6 @@
-using FitPass.Application.Common.Exceptions;
 using FitPass.Application.Common.Configuration;
 using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
-using FitPass.Application.Common.Logging;
 using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Security;
 using FitPass.Domain.Constants;
@@ -14,8 +12,6 @@ namespace FitPass.Application.ApplicationUsers.Commands.Emails;
 
 [Authorize]
 public record SendEmailConfirmationEmailCommand(string Email) : IRequest<Result>;
-//instead of throwing exceptions it will return a result so other commands can use this too => user can always request a new email confirmation email
-//in case of just solely sending email confirmation email the minimal api method will check the result and return a http result accordingly
 
 public class SendEmailConfirmationEmailCommandValidator : AbstractValidator<SendEmailConfirmationEmailCommand>
 {
@@ -51,31 +47,21 @@ public class SendEmailConfirmationEmailCommandHandler : IRequestHandler<SendEmai
     {
         var userId = await _identityService.GetUserIdByEmailAsync(command.Email);
 
-        Guard.Against.NotFound(command.Email, userId, "User");
+        Guard.Against.NullEntityRelatedToCurrentUser(userId, "User", null);
 
         if (_user.Id! != userId && _user.Roles!.First() != Roles.GymAdministrator && _user.Roles!.First() != Roles.GymStaff)
         {
-            throw new ForbiddenAccessException();
+            return Result.Forbidden();
         }
 
         if (await _identityService.IsUserEmailConfirmed(userId))
         {
-            throw new BadRequestException("User email is already confirmed.");
+            return Result.BusinessRuleViolation("User email is already confirmed.");
         }
 
         var token = await _identityService.GenerateEmailConfirmationTokenAsync(userId);
 
-        if (token == null)
-        {
-            LogErrorMessages.IdentityServiceMethodFailed(
-                _logger,
-                nameof(IIdentityService.GenerateEmailConfirmationTokenAsync),
-                null,
-                userId,
-                null);
-
-            return Result.InternalError(ErrorMessages.FailedtoGenerateEmailConfirmationToken());
-        }
+        Guard.Against.Null(token, "Email confirmation token", "Failed to generate email confirmation token.");
 
         var encodedToken = Uri.EscapeDataString(token);
         var encodedEmail = Uri.EscapeDataString(command.Email);

@@ -4,9 +4,7 @@ using FitPass.Application.Common.Security;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Enums;
 using FitPass.Domain.Entities;
-using FitPass.Application.Common.Logging;
-using Microsoft.Extensions.Logging;
-using FitPass.Domain.Strings;
+using FitPass.Application.Common.Models;
 
 namespace FitPass.Application.Gyms.Commands;
 
@@ -16,7 +14,7 @@ public record UpdateMyGymProfileCommand(
     string GymAddress,
     GymTier GymTier,
     string? GymOwnerName
-) : IRequest;
+) : IRequest<Result>;
 
 public class UpdateMyGymProfileCommandValidator : AbstractValidator<UpdateMyGymProfileCommand>
 {
@@ -28,47 +26,40 @@ public class UpdateMyGymProfileCommandValidator : AbstractValidator<UpdateMyGymP
     }
 }
 
-public class UpdateMyGymProfileCommandHandler : IRequestHandler<UpdateMyGymProfileCommand>
+public class UpdateMyGymProfileCommandHandler : IRequestHandler<UpdateMyGymProfileCommand, Result>
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
-    private readonly ILogger<UpdateMyGymProfileCommand> _logger;
 
     public UpdateMyGymProfileCommandHandler(
         IApplicationDbContext context,
-        IUser user,
-        ILogger<UpdateMyGymProfileCommand> logger)
+        IUser user)
     {
         _context = context;
         _user = user;
-        _logger = logger;
     }
-    public async Task Handle(UpdateMyGymProfileCommand command, CancellationToken cancellationToken)
+    public async Task<Result> Handle(UpdateMyGymProfileCommand command, CancellationToken cancellationToken)
     {
         var gymEmployment = await _context
             .GymEmployments
             .AsNoTracking()
             .FirstOrDefaultAsync(ge => ge.UserId == _user.Id);
 
-        if (gymEmployment is null)
-        {
-            LogCriticalMessages.AuthenticatedUserRelatedEntityNotFound(
-                _logger,
-                _user.Roles,
-                _user.Id,
-                nameof(GymEmployment));
-
-            throw new SystemException(ErrorMessages.AuthenticatedUserRelatedEntityNotFound(nameof(GymEmployment)));
-        }
+        Guard.Against.NullEntityRelatedToCurrentUser(gymEmployment, nameof(GymEmployment), _user.Id);
 
         var gym = await _context.Gyms.FindAsync(gymEmployment.GymId, cancellationToken);
 
-        Guard.Against.NotFound(gymEmployment.GymId!, gym, "Gym");
+        if (gym is null)
+        {
+            return Result.NotFound(nameof(Gym));
+        }
 
         gym.Name = command.GymName;
         gym.Address = command.GymAddress;
         gym.Tier = command.GymTier;
 
         await _context.SaveChangesAsync(cancellationToken);
+
+        return Result.Success();
     }
 }

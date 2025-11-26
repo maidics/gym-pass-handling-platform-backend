@@ -1,7 +1,6 @@
-﻿using FitPass.Application.Common.Exceptions;
-using FitPass.Application.Common.Extensions;
+﻿using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
-using FitPass.Application.Common.Logging;
+using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Security;
 using FitPass.Application.Requests.Commands;
 using FitPass.Application.Requests.DTOs;
@@ -9,13 +8,12 @@ using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
 using FitPass.Domain.Strings;
-using Microsoft.Extensions.Logging;
 
 namespace FitPass.Application.ApplicationUsers.Commands.RoleHandling;
 
 
 [Authorize(Roles = Roles.AppAdministrator)]
-public record PromotePendingGymEmployeeToGymAdminFromRequestCommand(string RequestId) : IRequest;
+public record PromotePendingGymEmployeeToGymAdminFromRequestCommand(string RequestId) : IRequest<Result>;
 
 public class PromotePendingGymEmployeeToGymAdminFromRequestCommandValidator : AbstractValidator<PromotePendingGymEmployeeToGymAdminFromRequestCommand>
 {
@@ -25,42 +23,42 @@ public class PromotePendingGymEmployeeToGymAdminFromRequestCommandValidator : Ab
     }
 }
 
-public class PromotePendingGymEmployeeToGymAdminFromRequestCommandHandler : IRequestHandler<PromotePendingGymEmployeeToGymAdminFromRequestCommand>
+public class PromotePendingGymEmployeeToGymAdminFromRequestCommandHandler : IRequestHandler<PromotePendingGymEmployeeToGymAdminFromRequestCommand, Result>
 {
     private readonly IApplicationDbContext _context;
     private readonly ISender _sender;
-    private readonly ILogger<PromotePendingGymEmployeeToGymAdminFromRequestCommand> _logger;
     private readonly IIdentityService _identityService;
     private readonly TimeProvider _timeProvider;
 
     public PromotePendingGymEmployeeToGymAdminFromRequestCommandHandler(
         IApplicationDbContext context,
         ISender sender,
-        ILogger<PromotePendingGymEmployeeToGymAdminFromRequestCommand> logger,
         IIdentityService identityService,
         TimeProvider timeProvider)
     {
         _context = context;
         _sender = sender;
-        _logger = logger;
         _identityService = identityService;
         _timeProvider = timeProvider;
     }
 
-    public async Task Handle(PromotePendingGymEmployeeToGymAdminFromRequestCommand command, CancellationToken cancellationToken)
+    public async Task<Result> Handle(PromotePendingGymEmployeeToGymAdminFromRequestCommand command, CancellationToken cancellationToken)
     {
         var request = await _context.Requests.FindAsync(command.RequestId);
 
-        Guard.Against.NotFound(command.RequestId, request);
+        if (request is null)
+        {
+            return Result.NotFound(nameof(Request));
+        }
 
         if (request.Status != RequestStatus.Submitted)
         {
-            throw new ForbiddenAccessException();
+            return Result.Forbidden();
         }
 
         if (request.Type != RequestType.GymCreation)
         {
-            throw new BadRequestException("Request is not of GymCreation type.");
+            return Result.BusinessRuleViolation("Request is not of GymCreation type.");
         }
 
         var deserializationResult = await _sender.Send(new DeserializeRequestPayloadCommand<GymAdminPromotionDto>(request));
@@ -72,19 +70,19 @@ public class PromotePendingGymEmployeeToGymAdminFromRequestCommandHandler : IReq
 
             await _context.SaveChangesAsync();
 
-            throw new ArgumentException("Failed to deserialize payload.");
+            return Result.InternalError("Failed to retrieve details from request.");
         }
 
         var promotionDto = deserializationResult.Value;
 
         if (!await _identityService.DoesUserExist(promotionDto.UserIdToNominate))
         {
-            throw new NotFoundException(promotionDto.UserIdToNominate, "PendingGymEmployee to promote.");
+            return Result.NotFound("User to promote");
         }
 
         if (!await _identityService.IsInRoleAsync(promotionDto.UserIdToNominate, Roles.PendingGymEmployee))
         {
-            throw new BadRequestException("User is not a PendingGymEmployee.");
+            return Result.BusinessRuleViolation("User is not a PendingGymEmployee.");
         }
 
         using var transaction = await _context.BeginTransactionAsync();
@@ -95,32 +93,18 @@ public class PromotePendingGymEmployeeToGymAdminFromRequestCommandHandler : IReq
 
             if (!demotionResult.Succeeded)
             {
-                LogErrorMessages.IdentityServiceMethodFailed(
-                    _logger,
-                    nameof(IIdentityService.RemoveFromRoleAsync),
-                    [Roles.PendingGymEmployee],
-                    promotionDto.UserIdToNominate,
-                    demotionResult);
-
                 await transaction.RollbackAsync();
 
-                throw new SystemException(ErrorMessages.FailedToHandleRole(Roles.PendingGymEmployee, false, demotionResult.Errors));
+                throw new Exception(ErrorMessages.FailedToHandleRole(Roles.PendingGymEmployee, false, demotionResult.Errors));
             }
 
             var promotionResult = await _identityService.AddToRoleAsync(promotionDto.UserIdToNominate, Roles.GymAdministrator);
 
             if (!promotionResult.Succeeded)
             {
-                LogErrorMessages.IdentityServiceMethodFailed(
-                    _logger,
-                    nameof(IIdentityService.AddToRoleAsync),
-                    [Roles.GymAdministrator],
-                    promotionDto.UserIdToNominate,
-                    promotionResult);
-
                 await transaction.RollbackAsync();
 
-                throw new SystemException(ErrorMessages.FailedToHandleRole(Roles.GymAdministrator, true, demotionResult.Errors));
+                throw new Exception(ErrorMessages.FailedToHandleRole(Roles.GymAdministrator, true, demotionResult.Errors));
             }
 
             var gymEmployment = new GymEmployment
@@ -138,14 +122,12 @@ public class PromotePendingGymEmployeeToGymAdminFromRequestCommandHandler : IReq
 
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();
-        } catch (Exception ex)
-        {
-            LogErrorMessages.UnhandledExceptionCaught(
-                _logger,
-                nameof(PromotePendingGymEmployeeToGymAdminFromRequestCommandHandler),
-                ex);
 
+            return Result.Success();
+        } catch
+        {
             await transaction.RollbackAsync();
+
             throw;
         }
     }

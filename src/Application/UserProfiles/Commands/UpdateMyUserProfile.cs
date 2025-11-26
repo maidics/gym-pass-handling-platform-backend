@@ -1,8 +1,9 @@
 using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
-using FitPass.Application.Common.Logging;
+using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Security;
 using FitPass.Domain.Constants;
+using FitPass.Domain.Entities;
 using FitPass.Domain.Strings;
 using Microsoft.Extensions.Logging;
 
@@ -28,32 +29,25 @@ public class UpdateMyUserProfileCommandHandler : IRequestHandler<UpdateMyUserPro
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
-    private readonly ILogger<UpdateMyUserProfileCommandHandler> _logger;
 
     public UpdateMyUserProfileCommandHandler(
         IApplicationDbContext context,
-        IUser user,
-        ILogger<UpdateMyUserProfileCommandHandler> logger)
+        IUser user)
     {
         _context = context;
         _user = user;
-        _logger = logger;
     }
     
-    public async Task Handle(UpdateMyUserProfileCommand command, CancellationToken cancellationToken) //TODO: test if this saves
+    public async Task Handle(UpdateMyUserProfileCommand command, CancellationToken cancellationToken)
     {
-        var userProfile = await _context
+        var profile = await _context
             .UserProfiles
             .FindAsync(_user.Id!);
 
-        if (userProfile == null)
-        {
-            LogCriticalMessages.AuthenticatedUserRelatedEntityNotFound(_logger, _user.Roles, _user.Id, nameof(userProfile));
-            throw new Exception(ErrorMessages.AuthenticatedUserRelatedEntityNotFound(nameof(userProfile)));
-        }
+        Guard.Against.NullEntityRelatedToCurrentUser(profile, nameof(UserProfile), _user.Id);
 
-        userProfile.FirstName = command.FirstName;
-        userProfile.LastName = command.LastName;
+        profile.FirstName = command.FirstName;
+        profile.LastName = command.LastName;
 
         await _context.SaveChangesAsync();
     }

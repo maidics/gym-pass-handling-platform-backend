@@ -1,7 +1,6 @@
 using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Interfaces.Payment;
-using FitPass.Application.Common.Logging;
 using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Security;
 using FitPass.Application.GymPassProducts.DTOs;
@@ -11,7 +10,6 @@ using FitPass.Domain.Entities.Payment;
 using FitPass.Domain.Enums;
 using FitPass.Domain.Strings;
 using FitPass.Domain.ValueObjects;
-using Microsoft.Extensions.Logging;
 
 namespace FitPass.Application.GymPassProducts.Commands;
 
@@ -76,21 +74,18 @@ public class CreateGymPassProductCommandHandler : IRequestHandler<CreateGymPassP
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
-    private readonly ILogger<CreateGymPassProductCommandHandler> _logger;
     private readonly IPaymentProductService _paymentProductService;
     private readonly IPaymentPriceService _paymentPriceService; 
 
     public CreateGymPassProductCommandHandler(
         IApplicationDbContext context,
         IUser user,
-        ILogger<CreateGymPassProductCommandHandler> logger,
         IPaymentProductService paymentProductService,
         IPaymentPriceService paymentPriceService
     )
     {
         _context = context;
         _user = user;
-        _logger = logger;
         _paymentProductService = paymentProductService;
         _paymentPriceService = paymentPriceService;
     }
@@ -108,16 +103,7 @@ public class CreateGymPassProductCommandHandler : IRequestHandler<CreateGymPassP
             .AsNoTracking()
             .FirstOrDefaultAsync(ge => ge.UserId != null && ge.UserId == _user.Id);
 
-        if (gymEmployment is null)
-        {
-            LogCriticalMessages.AuthenticatedUserRelatedEntityNotFound(
-                _logger,
-                _user.Roles,
-                _user.Id,
-                nameof(GymEmployment));
-
-            return Result.InternalError(ErrorMessages.AuthenticatedUserRelatedEntityNotFound(nameof(GymEmployment)));
-        }
+        Guard.Against.NullEntityRelatedToCurrentUser(gymEmployment, nameof(GymEmployment), _user.Id);
 
         //TODO: ensure atomicity
 

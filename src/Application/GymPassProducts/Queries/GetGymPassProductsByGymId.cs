@@ -2,6 +2,7 @@ using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Models;
 using FitPass.Application.GymPassProducts.DTOs;
+using FitPass.Domain.Entities;
 
 namespace FitPass.Application.GymPassProducts.Queries;
 
@@ -25,11 +26,16 @@ public class GetGymPassProductsByGymIdQueryHandler : IRequestHandler<GetGymPassP
     }
     public async Task<Result<List<GymPassProductDto>>> Handle(GetGymPassProductsByGymIdQuery query, CancellationToken cancellationToken)
     {
-        var products = await _context.GymPassProducts
+        var gym = await _context.Gyms
             .AsNoTracking()
-            .Where(gpp => gpp.GymId == query.GymId)
-            .ToListAsync();
+            .Include(g => g.PassProducts)
+            .FirstOrDefaultAsync(g => g.Id == query.GymId, cancellationToken);
 
-        return Result.Success(products.Select(p => p.MapToDto()).ToList());
+        if (gym is null)
+        {
+            return Result.NotFound(nameof(Gym));
+        }
+
+        return Result.Success(gym.PassProducts.Select(p => p.MapToDto()).ToList());
     }
 }

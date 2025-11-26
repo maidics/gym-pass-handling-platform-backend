@@ -1,13 +1,15 @@
 using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
+using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Security;
 using FitPass.Domain.Constants;
+using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
 
 namespace FitPass.Application.Gyms.Commands;
 
 [Authorize(Roles = Roles.AppAdministrator)]
-public record UpdateGymStatusCommand(string GymId, GymStatus NewGymStatus) : IRequest;
+public record UpdateGymStatusCommand(string GymId, GymStatus NewGymStatus) : IRequest<Result>;
 
 public class UpdateGymStatusCommandValidator : AbstractValidator<UpdateGymStatusCommand>
 {
@@ -20,7 +22,7 @@ public class UpdateGymStatusCommandValidator : AbstractValidator<UpdateGymStatus
     }
 }
 
-public class UpdateGymStatusCommandHandler : IRequestHandler<UpdateGymStatusCommand>
+public class UpdateGymStatusCommandHandler : IRequestHandler<UpdateGymStatusCommand, Result>
 {
     private readonly IApplicationDbContext _context;
 
@@ -29,14 +31,19 @@ public class UpdateGymStatusCommandHandler : IRequestHandler<UpdateGymStatusComm
         _context = context;
     }
 
-    public async Task Handle(UpdateGymStatusCommand command, CancellationToken cancellationToken)
+    public async Task<Result> Handle(UpdateGymStatusCommand command, CancellationToken cancellationToken)
     {
         var gym = await _context.Gyms.FindAsync(command.GymId, cancellationToken);
 
-        Guard.Against.NotFound(command.GymId, gym, "Gym");
+        if (gym is null)
+        {
+            return Result.NotFound(nameof(Gym));
+        }
 
         gym.Status = command.NewGymStatus;
 
         await _context.SaveChangesAsync(cancellationToken);
+
+        return Result.Success();
     }
 }

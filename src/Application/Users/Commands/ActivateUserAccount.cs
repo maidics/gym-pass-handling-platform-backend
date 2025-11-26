@@ -2,9 +2,9 @@ using FitPass.Application.Common.Exceptions;
 using FitPass.Application.ApplicationUsers.DTOs;
 using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
-using FitPass.Application.Common.Logging;
 using FitPass.Domain.Strings;
 using Microsoft.Extensions.Logging;
+using FitPass.Application.Common.Models;
 
 namespace FitPass.Application.ApplicationUsers.Commands;
 
@@ -13,7 +13,7 @@ public record ActivateUserAccountCommand(
     string EncodedEmailConfirmationToken,
     bool SetPassword,
     string? Password,
-    string? PasswordConfirm) : IRequest<JwtToken>;
+    string? PasswordConfirm) : IRequest<Result<JwtToken>>;
 
 public class ActivateUserAccountCommandValidator : AbstractValidator<ActivateUserAccountCommand>
 {
@@ -48,7 +48,7 @@ public class ActivateUserAccountCommandValidator : AbstractValidator<ActivateUse
     }
 }
 
-public class ActivateUserAccountCommandHandler : IRequestHandler<ActivateUserAccountCommand, JwtToken>
+public class ActivateUserAccountCommandHandler : IRequestHandler<ActivateUserAccountCommand, Result<JwtToken>>
 {
     private readonly IIdentityService _identityService;
     private readonly ILogger<ActivateUserAccountCommandHandler> _logger;
@@ -64,13 +64,16 @@ public class ActivateUserAccountCommandHandler : IRequestHandler<ActivateUserAcc
         _jwtTokenService = jwtTokenService;
     }
     
-    public async Task<JwtToken> Handle(ActivateUserAccountCommand command, CancellationToken cancellationToken)
+    public async Task<Result<JwtToken>> Handle(ActivateUserAccountCommand command, CancellationToken cancellationToken)
     {
         var email = Uri.UnescapeDataString(command.EncodedEmail);
 
         var userId = await _identityService.GetUserIdByEmailAsync(email);
 
-        Guard.Against.NotFound(email, userId, "User");
+        if (userId is null)
+        {
+            return Result.NotFound("User");
+        }
 
         var emailConfirmationToken = Uri.UnescapeDataString(command.EncodedEmailConfirmationToken);
 
@@ -78,19 +81,11 @@ public class ActivateUserAccountCommandHandler : IRequestHandler<ActivateUserAcc
 
         if (emailResult.IsResultFailureWithOneErrorMessage(ErrorMessages.TokenIsInvalid("Email confirmation")))
         {
-            throw new BadRequestException(string.Join(", ", emailResult.Errors));
+            return Result.BusinessRuleViolation("Invalid token.");
         }
 
         if (!emailResult.Succeeded)
         {
-            LogErrorMessages.IdentityServiceMethodFailed(
-                _logger,
-                nameof(IIdentityService.ConfirmEmailAsync),
-                null,
-                email,
-                emailResult
-            );
-
             throw new Exception(ErrorMessages.FailedToActiveAccount());
         }
 
@@ -98,36 +93,19 @@ public class ActivateUserAccountCommandHandler : IRequestHandler<ActivateUserAcc
         {
             var passwordResult = await _identityService.AddPasswordToUserWithNoPasswordAsync(email, command.Password!);
 
-            if (passwordResult.IsResultFailureWithOneErrorMessage(ErrorMessages.UserNotFound()))
-            {
-                throw new NotFoundException(email, "User");
-            }
-
             if (passwordResult.IsResultFailureWithOneErrorMessage(ResultErrorMessages.UserAlreadyHasPassword()))
             {
-                _logger.LogCritical(
-                    "Malformed request received for '{UserEmail}': User already has a password but the request attempted to set it,",
-                    email);
-                //logCritical here - not bad request, forbiddenaccess
-                throw new ForbiddenAccessException();
+                throw new Exception($"Malformed request received for '{email}': User already has a password but the request attempted to set it,");
             }
 
             if (!passwordResult.Succeeded)
             {
-                LogErrorMessages.IdentityServiceMethodFailed(
-                    _logger,
-                    nameof(IIdentityService.AddPasswordToUserWithNoPasswordAsync),
-                    null,
-                    email,
-                    passwordResult
-                );
-
                 throw new Exception("Failed to set password for user.");
             }
         }
 
         var token = await _jwtTokenService.GenerateTokenAsync(userId, CancellationToken.None);
 
-        return token;
+        return Result.Success(token);
     }
 }

@@ -1,9 +1,10 @@
 using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
+using FitPass.Application.Common.Models;
 
 namespace FitPass.Application.ApplicationUsers.Commands.Emails;
 
-public record RequestPasswordResetEmailCommand(string Email) : IRequest; 
+public record RequestPasswordResetEmailCommand(string Email) : IRequest<Result>; 
 
 public class RequestPasswordResetEmailCommandValidator : AbstractValidator<RequestPasswordResetEmailCommand>
 {
@@ -13,7 +14,7 @@ public class RequestPasswordResetEmailCommandValidator : AbstractValidator<Reque
     }
 }
 
-public class RequestPasswordResetEmailCommandHandler : IRequestHandler<RequestPasswordResetEmailCommand>
+public class RequestPasswordResetEmailCommandHandler : IRequestHandler<RequestPasswordResetEmailCommand, Result>
 {
     private readonly IIdentityService _identityService;
     private readonly IEmailService _emailService;
@@ -24,19 +25,24 @@ public class RequestPasswordResetEmailCommandHandler : IRequestHandler<RequestPa
         _emailService = emailService;
     }
 
-    public async Task Handle(RequestPasswordResetEmailCommand command, CancellationToken cancellationToken)
+    public async Task<Result> Handle(RequestPasswordResetEmailCommand command, CancellationToken cancellationToken)
     {
         var userId = await _identityService.GetUserIdByEmailAsync(command.Email);
 
         if (userId == null)
         {
-            return;
+            return Result.Success(); //the user will only receive the email if an account exists with an email but we're not letting the frontend know if it exists
         }
 
         var passwordResetToken = await _identityService.GeneratePasswordResetTokenAsync(userId);
 
-        gu
+        if (passwordResetToken is null)
+        {
+            return Result.InternalError("Failed to generate password reset email.");
+        }
 
         await _emailService.SendPasswordResetEmailAsync(command.Email, passwordResetToken, userId);
+
+        return Result.Success();
     }
 }

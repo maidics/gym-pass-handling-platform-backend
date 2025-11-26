@@ -2,14 +2,11 @@ using System.Text.Json;
 using FitPass.Application.Requests.DTOs;
 using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
-using FitPass.Application.Common.Logging;
 using FitPass.Application.Common.Security;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
-using FitPass.Domain.Strings;
-using Microsoft.Extensions.Logging;
-using FitPass.Application.Common.Exceptions;
+using FitPass.Application.Common.Models;
 
 namespace FitPass.Application.Requests.Commands;
 
@@ -20,7 +17,7 @@ public record CreateGymAdminPromotionRequestCommand
     string RequestDescription,
     PriorityLevel RequestPriorityLevel,
     string EscalationEmail
-) : IRequest;
+) : IRequest<Result<RequestDto>>;
 
 public class CreateGymAdminPromotionRequestCommandValidator : AbstractValidator<CreateGymAdminPromotionRequestCommand>
 {
@@ -35,50 +32,38 @@ public class CreateGymAdminPromotionRequestCommandValidator : AbstractValidator<
     }
 }
 
-public class CreateGymAdminPromotionRequestCommandHandler : IRequestHandler<CreateGymAdminPromotionRequestCommand>
+public class CreateGymAdminPromotionRequestCommandHandler : IRequestHandler<CreateGymAdminPromotionRequestCommand, Result<RequestDto>>
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
-    private readonly ILogger<CreateGymAdminPromotionRequestCommandHandler> _logger;
     private readonly IIdentityService _identityService;
 
     public CreateGymAdminPromotionRequestCommandHandler(
         IApplicationDbContext context, 
         IUser user,
-        ILogger<CreateGymAdminPromotionRequestCommandHandler> logger, 
         IIdentityService identityService)
     {
         _context = context;
         _user = user;
-        _logger = logger;
         _identityService = identityService;
     }
-    public async Task Handle(CreateGymAdminPromotionRequestCommand command, CancellationToken cancellationToken)
+    public async Task<Result<RequestDto>> Handle(CreateGymAdminPromotionRequestCommand command, CancellationToken cancellationToken)
     {
-        var requesterGymEmployment = await _context
+        var gymEmployment = await _context
             .GymEmployments
             .AsNoTracking()
             .FirstOrDefaultAsync(ge => ge.UserId != null && ge.UserId == _user.Id);
 
-        if (requesterGymEmployment == null)
-        {
-            LogCriticalMessages.AuthenticatedUserRelatedEntityNotFound(
-                _logger,
-                _user.Roles,
-                _user.Id,
-                nameof(GymEmployment));
-
-            throw new Exception(ErrorMessages.AuthenticatedUserRelatedEntityNotFound(nameof(GymEmployment)));
-        }
+        Guard.Against.NullEntityRelatedToCurrentUser(gymEmployment, nameof(GymEmployment), _user.Id);
 
         if (!await _identityService.DoesUserExist(command.UserIdToPromote))
         {
-            throw new NotFoundException(command.UserIdToPromote, "User to nominate");
+            return Result.NotFound("User to nominate");
         }
 
         if (!await _identityService.IsInRoleAsync(command.UserIdToPromote, Roles.PendingGymEmployee))
         {
-            throw new BadRequestException("User is not in PendingGymEmployee role.");
+            return Result.BusinessRuleViolation("User is not in PendingGymEmployee role.");
         }
 
         var request = new Request
@@ -90,7 +75,7 @@ public class CreateGymAdminPromotionRequestCommandHandler : IRequestHandler<Crea
             Type = RequestType.GymAdminPromotion,
             Payload = JsonSerializer.Serialize(new GymAdminPromotionDto
             {
-                GymId = requesterGymEmployment.GymId!,
+                GymId = gymEmployment.GymId!,
                 UserIdToNominate = command.UserIdToPromote,
                 EscalationEmail = command.EscalationEmail
             })
@@ -98,5 +83,7 @@ public class CreateGymAdminPromotionRequestCommandHandler : IRequestHandler<Crea
 
         await _context.Requests.AddAsync(request);
         await _context.SaveChangesAsync();
+
+        return Result.Success(request.MapToDto());
     }
 }

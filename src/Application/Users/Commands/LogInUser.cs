@@ -1,9 +1,8 @@
 using System.Security.Authentication;
-using FitPass.Application.Common.Exceptions;
 using FitPass.Application.ApplicationUsers.DTOs;
 using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
-using FitPass.Application.Common.Logging;
+using FitPass.Application.Common.Models;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Strings;
 using Microsoft.Extensions.Logging;
@@ -14,7 +13,7 @@ public record LogInUserCommand
     (
         string Email,
         string Password
-    ) : IRequest<JwtToken>;
+    ) : IRequest<Result<JwtToken>>;
 
 public class LogInUserCommandValidator : AbstractValidator<LogInUserCommand>
 {
@@ -30,48 +29,43 @@ public class LogInUserCommandValidator : AbstractValidator<LogInUserCommand>
     }
 }
 
-public class LogInUserCommandHandler : IRequestHandler<LogInUserCommand, JwtToken>
+public class LogInUserCommandHandler : IRequestHandler<LogInUserCommand, Result<JwtToken>>
 {
     private readonly IIdentityService _identityService;
     private readonly IJwtTokenService _jwtTokenService;
-    private readonly ILogger<LogInUserCommandHandler> _logger;
 
-    public LogInUserCommandHandler(IIdentityService identityService, IJwtTokenService jwtTokenService, ILogger<LogInUserCommandHandler> logger)
+    public LogInUserCommandHandler(
+        IIdentityService identityService, 
+        IJwtTokenService jwtTokenService)
     {
         _identityService = identityService;
         _jwtTokenService = jwtTokenService;
-        _logger = logger;
     }
-    public async Task<JwtToken> Handle(LogInUserCommand command, CancellationToken cancellationToken)
+    public async Task<Result<JwtToken>> Handle(LogInUserCommand command, CancellationToken cancellationToken)
     {
         var result = await _identityService.AuthenticateUserAsync(command.Email, command.Password, cancellationToken);
 
         if (result.IsResultFailureWithOneErrorMessage(ErrorMessages.UserAccountIsNotActivated()))
         {
-            throw new BadRequestException(ErrorMessages.UserAccountIsNotActivated());
+            return Result.BusinessRuleViolation(ErrorMessages.UserAccountIsNotActivated());
         }
 
         if (result.IsResultFailureWithOneErrorMessage(ErrorMessages.InvalidCredentials()))
         {
-            throw new InvalidCredentialException();
+            return Result.Unauthorized("Invalid credentials.");
         }
 
         if (!result.Succeeded)
         {
-            LogErrorMessages.IdentityServiceMethodFailed(_logger, nameof(IIdentityService.AuthenticateUserAsync), null, command.Email, result);
             throw new Exception("Failed to authenticate user.");
         }
 
         var userId = await _identityService.GetUserIdByEmailAsync(command.Email);
 
-        if (userId == null)
-        {
-            _logger.LogCritical("User authentication succeeded but failed to find user with '{UserEmail}' email after.", command.Email);
-            throw new Exception("User authentication succeeded but failed to find user with email after.");
-        }
+        Guard.Against.Null(userId, "user id", "User was authenticated but then not found after by email.");
 
         var jwtResponse = await _jwtTokenService.GenerateTokenAsync(userId, cancellationToken);
 
-        return jwtResponse;
+        return Result.Success(jwtResponse);
     }
 }

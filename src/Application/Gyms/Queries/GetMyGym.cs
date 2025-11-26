@@ -1,11 +1,10 @@
 using FitPass.Application.Gyms.DTOs;
 using FitPass.Application.Common.Interfaces;
-using FitPass.Application.Common.Logging;
 using FitPass.Application.Common.Security;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
-using FitPass.Domain.Strings;
 using Microsoft.Extensions.Logging;
+using FitPass.Application.Common.Extensions;
 
 namespace FitPass.Application.Gyms.Queries;
 
@@ -30,19 +29,14 @@ public class GetMyGymQueryHandler : IRequestHandler<GetMyGymQuery, GymDto>
             .AsNoTracking()
             .FirstOrDefaultAsync(gsa => gsa.UserId == _user.Id, cancellationToken);
 
-        if (gymEmployment == null)
-        {
-            LogCriticalMessages.AuthenticatedUserRelatedEntityNotFound(_logger, _user.Roles, _user.Id, nameof(GymEmployment));
-
-            throw new SystemException(ErrorMessages.AuthenticatedUserRelatedEntityNotFound(nameof(GymEmployment)));
-        }
+        Guard.Against.NullEntityRelatedToCurrentUser(gymEmployment, nameof(GymEmployment), _user.Id);
 
         var gym = await _context
             .Gyms
             .AsNoTracking()
             .FirstOrDefaultAsync(g => g.Id == gymEmployment.GymId, cancellationToken);
 
-        Guard.Against.Null(gym, "Id", "No gym found for authenticated gym employee.");
+        Guard.Against.NullEntityRelatedToCurrentUser(gym, "gym employee managed gym", _user.Id);
 
         return gym.MapToDto();
     }

@@ -1,12 +1,11 @@
+using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
-using FitPass.Application.Common.Logging;
 using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Security;
 using FitPass.Application.TenantPaymentProfiles.DTOs;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Entities.Payment;
-using FitPass.Domain.Strings;
 using Microsoft.Extensions.Logging;
 
 namespace FitPass.Application.TenantPaymentProfiles.Queries;
@@ -38,16 +37,7 @@ public class GetTenantPaymentProfileQueryHandler : IRequestHandler<GetTenantPaym
             .AsNoTracking()
             .FirstOrDefaultAsync(ge => ge.UserId == _user.Id);
 
-        if (gymEmployment is null)
-        {
-            LogCriticalMessages.AuthenticatedUserRelatedEntityNotFound(
-                _logger, 
-                _user.Roles, 
-                _user.Id, 
-                nameof(GymEmployment));
-
-            return Result.InternalError(ErrorMessages.AuthenticatedUserRelatedEntityNotFound(nameof(GymEmployment)));
-        }
+        Guard.Against.NullEntityRelatedToCurrentUser(gymEmployment, nameof(GymEmployment), _user.Id);
 
         var tenantPaymentProfile = await _context
             .TenantPaymentProfiles

@@ -1,12 +1,10 @@
-﻿using FitPass.Application.Common.Exceptions;
-using FitPass.Application.ApplicationUsers.DTOs;
+﻿using FitPass.Application.ApplicationUsers.DTOs;
 using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
-using FitPass.Application.Common.Logging;
+using FitPass.Application.Common.Models;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Strings;
-using Microsoft.Extensions.Logging;
 
 namespace FitPass.Application.ApplicationUsers.Commands;
 
@@ -17,7 +15,7 @@ public record RegisterPendingGymEmployeeCommand
         string Email,
         string Password,
         string PasswordConfirm
-    ): IRequest<JwtToken>;
+    ): IRequest<Result<JwtToken>>;
 
 public class RegisterPendingGymEmployeeCommandValidator : AbstractValidator<RegisterPendingGymEmployeeCommand>
 {
@@ -37,29 +35,26 @@ public class RegisterPendingGymEmployeeCommandValidator : AbstractValidator<Regi
     }
 }
 
-public class RegisterPendingGymEmployeeCommandHandler : IRequestHandler<RegisterPendingGymEmployeeCommand, JwtToken>
+public class RegisterPendingGymEmployeeCommandHandler : IRequestHandler<RegisterPendingGymEmployeeCommand, Result<JwtToken>>
 {
     private readonly IIdentityService _identityService;
     private readonly IJwtTokenService _jwtTokenService;
     private readonly IApplicationDbContext _context;
-    private readonly ILogger<RegisterPendingGymEmployeeCommand> _logger;
 
     public RegisterPendingGymEmployeeCommandHandler(
         IIdentityService identityService,
         IJwtTokenService jwtTokenService,
-        IApplicationDbContext context,
-        ILogger<RegisterPendingGymEmployeeCommand> logger)
+        IApplicationDbContext context)
     {
         _identityService = identityService;
         _jwtTokenService = jwtTokenService;
         _context = context;
-        _logger = logger;
     }
-    public async Task<JwtToken> Handle(RegisterPendingGymEmployeeCommand command, CancellationToken cancellationToken)
+    public async Task<Result<JwtToken>> Handle(RegisterPendingGymEmployeeCommand command, CancellationToken cancellationToken)
     {
         if (await _identityService.IsEmailInUseAsync(command.Email))
         {
-            throw new ConflictException(nameof(RegisterPendingGymEmployeeCommand.Email));
+            return Result.Conflict("Email");
         }
 
         using var transaction = await _context.BeginTransactionAsync();
@@ -74,9 +69,7 @@ public class RegisterPendingGymEmployeeCommandHandler : IRequestHandler<Register
             {
                 await transaction.RollbackAsync();
 
-                LogErrorMessages.IdentityServiceMethodFailed(_logger, nameof(_identityService.CreateUserAsync), [Roles.PendingGymEmployee], resultObj.userId, resultObj.result);
-
-                throw new BadRequestException(string.Join(", ", resultObj.result.Errors));
+                return Result.BusinessRuleViolation(string.Join(", ", resultObj.result.Errors));
             }
 
             userId = resultObj.userId!;
@@ -87,9 +80,7 @@ public class RegisterPendingGymEmployeeCommandHandler : IRequestHandler<Register
             {
                 await transaction.RollbackAsync();
 
-                LogErrorMessages.IdentityServiceMethodFailed(_logger, nameof(_identityService.AddToRoleAsync), [Roles.PendingGymEmployee], userId, roleResult);
-
-                throw new Exception(string.Join(", ", roleResult.Errors));
+                throw new Exception(ErrorMessages.FailedToHandleRole(Roles.PendingGymEmployee, true, roleResult.Errors));
             }
 
             var userProfile = new UserProfile
@@ -103,10 +94,8 @@ public class RegisterPendingGymEmployeeCommandHandler : IRequestHandler<Register
 
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();
-        } catch (Exception ex)
+        } catch
         {
-            LogErrorMessages.UnhandledExceptionCaught(_logger, nameof(RegisterPendingGymEmployeeCommandHandler), ex);
-
             await transaction.RollbackAsync();
 
             throw;
@@ -114,6 +103,6 @@ public class RegisterPendingGymEmployeeCommandHandler : IRequestHandler<Register
 
         var token = await _jwtTokenService.GenerateTokenAsync(userId, cancellationToken);
 
-        return token;
+        return Result.Success(token);
     }
 }

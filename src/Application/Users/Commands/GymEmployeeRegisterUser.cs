@@ -1,19 +1,17 @@
-using FitPass.Application.Common.Exceptions;
 using FitPass.Application.ApplicationUsers.Commands.Emails;
 using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
-using FitPass.Application.Common.Logging;
+using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Security;
 using FitPass.Application.GymMemberships.DTOs;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Strings;
-using Microsoft.Extensions.Logging;
 
 namespace FitPass.Application.ApplicationUsers.Commands;
 
 [Authorize(Roles = $"{Roles.GymAdministrator},{Roles.GymStaff}")]
-public record GymEmployeeRegisterUserCommand(string Email, string FirstName, string LastName) : IRequest<GymMembershipDto>;
+public record GymEmployeeRegisterUserCommand(string Email, string FirstName, string LastName) : IRequest<Result<GymMembershipDto>>;
 
 public class GymEmployeeRegisterUserCommandValidator : AbstractValidator<GymEmployeeRegisterUserCommand>
 {
@@ -27,28 +25,25 @@ public class GymEmployeeRegisterUserCommandValidator : AbstractValidator<GymEmpl
     }
 }
 
-public class GymEmployeeRegisterUserCommandHandler : IRequestHandler<GymEmployeeRegisterUserCommand, GymMembershipDto>
+public class GymEmployeeRegisterUserCommandHandler : IRequestHandler<GymEmployeeRegisterUserCommand, Result<GymMembershipDto>>
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
-    private readonly ILogger<GymEmployeeRegisterUserCommand> _logger;
     private readonly IIdentityService _identityService;
     private readonly ISender _sender;
 
     public GymEmployeeRegisterUserCommandHandler(
         IApplicationDbContext context,
         IUser user,
-        ILogger<GymEmployeeRegisterUserCommand> logger,
         IIdentityService identityService,
         ISender sender)
     {
         _context = context;
         _user = user;
-        _logger = logger;
         _identityService = identityService;
         _sender = sender;
     }
-    public async Task<GymMembershipDto> Handle(GymEmployeeRegisterUserCommand command, CancellationToken cancellationToken)
+    public async Task<Result<GymMembershipDto>> Handle(GymEmployeeRegisterUserCommand command, CancellationToken cancellationToken)
     {
         var gymEmployment = await _context
             .GymEmployments
@@ -57,13 +52,12 @@ public class GymEmployeeRegisterUserCommandHandler : IRequestHandler<GymEmployee
 
         if (gymEmployment == null)
         {
-            LogCriticalMessages.AuthenticatedUserRelatedEntityNotFound(_logger, _user.Roles, _user.Id, nameof(GymEmployment));
             throw new Exception(ErrorMessages.AuthenticatedUserRelatedEntityNotFound(nameof(GymEmployment)));
         }
 
         if (await _identityService.IsEmailInUseAsync(command.Email))
         {
-            throw new ConflictException(nameof(GymEmployeeRegisterUserCommand.Email));
+            return Result.Conflict("Email");
         }
 
         using var transaction = await _context.BeginTransactionAsync();
@@ -76,14 +70,7 @@ public class GymEmployeeRegisterUserCommandHandler : IRequestHandler<GymEmployee
             {
                 await transaction.RollbackAsync();
 
-                LogErrorMessages.IdentityServiceMethodFailed(
-                    _logger,
-                    nameof(IIdentityService.CreateUserAsync),
-                    null,
-                    _user.Id,
-                    creationResultObj.result);
-
-                throw new Exception($"User creation failed: {string.Join(", ", creationResultObj.result.Errors)}");
+                throw new Exception("Failed to create user.");
             }
 
             var roleResult = await _identityService.AddToRoleAsync(creationResultObj.userId!, Roles.User);
@@ -91,13 +78,6 @@ public class GymEmployeeRegisterUserCommandHandler : IRequestHandler<GymEmployee
             if (!roleResult.Succeeded)
             {
                 await transaction.RollbackAsync();
-
-                LogErrorMessages.IdentityServiceMethodFailed(
-                    _logger,
-                    nameof(IIdentityService.AddToRoleAsync),
-                    null,
-                    creationResultObj.userId,
-                    roleResult);
 
                 throw new Exception(ErrorMessages.FailedToHandleRole(Roles.User, true, roleResult.Errors));
             }
@@ -124,12 +104,10 @@ public class GymEmployeeRegisterUserCommandHandler : IRequestHandler<GymEmployee
 
             await _sender.Send(new SendEmailConfirmationEmailCommand(command.Email)); //fire and forget?
 
-            return gymMembership.MapToDto();
-        } catch (Exception ex)
+            return Result.Success(gymMembership.MapToDto());
+        } catch
         {
             await transaction.RollbackAsync();
-
-            LogErrorMessages.UnhandledExceptionCaught(_logger, nameof(GymEmployeeRegisterUserCommand), ex);
 
             throw;
         }

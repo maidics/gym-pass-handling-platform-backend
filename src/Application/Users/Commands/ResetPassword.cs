@@ -1,8 +1,7 @@
 using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
-using FitPass.Application.Common.Logging;
+using FitPass.Application.Common.Models;
 using FitPass.Domain.Strings;
-using Microsoft.Extensions.Logging;
 
 namespace FitPass.Application.ApplicationUsers.Commands;
 
@@ -11,7 +10,7 @@ public record ResetPasswordCommand(
     string EncodedPasswordResetToken,
     string NewPassword,
     string NewPasswordConfirm
-) : IRequest;
+) : IRequest<Result>;
 
 public class ResetPasswordCommandValidator : AbstractValidator<ResetPasswordCommand>
 {
@@ -30,39 +29,27 @@ public class ResetPasswordCommandValidator : AbstractValidator<ResetPasswordComm
     }
 }
 
-public class ResetPasswordCommandHandler : IRequestHandler<ResetPasswordCommand>
+public class ResetPasswordCommandHandler : IRequestHandler<ResetPasswordCommand, Result>
 {
     private readonly IIdentityService _identityService;
-    private readonly ILogger<ResetPasswordCommandHandler> _logger;
 
-    public ResetPasswordCommandHandler(IIdentityService identityService, ILogger<ResetPasswordCommandHandler> logger)
+    public ResetPasswordCommandHandler(IIdentityService identityService)
     {
         _identityService = identityService;
-        _logger = logger;
     }
 
-    public async Task Handle(ResetPasswordCommand command, CancellationToken cancellationToken)
+    public async Task<Result> Handle(ResetPasswordCommand command, CancellationToken cancellationToken)
     {
         var userId = Uri.UnescapeDataString(command.EncodedUserId);
         var passwordResetToken = Uri.UnescapeDataString(command.EncodedPasswordResetToken);
 
         var result = await _identityService.ResetPasswordAsync(userId, passwordResetToken, command.NewPassword);
 
-        if (result.IsResultFailureWithOneErrorMessage(ErrorMessages.UserNotFound()))
-        {
-            throw new NotFoundException(userId, "User");
+        if (!result.Succeeded)
+        {              
+            return result;
         }
 
-        if (!result.Succeeded)
-        {
-            LogErrorMessages.IdentityServiceMethodFailed(
-                _logger,
-                nameof(IIdentityService.ResetPasswordAsync),
-                null,
-                userId,
-                result);
-                
-            throw new InvalidOperationException("Password reset returned with failure.");
-        }
+        return Result.Success();
     }
 }

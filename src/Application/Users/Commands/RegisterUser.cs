@@ -2,11 +2,10 @@ using FitPass.Application.Common.Exceptions;
 using FitPass.Application.ApplicationUsers.DTOs;
 using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
-using FitPass.Application.Common.Logging;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Strings;
-using Microsoft.Extensions.Logging;
+using FitPass.Application.Common.Models;
 
 namespace FitPass.Application.ApplicationUsers.Commands;
 
@@ -17,7 +16,7 @@ public record RegisterUserCommand
         string Email,
         string Password,
         string PasswordConfirm
-    ) : IRequest<JwtToken>;
+    ) : IRequest<Result<JwtToken>>;
 
 public class RegisterUserCommandValidator : AbstractValidator<RegisterUserCommand>
 {
@@ -37,29 +36,26 @@ public class RegisterUserCommandValidator : AbstractValidator<RegisterUserComman
     }
 }
 
-public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, JwtToken>
+public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, Result<JwtToken>>
 {
     private readonly IIdentityService _identityService;
     private readonly IApplicationDbContext _context;
     private readonly IJwtTokenService _jwtTokenService;
-    private readonly ILogger<RegisterUserCommand> _logger;
 
     public RegisterUserCommandHandler(
         IIdentityService identityService,
         IApplicationDbContext context,
-        IJwtTokenService jwtTokenService,
-        ILogger<RegisterUserCommand> logger)
+        IJwtTokenService jwtTokenService)
     {
         _identityService = identityService;
         _context = context;
         _jwtTokenService = jwtTokenService;
-        _logger = logger;
     }
-    public async Task<JwtToken> Handle(RegisterUserCommand command, CancellationToken cancellationToken)
+    public async Task<Result<JwtToken>> Handle(RegisterUserCommand command, CancellationToken cancellationToken)
     {
         if (await _identityService.IsEmailInUseAsync(command.Email))
         {
-            throw new ConflictException(ErrorMessages.PropertyIsAlreadyInUse(nameof(RegisterUserCommand.Email)));
+            return Result.Conflict("Email");
         }
 
         string userId;
@@ -74,9 +70,7 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, J
             {
                 await transaction.RollbackAsync();
 
-                LogErrorMessages.IdentityServiceMethodFailed(_logger, nameof(IIdentityService.CreateUserAsync), [Roles.User], command.Email, userCreationResultObj.result);
-
-                throw new BadRequestException(string.Join(", ", userCreationResultObj.result.Errors));
+                return new ResultFailure(userCreationResultObj.result);
             }
 
             userId = userCreationResultObj.userId!;
@@ -86,8 +80,6 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, J
             if (!roleResult.Succeeded)
             {
                 await transaction.RollbackAsync();
-
-                LogErrorMessages.IdentityServiceMethodFailed(_logger, nameof(IIdentityService.AddToRoleAsync), [Roles.User], userId, roleResult);
 
                 throw new Exception(ErrorMessages.FailedToHandleRole(Roles.User, true, roleResult.Errors));
             }
@@ -105,24 +97,15 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, J
 
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();
-        } catch (Exception ex)
+        } catch
         {
             await transaction.RollbackAsync();
-
-            /*
-            if (ex.IsStripeServiceException())
-            {
-                throw;
-            }
-            */
-
-            LogErrorMessages.UnhandledExceptionCaught(_logger, nameof(RegisterUserCommandHandler), ex);
 
             throw;
         }
 
         var jwtResponse = await _jwtTokenService.GenerateTokenAsync(userId, cancellationToken);
 
-        return jwtResponse;
+        return Result.Success(jwtResponse);
     }
 }

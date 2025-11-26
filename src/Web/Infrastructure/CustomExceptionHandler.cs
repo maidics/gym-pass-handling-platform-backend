@@ -1,6 +1,4 @@
-﻿using System.Security.Authentication;
-using System.Text.Json;
-using FitPass.Application.Common.Exceptions;
+﻿using FitPass.Application.Common.Exceptions;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 
@@ -84,70 +82,6 @@ public class CustomExceptionHandler : IExceptionHandler
             Status = StatusCodes.Status403Forbidden,
             Title = "Forbidden",
             Type = "https://tools.ietf.org/html/rfc7231#section-6.5.3"
-        });
-    }
-
-    private async Task HandleConflictException(HttpContext httpContext, Exception ex)
-    {
-        httpContext.Response.StatusCode = StatusCodes.Status409Conflict;
-
-        await httpContext.Response.WriteAsJsonAsync(new ProblemDetails
-        {
-            Status = StatusCodes.Status409Conflict,
-            Title = "Conflict",
-            Type = "https://tools.ietf.org/html/rfc7231#section-6.5.8",
-            Detail = ex.Message
-        });
-    }
-
-    private async Task HandleBadRequestException(HttpContext httpContext, Exception ex)
-    {
-        httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
-
-        await httpContext.Response.WriteAsJsonAsync(new ProblemDetails
-        {
-            Status = StatusCodes.Status400BadRequest,
-            Title = "Bad Request",
-            Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1",
-            Detail = ex.Message
-        });
-    }
-
-    private async Task HandlePaymentRequiredException(HttpContext httpContext, Exception ex)
-    {
-        httpContext.Response.StatusCode = StatusCodes.Status402PaymentRequired;
-
-        await httpContext.Response.WriteAsJsonAsync(new ProblemDetails
-        {
-            Status = StatusCodes.Status402PaymentRequired,
-            Title = "Payment required",
-            Type = "https://datatracker.ietf.org/doc/html/rfc7231#section-6.5.2",
-            Detail = ex.Message
-        });
-    }
-
-    private async Task HandleServiceUnavailableException(HttpContext httpContext, Exception ex)
-    {
-        httpContext.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
-
-        await httpContext.Response.WriteAsJsonAsync(new ProblemDetails
-        {
-            Status = StatusCodes.Status503ServiceUnavailable,
-            Title = "Service unavailable",
-            Type = "https://datatracker.ietf.org/doc/html/rfc7231#section-6.6.4",
-            Detail = ex.Message
-        });
-    }
-
-    private async Task HandleInvalidCredentialException(HttpContext httpContext, Exception ex)
-    {
-        httpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
-
-        await httpContext.Response.WriteAsJsonAsync(new ProblemDetails
-        {
-            Status = StatusCodes.Status401Unauthorized,
-            Title = "Invalid credentials",
-            Type = "https://tools.ietf.org/html/rfc7235#section-3.1"
         });
     }
 }

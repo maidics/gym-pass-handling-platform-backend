@@ -1,14 +1,12 @@
 using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Interfaces.Payment;
-using FitPass.Application.Common.Logging;
 using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Security;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Strings;
 using FitPass.Domain.ValueObjects;
-using Microsoft.Extensions.Logging;
 
 namespace FitPass.Application.GymPassProducts.Commands;
 
@@ -56,7 +54,6 @@ public class UpdateGymPassProductCommandHandler : IRequestHandler<UpdateGymPassP
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
-    private readonly ILogger<UpdateGymPassProductCommandHandler> _logger;
     private readonly IPaymentPriceService _paymentPriceService;
     private readonly IPaymentProductService _paymentProductService;
     private readonly TimeProvider _timeProvider;
@@ -64,7 +61,6 @@ public class UpdateGymPassProductCommandHandler : IRequestHandler<UpdateGymPassP
     public UpdateGymPassProductCommandHandler(
         IApplicationDbContext context,
         IUser user,
-        ILogger<UpdateGymPassProductCommandHandler> logger,
         IPaymentPriceService paymentPriceService,
         IPaymentProductService paymentProductService,
         TimeProvider timeProvider
@@ -72,7 +68,6 @@ public class UpdateGymPassProductCommandHandler : IRequestHandler<UpdateGymPassP
     {
         _context = context;
         _user = user;
-        _logger = logger;
         _paymentPriceService = paymentPriceService;
         _paymentProductService = paymentProductService;
         _timeProvider = timeProvider;
@@ -91,16 +86,7 @@ public class UpdateGymPassProductCommandHandler : IRequestHandler<UpdateGymPassP
             .AsNoTracking()
             .FirstOrDefaultAsync(ge => ge.UserId != null && ge.UserId == _user.Id);
 
-        if (gymEmployment is null)
-        {
-            LogCriticalMessages.AuthenticatedUserRelatedEntityNotFound(
-                _logger,
-                _user.Roles,
-                _user.Id,
-                nameof(GymEmployment));
-
-            return Result.InternalError(ErrorMessages.AuthenticatedUserRelatedEntityNotFound(nameof(GymEmployment)));
-        }
+        Guard.Against.NullEntityRelatedToCurrentUser(gymEmployment, nameof(GymEmployment), _user.Id);
 
         var product = await _context.GymPassProducts
             .Include(gpp => gpp.PaymentIdentity)

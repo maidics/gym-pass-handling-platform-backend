@@ -1,15 +1,11 @@
-using FitPass.Application.Common.Exceptions;
 using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Interfaces.Payment;
-using FitPass.Application.Common.Logging;
 using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Security;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Entities.Payment;
-using FitPass.Domain.Strings;
-using Microsoft.Extensions.Logging;
 
 namespace FitPass.Application.TenantPaymentProfiles.Commands;
 
@@ -33,18 +29,15 @@ public class CreateTenantPaymentProfileCommandHandler : IRequestHandler<CreateTe
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
-    private readonly ILogger<CreateTenantPaymentProfileCommandHandler> _logger;
     private readonly IPaymentTenantService _paymentTenantService;
 
     public CreateTenantPaymentProfileCommandHandler(
         IApplicationDbContext context,
         IUser user,
-        ILogger<CreateTenantPaymentProfileCommandHandler> logger,
         IPaymentTenantService paymentTenantService)
     {
         _context = context;
         _user = user;
-        _logger = logger;
         _paymentTenantService = paymentTenantService;
     }
 
@@ -55,16 +48,7 @@ public class CreateTenantPaymentProfileCommandHandler : IRequestHandler<CreateTe
             .AsNoTracking()
             .FirstOrDefaultAsync(ge => ge.UserId == _user.Id);
 
-        if (gymEmployment is null)
-        {
-            LogCriticalMessages.AuthenticatedUserRelatedEntityNotFound(
-                _logger,
-                _user.Roles,
-                _user.Id,
-                nameof(GymEmployment));
-
-            throw new SystemException(ErrorMessages.AuthenticatedUserRelatedEntityNotFound(nameof(GymEmployment)));
-        }
+        Guard.Against.NullEntityRelatedToCurrentUser(gymEmployment, nameof(GymEmployment), _user.Id);
 
         var paymentProfile = await _context
             .TenantPaymentProfiles
@@ -72,25 +56,25 @@ public class CreateTenantPaymentProfileCommandHandler : IRequestHandler<CreateTe
 
         if (paymentProfile is not null)
         {
-            throw new ForbiddenAccessException();
+            return Result.Forbidden("Payment profile already exists.");
         }
 
-        var creationResult = await _paymentTenantService
+        var result = await _paymentTenantService
             .CreateTenantAccount(gymEmployment.GymId, command.PaymentAccountHolderEmail, command.BusinessName);
 
-        if (!creationResult.Succeeded)
+        if (!result.Succeeded)
         {
-            return creationResult.ToFailure<(string url, DateTimeOffset expirationDateTime)>();
+            return result.ToFailure<(string url, DateTimeOffset expirationDateTime)>();
         }
 
         paymentProfile = new TenantPaymentProfile
         {
             GymId = gymEmployment.GymId,
-            TenantPaymentAccountId = creationResult.Value
+            TenantPaymentAccountId = result.Value
         };
 
         await _context.TenantPaymentProfiles.AddAsync(paymentProfile);
 
-        return await _paymentTenantService.GenerateAccountLinkAsync(creationResult.Value, true);
+        return await _paymentTenantService.GenerateAccountLinkAsync(result.Value, true);
     }
 }

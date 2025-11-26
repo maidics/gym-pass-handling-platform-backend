@@ -1,17 +1,15 @@
 using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
-using FitPass.Application.Common.Logging;
+using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Security;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
-using FitPass.Domain.Strings;
-using Microsoft.Extensions.Logging;
 
 namespace FitPass.Application.Gyms.Commands;
 
 [Authorize(Roles = Roles.GymAdministrator)]
-public record UpdateMyGymStatusCommand(GymStatus NewGymStatus) : IRequest;
+public record UpdateMyGymStatusCommand(GymStatus NewGymStatus) : IRequest<Result>;
 
 public class UpdateMyGymStatusCommandValidator : AbstractValidator<UpdateMyGymStatusCommand>
 {
@@ -22,44 +20,41 @@ public class UpdateMyGymStatusCommandValidator : AbstractValidator<UpdateMyGymSt
     }
 }
 
-public class UpdateMyGymStatusCommandHandler : IRequestHandler<UpdateMyGymStatusCommand>
+public class UpdateMyGymStatusCommandHandler : IRequestHandler<UpdateMyGymStatusCommand, Result>
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
-    private readonly ILogger<UpdateMyGymStatusCommandHandler> _logger;
 
-    public UpdateMyGymStatusCommandHandler(IApplicationDbContext context, IUser user, ILogger<UpdateMyGymStatusCommandHandler> logger)
+    public UpdateMyGymStatusCommandHandler(
+        IApplicationDbContext context, 
+        IUser user)
     {
         _context = context;
         _user = user;
-        _logger = logger;
     }
-    public async Task Handle(UpdateMyGymStatusCommand command, CancellationToken cancellationToken)
+    public async Task<Result> Handle(UpdateMyGymStatusCommand command, CancellationToken cancellationToken)
     {
         var gymEmployment = await _context.GymEmployments
             .AsNoTracking()
             .FirstOrDefaultAsync(gsa => gsa.UserId == _user.Id, cancellationToken);
 
-        if (gymEmployment == null)
-        {
-            LogCriticalMessages.AuthenticatedUserRelatedEntityNotFound(_logger, _user.Roles, _user.Id, nameof(GymEmployment));
-
-            throw new Exception(ErrorMessages.AuthenticatedUserRelatedEntityNotFound(nameof(GymEmployment)));
-        }
+        Guard.Against.NullEntityRelatedToCurrentUser(gymEmployment, nameof(GymEmployment), _user.Id);
 
         var gym = await _context
             .Gyms
             .FindAsync(gymEmployment.GymId, cancellationToken);
 
-        Guard.Against.Null(gym, "Id", "Failed to find Gym Admin's managed gym.");
+        Guard.Against.NullEntityRelatedToCurrentUser(gym, "gym employee managed gym", _user.Id);
 
         if (gym.Status == command.NewGymStatus)
         {
-            return;
+            return Result.Success();
         }
 
         gym.Status = command.NewGymStatus;
 
         await _context.SaveChangesAsync();
+
+        return Result.Success();
     }
 }

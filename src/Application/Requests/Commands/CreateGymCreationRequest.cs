@@ -1,7 +1,7 @@
 using System.Text.Json;
-using FitPass.Application.Common.Exceptions;
 using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
+using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Security;
 using FitPass.Application.Requests.DTOs;
 using FitPass.Domain.Constants;
@@ -15,7 +15,7 @@ public record CreateGymCreationRequestCommand(
     string RequestDescription,
     PriorityLevel PriorityLevel,
     CreateGymDto CreateGymDto
-) : IRequest;
+) : IRequest<Result<RequestDto>>;
 
 public class CreateGymCreationRequestCommandValidator : AbstractValidator<CreateGymCreationRequestCommand>
 {
@@ -35,7 +35,7 @@ public class CreateGymCreationRequestCommandValidator : AbstractValidator<Create
     }
 }
 
-public class CreateGymCreationRequestCommandHandler : IRequestHandler<CreateGymCreationRequestCommand>
+public class CreateGymCreationRequestCommandHandler : IRequestHandler<CreateGymCreationRequestCommand, Result<RequestDto>>
 {
     private readonly IIdentityService _identityService;
     private readonly IApplicationDbContext _context;
@@ -51,11 +51,11 @@ public class CreateGymCreationRequestCommandHandler : IRequestHandler<CreateGymC
         _user = user;
     }
 
-    public async Task Handle(CreateGymCreationRequestCommand command, CancellationToken cancellationToken)
+    public async Task<Result<RequestDto>> Handle(CreateGymCreationRequestCommand command, CancellationToken cancellationToken)
     {
         if (!await _identityService.IsUserEmailConfirmed(_user.Id!))
         {
-            throw new BadRequestException("You must confirm your email before this action.");
+            return Result.BusinessRuleViolation("You must confirm your email before this action.");
         }
 
         var ongoingRequests = await _context.Requests
@@ -64,12 +64,12 @@ public class CreateGymCreationRequestCommandHandler : IRequestHandler<CreateGymC
 
         if (ongoingRequests.Count > 0)
         {
-            throw new BadRequestException("You already have an ongoing gym creation request.");
+            return Result.BusinessRuleViolation("You already have an ongoing gym creation request.");
         }
 
         //TODO: add validations here
 
-        var gymCreationRequest = new Request
+        var request = new Request
         {
             Id = Guid.NewGuid().ToString(),
             Title = "Gym creation",
@@ -79,8 +79,10 @@ public class CreateGymCreationRequestCommandHandler : IRequestHandler<CreateGymC
             Payload = JsonSerializer.Serialize(command.CreateGymDto),
         };
 
-        await _context.Requests.AddAsync(gymCreationRequest);
+        await _context.Requests.AddAsync(request);
 
         await _context.SaveChangesAsync();
+
+        return Result.Success(request.MapToDto());
     }
 }

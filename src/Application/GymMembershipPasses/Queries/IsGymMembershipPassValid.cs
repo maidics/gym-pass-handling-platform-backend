@@ -3,6 +3,7 @@ using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Security;
 using FitPass.Domain.Constants;
+using FitPass.Domain.Entities;
 
 namespace FitPass.Application.GymMembershipPasses.Queries;
 
@@ -39,7 +40,7 @@ public class IsGymMembershipPassValidQueryHandler : IRequestHandler<IsGymMembers
 
         if (pass is null)
         {
-            return Result.NotFound("Pass not found.");
+            return Result.NotFound(nameof(GymPassProduct));
         }
 
         return Result.Success(!pass.IsExpired(_timeProvider.GetUtcNow()) && !pass.HasNoUsesLeft());

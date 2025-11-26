@@ -1,4 +1,6 @@
-﻿namespace FitPass.Application.Common.Exceptions;
+using System;
+
+namespace FitPass.Application.Common.Exceptions;
 
 public class ForbiddenAccessException : Exception
 {
