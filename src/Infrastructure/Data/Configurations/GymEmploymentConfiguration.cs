@@ -13,14 +13,12 @@ public class GymEmploymentConfiguration : IEntityTypeConfiguration<GymEmployment
         builder
             .HasOne<ApplicationUser>()
             .WithOne()
-            .HasForeignKey<GymEmployment>(ge => ge.UserId)
-            .OnDelete(DeleteBehavior.SetNull);
+            .HasForeignKey<GymEmployment>(ge => ge.UserId);
 
         builder
             .HasOne(ge => ge.Gym)
             .WithMany()
-            .HasForeignKey(ge => ge.GymId)
-            .OnDelete(DeleteBehavior.SetNull);
+            .HasForeignKey(ge => ge.GymId);
 
         builder.Property(gsa => gsa.EscalationEmail).HasMaxLength(MaxStringLengths.Email);
     }
