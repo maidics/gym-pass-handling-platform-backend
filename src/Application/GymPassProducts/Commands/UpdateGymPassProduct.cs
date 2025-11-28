@@ -118,7 +118,13 @@ public class UpdateGymPassProductCommandHandler : IRequestHandler<UpdateGymPassP
                 return result;
             }
 
-            product.PaymentIdentity.ArchivedPaymentProviderPriceIds.Add(product.PaymentIdentity.PriceId, _timeProvider.GetUtcNow());
+            product.PaymentIdentity.ArchivedPaymentProviderPrices.Add(
+                new ArchivedPaymentProviderPrice 
+                { 
+                    Id = product.PaymentIdentity.PriceId, 
+                    ArchivedOn = _timeProvider.GetUtcNow() 
+                });
+
             product.Price = command.Price;
             product.PaymentIdentity.PriceId = result.Value;
         }

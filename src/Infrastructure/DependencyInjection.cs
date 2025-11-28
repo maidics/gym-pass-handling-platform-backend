@@ -73,19 +73,6 @@ public static class DependencyInjection
 
         builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection(ConfigurationSections.Stripe));
 
-        builder.Services.AddScoped<CustomerService>();
-        builder.Services.AddScoped<ProductService>();
-        builder.Services.AddScoped<PriceService>();
-
-        /*
-        builder.Services.AddScoped<IStripeCustomerService, StripeCustomerService>();
-        builder.Services.AddScoped<IStripeProductService, StripeProductService>();
-        builder.Services.AddScoped<IStripePriceService, StripePriceService>();
-        */
-
-        builder.Services.AddScoped<IPaymentTenantService, StripeConnectedAccountService>();
-        builder.Services.AddScoped<IPaymentWebhookService, StripeWebhookService>();
-
         builder.Services.AddScoped<IQueryService, QueryService>();
 
         builder.Services.AddAuthentication(options =>
@@ -172,8 +159,16 @@ public static class DependencyInjection
 
         services.AddScoped(provider => new AccountService(provider.GetRequiredService<IStripeClient>()));
         services.AddScoped(provider => new AccountLinkService(provider.GetRequiredService<IStripeClient>()));
+        services.AddScoped(provider => new AccountLoginLinkService(provider.GetRequiredService<IStripeClient>()));
+        services.AddScoped(provider => new PaymentIntentService(provider.GetRequiredService<IStripeClient>()));
         services.AddScoped(provider => new CustomerService(provider.GetRequiredService<IStripeClient>()));
         services.AddScoped(provider => new PriceService(provider.GetRequiredService<IStripeClient>()));
         services.AddScoped(provider => new ProductService(provider.GetRequiredService<IStripeClient>()));
+
+        services.AddScoped<IPaymentWebhookService, StripeWebhookService>();
+        services.AddScoped<IPaymentTenantService, StripeConnectedAccountService>();
+        services.AddScoped<IPaymentService, StripePaymentService>();
+        services.AddScoped<IPaymentPriceService, StripePriceService>();
+        services.AddScoped<IPaymentProductService, StripeProductService>();
     }
 }
