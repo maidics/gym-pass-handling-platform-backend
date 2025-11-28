@@ -38,6 +38,9 @@ public partial class StripeWebhookService : IPaymentWebhookService
             EventTypes.PaymentIntentPaymentFailed =>  HandlePaymentIntentPaymentFailed(stripeEvent),
             EventTypes.PaymentIntentRequiresAction => HandlePaymentIntentRequiresAction(stripeEvent),
             EventTypes.PaymentIntentProcessing => HandlePaymentIntentProcessing(stripeEvent),
+            EventTypes.ProductCreated => HandleProductCreated(stripeEvent),
+            EventTypes.ProductDeleted => HandleProductDeleted(stripeEvent),
+            EventTypes.ProductUpdated => HandleProductUpdated(stripeEvent),
             _ => HandleUnhandled(stripeEvent)
         };
     }

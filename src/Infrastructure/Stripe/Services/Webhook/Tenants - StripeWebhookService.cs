@@ -31,7 +31,7 @@ public partial class StripeWebhookService
 
         var notification = ClientNotification.Create("Your Stripe payment account has been updated.", ClientNotificationType.Default);
 
-        await _notificationSender.Send(gymAdminIds, notification);
+        await _notificationSender.SendAsync(gymAdminIds, notification);
 
         return Result.Success();
     }

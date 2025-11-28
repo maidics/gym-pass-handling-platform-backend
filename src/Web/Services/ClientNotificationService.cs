@@ -27,7 +27,7 @@ public class ClientNotificationService : IClientNotificationSender, IClientNotif
         }
     }
 
-    public async Task Send(IEnumerable<string> userIds, ClientNotification notification)
+    public async Task SendAsync(IEnumerable<string> userIds, ClientNotification notification)
     {
         foreach (var id in userIds)
         {

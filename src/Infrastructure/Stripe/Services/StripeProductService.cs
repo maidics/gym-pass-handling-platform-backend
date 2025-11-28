@@ -84,4 +84,19 @@ public class StripeProductService : IPaymentProductService
             return ex.ToResultFailure("Failed to update active status of Stripe product.");
         }
     }
+
+    public async Task<Result> DeleteProductAsync(string productId)
+    {
+        try
+        {
+            await _productService.DeleteAsync(productId);
+
+            return Result.Success();
+        } catch(StripeException ex)
+        {
+            ex.Log(_logger, nameof(StripeProductService), nameof(DeleteProductAsync));
+
+            return ex.ToResultFailure("Failed to delete product on Stripe.");
+        }
+    }
 }
