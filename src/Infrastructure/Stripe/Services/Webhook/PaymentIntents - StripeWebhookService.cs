@@ -60,7 +60,7 @@ public partial class StripeWebhookService
 
         var notification = ClientNotification.Create("Payment was canceled.", ClientNotificationType.Default);
 
-        await _notificationSender.Send(result.Value.userId, notification);
+        await _notificationSender.SendAsync(result.Value.userId, notification);
 
         return Result.Success();
     }
@@ -76,7 +76,7 @@ public partial class StripeWebhookService
 
         var notification = ClientNotification.Create("Payment has failed. Not enough funds or card was declined", ClientNotificationType.PaymentFailed);
 
-        await _notificationSender.Send(result.Value.userId, notification);
+        await _notificationSender.SendAsync(result.Value.userId, notification);
 
         return Result.Success();
     }
@@ -92,7 +92,7 @@ public partial class StripeWebhookService
 
         var notification = ClientNotification.Create("Payment requires action. Please check your banking application.", ClientNotificationType.Default);
 
-        await _notificationSender.Send(result.Value.userId, notification);
+        await _notificationSender.SendAsync(result.Value.userId, notification);
 
         return Result.Success();
     }
@@ -108,7 +108,7 @@ public partial class StripeWebhookService
 
         var notification = ClientNotification.Create("Processing your payment...", ClientNotificationType.Default);
 
-        await _notificationSender.Send(result.Value.userId, notification);
+        await _notificationSender.SendAsync(result.Value.userId, notification);
 
         return Result.Success();
     }

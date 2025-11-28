@@ -6,7 +6,8 @@ public enum ClientNotificationType
     Default,
     Error,
     PaymentFailed,
-    GymPassProductSynced
+    PaymentProviderProductSynced,
+    PaymentProviderPriceSynced
 }
 
 public class ClientNotification

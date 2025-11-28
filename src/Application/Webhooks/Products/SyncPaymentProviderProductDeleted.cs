@@ -51,7 +51,7 @@ public class SyncPaymentProviderProductDeletedCommandHandler : IRequestHandler<S
             message = $"Deleted GymPassProduct that was deleted from Stripe: {product.Name}";
         }
 
-        var notifcation = ClientNotification.Create(message, ClientNotificationType.GymPassProductSynced);
+        var notifcation = ClientNotification.Create(message, ClientNotificationType.PaymentProviderProductSynced);
 
         await _notificationSender.SendAsync(gymAdminIds, notifcation);
 

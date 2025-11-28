@@ -41,6 +41,9 @@ public partial class StripeWebhookService : IPaymentWebhookService
             EventTypes.ProductCreated => HandleProductCreated(stripeEvent),
             EventTypes.ProductDeleted => HandleProductDeleted(stripeEvent),
             EventTypes.ProductUpdated => HandleProductUpdated(stripeEvent),
+            EventTypes.PriceCreated => HandlePriceCreated(stripeEvent),
+            EventTypes.PriceUpdated => HandlePriceUpdated(stripeEvent),
+            EventTypes.PriceDeleted => HandlePriceDeleted(stripeEvent),
             _ => HandleUnhandled(stripeEvent)
         };
     }

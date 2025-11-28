@@ -59,7 +59,7 @@ public class SyncPaymentProviderProductCreatedCommandHandler : IRequestHandler<S
         var gymAdminIds = await _sender.Send(new GetAllGymAdminIdsByTenantPaymentAccountIdQuery(command.PaymentAccountId));
 
         string message = "Please infer from creating the product on Stripe's website and use the app's own admin dashboard for this action. Products created through Stripe are immediately deleted.";
-        var notification = ClientNotification.Create(message, ClientNotificationType.GymPassProductSynced);
+        var notification = ClientNotification.Create(message, ClientNotificationType.PaymentProviderProductSynced);
 
         await _notificationSender.SendAsync(gymAdminIds, notification);
 

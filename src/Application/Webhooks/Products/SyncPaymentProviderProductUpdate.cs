@@ -54,7 +54,7 @@ public class SyncPaymentProviderProductUpdateCommandHandler : IRequestHandler<Sy
 
         var gymAdminIds = await _sender.Send(new GetAllGymAdminIdsByTenantPaymentAccountIdQuery(command.PaymentAccountId));
 
-        var notification = ClientNotification.Create("GymPassProduct updated.", ClientNotificationType.GymPassProductSynced);
+        var notification = ClientNotification.Create("GymPassProduct updated.", ClientNotificationType.PaymentProviderProductSynced);
 
         await _notificationSender.SendAsync(gymAdminIds, notification);
 
