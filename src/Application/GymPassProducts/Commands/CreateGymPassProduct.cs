@@ -105,16 +105,32 @@ public class CreateGymPassProductCommandHandler : IRequestHandler<CreateGymPassP
 
         Guard.Against.NullEntityRelatedToCurrentUser(gymEmployment, nameof(GymEmployment), _user.Id);
 
-        //TODO: ensure atomicity
+        var tenantPaymentProfile = await _context.TenantPaymentProfiles
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.GymId == gymEmployment.GymId);
 
-        var productResult = await _paymentProductService.CreateProductAsync(command.Name, command.Description, command.Type, command.IsActive);
+        if (tenantPaymentProfile is null)
+        {
+            return Result.BusinessRuleViolation("You must first create your Stripe payment account.");
+        }
+
+        var productResult = await _paymentProductService.CreateProductAsync(
+            command.Name, 
+            command.Description, 
+            command.Type, 
+            command.IsActive,
+            tenantPaymentProfile.PaymentAccountId);
 
         if (!productResult.Succeeded)
         {
             return productResult.ToFailure<GymPassProductDto>();
         }
 
-        var priceResult = await _paymentPriceService.CreatePriceAsync(productResult.Value, command.Price, command.IsActive);
+        var priceResult = await _paymentPriceService.CreatePriceAsync(
+            productResult.Value, 
+            command.Price, 
+            command.IsActive, 
+            tenantPaymentProfile.PaymentAccountId);
 
         if (!priceResult.Succeeded)
         {

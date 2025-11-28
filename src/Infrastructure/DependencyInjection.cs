@@ -25,6 +25,7 @@ using Stripe;
 using FitPass.Application.Common.Interfaces.Payment;
 using FitPass.Infrastructure.Email;
 using FitPass.Infrastructure.Jwt;
+using FitPass.Infrastructure.Stripe.Services.Webhook;
 
 namespace FitPass.Infrastructure;
 

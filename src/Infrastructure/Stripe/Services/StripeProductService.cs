@@ -23,7 +23,7 @@ public class StripeProductService : IPaymentProductService
         _productService = productService;
     }
 
-    public async Task<Result<string>> CreateProductAsync(string name, string description, PassType type, bool isActive)
+    public async Task<Result<string>> CreateProductAsync(string name, string description, PassType type, bool isActive, string accountId)
     {
         try
         {
@@ -35,6 +35,11 @@ public class StripeProductService : IPaymentProductService
                 TaxCode = type == PassType.SingleUse ? _settings.TaxCodeSettings.SingleUseAccess : _settings.TaxCodeSettings.Membership,
                 Type = "service",
                 Active = isActive
+            };
+
+            var requestOptions = new RequestOptions
+            {
+                StripeAccount = accountId
             };
 
             var product = await _productService.CreateAsync(productOptions, null);

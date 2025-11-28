@@ -1,6 +1,5 @@
 using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
-using FitPass.Application.Common.Models;
 using FitPass.Domain.Entities.Payment;
 using FitPass.Domain.Strings;
 

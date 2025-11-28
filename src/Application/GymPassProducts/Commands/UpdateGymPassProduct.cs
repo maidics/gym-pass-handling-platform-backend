@@ -5,6 +5,7 @@ using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Security;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
+using FitPass.Domain.Entities.Payment;
 using FitPass.Domain.Strings;
 using FitPass.Domain.ValueObjects;
 
@@ -88,6 +89,12 @@ public class UpdateGymPassProductCommandHandler : IRequestHandler<UpdateGymPassP
 
         Guard.Against.NullEntityRelatedToCurrentUser(gymEmployment, nameof(GymEmployment), _user.Id);
 
+        var tenantPaymentProfile = await _context.TenantPaymentProfiles
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.GymId == gymEmployment.GymId);
+
+        Guard.Against.Null(tenantPaymentProfile, nameof(TenantPaymentProfile), "No payment profile found when trying to update GymPassProduct.");
+
         var product = await _context.GymPassProducts
             .Include(gpp => gpp.PaymentIdentity)
             .FirstOrDefaultAsync(gpp => gpp.Id == command.GymPassProductId && gpp.GymId == gymEmployment.GymId);
@@ -103,7 +110,8 @@ public class UpdateGymPassProductCommandHandler : IRequestHandler<UpdateGymPassP
                 product.PaymentIdentity.PriceId, 
                 product.PaymentIdentity.Id, 
                 command.Price,
-                product.IsActive);
+                product.IsActive,
+                tenantPaymentProfile.PaymentAccountId);
 
             if (!result.Succeeded)
             {

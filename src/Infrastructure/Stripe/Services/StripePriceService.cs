@@ -19,7 +19,7 @@ public class StripePriceService : IPaymentPriceService
         _priceService = priceService;
     }
 
-    public async Task<Result<string>> CreatePriceAsync(string productId, Money priceMoney, bool isActive)
+    public async Task<Result<string>> CreatePriceAsync(string productId, Money priceMoney, bool isActive, string accountId)
     {
         try
         {
@@ -29,6 +29,11 @@ public class StripePriceService : IPaymentPriceService
                 Currency = priceMoney.Currency,
                 UnitAmountDecimal = priceMoney.ToStripeAmount(),
                 Active = isActive
+            };
+
+            var requestOptions = new RequestOptions
+            {
+                StripeAccount = accountId
             };
 
             var price = await _priceService.CreateAsync(priceOptions, null);
@@ -42,7 +47,7 @@ public class StripePriceService : IPaymentPriceService
         }
     }
 
-    public async Task<Result<string>> UpdatePriceAsync(string priceId, string productId, Money newPrice, bool isActive)
+    public async Task<Result<string>> UpdatePriceAsync(string priceId, string productId, Money newPrice, bool isActive, string accountId)
     {
         try
         {
@@ -53,7 +58,7 @@ public class StripePriceService : IPaymentPriceService
 
             await _priceService.UpdateAsync(priceId, priceUpdateOptions);
 
-            return await CreatePriceAsync(productId, newPrice, isActive);
+            return await CreatePriceAsync(productId, newPrice, isActive, accountId);
         } catch (StripeException ex)
         {
             ex.Log(_logger, nameof(StripePriceService), nameof(UpdatePriceAsync));
