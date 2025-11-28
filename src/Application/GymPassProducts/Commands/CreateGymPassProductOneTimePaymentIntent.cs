@@ -75,13 +75,13 @@ public class CreateGymPassProductOneTimePaymentIntentCommandHandler : IRequestHa
             _user.Id!,
             product.GymId,
             product.Id, 
-            tenantPaymentProfile.TenantPaymentAccountId);
+            tenantPaymentProfile.PaymentAccountId);
 
         if (!result.Succeeded)
         {
             return result.ToFailure<PaymentIntentDto>();
         }
 
-        return Result.Success(new PaymentIntentDto { ClientSecret = result.Value, TenantPaymentAccountId = tenantPaymentProfile.TenantPaymentAccountId });
+        return Result.Success(new PaymentIntentDto { ClientSecret = result.Value, TenantPaymentAccountId = tenantPaymentProfile.PaymentAccountId });
     }
 }

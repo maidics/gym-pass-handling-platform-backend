@@ -12,18 +12,21 @@ public class StripeConnectedAccountService : IPaymentTenantService
     private readonly ILogger<StripeConnectedAccountService> _logger;
     private readonly AccountService _accountService;
     private readonly AccountLinkService _accountLinkService;
+    private readonly AccountLoginLinkService _loginLinkService;
     private readonly StripeAccountLinkSettings _stripeAccountLinkSettings;
     private readonly TimeProvider _timeProvider;
 
     public StripeConnectedAccountService(
         ILogger<StripeConnectedAccountService> logger, 
         AccountService accountService, 
+        AccountLoginLinkService loginLinkService,
         AccountLinkService accountLinkService,
         IOptions<StripeSettings> options,
         TimeProvider timeProvider)
     {
         _logger = logger;
         _accountService = accountService;
+        _loginLinkService = loginLinkService;
         _accountLinkService = accountLinkService;
         _stripeAccountLinkSettings = options.Value.AccountLinks;
         _timeProvider = timeProvider;
@@ -123,7 +126,7 @@ public class StripeConnectedAccountService : IPaymentTenantService
         }
     }
 
-    public async Task<Result> UpdateTenantAccountPayoutInterval(string tenantAccountId, TimeIntervals interval, int? monthlyAnchor, DayOfWeek? weeklyAnchor, int? delayDays)
+    public async Task<Result> UpdateTenantPaymentAccountPayoutIntervalAsync(string tenantAccountId, TimeIntervals interval, int? monthlyAnchor, DayOfWeek? weeklyAnchor, int? delayDays)
     {
         try
         {
@@ -163,9 +166,26 @@ public class StripeConnectedAccountService : IPaymentTenantService
             return Result.Success();
         } catch (StripeException ex)
         {
-            ex.Log(_logger, nameof(StripeConnectedAccountService), nameof(UpdateTenantAccountPayoutInterval));
+            ex.Log(_logger, nameof(StripeConnectedAccountService), nameof(UpdateTenantPaymentAccountPayoutIntervalAsync));
 
             return ex.ToResultFailure("Failed to update payment account's payout interval.");
+        }
+    }
+
+    public async Task<Result<string>> GenerateLoginLinkAsync(string accountId, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var options = new AccountLoginLinkCreateOptions();
+
+            var link = await _loginLinkService.CreateAsync(accountId);
+
+            return Result.Success(link.Url);
+        } catch (StripeException ex)
+        {
+            ex.Log(_logger, nameof(StripeConnectedAccountService), nameof(GenerateLoginLinkAsync));
+
+            return ex.ToResultFailure("Failed to generate Stripe login link");
         }
     }
 }

@@ -21,7 +21,7 @@ public class GetAllGymAdminIdsByTenantPaymentAccountIdQueryHandler : IRequestHan
             .AsNoTracking()
             .Where(ge => 
                 ge.Gym.PaymentProfile != null && 
-                ge.Gym.PaymentProfile.TenantPaymentAccountId == query.TenantPaymentAccountId && 
+                ge.Gym.PaymentProfile.PaymentAccountId == query.TenantPaymentAccountId && 
                 ge.Role == Roles.GymAdministrator)
             .Select(ge => ge.UserId)
             .ToArrayAsync();

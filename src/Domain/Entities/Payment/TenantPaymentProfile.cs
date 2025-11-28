@@ -3,7 +3,7 @@ namespace FitPass.Domain.Entities.Payment;
 public class TenantPaymentProfile : BaseAuditableEntity
 {
     public required string GymId { get; set; }
-    public required string TenantPaymentAccountId { get; set; }
+    public required string PaymentAccountId { get; set; }
     public TimeIntervals? PayoutInterval { get; set; }
     public string? PayoutAnchor { get; set; }
     public TenantPaymentAccountStatus AccountStatus { get; set; } = TenantPaymentAccountStatus.Default();

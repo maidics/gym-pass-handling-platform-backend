@@ -10,9 +10,11 @@ public class TenantPaymentProfiles : EndpointGroupBase
     {
         groupBuilder.MapPost(CreateTenantPaymentProfile).RequireAuthorization();
 
-        groupBuilder.MapGet(GenerateTenantPaymentAccountLink, "AccountLink").RequireAuthorization();
+        groupBuilder.MapGet(GenerateTenantLoginLink, "LoginLink").RequireAuthorization();
 
         groupBuilder.MapGet(GetTenantPaymentProfile).RequireAuthorization();
+
+        groupBuilder.MapPut(UpdateTenantPaymentAccountPayoutSchedule, "PayoutSchedule").RequireAuthorization();
     }
 
     public async Task<IResult> CreateTenantPaymentProfile(ISender sender, CreateTenantPaymentProfileCommand command, CancellationToken cancellationToken)
@@ -22,9 +24,9 @@ public class TenantPaymentProfiles : EndpointGroupBase
         return result.ToTypedResult();
     }
 
-    public async Task<IResult> GenerateTenantPaymentAccountLink(ISender sender, CancellationToken cancellationToken)
+    public async Task<IResult> GenerateTenantLoginLink(ISender sender, CancellationToken cancellationToken)
     {
-        var result = await sender.Send(new GenerateTenantPaymentAccountLinkCommand(), cancellationToken);
+        var result = await sender.Send(new GenerateTenantLoginLinkCommand(), cancellationToken);
 
         return result.ToTypedResult();
     }
@@ -32,6 +34,13 @@ public class TenantPaymentProfiles : EndpointGroupBase
     public async Task<IResult> GetTenantPaymentProfile(ISender sender, CancellationToken cancellationToken)
     {
         var result = await sender.Send(new GetTenantPaymentProfileQuery());
+
+        return result.ToTypedResult();
+    }
+
+    public async Task<IResult> UpdateTenantPaymentAccountPayoutSchedule(ISender sender, UpdateTenantPaymentAccountPayoutScheduleCommand command, CancellationToken cancellationToken)
+    {
+        var result = await sender.Send(command);
 
         return result.ToTypedResult();
     }

@@ -15,7 +15,7 @@ public record UpdateTenantPaymentAccountPayoutScheduleCommand(
     TimeIntervals Interval,
     int? MonhtlyAnchor = null,
     DayOfWeek? WeeklyAnchor = null,
-    int? DelayDays = null
+    int? DelayDays = null //only applicable when using daily interval
 ) : IRequest<Result>;
 
 public class UpdateTenantPaymentAccountPayoutScheduleCommandValidator : AbstractValidator<UpdateTenantPaymentAccountPayoutScheduleCommand>
@@ -73,8 +73,11 @@ public class UpdateTenantPaymentAccountPayoutScheduleCommandHandler : IRequestHa
             return Result.BusinessRuleViolation("Gym has no payment account created.");
         }
 
-        _paymentTenantService.UpdateTenantAccountPayoutInterval
-
-        //TODO
+        return await _paymentTenantService.UpdateTenantPaymentAccountPayoutIntervalAsync(
+            tenantPaymentProfile.PaymentAccountId,
+            command.Interval,
+            command.MonhtlyAnchor,
+            command.WeeklyAnchor,
+            command.DelayDays);
     }
 }

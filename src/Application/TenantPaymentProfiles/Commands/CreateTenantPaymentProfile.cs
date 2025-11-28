@@ -70,7 +70,7 @@ public class CreateTenantPaymentProfileCommandHandler : IRequestHandler<CreateTe
         paymentProfile = new TenantPaymentProfile
         {
             GymId = gymEmployment.GymId,
-            TenantPaymentAccountId = result.Value
+            PaymentAccountId = result.Value
         };
 
         await _context.TenantPaymentProfiles.AddAsync(paymentProfile);
