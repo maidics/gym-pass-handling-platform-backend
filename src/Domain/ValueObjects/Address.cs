@@ -17,7 +17,7 @@ public class Address : ValueObject
         CountryAlpha2 = string.Empty;
     }
 
-    public Address(string line1, string? line2, string city, string? state, string postalCode, string country)
+    public Address(string line1, string? line2, string city, string? state, string postalCode, string countryAlpha2)
     {
         if (string.IsNullOrEmpty(line1))
         {
@@ -34,14 +34,14 @@ public class Address : ValueObject
             throw new ArgumentException("Postal code cannot be empty.", nameof(postalCode));
         }
 
-        if (string.IsNullOrEmpty(country))
+        if (string.IsNullOrEmpty(countryAlpha2))
         {
-            throw new ArgumentException("Country cannot be empty.", nameof(country));
+            throw new ArgumentException("Country cannot be empty.", nameof(countryAlpha2));
         }
 
-        if (country.Length != 2 || !Country.DoesExistByAlpha2(country))
+        if (countryAlpha2.Length != 2 || !Country.DoesExistByAlpha2(countryAlpha2))
         {
-            throw new ArgumentException($"'{country}' is not a valid two letter code.");
+            throw new ArgumentException($"'{countryAlpha2}' is not a valid two letter code.");
         }
 
         Line1 = line1;
@@ -49,7 +49,7 @@ public class Address : ValueObject
         City = city;
         State = state;
         PostalCode = postalCode;
-        CountryAlpha2 = country;
+        CountryAlpha2 = countryAlpha2;
     }
 
     protected override IEnumerable<object> GetEqualityComponents()

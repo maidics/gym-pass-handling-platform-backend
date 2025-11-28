@@ -2,11 +2,11 @@ namespace FitPass.Domain.ValueObjects;
 
 public class BusinessRepresentative : ValueObject
 {
-public string FirstName { get; private init; }
+    public string FirstName { get; private init; }
     public string LastName { get; private init; }
     public string Email { get; private init; }
     public PhoneNumber Phone { get; private init; }
-    public DateTime DateOfBirth { get; private init; }
+    public DateOnly DateOfBirth { get; private init; }
     public Address Address { get; private init; }
 
     private BusinessRepresentative()
@@ -23,7 +23,7 @@ public string FirstName { get; private init; }
         string lastName,
         string email,
         PhoneNumber phoneNumber,
-        DateTime dateOfBirth,
+        DateOnly dateOfBirth,
         Address address,
         DateTimeOffset utcNow)
     {
@@ -38,8 +38,11 @@ public string FirstName { get; private init; }
         
         if (phoneNumber is null)
             throw new ArgumentNullException(nameof(phoneNumber));
+
+        var utcNowDateTime = utcNow.UtcDateTime;
+        var eighteenYearsAgo = new DateOnly(utcNowDateTime.Year - 18, utcNowDateTime.Month, utcNowDateTime.Day);
         
-        if (dateOfBirth >= utcNow.AddYears(-18))
+        if (dateOfBirth >= eighteenYearsAgo)
             throw new ArgumentException("Representative must be at least 18 years old", nameof(dateOfBirth));
         
         if (address == null)
@@ -49,7 +52,7 @@ public string FirstName { get; private init; }
         LastName = lastName.Trim();
         Email = email.Trim().ToLowerInvariant();
         Phone = phoneNumber;
-        DateOfBirth = dateOfBirth.Date;
+        DateOfBirth = dateOfBirth;
         Address = address;
     }
 
