@@ -44,9 +44,8 @@ public class BusinessRepresentative : ValueObject
         
         if (dateOfBirth >= eighteenYearsAgo)
             throw new ArgumentException("Representative must be at least 18 years old", nameof(dateOfBirth));
-        
-        if (address == null)
-            throw new ArgumentNullException(nameof(address));
+
+        ArgumentNullException.ThrowIfNull(address, nameof(address));
         
         FirstName = firstName.Trim();
         LastName = lastName.Trim();

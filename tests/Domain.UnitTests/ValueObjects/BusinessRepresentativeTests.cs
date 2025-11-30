@@ -6,7 +6,7 @@ namespace FitPass.Domain.UnitTests.ValueObjects;
 
 public class BusinessRepresentativeTests
 {
-    private static readonly PhoneNumber _phoneNumber = PhoneNumber.Create("+36201111111"); //by the time it gets to the constructor this will be valid
+    private static readonly PhoneNumber _phoneNumber = PhoneNumber.Create("+36201111111"); //by the time it gets to the constructor this will be valid anyways
     private static readonly Address _address = new Address("Fehér utca 2", "B/34", "Veszprém", "Győr-Moson-Sopron megye", "8200", "HU");
 
     private static IEnumerable<object[]> ValidTestData()
