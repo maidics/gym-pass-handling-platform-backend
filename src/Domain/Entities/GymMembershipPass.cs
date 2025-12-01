@@ -2,6 +2,7 @@ using FitPass.Domain.Events.OwnedPasses;
 
 namespace FitPass.Domain.Entities;
 
+//Factory method on GymPassProduct
 public class GymMembershipPass : BaseAuditableEntity
 {
     public required string GymMembershipId { get; set; }

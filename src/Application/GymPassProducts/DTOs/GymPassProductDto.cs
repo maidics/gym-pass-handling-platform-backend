@@ -8,6 +8,8 @@ public class GymPassProductDto
 {
     public required string Id { get; set; }
     public required string GymId { get; set; }
+    public required string Name { get; set; }
+    public required string Description { get; set; }
     public required PassType Type { get; set; }
     public required int? TotalUses { get; set; }
     public required int? DaysAfterExpiring { get; set; }
@@ -25,6 +27,8 @@ public static partial class Mappings
             {
                 Id = gymPassProduct.Id,
                 GymId = gymPassProduct.GymId,
+                Name = gymPassProduct.Name,
+                Description = gymPassProduct.Description,
                 Type = gymPassProduct.Type,
                 TotalUses = gymPassProduct.TotalUses,
                 DaysAfterExpiring = gymPassProduct.DaysAfterExpiring,

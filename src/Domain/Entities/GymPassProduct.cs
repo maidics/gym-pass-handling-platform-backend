@@ -3,6 +3,7 @@ using FitPass.Domain.ValueObjects;
 
 namespace FitPass.Domain.Entities;
 
+//TODO: add factory method for this
 public class GymPassProduct : BaseAuditableEntity
 {
     public required string GymId { get; set; }

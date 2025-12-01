@@ -1,6 +1,7 @@
 using FitPass.Application.GymPassProducts.DTOs;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
+using FitPass.Domain.ValueObjects;
 
 namespace FitPass.Application.Gyms.DTOs;
 
@@ -8,7 +9,7 @@ public class GymDto
 {
     public required string Id { get; set; }
     public required string Name { get; set; }
-    public required string Address { get; set; }
+    public required Address Address { get; set; }
     public required GymStatus Status { get; set; }
     public required GymTier Tier { get; set; }
     public required DateTimeOffset CreatedOn { get; set; }
