@@ -13,7 +13,7 @@ public class GymMembershipPass : BaseAuditableEntity
     public required DateTimeOffset? ExpirationDate { get; set; }
     public GymMembership GymMembership { get; set; } = null!;
 
-    public bool IsUsable(DateTimeOffset utcNow)
+    public bool IsValid(DateTimeOffset utcNow)
     {
         if (RemainingUses is not null)
         {
@@ -35,7 +35,7 @@ public class GymMembershipPass : BaseAuditableEntity
             throw new ArgumentNullException(nameof(GymMembership));
         }
 
-        if (!IsUsable(utcNow))
+        if (!IsValid(utcNow))
         {
             AddDomainEvent(new PassExpiredEvent(this)); //not throwing here because then Domain event can archive this - this should never happen
 
@@ -57,7 +57,7 @@ public class GymMembershipPass : BaseAuditableEntity
         {
             RemainingUses--;
 
-            if (!IsUsable(utcNow))
+            if (!IsValid(utcNow))
             {
                 AddDomainEvent(new PassExpiredEvent(this));
             }

@@ -5,13 +5,14 @@ using FitPass.Domain.Constants;
 using FitPass.Domain.Enums;
 using FitPass.Domain.Entities;
 using FitPass.Application.Common.Models;
+using FitPass.Domain.ValueObjects;
 
 namespace FitPass.Application.Gyms.Commands;
 
 [Authorize(Roles = Roles.GymAdministrator)]
 public record UpdateMyGymProfileCommand(
     string GymName,
-    string GymAddress,
+    Address GymAddress,
     GymTier GymTier,
     string? GymOwnerName
 ) : IRequest<Result>;
@@ -21,8 +22,6 @@ public class UpdateMyGymProfileCommandValidator : AbstractValidator<UpdateMyGymP
     public UpdateMyGymProfileCommandValidator()
     {
         RuleFor(v => v.GymName).NotEmptyWithMaxLenghtAndMessage(nameof(UpdateMyGymProfileCommand.GymName), MaxStringLengths.Name);
-
-        RuleFor(v => v.GymAddress).NotEmptyWithMaxLenghtAndMessage(nameof(UpdateMyGymProfileCommand.GymAddress), MaxStringLengths.Address);
     }
 }
 

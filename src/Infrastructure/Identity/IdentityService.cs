@@ -307,7 +307,7 @@ public class IdentityService : IIdentityService
 
         if (!result.Succeeded && result.Errors.Any(e => e.Code == "Invalidtoken"))
         {
-            return Result.Unauthorized(ErrorMessages.TokenIsInvalid("Error confirmation"));
+            return Result.Unauthorized(ErrorMessages.TokenIsInvalid("Email confirmation"));
         }
 
         return result.ToApplicationResult();

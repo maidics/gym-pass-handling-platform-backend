@@ -45,19 +45,9 @@ public class LogInUserCommandHandler : IRequestHandler<LogInUserCommand, Result<
     {
         var result = await _identityService.AuthenticateUserAsync(command.Email, command.Password, cancellationToken);
 
-        if (result.IsResultFailureWithOneErrorMessage(ErrorMessages.UserAccountIsNotActivated()))
-        {
-            return Result.BusinessRuleViolation(ErrorMessages.UserAccountIsNotActivated());
-        }
-
-        if (result.IsResultFailureWithOneErrorMessage(ErrorMessages.InvalidCredentials()))
-        {
-            return Result.Unauthorized("Invalid credentials.");
-        }
-
         if (!result.Succeeded)
         {
-            throw new Exception("Failed to authenticate user.");
+            return new ResultFailure(result);
         }
 
         var userId = await _identityService.GetUserIdByEmailAsync(command.Email);

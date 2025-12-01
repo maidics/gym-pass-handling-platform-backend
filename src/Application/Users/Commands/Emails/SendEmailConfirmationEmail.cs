@@ -1,4 +1,3 @@
-using FitPass.Application.Common.Configuration;
 using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Models;
@@ -27,20 +26,17 @@ public class SendEmailConfirmationEmailCommandHandler : IRequestHandler<SendEmai
     private readonly IUser _user;
     private readonly ILogger<SendEmailConfirmationEmailCommandHandler> _logger;
     private readonly IEmailService _emailService;
-    private readonly FrontendSettings _frontendSettings;
 
     public SendEmailConfirmationEmailCommandHandler(
         IIdentityService identityService,
         IUser user,
         IEmailService emailService,
-        ILogger<SendEmailConfirmationEmailCommandHandler> logger,
-        IOptions<FrontendSettings> options)
+        ILogger<SendEmailConfirmationEmailCommandHandler> logger)
     {
         _identityService = identityService;
         _user = user;
         _emailService = emailService;
         _logger = logger;
-        _frontendSettings = options.Value;
     }
 
     public async Task<Result> Handle(SendEmailConfirmationEmailCommand command, CancellationToken cancellationToken)
@@ -66,9 +62,10 @@ public class SendEmailConfirmationEmailCommandHandler : IRequestHandler<SendEmai
         var encodedToken = Uri.EscapeDataString(token);
         var encodedEmail = Uri.EscapeDataString(command.Email);
 
+        //TODO: set url somehow
         var setPassword = !await _identityService.DoesUserHavePassword(userId);
 
-        var url = $"{_frontendSettings.BaseUrl}{_frontendSettings.EmailConfirmationPath}?token={encodedToken}&user={encodedEmail}&=flag{(setPassword ? 1 : 0)}";
+        var url = $"localhost/email-confirmation?token={encodedToken}&user={encodedEmail}&=flag{(setPassword ? 1 : 0)}";
 
         await _emailService.SendEmailAsync(command.Email, EmailSubjects.EmailConfirmation(), EmailBodies.EmailConfirmation(url));
 

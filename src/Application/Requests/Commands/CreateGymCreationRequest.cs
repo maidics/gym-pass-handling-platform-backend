@@ -27,9 +27,6 @@ public class CreateGymCreationRequestCommandValidator : AbstractValidator<Create
         RuleFor(v => v.CreateGymDto.GymName)
             .NotEmptyWithMaxLenghtAndMessage(nameof(CreateGymCreationRequestCommand.CreateGymDto.GymName), MaxStringLengths.Description);
 
-        RuleFor(v => v.CreateGymDto.GymAddress)
-            .NotEmptyWithMaxLenghtAndMessage(nameof(CreateGymCreationRequestCommand.CreateGymDto.GymAddress), MaxStringLengths.Address);
-
         RuleFor(v => v.CreateGymDto.EscalationEmail)
             .ValidEmailAddress(nameof(CreateGymCreationRequestCommand.CreateGymDto.EscalationEmail));
     }

@@ -2760,11 +2760,19 @@ export interface IUpdateGymPassProductCommand {
     price?: Money;
 }
 
-export abstract class BaseEntity implements IBaseEntity {
-    id?: string;
-    domainEvents?: BaseEvent[];
+export class GymPassUsageDto implements IGymPassUsageDto {
+    userId?: string;
+    gymId?: string;
+    passType?: PassType;
+    totalPassUses?: number | undefined;
+    remainingPassUses?: number | undefined;
+    passExpirationDate?: Date | undefined;
+    passUseResult?: PassUseResult;
+    lockerNumber?: string | undefined;
+    createdOn?: Date;
+    gymSessionEndedAt?: Date | undefined;
 
-    constructor(data?: IBaseEntity) {
+    constructor(data?: IGymPassUsageDto) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -2775,99 +2783,7 @@ export abstract class BaseEntity implements IBaseEntity {
 
     init(_data?: any) {
         if (_data) {
-            this.id = _data["id"];
-            if (Array.isArray(_data["domainEvents"])) {
-                this.domainEvents = [] as any;
-                for (let item of _data["domainEvents"])
-                    this.domainEvents!.push(BaseEvent.fromJS(item));
-            }
-        }
-    }
-
-    static fromJS(data: any): BaseEntity {
-        data = typeof data === 'object' ? data : {};
-        throw new Error("The abstract class 'BaseEntity' cannot be instantiated.");
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        if (Array.isArray(this.domainEvents)) {
-            data["domainEvents"] = [];
-            for (let item of this.domainEvents)
-                data["domainEvents"].push(item ? item.toJSON() : undefined as any);
-        }
-        return data;
-    }
-}
-
-export interface IBaseEntity {
-    id?: string;
-    domainEvents?: BaseEvent[];
-}
-
-export abstract class BaseAuditableEntity extends BaseEntity implements IBaseAuditableEntity {
-    createdOn?: Date;
-    createdBy?: string | undefined;
-    lastModifiedOn?: Date;
-    lastModifiedBy?: string | undefined;
-
-    constructor(data?: IBaseAuditableEntity) {
-        super(data);
-    }
-
-    override init(_data?: any) {
-        super.init(_data);
-        if (_data) {
-            this.createdOn = _data["createdOn"] ? new Date(_data["createdOn"].toString()) : undefined as any;
-            this.createdBy = _data["createdBy"];
-            this.lastModifiedOn = _data["lastModifiedOn"] ? new Date(_data["lastModifiedOn"].toString()) : undefined as any;
-            this.lastModifiedBy = _data["lastModifiedBy"];
-        }
-    }
-
-    static override fromJS(data: any): BaseAuditableEntity {
-        data = typeof data === 'object' ? data : {};
-        throw new Error("The abstract class 'BaseAuditableEntity' cannot be instantiated.");
-    }
-
-    override toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["createdOn"] = this.createdOn ? this.createdOn.toISOString() : undefined as any;
-        data["createdBy"] = this.createdBy;
-        data["lastModifiedOn"] = this.lastModifiedOn ? this.lastModifiedOn.toISOString() : undefined as any;
-        data["lastModifiedBy"] = this.lastModifiedBy;
-        super.toJSON(data);
-        return data;
-    }
-}
-
-export interface IBaseAuditableEntity extends IBaseEntity {
-    createdOn?: Date;
-    createdBy?: string | undefined;
-    lastModifiedOn?: Date;
-    lastModifiedBy?: string | undefined;
-}
-
-export class GymPassUsageDto extends BaseAuditableEntity implements IGymPassUsageDto {
-    applicationUserId?: string;
-    gymId?: string;
-    passType?: PassType;
-    totalPassUses?: number | undefined;
-    remainingPassUses?: number | undefined;
-    passExpirationDate?: Date | undefined;
-    passUseResult?: PassUseResult;
-    lockerNumber?: string | undefined;
-    gymSessionEndedAt?: Date | undefined;
-
-    constructor(data?: IGymPassUsageDto) {
-        super(data);
-    }
-
-    override init(_data?: any) {
-        super.init(_data);
-        if (_data) {
-            this.applicationUserId = _data["applicationUserId"];
+            this.userId = _data["userId"];
             this.gymId = _data["gymId"];
             this.passType = _data["passType"];
             this.totalPassUses = _data["totalPassUses"];
@@ -2875,20 +2791,21 @@ export class GymPassUsageDto extends BaseAuditableEntity implements IGymPassUsag
             this.passExpirationDate = _data["passExpirationDate"] ? new Date(_data["passExpirationDate"].toString()) : undefined as any;
             this.passUseResult = _data["passUseResult"];
             this.lockerNumber = _data["lockerNumber"];
+            this.createdOn = _data["createdOn"] ? new Date(_data["createdOn"].toString()) : undefined as any;
             this.gymSessionEndedAt = _data["gymSessionEndedAt"] ? new Date(_data["gymSessionEndedAt"].toString()) : undefined as any;
         }
     }
 
-    static override fromJS(data: any): GymPassUsageDto {
+    static fromJS(data: any): GymPassUsageDto {
         data = typeof data === 'object' ? data : {};
         let result = new GymPassUsageDto();
         result.init(data);
         return result;
     }
 
-    override toJSON(data?: any) {
+    toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["applicationUserId"] = this.applicationUserId;
+        data["userId"] = this.userId;
         data["gymId"] = this.gymId;
         data["passType"] = this.passType;
         data["totalPassUses"] = this.totalPassUses;
@@ -2896,14 +2813,14 @@ export class GymPassUsageDto extends BaseAuditableEntity implements IGymPassUsag
         data["passExpirationDate"] = this.passExpirationDate ? this.passExpirationDate.toISOString() : undefined as any;
         data["passUseResult"] = this.passUseResult;
         data["lockerNumber"] = this.lockerNumber;
+        data["createdOn"] = this.createdOn ? this.createdOn.toISOString() : undefined as any;
         data["gymSessionEndedAt"] = this.gymSessionEndedAt ? this.gymSessionEndedAt.toISOString() : undefined as any;
-        super.toJSON(data);
         return data;
     }
 }
 
-export interface IGymPassUsageDto extends IBaseAuditableEntity {
-    applicationUserId?: string;
+export interface IGymPassUsageDto {
+    userId?: string;
     gymId?: string;
     passType?: PassType;
     totalPassUses?: number | undefined;
@@ -2911,42 +2828,15 @@ export interface IGymPassUsageDto extends IBaseAuditableEntity {
     passExpirationDate?: Date | undefined;
     passUseResult?: PassUseResult;
     lockerNumber?: string | undefined;
+    createdOn?: Date;
     gymSessionEndedAt?: Date | undefined;
 }
 
-export type PassUseResult = "Success" | "UnlimitedPassAlreadyExpired" | "AlreadyHasNoUsesLeft";
-
-export abstract class BaseEvent implements IBaseEvent {
-
-    constructor(data?: IBaseEvent) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (this as any)[property] = (data as any)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-    }
-
-    static fromJS(data: any): BaseEvent {
-        data = typeof data === 'object' ? data : {};
-        throw new Error("The abstract class 'BaseEvent' cannot be instantiated.");
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        return data;
-    }
-}
-
-export interface IBaseEvent {
-}
+export type PassUseResult = "Success" | "Expired";
 
 export class UpdateMyGymProfileCommand implements IUpdateMyGymProfileCommand {
     gymName?: string;
-    gymAddress?: string;
+    gymAddress?: Address;
     gymTier?: GymTier;
     gymOwnerName?: string | undefined;
 
@@ -2962,7 +2852,7 @@ export class UpdateMyGymProfileCommand implements IUpdateMyGymProfileCommand {
     init(_data?: any) {
         if (_data) {
             this.gymName = _data["gymName"];
-            this.gymAddress = _data["gymAddress"];
+            this.gymAddress = _data["gymAddress"] ? Address.fromJS(_data["gymAddress"]) : undefined as any;
             this.gymTier = _data["gymTier"];
             this.gymOwnerName = _data["gymOwnerName"];
         }
@@ -2978,7 +2868,7 @@ export class UpdateMyGymProfileCommand implements IUpdateMyGymProfileCommand {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["gymName"] = this.gymName;
-        data["gymAddress"] = this.gymAddress;
+        data["gymAddress"] = this.gymAddress ? this.gymAddress.toJSON() : undefined as any;
         data["gymTier"] = this.gymTier;
         data["gymOwnerName"] = this.gymOwnerName;
         return data;
@@ -2987,9 +2877,62 @@ export class UpdateMyGymProfileCommand implements IUpdateMyGymProfileCommand {
 
 export interface IUpdateMyGymProfileCommand {
     gymName?: string;
-    gymAddress?: string;
+    gymAddress?: Address;
     gymTier?: GymTier;
     gymOwnerName?: string | undefined;
+}
+
+export class Address extends ValueObject implements IAddress {
+    line1?: string;
+    line2?: string | undefined;
+    city?: string;
+    state?: string | undefined;
+    postalCode?: string;
+    countryAlpha2?: string;
+
+    constructor(data?: IAddress) {
+        super(data);
+    }
+
+    override init(_data?: any) {
+        super.init(_data);
+        if (_data) {
+            this.line1 = _data["line1"];
+            this.line2 = _data["line2"];
+            this.city = _data["city"];
+            this.state = _data["state"];
+            this.postalCode = _data["postalCode"];
+            this.countryAlpha2 = _data["countryAlpha2"];
+        }
+    }
+
+    static override fromJS(data: any): Address {
+        data = typeof data === 'object' ? data : {};
+        let result = new Address();
+        result.init(data);
+        return result;
+    }
+
+    override toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["line1"] = this.line1;
+        data["line2"] = this.line2;
+        data["city"] = this.city;
+        data["state"] = this.state;
+        data["postalCode"] = this.postalCode;
+        data["countryAlpha2"] = this.countryAlpha2;
+        super.toJSON(data);
+        return data;
+    }
+}
+
+export interface IAddress extends IValueObject {
+    line1?: string;
+    line2?: string | undefined;
+    city?: string;
+    state?: string | undefined;
+    postalCode?: string;
+    countryAlpha2?: string;
 }
 
 export type GymTier = "Local" | "MidRange" | "Premium" | "Elite";
@@ -2997,7 +2940,7 @@ export type GymTier = "Local" | "MidRange" | "Premium" | "Elite";
 export class GymDto implements IGymDto {
     id?: string;
     name?: string;
-    address?: string;
+    address?: Address;
     status?: GymStatus;
     tier?: GymTier;
     createdOn?: Date;
@@ -3016,7 +2959,7 @@ export class GymDto implements IGymDto {
         if (_data) {
             this.id = _data["id"];
             this.name = _data["name"];
-            this.address = _data["address"];
+            this.address = _data["address"] ? Address.fromJS(_data["address"]) : undefined as any;
             this.status = _data["status"];
             this.tier = _data["tier"];
             this.createdOn = _data["createdOn"] ? new Date(_data["createdOn"].toString()) : undefined as any;
@@ -3039,7 +2982,7 @@ export class GymDto implements IGymDto {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
         data["name"] = this.name;
-        data["address"] = this.address;
+        data["address"] = this.address ? this.address.toJSON() : undefined as any;
         data["status"] = this.status;
         data["tier"] = this.tier;
         data["createdOn"] = this.createdOn ? this.createdOn.toISOString() : undefined as any;
@@ -3055,7 +2998,7 @@ export class GymDto implements IGymDto {
 export interface IGymDto {
     id?: string;
     name?: string;
-    address?: string;
+    address?: Address;
     status?: GymStatus;
     tier?: GymTier;
     createdOn?: Date;
@@ -3067,6 +3010,8 @@ export type GymStatus = "Active" | "Inactive" | "Suspended";
 export class GymPassProductDto implements IGymPassProductDto {
     id?: string;
     gymId?: string;
+    name?: string;
+    description?: string;
     type?: PassType;
     totalUses?: number | undefined;
     daysAfterExpiring?: number | undefined;
@@ -3086,6 +3031,8 @@ export class GymPassProductDto implements IGymPassProductDto {
         if (_data) {
             this.id = _data["id"];
             this.gymId = _data["gymId"];
+            this.name = _data["name"];
+            this.description = _data["description"];
             this.type = _data["type"];
             this.totalUses = _data["totalUses"];
             this.daysAfterExpiring = _data["daysAfterExpiring"];
@@ -3105,6 +3052,8 @@ export class GymPassProductDto implements IGymPassProductDto {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
         data["gymId"] = this.gymId;
+        data["name"] = this.name;
+        data["description"] = this.description;
         data["type"] = this.type;
         data["totalUses"] = this.totalUses;
         data["daysAfterExpiring"] = this.daysAfterExpiring;
@@ -3117,6 +3066,8 @@ export class GymPassProductDto implements IGymPassProductDto {
 export interface IGymPassProductDto {
     id?: string;
     gymId?: string;
+    name?: string;
+    description?: string;
     type?: PassType;
     totalUses?: number | undefined;
     daysAfterExpiring?: number | undefined;
@@ -3292,7 +3243,7 @@ export interface ICreateGymCreationRequestCommand {
 
 export class CreateGymDto implements ICreateGymDto {
     gymName?: string;
-    gymAddress?: string;
+    gymAddress?: Address;
     gymStatus?: GymStatus;
     gymTier?: GymTier;
     gymOwnerName?: string;
@@ -3310,7 +3261,7 @@ export class CreateGymDto implements ICreateGymDto {
     init(_data?: any) {
         if (_data) {
             this.gymName = _data["gymName"];
-            this.gymAddress = _data["gymAddress"];
+            this.gymAddress = _data["gymAddress"] ? Address.fromJS(_data["gymAddress"]) : undefined as any;
             this.gymStatus = _data["gymStatus"];
             this.gymTier = _data["gymTier"];
             this.gymOwnerName = _data["gymOwnerName"];
@@ -3328,7 +3279,7 @@ export class CreateGymDto implements ICreateGymDto {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["gymName"] = this.gymName;
-        data["gymAddress"] = this.gymAddress;
+        data["gymAddress"] = this.gymAddress ? this.gymAddress.toJSON() : undefined as any;
         data["gymStatus"] = this.gymStatus;
         data["gymTier"] = this.gymTier;
         data["gymOwnerName"] = this.gymOwnerName;
@@ -3339,7 +3290,7 @@ export class CreateGymDto implements ICreateGymDto {
 
 export interface ICreateGymDto {
     gymName?: string;
-    gymAddress?: string;
+    gymAddress?: Address;
     gymStatus?: GymStatus;
     gymTier?: GymTier;
     gymOwnerName?: string;

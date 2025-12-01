@@ -27,7 +27,7 @@ public class GymMembershipPassTests
             ExpirationDate = GetExpirationDate(expirationDaysFromNow)
         };
 
-        pass.IsUsable(now).ShouldBe(expected);
+        pass.IsValid(now).ShouldBe(expected);
     }
 
     [TestCase(PassType.SingleUse, 1, 1, null, PassUseResult.Success)]

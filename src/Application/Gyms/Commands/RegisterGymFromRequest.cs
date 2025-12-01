@@ -9,7 +9,6 @@ using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
 using FitPass.Domain.Strings;
-using Microsoft.Extensions.Logging;
 
 namespace FitPass.Application.Gyms.Commands;
 

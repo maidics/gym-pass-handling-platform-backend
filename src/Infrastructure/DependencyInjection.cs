@@ -3,7 +3,6 @@ using System.Security.Claims;
 using System.Text;
 using FitPass.Infrastructure.Data.Interceptors;
 using FitPass.Infrastructure.Stripe.Services;
-using FitPass.Application.Common.Configuration;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Infrastructure.Data;
 using FitPass.Infrastructure.Data.DbSeed;
@@ -26,6 +25,7 @@ using FitPass.Application.Common.Interfaces.Payment;
 using FitPass.Infrastructure.Email;
 using FitPass.Infrastructure.Jwt;
 using FitPass.Infrastructure.Stripe.Services.Webhook;
+using FitPass.Infrastructure.Common;
 
 namespace FitPass.Infrastructure;
 

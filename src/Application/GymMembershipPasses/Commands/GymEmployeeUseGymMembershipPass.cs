@@ -78,7 +78,7 @@ public class GymEmployeeUseGymMembershipPassCommandHandler : IRequestHandler<Gym
 
         var passUsage = pass.Use(command.LockerNumber, _timeProvider.GetUtcNow());
 
-        if (passUsage.PassUseResult == PassUseResult.AlreadyHasNoUsesLeft)
+        if (passUsage.PassUseResult == PassUseResult.Expired)
         {
             _logger.LogError("User request to use an already expired pass.");
         }

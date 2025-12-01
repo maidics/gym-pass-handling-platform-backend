@@ -137,28 +137,43 @@ public class CreateGymPassProductCommandHandler : IRequestHandler<CreateGymPassP
             return priceResult.ToFailure<GymPassProductDto>();
         }
 
-        var gymPassProductId = Guid.NewGuid().ToString();
-
-        var product = new GymPassProduct
+        var product = command.Type switch
         {
-            Id = gymPassProductId,
-            GymId = gymEmployment.GymId,
-            Name = command.Name,
-            Description = command.Description,
-            Type = command.Type,
-            TotalUses = command.TotalUses,
-            DaysAfterExpiring = command.DaysAfterExpiring,
-            IsActive = command.IsActive,
-            Price = command.Price,
-            PaymentIdentity = new ProductPaymentIdentity
-            {
-                Id = productResult.Value,
-                GymPassProductId = gymPassProductId,
-                PriceId = priceResult.Value
-            }
+            PassType.SingleUse => GymPassProduct.SingleUse(
+                gymEmployment.GymId,
+                command.Name,
+                command.Description,
+                command.IsActive,
+                command.Price),
+
+            PassType.MultiUse => GymPassProduct.MultiUse(
+                gymEmployment.GymId,
+                command.Name,
+                command.Description,
+                (int)command.TotalUses!,
+                command.IsActive,
+                command.Price),
+
+            PassType.Unlimited => GymPassProduct.UnlimitedUse(
+                gymEmployment.GymId,
+                command.Name,
+                command.Description,
+                (int)command.DaysAfterExpiring!,
+                command.IsActive,
+                command.Price),
+
+            _ => throw new NotImplementedException()
+        };
+
+        var paymentIdenity = new ProductPaymentIdentity
+        {
+            ProductId = productResult.Value,
+            GymPassProductId = product.Id,
+            PriceId = priceResult.Value,
         };
 
         await _context.GymPassProducts.AddAsync(product);
+        await _context.ProductPaymentIdentities.AddAsync(paymentIdenity);
         await _context.SaveChangesAsync();
 
         return Result.Success(product.MapToDto());

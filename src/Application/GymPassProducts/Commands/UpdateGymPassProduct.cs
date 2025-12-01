@@ -6,6 +6,7 @@ using FitPass.Application.Common.Security;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Entities.Payment;
+using FitPass.Domain.Enums;
 using FitPass.Domain.Strings;
 using FitPass.Domain.ValueObjects;
 
@@ -145,8 +146,8 @@ public class UpdateGymPassProductCommandHandler : IRequestHandler<UpdateGymPassP
             product.Description = command.Description;
         }
 
-        product.TotalUses = command.TotalUses;
-        product.DaysAfterExpiring = command.DaysAfterExpiring;
+        product.UpdateTotalUsesIfApplicable((int)command.TotalUses!);
+        product.UpdateDaysAfterExpiringIfApplicable((int)command.DaysAfterExpiring!);
 
         await _context.SaveChangesAsync();
 
