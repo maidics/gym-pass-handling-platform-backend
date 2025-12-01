@@ -34,7 +34,7 @@ public class MoneyTests
 
     [TestCase(-1, "usd")]
     [TestCase(-0.01, "eur")]
-    public void ShouldThrowIfAmountIsNegative(decimal amount, string currency)
+    public void ShouldThrowWhenAmountIsNegative(decimal amount, string currency)
     {
         Should.Throw<ArgumentException>(() => new Money(amount, currency))
             .Message.ShouldContain("Amount cannot be negative");
@@ -42,7 +42,7 @@ public class MoneyTests
 
     [TestCase("")]
     [TestCase("   ")]
-    public void ShouldThrowIfCurrencyIsEmpty(string currency)
+    public void ShouldThrowWhenCurrencyIsEmpty(string currency)
     {
         Should.Throw<ArgumentException>(() => new Money(100, currency))
             .Message.ShouldContain("Currency code is required");
@@ -58,31 +58,33 @@ public class MoneyTests
 
     [TestCase("zzz")]
     [TestCase("xxy")]
-    public void ShouldThrowIfCurrencyUnknown(string currency)
+    public void ShouldThrowWhenCurrencyUnknown(string currency)
     {
         Should.Throw<InvalidCurrencyException>(() => new Money(100, currency))
             .Message.ShouldContain("is not a valid ISO currency code");
     }
 
     [Test]
-    public void Zero_ShouldCreateZeroAmount()
+    public void ShouldCreateZeroAmount()
     {
         var money = Money.Zero("usd");
         money.Amount.ShouldBe(0);
         money.Currency.ShouldBe("usd");
+        money.Amount.ShouldBe(0);
         money.IsZero().ShouldBeTrue();
     }
 
     [Test]
-    public void Usd_ShouldCreateUsdMoney()
+    public void ShouldCreateUsdMoney()
     {
         var money = Money.Usd(50);
         money.Amount.ShouldBe(50);
         money.Currency.ShouldBe("usd");
+        money.IsZero().ShouldBeFalse();
     }
 
     [Test]
-    public void Eur_ShouldCreateEurMoney()
+    public void ShouldCreateEurMoney()
     {
         var money = Money.Eur(25);
         money.Amount.ShouldBe(25);
@@ -90,7 +92,7 @@ public class MoneyTests
     }
 
     [Test]
-    public void Add_ShouldSumAmounts_WhenCurrenciesMatch()
+    public void ShouldSumAmountsWhenCurrenciesMatch()
     {
         var m1 = Money.Usd(10);
         var m2 = Money.Usd(20);
@@ -102,14 +104,14 @@ public class MoneyTests
     }
 
     [Test]
-    public void OperatorPlus_ShouldSumAmounts()
+    public void OperatorPlusShouldSumAmounts()
     {
         var result = Money.Usd(10) + Money.Usd(20);
         result.Amount.ShouldBe(30);
     }
 
     [Test]
-    public void Add_ShouldThrowInvalidOperation_WhenCurrenciesMismatch()
+    public void ShouldThrowInvalidOperationWhenCurrenciesMismatch()
     {
         var m1 = Money.Usd(10);
         var m2 = Money.Eur(10);
@@ -119,7 +121,7 @@ public class MoneyTests
     }
 
     [Test]
-    public void Subtract_ShouldDeductAmounts_WhenCurrenciesMatchAndResultPositive()
+    public void SubtractShouldDeductAmountsWhenCurrenciesMatchAndResultPositive()
     {
         var m1 = Money.Usd(50);
         var m2 = Money.Usd(20);
@@ -130,7 +132,7 @@ public class MoneyTests
     }
 
     [Test]
-    public void Subtract_ShouldThrowInvalidOperation_WhenResultNegative()
+    public void ShouldThrowInvalidOperationWhenResultNegative()
     {
         var m1 = Money.Usd(10);
         var m2 = Money.Usd(20);
@@ -140,7 +142,7 @@ public class MoneyTests
     }
 
     [Test]
-    public void Multiply_ShouldScaleAmount()
+    public void ShouldScaleAmount()
     {
         var money = Money.Usd(10);
         var result = money.Multiply(2.5m);
@@ -149,13 +151,13 @@ public class MoneyTests
     }
 
     [Test]
-    public void Multiply_ShouldThrowArgument_WhenFactorNegative()
+    public void ShouldThrowArgumentWhenFactorNegative()
     {
         Should.Throw<ArgumentException>(() => Money.Usd(10).Multiply(-1));
     }
 
     [Test]
-    public void Divide_ShouldScaleDownAmount()
+    public void ShouldScaleDownAmount()
     {
         var money = Money.Usd(10);
         var result = money.Divide(2);
@@ -164,13 +166,13 @@ public class MoneyTests
     }
 
     [Test]
-    public void Divide_ShouldThrow_WhenDivisorIsZero()
+    public void ShouldThrowWhenDivisorIsZero()
     {
         Should.Throw<DivideByZeroException>(() => Money.Usd(10).Divide(0));
     }
 
     [Test]
-    public void ApplyDiscount_ShouldReduceAmount()
+    public void ApplyDiscountShouldReduceAmount()
     {
         var money = Money.Usd(100);
         var result = money.ApplyDiscount(0.2m);
@@ -180,13 +182,13 @@ public class MoneyTests
 
     [TestCase(-0.1)]
     [TestCase(1.1)]
-    public void ApplyDiscount_ShouldThrow_WhenPercentageInvalid(decimal discount)
+    public void ApplyDiscountShouldThrowWhenPercentageInvalid(decimal discount)
     {
         Should.Throw<ArgumentOutOfRangeException>(() => Money.Usd(100).ApplyDiscount(discount));
     }
 
     [Test]
-    public void ApplyTax_ShouldIncreaseAmount()
+    public void ApplyTaxShouldIncreaseAmount()
     {
         var money = Money.Usd(100);
         var result = money.ApplyTax(0.1m);
@@ -195,7 +197,7 @@ public class MoneyTests
     }
 
     [Test]
-    public void Equals_ShouldReturnTrue_ForSameAmountsAndCurrency()
+    public void EqualsShouldReturnTrueForSameAmountsAndCurrency()
     {
         var m1 = new Money(10, "usd");
         var m2 = new Money(10, "USD");
@@ -205,7 +207,7 @@ public class MoneyTests
     }
 
     [Test]
-    public void Equals_ShouldReturnFalse_ForDifferentAmounts()
+    public void EqualsShouldReturnFalseForDifferentAmounts()
     {
         var m1 = Money.Usd(10);
         var m2 = Money.Usd(11);
@@ -214,7 +216,7 @@ public class MoneyTests
     }
 
     [Test]
-    public void CompareTo_ShouldWorkCorrectly()
+    public void CompareToShouldWorkCorrectly()
     {
         var small = Money.Usd(10);
         var large = Money.Usd(20);
@@ -228,7 +230,7 @@ public class MoneyTests
     }
 
     [Test]
-    public void CompareTo_ShouldThrow_WhenCurrenciesMismatch()
+    public void CompareToShouldThrowWhenCurrenciesMismatch()
     {
         var usd = Money.Usd(10);
         var eur = Money.Eur(10);
@@ -237,7 +239,7 @@ public class MoneyTests
     }
 
     [Test]
-    public void HasSameCurrency_ShouldReturnTrue_WhenCurrenciesMatch()
+    public void HasSameCurrencyShouldReturnTrueWhenCurrenciesMatch()
     {
         var m1 = Money.Usd(10);
         var m2 = Money.Usd(100);
@@ -246,7 +248,7 @@ public class MoneyTests
     }
 
     [Test]
-    public void ToString_ShouldFormatBasedOnInternalCultureInfo()
+    public void ToStringShouldFormatBasedOnInternalCultureInfo()
     {
 
         var usd = Money.Usd(1234.56m);
@@ -260,7 +262,7 @@ public class MoneyTests
     }
 
     [Test]
-    public void ToStringWithoutSymbol_ShouldReturnSimpleFormat()
+    public void ToStringWithoutSymbolShouldReturnSimpleFormat()
     {
         var money = Money.Usd(10.5m);
         money.ToStringWithoutSymbol().ShouldBe("10.50 usd");
