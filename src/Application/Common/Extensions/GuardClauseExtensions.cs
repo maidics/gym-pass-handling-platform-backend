@@ -1,5 +1,4 @@
 using System.Diagnostics.CodeAnalysis;
-using FitPass.Domain.Entities;
 
 namespace FitPass.Application.Common.Extensions;
 

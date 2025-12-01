@@ -114,6 +114,11 @@ public class Result<T> : Result
 
     public Result<T2> ToFailure<T2>()
     {
+        if (Succeeded)
+        {
+            throw new InvalidOperationException("Cannot convert to new Result failure when Result is succeeded.");
+        }
+
         return new Result<T2>(
             succeeded: false,
             message: Message,
@@ -145,6 +150,8 @@ public class ResultFailure
 
     public ResultFailure(ResultTypes type, string message, IEnumerable<string> errors)
     {
+        ThrowIfNotFailedResult(type);
+
         Type = type;
         Message = message;
         Errors = errors.ToArray();
@@ -152,16 +159,16 @@ public class ResultFailure
 
     public ResultFailure(Result result)
     {
-        ThrowIfNotFailedResult(result);
+        ThrowIfNotFailedResult(result.Type);
 
         Type = result.Type;
         Message = result.Message;
         Errors = result.Errors.ToArray();
     }
 
-    private static void ThrowIfNotFailedResult(Result result)
+    private static void ThrowIfNotFailedResult(ResultTypes type)
     {
-        if (result.Succeeded)
+        if (type == ResultTypes.Success)
         {
             throw new InvalidOperationException($"Cannot create {nameof(ResultFailure)} from {nameof(Result.Succeeded)} {nameof(Result)}");
         }
