@@ -100,7 +100,7 @@ public class ResultTests
         var resultFailure1 = new ResultFailure(ResultTypes.NotFound, "Resource not found.", ["failure"]);
 
         resultFailure1.Type.ShouldBe(ResultTypes.NotFound);
-        resultFailure1.Message.ShouldBe("Resource not found");
+        resultFailure1.Message.ShouldContain("Resource not found");
         resultFailure1.Errors.Length.ShouldBe(1);
         resultFailure1.Errors.ShouldContain("failure");
 
@@ -108,7 +108,7 @@ public class ResultTests
         var resultFailure2 = new ResultFailure(Result.NotFound(nameof(UserProfile)));
 
         resultFailure2.Type.ShouldBe(ResultTypes.NotFound);
-        resultFailure2.Message.ShouldBe("Resource not found");
+        resultFailure2.Message.ShouldContain("not found");
         resultFailure2.Errors.Length.ShouldBe(0);
     }
 

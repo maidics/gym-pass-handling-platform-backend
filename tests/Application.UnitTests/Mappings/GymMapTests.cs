@@ -23,22 +23,7 @@ public class GymMapTests
             Tier = GymTier.Elite,
             PassProducts =
             [
-                new GymPassProduct 
-                {
-                    GymId = "id",
-                    Name = "name",
-                    Description = "description",
-                    Type = PassType.SingleUse,
-                    TotalUses = 1,
-                    DaysAfterExpiring = null,
-                    IsActive = true,
-                    Price = Money.Zero("usd"),
-                    PaymentIdentity = new ProductPaymentIdentity 
-                    {
-                        GymPassProductId = "gymPassProductId",
-                        PriceId = "priceId"
-                    }
-                }
+                GymPassProduct.SingleUse("id", "Single Use Pass", "Description", true, new Money(1000, "huf")),
             ]
         };
 
@@ -49,6 +34,6 @@ public class GymMapTests
             () => dto.Address.ShouldBeEquivalentTo(new Address("line1", "line2", "city", null, "postalCode", "HU")),
             () => dto.Status.ShouldBe(GymStatus.Inactive),
             () => dto.Tier.ShouldBe(GymTier.Elite),
-            () => dto.PassProducts.ShouldBeEquivalentTo(gym.PassProducts.Select(x => x.MapToDto())));
+            () => dto.PassProducts.ShouldBeEquivalentTo(new List<GymPassProductDto>(gym.PassProducts.Select(x => x.MapToDto()))));
     }
 }
