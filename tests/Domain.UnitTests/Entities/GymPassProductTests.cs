@@ -77,5 +77,31 @@ public class GymPassProductTests
     }
 
     [Test]
-    public //TODO
+    public void ShouldReturnExpirationDate()
+    {
+        var utcNow = DateTimeOffset.UtcNow;
+
+        var product = GymPassProduct.UnlimitedUse("gymId", "name", "description", 5, false, Money.Eur(10));
+
+        var expirationDate = product.GetExpirationDate(utcNow);
+
+        expirationDate.ShouldBe(utcNow.AddDays(5));
+    }
+
+    [Test]
+    public void ShouldReturnGymMembershipPass()
+    {
+        var product = GymPassProduct.SingleUse("gymId", "name", "description", false, Money.Zero("huf"));
+
+        var utcNow = DateTimeOffset.UtcNow;
+
+        var pass = product.ToGymMembershipPass("gymMembershipId", "userId", utcNow);
+
+        pass.GymMembershipId.ShouldBe("gymMembershipId");
+        pass.UserId.ShouldBe("userId");
+        pass.Type.ShouldBe(PassType.SingleUse);
+        pass.TotalUses.ShouldBe(1);
+        pass.RemainingUses.ShouldBe(1);
+        pass.ExpirationDate.ShouldBeNull();
+    }
 }

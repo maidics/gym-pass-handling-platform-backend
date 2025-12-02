@@ -20,13 +20,13 @@ internal class DeserializeRequestPayloadCommandHandler<TPayload>
         _logger = logger;
     }
 
-    public async Task<Result<TPayload>> Handle(DeserializeRequestPayloadCommand<TPayload> command, CancellationToken cancellationToken)
+    public Task<Result<TPayload>> Handle(DeserializeRequestPayloadCommand<TPayload> command, CancellationToken cancellationToken)
     {
         if (command.Request.Payload is null)
         {
             _logger.LogError("{Request} request has no payload.", command.Request);
 
-            return Result.InternalError("Request has no payload.");
+            return Task.FromResult((Result<TPayload>)Result.InternalError("Request has no payload."));
         }
 
         TPayload? payload;
@@ -37,13 +37,13 @@ internal class DeserializeRequestPayloadCommandHandler<TPayload>
 
             if (payload is null)
             {
-                return Result.InternalError("Failed to deserialize request payload.");
+                return Task.FromResult((Result<TPayload>)Result.InternalError("Failed to deserialize request payload."));
             }
         } catch
         {
-            return Result.InternalError("Failed to deserialize request payload.");
+            return Task.FromResult((Result<TPayload>)Result.InternalError("Failed to deserialize request payload."));
         }
 
-        return Result<TPayload>.Success(payload);
+        return Task.FromResult((Result<TPayload>)Result<TPayload>.Success(payload));
     }
 }

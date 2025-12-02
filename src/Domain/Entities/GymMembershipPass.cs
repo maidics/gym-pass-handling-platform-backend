@@ -22,7 +22,7 @@ public class GymMembershipPass : BaseAuditableEntity
 
         if (ExpirationDate is not null)
         {
-            return ExpirationDate.Value.UtcDateTime.Date < utcNow.UtcDateTime.Date;
+            return ExpirationDate.Value.UtcDateTime.Date >= utcNow.UtcDateTime.Date;
         }
 
         throw new ArgumentException($"Both {nameof(RemainingUses)} and {nameof(ExpirationDate)} is null.");

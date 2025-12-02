@@ -11,10 +11,9 @@ public class GymBuilder : TestAuditableEntityBuilder<GymBuilder, Gym>
 {
     private string _id = Guid.NewGuid().ToString();
     private string _name = $"DefaultGym - {Guid.NewGuid()}";
-    private string _address = "DefaultGymAddress";
+    private Address _address = new Address("line1", "line2", "city", )
     private GymStatus _status = GymStatus.Active;
     private GymTier _tier = GymTier.Local;
-    private string? _ownerName;
 
     public GymBuilder(IServiceScopeFactory scopeFactory) : base(scopeFactory) { }
 
@@ -34,7 +33,7 @@ public class GymBuilder : TestAuditableEntityBuilder<GymBuilder, Gym>
         return this;
     }
 
-    public GymBuilder WithAddress(string address)
+    public GymBuilder WithAddress(Address address)
     {
         _address = address; 
         
@@ -71,7 +70,6 @@ public class GymBuilder : TestAuditableEntityBuilder<GymBuilder, Gym>
             Address = _address,
             Status = _status,
             Tier = _tier,
-            OwnerName = _ownerName,
         };
 
         ApplyAuditProperties(gym);

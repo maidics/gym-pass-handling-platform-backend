@@ -11,11 +11,17 @@ public class GymMembershipPassTests
     [TestCase(PassType.SingleUse, 1, 1, null, true)]
     [TestCase(PassType.MultiUse, 3, 1, null, true)]
     [TestCase(PassType.Unlimited, null, null, -1, false)]
+    [TestCase(PassType.Unlimited, null, null, -0.9, false)]
+    [TestCase(PassType.Unlimited, null, null, -1.1, false)]
+    [TestCase(PassType.Unlimited, null, null, 0, true)]
+    [TestCase(PassType.Unlimited, null, null, -0.1, true)]
+    [TestCase(PassType.Unlimited, null, null, -0.45, true)]
     [TestCase(PassType.SingleUse, 1, 0, null, false)]
     [TestCase(PassType.MultiUse, 10, 0, null, false)]
-    public void IsUsableShouldReturnCorrectValue(PassType passType, int? totalUses, int? remainingUses, double? expirationDaysFromNow, bool expected)
+    public void IsValidShouldReturnCorrectValue(PassType passType, int? totalUses, int? remainingUses, double? expirationDaysFromNow, bool expected)
     {
         var now = DateTimeOffset.UtcNow;
+        var testNow = new DateTimeOffset(now.Year, now.Month, now.Day, 12, 0, 0, TimeSpan.Zero);
 
         var pass = new GymMembershipPass
         {
@@ -24,10 +30,10 @@ public class GymMembershipPassTests
             Type = passType,
             TotalUses = totalUses,
             RemainingUses = remainingUses,
-            ExpirationDate = GetExpirationDate(expirationDaysFromNow)
+            ExpirationDate = GetExpirationDate(testNow, expirationDaysFromNow)
         };
 
-        pass.IsValid(now).ShouldBe(expected);
+        pass.IsValid(testNow).ShouldBe(expected);
     }
 
     [TestCase(PassType.SingleUse, 1, 1, null, PassUseResult.Success)]
@@ -44,7 +50,7 @@ public class GymMembershipPassTests
         PassUseResult passUseResult)
     {
         var now = DateTimeOffset.UtcNow;
-        DateTimeOffset? expirationDate = GetExpirationDate(expirationDaysFromNow);
+        DateTimeOffset? expirationDate = GetExpirationDate(now, expirationDaysFromNow);
 
         var pass = new GymMembershipPass
         {
@@ -69,7 +75,7 @@ public class GymMembershipPassTests
         usage.PassId.ShouldBe("id");
         usage.PassType.ShouldBe(passType);
         usage.TotalPassUses.ShouldBe(totalUses);
-        usage.RemainingPassUses.ShouldBe(remainingUses == null ? null : remainingUses - 1);
+        usage.RemainingPassUses.ShouldBe(remainingUses == null ? null : pass.RemainingUses);
         usage.PassExpirationDate.ShouldBe(expirationDate);
         usage.PassUseResult.ShouldBe(passUseResult);
         usage.LockerNumber.ShouldBe("locker number");
@@ -144,8 +150,8 @@ public class GymMembershipPassTests
             () => pass.DomainEvents.First().GetType().ShouldBe(typeof(PassExpiredEvent)));
     }
 
-    private DateTimeOffset? GetExpirationDate(double? expirationDaysFromNow)
+    private DateTimeOffset? GetExpirationDate(DateTimeOffset utcNow, double? expirationDaysFromNow)
     {
-        return expirationDaysFromNow is null ? null : DateTimeOffset.UtcNow.AddDays((double)expirationDaysFromNow);
+        return expirationDaysFromNow is null ? null : utcNow.AddDays((double)expirationDaysFromNow);
     }
 }

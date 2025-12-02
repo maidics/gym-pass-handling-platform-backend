@@ -2,6 +2,7 @@ using FitPass.Application.Requests.DTOs;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
+using FitPass.Domain.ValueObjects;
 using FitPass.Infrastructure.Identity;
 
 namespace FitPass.Application.FunctionalTests.TestData;
@@ -102,7 +103,7 @@ public partial class TestEntityBuilder
         return new CreateGymDto
         {
             GymName = $"CreateGymDto GymName - {Guid.NewGuid()}",
-            GymAddress = "Address",
+            GymAddress = new Address("line1", "line2", "city", null, "postalCode", "HU"),
             GymStatus = GymStatus.Active,
             GymTier = GymTier.Local,
             EscalationEmail = "escalation@email"

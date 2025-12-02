@@ -24,7 +24,7 @@ public class GetNewGymsThisMonthHandler : IRequestHandler<GetNewGymsThisMonthQue
     public async Task<List<GymDto>> Handle(GetNewGymsThisMonthQuery request, CancellationToken cancellationToken)
     {
         var now = _timeProvider.GetUtcNow();
-        var startOfThisMonth = new DateTimeOffset(now.UtcDateTime.Year, now.UtcDateTime.Month, 1, 0, 0, 0, TimeSpan.Zero);
+        var startOfThisMonth = new DateTimeOffset(now.Year, now.Month, 1, 0, 0, 0, TimeSpan.Zero);
         var startOfNextMonth = startOfThisMonth.AddMonths(1);
 
         var newGyms = await _context

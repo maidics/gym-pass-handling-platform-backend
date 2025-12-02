@@ -33,7 +33,6 @@ public static class ApplicationEntityAssertions
         gymDto.Address.ShouldBe(gym.Address);
         gymDto.Status.ShouldBe(gym.Status);
         gymDto.Tier.ShouldBe(gym.Tier);
-        gymDto.OwnerName.ShouldBe(gym.OwnerName);
     }
 
     public static void AssertTo(this GymPassUsage? gymPassUsage, string userId, string gymId, GymMembershipPass pass, PassUseResult result, string? lockerNumber)
@@ -79,7 +78,6 @@ public static class ApplicationEntityAssertions
         gymDto.Address.ShouldBe(createGymDto.GymAddress);
         gymDto.Status.ShouldBe(createGymDto.GymStatus);
         gymDto.Tier.ShouldBe(createGymDto.GymTier);
-        gymDto.OwnerName.ShouldBe(createGymDto.GymOwnerName);
     }
 
     public static void AssertToDto(this Gym? gym, GymDto dto)
@@ -91,7 +89,6 @@ public static class ApplicationEntityAssertions
         gym.Status.ShouldBe(dto.Status);
         gym.Tier.ShouldBe(dto.Tier);
         gym.CreatedOn.ShouldBe(dto.CreatedOn);
-        gym.OwnerName.ShouldBe(dto.OwnerName);
     }
 
     public static void AssertTo(this UserProfileWithEmailDto? dto, UserProfile userProfile, string email)

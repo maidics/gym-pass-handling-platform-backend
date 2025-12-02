@@ -103,11 +103,11 @@ public class GymPassProduct : BaseAuditableEntity
         return this;
     }
 
-    public DateTimeOffset GetExpirationDate(DateTimeOffset utcNow)
+    public DateTimeOffset? GetExpirationDate(DateTimeOffset utcNow)
     {
         if (DaysAfterExpiring == null)
         {
-            throw new InvalidOperationException("Use based pass type does not have an expiration date.");
+            return null;
         }
 
         return utcNow.AddDays((int)DaysAfterExpiring);

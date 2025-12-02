@@ -39,8 +39,7 @@ public class BusinessRepresentative : ValueObject
         if (phoneNumber is null)
             throw new ArgumentNullException(nameof(phoneNumber));
 
-        var utcNowDateTime = utcNow.UtcDateTime;
-        var eighteenYearsAgo = new DateOnly(utcNowDateTime.Year - 18, utcNowDateTime.Month, utcNowDateTime.Day);
+        var eighteenYearsAgo = new DateOnly(utcNow.Year - 18, utcNow.Month, utcNow.Day);
         
         if (dateOfBirth >= eighteenYearsAgo)
             throw new ArgumentException("Representative must be at least 18 years old", nameof(dateOfBirth));

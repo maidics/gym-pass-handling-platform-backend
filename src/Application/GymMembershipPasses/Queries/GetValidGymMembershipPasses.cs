@@ -41,7 +41,7 @@ public class GetValidGymMembershipPassesQueryHandler : IRequestHandler<GetValidG
         var utcNow = _timeProvider.GetUtcNow();
 
         var passes = await _context.GymMembershipPasses
-            .Where(x => x.UserId == _user.Id && !x.IsValid(utcNow)) //p.ExpirationDate.Value.UtcDateTime.Date < utcNow.UtcDateTime.Date
+            .Where(x => x.UserId == _user.Id && !x.IsValid(utcNow)) //p.ExpirationDate.Value.Date < utcNow.Date
             .ToListAsync(cancellationToken);
             
         return passes.Select(x => x.MapToDto()).ToList();

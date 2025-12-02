@@ -37,7 +37,7 @@ public partial class PhoneNumber : ValueObject
     {
         return E164Regex().IsMatch(phoneNumber);
     }
-    
+
     private static string Normalize(string phoneNumber)
     {
         var cleaned = phoneNumber.Trim();
@@ -50,9 +50,7 @@ public partial class PhoneNumber : ValueObject
             throw new ArgumentException("Phone number must contain digits.", nameof(phoneNumber));
         }
         
-        return hasPlus || digitsOnly.Length > 10 
-            ? $"+{digitsOnly}" 
-            : $"+{digitsOnly}";
+        return $"+{digitsOnly}";
     }
     
     protected override IEnumerable<object> GetEqualityComponents()
