@@ -1,11 +1,11 @@
-using FitPass.Application.ApplicationUsers.DTOs;
 using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Domain.Strings;
 using Microsoft.Extensions.Logging;
 using FitPass.Application.Common.Models;
+using FitPass.Application.Users.DTOs;
 
-namespace FitPass.Application.ApplicationUsers.Commands;
+namespace FitPass.Application.Users.Commands;
 
 public record ActivateUserAccountCommand(
     string EncodedEmail,
@@ -72,6 +72,11 @@ public class ActivateUserAccountCommandHandler : IRequestHandler<ActivateUserAcc
         if (userId is null)
         {
             return Result.NotFound("User");
+        }
+
+        if (!await _identityService.DoesUserHavePassword(userId) && !command.SetPassword)
+        {
+            return Result.BusinessRuleViolation("User has to set a password.");
         }
 
         var emailConfirmationToken = Uri.UnescapeDataString(command.EncodedEmailConfirmationToken);

@@ -2,7 +2,7 @@ using FitPass.Application.ApplicationUsers.DTOs;
 using FitPass.Application.Common.Interfaces;
 using Microsoft.Extensions.Logging;
 
-namespace FitPass.Application.ApplicationUsers.Commands;
+namespace FitPass.Application.Users.Commands;
 
 /*
 public record GenericRegisterUserCommand<TRole>(

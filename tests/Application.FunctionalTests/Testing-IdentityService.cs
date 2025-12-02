@@ -1,4 +1,5 @@
 ﻿using FitPass.Application.Common.Interfaces;
+using FitPass.Infrastructure.Identity;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FitPass.Application.FunctionalTests;

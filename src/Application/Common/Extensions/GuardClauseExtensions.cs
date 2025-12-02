@@ -4,17 +4,17 @@ namespace FitPass.Application.Common.Extensions;
 
 public static class GuardClauseExtensions
 {
-    public static T NullEntityRelatedToCurrentUser<T>(
+    public static T NullParameterRelatedToCurrentUser<T>(
         this IGuardClause _, 
-        [NotNull][ValidatedNotNull]T? entity, 
-        string entityName, 
+        [NotNull][ValidatedNotNull]T? parameter, 
+        string parameterName, 
         string? currentUserId)
     {
-        if (entity is null)
+        if (parameter is null)
         {
-            throw new ArgumentNullException(entityName, $"No {entityName} found for '{currentUserId}' user.");
+            throw new ArgumentNullException(parameterName, $"No {parameterName} found for '{currentUserId}' user.");
         }
 
-        return entity;
+        return parameter;
     }
 }

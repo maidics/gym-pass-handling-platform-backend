@@ -3,7 +3,7 @@ using FitPass.Application.Common.Interfaces;
 using FitPass.Domain.Entities.Payment;
 using FitPass.Domain.Strings;
 
-namespace FitPass.Application.TenantPaymentProfiles.Commands;
+namespace FitPass.Application.Webhooks;
 
 //Webhook only - updated from Stripe
 public record UpdateTenantPaymentProfileAccountStatusCommand(

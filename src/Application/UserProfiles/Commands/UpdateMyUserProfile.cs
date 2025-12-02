@@ -44,7 +44,7 @@ public class UpdateMyUserProfileCommandHandler : IRequestHandler<UpdateMyUserPro
             .UserProfiles
             .FindAsync(_user.Id!);
 
-        Guard.Against.NullEntityRelatedToCurrentUser(profile, nameof(UserProfile), _user.Id);
+        Guard.Against.NullParameterRelatedToCurrentUser(profile, nameof(UserProfile), _user.Id);
 
         profile.FirstName = command.FirstName;
         profile.LastName = command.LastName;

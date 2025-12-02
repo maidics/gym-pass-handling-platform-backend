@@ -1,0 +1,128 @@
+﻿namespace FitPass.Application.FunctionalTests.Tests.UserTests.Commands;
+
+using FitPass.Application.Common.Exceptions;
+using FitPass.Infrastructure.Identity;
+
+using static Testing;
+using FitPass.Application.Users.DTOs;
+using FitPass.Application.Users.Commands;
+using FitPass.Application.Common.Models;
+
+public class ActivateUserAccountTests : BaseTestFixture
+{
+    [Test]
+    public override void AuthorizeAttributeCheck()
+    {
+        ShouldNotRequireAuthorization<ActivateUserAccountCommand>();
+    }
+
+    [Test]
+    public async Task ShouldDenyInvalidParameters()
+    {
+        var command = new ActivateUserAccountCommand(string.Empty, string.Empty, true, null, null);
+
+        await Should.ThrowAsync<ValidationException>(() => SendAsync(command));
+    }
+
+    [Test]
+    public async Task ShouldReturnNotFoundIfUserNotFound()
+    {
+        var command = new ActivateUserAccountCommand(Uri.EscapeDataString("email@localhost"), "token", false, null, null);
+
+        var result = await SendAsync(command);
+        result.Type.ShouldBe(ResultTypes.NotFound);
+        result.Message.ShouldBe("User not found.");
+    }
+
+    [Test]
+    public async Task ShouldReturnBusinessRuleViolationIfUserHasNoPasswordAndSetPasswordIsFalse()
+    {
+        var user = await CreateUserAsync(password: null);
+
+        var token = await GenerateEmailConfirmationTokenAsync(user.Id);
+
+        var command = new ActivateUserAccountCommand(
+            Uri.EscapeDataString(user.Email!), 
+            Uri.EscapeDataString(token), 
+            false, 
+            null, 
+            null);
+
+        var result = await SendAsync(command);
+        result.Type.ShouldBe(ResultTypes.BusinessRuleViolation);
+        result.Message.ShouldBe("User must set a password.");
+    } 
+
+    [Test]
+    public async Task ShoudlReturnForbiddenIfTokenIsNotValid()
+    {
+        var user = await CreateUserAsync(password: null);
+
+        var command = new ActivateUserAccountCommand(Uri.EscapeDataString(user.Email!), "invalidtoken", false, null, null);
+
+        var result = await SendAsync(command);
+        result.Type.ShouldBe(ResultTypes.Forbidden);
+        result.Message.ShouldContain("Email confirmation token is not valid");
+    }
+
+    [Test]
+    public async Task ShouldReturnForbiddenIfUserAlreadyHasPasswordAndSetPasswordIsTrue()
+    {
+        var user = await CreateUserAsync();
+
+        var token = await GenerateEmailConfirmationTokenAsync(user.Id);
+
+        var command = new ActivateUserAccountCommand(
+            Uri.EscapeDataString(user.Email!), 
+            Uri.EscapeDataString(token), 
+            true, 
+            "Password123_", 
+            "Password123_");
+
+        var result = await SendAsync(command);
+        result.Type.ShouldBe(ResultTypes.Forbidden);
+        result.Message.ShouldBe("User already has password.");
+    }
+
+    [Test]
+    public async Task ShouldConfirmUserEmail()
+    {
+        var user = await CreateUserAsync();
+
+        var token = await GenerateEmailConfirmationTokenAsync(user.Id);
+
+        var command = new ActivateUserAccountCommand(Uri.EscapeDataString(user.Email!), token, false, null, null);
+
+        var result = await SendAsync(command);
+        result.Succeeded.ShouldBeTrue();
+        result.Value.ShouldNotBeNull();
+
+        var updatedUser = await FindAsync<ApplicationUser>(user.Id);
+        updatedUser.ShouldNotBeNull();
+        updatedUser.EmailConfirmed.ShouldBeTrue();
+    }
+
+    [Test]
+    public async Task ShouldAddPasswordToUserThatHasNoPassword()
+    {
+        var user = await CreateUserAsync(password: null);
+
+        var token = await GenerateEmailConfirmationTokenAsync(user.Id);
+
+        var command = new ActivateUserAccountCommand(
+            Uri.EscapeDataString(user.Email!),
+            Uri.EscapeDataString(token),
+            true, 
+            "Password123_",
+            "Password123_");
+
+        var result = await SendAsync(command);
+        result.Succeeded.ShouldBeTrue();
+        result.Value.ShouldNotBeNull();
+
+        var updatedUser = await FindAsync<ApplicationUser>(user.Id);
+
+        updatedUser!.EmailConfirmed.ShouldBeTrue();
+        updatedUser!.PasswordHash.ShouldNotBeNull();
+    }
+}

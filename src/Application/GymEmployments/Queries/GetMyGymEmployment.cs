@@ -34,7 +34,7 @@ public class GetMyGymEmploymentQueryHandler : IRequestHandler<GetMyGymEmployment
     {
         var gymEmploymentDto = await _queryService.GetGymEmploymentWithUserProfileAndEmailByUserId(_user.Id!);
 
-        Guard.Against.NullEntityRelatedToCurrentUser(gymEmploymentDto, nameof(GymEmployment), _user.Id);
+        Guard.Against.NullParameterRelatedToCurrentUser(gymEmploymentDto, nameof(GymEmployment), _user.Id);
 
         return gymEmploymentDto;
     }

@@ -40,7 +40,7 @@ public class EndUserGymSessionCommandHandler : IRequestHandler<EndUserGymSession
             return Result.NotFound(nameof(GymPassUsage));
         }
 
-        gymPassUsage.FinishGymSession(_timeProvider.GetUtcNow());
+        gymPassUsage.EndGymSession(_timeProvider.GetUtcNow());
 
         await _context.SaveChangesAsync();
 

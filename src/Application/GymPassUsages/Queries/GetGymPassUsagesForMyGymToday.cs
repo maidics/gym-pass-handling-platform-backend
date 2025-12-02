@@ -32,7 +32,7 @@ public class GetGymPassUsagesForMyGymTodayQueryHandler : IRequestHandler<GetGymP
             .AsNoTracking()
             .FirstOrDefaultAsync(ge => ge.UserId != null && ge.UserId == _user.Id);
 
-        Guard.Against.NullEntityRelatedToCurrentUser(gymEmployment, nameof(GymEmployment), _user.Id);
+        Guard.Against.NullParameterRelatedToCurrentUser(gymEmployment, nameof(GymEmployment), _user.Id);
 
         var gymPassUsages =  await _context
             .GymPassUsages

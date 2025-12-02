@@ -24,62 +24,73 @@ public partial class TestEntityBuilder
         GymMembership gymMembership,
         GymMembershipPass singleUsePass,
         GymMembershipPass noUsePass,
-        GymMembershipPass unlimitedUsePass,
-        GymMembershipPass expiredPass)> BuildGymAsync()
+        GymPassUsage passUsage,
+        GymMembershipPass unlimitedUsePass)> BuildGymAsync()
     {
         var obj = await BuildGymEmployeeAsync(Roles.GymAdministrator);
 
-        var gymStaff = await ApplicationUserBuilder
-            .WithRole(Roles.GymStaff)
-            .WithPassword("Password123_")
-            .BuildAsync();
+        var gymStaff = await CreateUserAsync(Roles.GymStaff);
 
-        var gymStaffGymEmployment = await GymEmploymentBuilder
-            .WithGymId(obj.gym.Id)
-            .WithApplicationUserId(gymStaff.Id)
-            .WithRole(Roles.GymStaff)
-            .BuildAsync();
+        var gymStaffGymEmployment = new GymEmployment
+        {
+            UserId = gymStaff.Id,
+            GymId = obj.gym.Id,
+            Role = Roles.GymStaff,
+            EmploymentStart = GetUtcNow()
+        };
 
-        var gymStaffUserProfile = await UserProfileBuilder
-            .WithApplicationUserId(gymStaff.Id)
-            .BuildAsync();
+        await AddAsync(gymStaffGymEmployment);
 
-        var gymMember = await ApplicationUserBuilder
-            .WithPassword("Password123_")
-            .BuildAsync();
+        var gymStaffUserProfile = new UserProfile
+        {
+            UserId = gymStaff.Id,
+            FirstName = "Gym",
+            LastName = "Staff",
+        };
 
-        var gymMemberUserProfile = await UserProfileBuilder
-            .WithApplicationUserId(gymMember.Id)
-            .BuildAsync();
+        await AddAsync(gymStaffUserProfile);
 
-        var gymMembership = await GymMembershipBuilder
-            .WithApplicationUserId(gymMember.Id)
-            .WithGymId(obj.gym.Id)
-            .WithStatus(GymMembershipStatus.Active)
-            .BuildAsync();
+        var gymMember = await CreateUserAsync();
 
-        var singleUsePass = await GymMembershipPassBuilder
-            .WithGymMembershipId(gymMembership.Id)
-            .BuildAsync();
+        var gymMemberUserProfile = new UserProfile
+        {
+            UserId = gymMember.Id,
+            FirstName = "Gym",
+            LastName = "Member",
+        };
 
-        var noUsePass = await GymMembershipPassBuilder
-            .WithGymMembershipId(gymMembership.Id)
-            .AsMultiUseType(2, 0)
-            .BuildAsync();
+        await AddAsync(gymMemberUserProfile);
 
-        var nowPlus10Days = DateTimeOffset.Now.AddDays(10);
+        var gymMembership = new GymMembership
+        {
+            GymId = obj.gym.Id,
+            UserId = gymMember.Id,
+            Status = GymMembershipStatus.Active
+        };
 
-        var unlimitedUsePass = await GymMembershipPassBuilder
-            .WithGymMembershipId(gymMembership.Id)
-            .AsUnlimitedUseType(new DateOnly(nowPlus10Days.Year, nowPlus10Days.Month, nowPlus10Days.Day))
-            .BuildAsync();
+        await AddAsync(gymMembership);
 
-        var nowMinus10Days = DateTimeOffset.Now.AddDays(-10);
+        var singleUsePass = GymPassProduct
+            .SingleUse(obj.gym.Id, "Test Product", "Test Description", true, Money.Eur(10))
+            .ToGymMembershipPass(gymMembership.Id, gymMember.Id, GetUtcNow());
 
-        var expiredPass = await GymMembershipPassBuilder
-            .WithGymMembershipId(gymMembership.Id)
-            .AsUnlimitedUseType(new DateOnly(nowMinus10Days.Year, nowMinus10Days.Month, nowMinus10Days.Day))
-            .BuildAsync();
+        await AddAsync(singleUsePass);
+
+        var noUsePass = GymPassProduct
+            .SingleUse(obj.gym.Id, "Test Product", "Test Description", true, Money.Eur(10))
+            .ToGymMembershipPass(gymMembership.Id, gymMember.Id, GetUtcNow());
+
+        var passUsage = noUsePass.Use("Test Locker", GetUtcNow());
+        passUsage.EndGymSession(GetUtcNow());
+
+        await AddAsync(noUsePass);
+        await AddAsync(passUsage);
+
+        var unlimitedUsePass = GymPassProduct
+            .UnlimitedUse(obj.gym.Id, "Test Name", "Test Description", 10, true, Money.Eur(10))
+            .ToGymMembershipPass(gymMembership.Id, gymMember.Id, GetUtcNow());
+
+        await AddAsync(unlimitedUsePass);
 
         return (
             obj.gym,
@@ -94,19 +105,7 @@ public partial class TestEntityBuilder
             gymMembership,
             singleUsePass,
             noUsePass,
-            unlimitedUsePass,
-            expiredPass);
-    }
-
-    public static CreateGymDto BuildCreateGymDto()
-    {
-        return new CreateGymDto
-        {
-            GymName = $"CreateGymDto GymName - {Guid.NewGuid()}",
-            GymAddress = new Address("line1", "line2", "city", null, "postalCode", "HU"),
-            GymStatus = GymStatus.Active,
-            GymTier = GymTier.Local,
-            EscalationEmail = "escalation@email"
-        };
+            passUsage,
+            unlimitedUsePass);
     }
 }

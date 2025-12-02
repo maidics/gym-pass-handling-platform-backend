@@ -9,7 +9,7 @@ using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
 using FitPass.Domain.Strings;
 
-namespace FitPass.Application.ApplicationUsers.Commands.RoleHandling;
+namespace FitPass.Application.Users.Commands.RoleHandling;
 
 
 [Authorize(Roles = Roles.AppAdministrator)]
@@ -56,9 +56,9 @@ public class PromotePendingGymEmployeeToGymAdminFromRequestCommandHandler : IReq
             return Result.Forbidden();
         }
 
-        if (request.Type != RequestType.GymCreation)
+        if (request.Type != RequestType.GymAdminPromotion)
         {
-            return Result.BusinessRuleViolation("Request is not of GymCreation type.");
+            return Result.BusinessRuleViolation("Request is not of GymAdminPromotion type.");
         }
 
         var deserializationResult = await _sender.Send(new DeserializeRequestPayloadCommand<GymAdminPromotionDto>(request));
@@ -83,6 +83,15 @@ public class PromotePendingGymEmployeeToGymAdminFromRequestCommandHandler : IReq
         if (!await _identityService.IsInRoleAsync(promotionDto.UserIdToNominate, Roles.PendingGymEmployee))
         {
             return Result.BusinessRuleViolation("User is not a PendingGymEmployee.");
+        }
+
+        var gym = await _context.Gyms
+            .AsNoTracking()
+            .FirstOrDefaultAsync(g => g.Id == promotionDto.GymId);
+
+        if (gym is null)
+        {
+            return Result.NotFound(nameof(Gym));
         }
 
         using var transaction = await _context.BeginTransactionAsync();

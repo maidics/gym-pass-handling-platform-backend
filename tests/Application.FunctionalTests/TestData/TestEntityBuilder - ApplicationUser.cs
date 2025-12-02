@@ -1,5 +1,7 @@
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
+using FitPass.Domain.Enums;
+using FitPass.Domain.ValueObjects;
 using FitPass.Infrastructure.Identity;
 
 namespace FitPass.Application.FunctionalTests.TestData;
@@ -10,42 +12,48 @@ public static partial class TestEntityBuilder
 {
     public static async Task<(ApplicationUser user, UserProfile userProfile)> BuildDefaultUserAsync()
     {
-        var user = await ApplicationUserBuilder
-            .WithPassword("Password123_")
-            .WithRole(Roles.User)
-            .BuildAsync();
+        var user = await CreateUserAsync();
 
-        var userProfile = await UserProfileBuilder
-            .WithApplicationUserId(user.Id)
-            .BuildAsync();
+        var userProfile = new UserProfile
+        {
+            UserId = user.Id,
+            FirstName = "Default",
+            LastName = "User",
+        };
+
+        await AddAsync(userProfile);
 
         return (user, userProfile);
     }
 
     public static async Task<(ApplicationUser user, UserProfile userProfile)> BuildPendingGymEmployeeAsync()
     {
-        var user = await ApplicationUserBuilder
-            .WithPassword("Password123_")
-            .WithRole(Roles.PendingGymEmployee)
-            .BuildAsync();
+        var user = await CreateUserAsync(role: Roles.PendingGymEmployee);
 
-        var userProfile = await UserProfileBuilder
-            .WithApplicationUserId(user.Id)
-            .BuildAsync();
+        var userProfile = new UserProfile
+        {
+            UserId = user.Id,
+            FirstName = "Pending",
+            LastName = "GymEmployee",
+        };
+
+        await AddAsync(userProfile);
 
         return (user, userProfile);
     }
 
     public static async Task<(ApplicationUser user, UserProfile userProfile)> BuildAppAdminAsync()
     {
-        var user = await ApplicationUserBuilder
-            .WithPassword("Password123_")
-            .WithRole(Roles.AppAdministrator)
-            .BuildAsync();
+        var user = await CreateUserAsync(role: Roles.AppAdministrator);
 
-        var userProfile = await UserProfileBuilder
-            .WithApplicationUserId(user.Id)
-            .BuildAsync();
+        var userProfile = new UserProfile
+        {
+            UserId = user.Id,
+            FirstName = "App",
+            LastName = "Admin",
+        };
+
+        await AddAsync(userProfile);
 
         return (user, userProfile);
     }
@@ -57,23 +65,36 @@ public static partial class TestEntityBuilder
             throw new InvalidOperationException("$'{role}' role is not a gym employee role.");
         }
 
-        var user = await ApplicationUserBuilder
-            .WithPassword("Password123_")
-            .WithRole(employeeRole)
-            .BuildAsync();
+        var user = await CreateUserAsync(role: employeeRole);
 
-        var gym = await GymBuilder
-            .BuildAsync();
+        var gym = new Gym
+        {
+            Name = "Test Gym",
+            Address = new Address("line1", "line2", "city", null, "postalCode", "HU"),
+            Status = GymStatus.Active,
+            Tier = GymTier.Local,
+        };
 
-        var gymEmployment = await GymEmploymentBuilder
-            .WithApplicationUserId(user.Id)
-            .WithGymId(gym.Id)
-            .WithRole(employeeRole)
-            .BuildAsync();
+        await AddAsync(gym);
 
-        var userProfile = await UserProfileBuilder
-            .WithApplicationUserId(user.Id)
-            .BuildAsync();
+        var gymEmployment = new GymEmployment
+        {
+            UserId = user.Id,
+            GymId = gym.Id,
+            Role = employeeRole,
+            EmploymentStart = DateTime.UtcNow,
+        };
+
+        await AddAsync(gymEmployment);
+
+        var userProfile = new UserProfile
+        {
+            UserId = user.Id,
+            FirstName = "Gym",
+            LastName = "Employee",
+        };
+
+        await AddAsync(userProfile);
 
         return (user, gym, gymEmployment, userProfile);
     }

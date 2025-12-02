@@ -3,7 +3,7 @@ using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Security;
 using FitPass.Domain.Constants;
 
-namespace FitPass.Application.ApplicationUsers.Commands;
+namespace FitPass.Application.Users.Commands;
 
 [Authorize(Roles = $"{Roles.User}, {Roles.PendingGymEmployee}, {Roles.GymStaff}, {Roles.GymAdministrator}")]
 public record DeleteMyAccountCommand : IRequest<Result>;

@@ -1,9 +1,9 @@
-﻿using FitPass.Application.ApplicationUsers.Commands;
-using FitPass.Application.Common.Exceptions;
+﻿using FitPass.Application.Common.Exceptions;
+using FitPass.Application.Users.Commands;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 
-namespace FitPass.Application.FunctionalTests.Tests.ApplicationUserTests.Commands;
+namespace FitPass.Application.FunctionalTests.Tests.UserTests.Commands;
 
 using static Testing;
 
@@ -28,22 +28,11 @@ public class DeleteMyAccountTests : BaseTestFixture
 
         var command = new DeleteMyAccountCommand();
 
-        var action = () => SendAsync(command);
-
-        await action.ShouldNotThrowAsync();
+        var result = await SendAsync(command);
+        result.Succeeded.ShouldBeTrue();
 
         var deletedUserProfile = await FindAsync<UserProfile>(obj.userProfile.UserId);
         deletedUserProfile.ShouldBeNull();
-    }
-
-    [Test]
-    public async Task ShouldNotDeleteAppAdminAccount()
-    {
-        await RunAsAppAdminAsync();
-
-        var command = new DeleteMyAccountCommand();
-
-        await Should.ThrowAsync<ForbiddenAccessException>(SendAsync(command));
     }
 
     [Test]

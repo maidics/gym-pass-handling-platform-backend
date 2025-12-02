@@ -1,10 +1,11 @@
-﻿using FitPass.Application.ApplicationUsers.Commands;
-using FitPass.Application.Common.Exceptions;
+﻿using FitPass.Application.Common.Exceptions;
+using FitPass.Application.Common.Models;
+using FitPass.Application.Users.Commands;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Infrastructure.Identity;
 
-namespace FitPass.Application.FunctionalTests.Tests.ApplicationUserTests.Commands;
+namespace FitPass.Application.FunctionalTests.Tests.UserTests.Commands;
 
 using static Testing;
 
@@ -25,17 +26,15 @@ public class RegisterPendingGymManagementTests : BaseTestFixture
     }
 
     [Test]
-    public async Task ShouldThrowIfEmailIsInUse()
+    public async Task ShouldReturnConflictIfUserEmailIsInUser()
     {
-        var user = await ApplicationUserBuilder.BuildAsync();
+        var user = await CreateUserAsync();
 
         var command = new RegisterPendingGymEmployeeCommand("First", "Last", user.Email!, "Password123_", "Password123_");
 
-        var ex = await Should.ThrowAsync<ConflictException>(SendAsync(command));
-
-        var conflictException = new ConflictException(nameof(RegisterPendingGymEmployeeCommand.Email));
-
-        ex.Message.ShouldBe(conflictException.Message);
+        var result = await SendAsync(command);
+        result.Type.ShouldBe(ResultTypes.Conflict);
+        result.Message.ShouldContain("Email is already taken");
     }
 
     [Test]
@@ -43,13 +42,13 @@ public class RegisterPendingGymManagementTests : BaseTestFixture
     {
         var firstName = "First";
         var lastName = "Last";
-        var email = "valid@email";
+        var email = "email@test";
 
-        var command = new RegisterPendingGymEmployeeCommand(firstName, lastName, email, "Password123_", "Password123_");
+        var command = new RegisterPendingGymEmployeeCommand(firstName, lastName, email, "Password123!", "Password123!");
 
-        var jwtToken = await SendAsync(command);
-
-        jwtToken.AccessToken.ShouldNotBeNull();
+        var result = await SendAsync(command);
+        result.Succeeded.ShouldBeTrue();
+        result.Value.ShouldNotBeNull();
 
         var userId = await GetUserIdByEmailAsync(email);
 

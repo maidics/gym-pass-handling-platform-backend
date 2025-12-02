@@ -274,7 +274,7 @@ public class IdentityService : IIdentityService
 
         if (user.PasswordHash != null)
         {
-            return Result.Forbidden(ResultErrorMessages.UserAlreadyHasPassword());
+            return Result.Forbidden("User already has password.");
         }
 
         var result = await _userManager.AddPasswordAsync(user, password);
@@ -300,14 +300,14 @@ public class IdentityService : IIdentityService
 
         if (user == null)
         {
-            return Result.NotFound(ErrorMessages.UserNotFound());
+            return Result.NotFound("User");
         }
 
         var result = await _userManager.ConfirmEmailAsync(user, emailConfirmationToken);
 
         if (!result.Succeeded && result.Errors.Any(e => e.Code == "Invalidtoken"))
         {
-            return Result.Unauthorized(ErrorMessages.TokenIsInvalid("Email confirmation"));
+            return Result.Forbidden("Email confirmation token is not valid.");
         }
 
         return result.ToApplicationResult();

@@ -1,4 +1,3 @@
-using FitPass.Application.ApplicationUsers.Commands.Emails;
 using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Models;
@@ -8,7 +7,7 @@ using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Strings;
 
-namespace FitPass.Application.ApplicationUsers.Commands;
+namespace FitPass.Application.Users.Commands;
 
 [Authorize(Roles = $"{Roles.GymAdministrator},{Roles.GymStaff}")]
 public record GymEmployeeRegisterUserCommand(string Email, string FirstName, string LastName) : IRequest<Result<GymMembershipDto>>;
@@ -50,10 +49,7 @@ public class GymEmployeeRegisterUserCommandHandler : IRequestHandler<GymEmployee
             .AsNoTracking()
             .FirstOrDefaultAsync(ge => ge.UserId != null && ge.UserId == _user.Id);
 
-        if (gymEmployment == null)
-        {
-            throw new Exception(ErrorMessages.AuthenticatedUserRelatedEntityNotFound(nameof(GymEmployment)));
-        }
+        Guard.Against.NullParameterRelatedToCurrentUser(gymEmployment, nameof(GymEmployment), _user.Id);
 
         if (await _identityService.IsEmailInUseAsync(command.Email))
         {
@@ -102,7 +98,8 @@ public class GymEmployeeRegisterUserCommandHandler : IRequestHandler<GymEmployee
 
             await transaction.CommitAsync();
 
-            await _sender.Send(new SendEmailConfirmationEmailCommand(command.Email)); //fire and forget?
+            //send this with Domain event instead
+            //await _sender.Send(new SendEmailConfirmationEmailCommand(command.Email));
 
             return Result.Success(gymMembership.MapToDto());
         } catch

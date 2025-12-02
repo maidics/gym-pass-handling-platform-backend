@@ -1,16 +1,14 @@
-using FitPass.Application.Common.Exceptions;
-using FitPass.Application.ApplicationUsers.DTOs;
 using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Strings;
 using FitPass.Application.Common.Models;
+using FitPass.Application.Users.DTOs;
 
-namespace FitPass.Application.ApplicationUsers.Commands;
+namespace FitPass.Application.Users.Commands;
 
-public record RegisterUserCommand
-    (
+public record RegisterUserCommand(
         string FirstName,
         string LastName,
         string Email,

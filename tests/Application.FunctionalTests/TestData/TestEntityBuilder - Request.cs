@@ -1,7 +1,8 @@
-using FitPass.Application.FunctionalTests.TestData.EntityBuilders;
+using System.Text.Json;
 using FitPass.Application.Requests.DTOs;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
+using FitPass.Domain.ValueObjects;
 using FitPass.Infrastructure.Identity;
 
 namespace FitPass.Application.FunctionalTests.TestData;
@@ -16,13 +17,41 @@ public partial class TestEntityBuilder
 
         var createGymDto = BuildCreateGymDto();
 
-        var request = await RequestBuilder
-            .WithRequestType(RequestType.GymCreation)
-            .WithRequestStatus(RequestStatus.Submitted)
-            .WithPayload(createGymDto)
-            .WithCreatedBy(obj.user.Id)
-            .BuildAsync();
+        var request = new Request
+        {
+            Title = "Gym Creation Request",
+            Description = "Request to create a new gym",
+            Type = RequestType.GymCreation,
+            Status = RequestStatus.Submitted,
+            Payload = JsonSerializer.Serialize(createGymDto),
+            CreatedBy = obj.user.Id,
+            PriorityLevel = PriorityLevel.High
+        };
+
+        await AddAsync(request);
 
         return (request, obj.user, obj.userProfile, createGymDto);
+    }
+
+    public static CreateGymDto BuildCreateGymDto()
+    {
+        return new CreateGymDto
+        {
+            GymName = $"CreateGymDto GymName - {Guid.NewGuid()}",
+            GymAddress = new Address("line1", "line2", "city", null, "postalCode", "HU"),
+            GymStatus = GymStatus.Active,
+            GymTier = GymTier.Local,
+            EscalationEmail = "escalation@email"
+        };
+    }
+
+    public static GymAdminPromotionDto CreateGymAdminPromotionDto(string gymId, string userId, string escalationEmail = "escalation@test")
+    {
+        return new GymAdminPromotionDto
+        {
+            GymId = gymId,
+            UserIdToNominate = userId,
+            EscalationEmail = escalationEmail
+        };
     }
 }

@@ -1,5 +1,4 @@
-﻿using FitPass.Application.FunctionalTests.TestData.EntityBuilders;
-using FitPass.Domain.Constants;
+﻿using FitPass.Domain.Constants;
 using FitPass.Infrastructure.Data.Interceptors;
 using FitPass.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
@@ -15,17 +14,6 @@ public partial class Testing
     private static IServiceScopeFactory _scopeFactory = null!;
     private static string? _userId;
     private static List<string>? _roles;
-
-    public static ApplicationUserBuilder ApplicationUserBuilder => new(_scopeFactory);
-    public static GymBuilder GymBuilder => new(_scopeFactory);
-    public static GymEmploymentBuilder GymEmploymentBuilder => new(_scopeFactory);
-    public static GymMembershipBuilder GymMembershipBuilder => new(_scopeFactory);
-    public static GymMembershipPassBuilder GymMembershipPassBuilder => new(_scopeFactory);
-    public static GymPassProductBuilder GymPassProductBuilder => new(_scopeFactory);
-    public static GymPassUsageBuilder GymPassUsageBuilder => new(_scopeFactory);
-    public static UserProfileBuilder UserProfileBuilder => new(_scopeFactory);
-    public static RequestBuilder RequestBuilder => new(_scopeFactory);
-
 
     [OneTimeSetUp]
     public async Task RunBeforeAnyTests()
@@ -91,5 +79,12 @@ public partial class Testing
 
         _userId = null;
         _roles = null;
+    }
+
+    public static DateTimeOffset GetUtcNow()
+    {
+        using var scope = _scopeFactory.CreateScope();
+        var timeProvider = scope.ServiceProvider.GetRequiredService<TimeProvider>();
+        return timeProvider.GetUtcNow();
     }
 }

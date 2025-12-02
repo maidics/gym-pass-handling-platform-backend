@@ -49,7 +49,7 @@ public class GymEmployeeUseGymMembershipPassCommandHandler : IRequestHandler<Gym
             .AsNoTracking()
             .FirstOrDefaultAsync(ge => ge.UserId != null && ge.UserId == _user.Id);
 
-        Guard.Against.NullEntityRelatedToCurrentUser(gymEmployment, nameof(GymEmployment), _user.Id);
+        Guard.Against.NullParameterRelatedToCurrentUser(gymEmployment, nameof(GymEmployment), _user.Id);
 
         var pass = await _context
             .GymMembershipPasses

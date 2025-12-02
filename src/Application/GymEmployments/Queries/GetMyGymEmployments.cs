@@ -33,7 +33,7 @@ public class GetMyGymEmploymentsQueryHandler : IRequestHandler<GetMyGymEmploymen
             .AsNoTracking()
             .FirstOrDefaultAsync(ge => ge.UserId != null && ge.UserId == _user.Id, cancellationToken);
 
-        Guard.Against.NullEntityRelatedToCurrentUser(gymEmployment, nameof(GymEmployment), _user.Id);
+        Guard.Against.NullParameterRelatedToCurrentUser(gymEmployment, nameof(GymEmployment), _user.Id);
 
         return await _queryService.GetGymEmploymentsWithUserProfileAndEmailByGymId(gymEmployment.GymId!);
     }

@@ -1,4 +1,4 @@
-﻿namespace FitPass.Application.ApplicationUsers.DTOs;
+﻿namespace FitPass.Application.Users.DTOs;
 
 public record JwtToken
 {

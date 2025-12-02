@@ -1,10 +1,11 @@
-﻿using FitPass.Application.ApplicationUsers.Commands.RoleHandling;
-using FitPass.Application.Common.Exceptions;
+﻿using FitPass.Application.Common.Exceptions;
+using FitPass.Application.Common.Models;
 using FitPass.Application.FunctionalTests.TestData;
+using FitPass.Application.Users.Commands.RoleHandling;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 
-namespace FitPass.Application.FunctionalTests.Tests.ApplicationUserTests.Commands.RoleHandling;
+namespace FitPass.Application.FunctionalTests.Tests.UserTests.Commands.RoleHandling;
 
 using static Testing;
 
@@ -27,32 +28,49 @@ public class DemoteGymStaffToPendingGymEmployeeTests : BaseTestFixture
     {
         await RunAsGymEmployeeAsync(Roles.GymAdministrator);
 
-        var user = await ApplicationUserBuilder.BuildAsync();
+        var user = await CreateUserAsync();
 
         var command = new DemoteGymStaffToPendingGymEmployeeCommand(user.Id);
 
-        await Should.ThrowAsync<NotFoundException>(() => SendAsync(command));
+        var result = await SendAsync(command);
+        result.Type.ShouldBe(ResultTypes.NotFound);
+        result.Message.ShouldContain("User not found");
     }
 
+    [Test]
     public async Task ShouldDenyDemotionToGymStaffThatIsInAnotherGym()
     {
-        var gymStaffGym = await GymBuilder.BuildAsync();
-
-        var gymStaff = await ApplicationUserBuilder
-            .WithRole(Roles.GymStaff)
-            .BuildAsync();
-
-        var gymStaffEmployment = await GymEmploymentBuilder
-            .WithApplicationUserId(gymStaff.Id)
-            .WithGymId(gymStaffGym.Id)
-            .WithRole(Roles.GymStaff)
-            .BuildAsync();
+        var obj = await TestEntityBuilder.BuildGymAsync();
 
         await RunAsGymEmployeeAsync(Roles.GymAdministrator);
 
-        var command = new DemoteGymStaffToPendingGymEmployeeCommand(gymStaff.Id);
+        var command = new DemoteGymStaffToPendingGymEmployeeCommand(obj.gymStaff.Id);
 
-        await Should.ThrowAsync<UnauthorizedAccessException>(() => SendAsync(command));
+        var result = await SendAsync(command);
+        result.Type.ShouldBe(ResultTypes.Forbidden);
+    }
+
+    [Test]
+    public async Task ShouldDenyDemotionToAnotherGymAdmin()
+    {
+        var obj = await TestEntityBuilder.BuildGymAsync();
+
+        var gymAdmin2 = await CreateUserAsync(role: Roles.GymAdministrator);
+
+        await AddAsync(new GymEmployment
+        {
+            UserId = gymAdmin2.Id,
+            GymId = obj.gym.Id,
+            Role = Roles.GymAdministrator,
+            EmploymentStart = GetUtcNow()
+        });
+
+        await RunAsUserAsync(obj.gymAdmin);
+
+        var command = new DemoteGymStaffToPendingGymEmployeeCommand(gymAdmin2.Id);
+
+        var result = await SendAsync(command);
+        result.Type.ShouldBe(ResultTypes.Forbidden);
     }
 
     [Test]
@@ -64,7 +82,8 @@ public class DemoteGymStaffToPendingGymEmployeeTests : BaseTestFixture
 
         var command = new DemoteGymStaffToPendingGymEmployeeCommand(obj.gymStaff.Id);
 
-        await Should.NotThrowAsync(() => SendAsync(command));
+        var result = await SendAsync(command);
+        result.Succeeded.ShouldBeTrue();
 
         var rolesAfterDemotion = await GetUserRolesAsync(obj.gymStaff.Id);
 

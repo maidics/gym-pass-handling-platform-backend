@@ -3,7 +3,7 @@ using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Models;
 using FitPass.Domain.Strings;
 
-namespace FitPass.Application.ApplicationUsers.Commands;
+namespace FitPass.Application.Users.Commands;
 
 public record ResetPasswordCommand(
     string EncodedUserId,

@@ -1,11 +1,12 @@
-﻿using FitPass.Application.ApplicationUsers.Commands;
-using FitPass.Application.Common.Exceptions;
+﻿using FitPass.Application.Common.Exceptions;
+using FitPass.Application.Common.Models;
+using FitPass.Application.Users.Commands;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Strings;
 using FitPass.Infrastructure.Identity;
 
-namespace FitPass.Application.FunctionalTests.Tests.ApplicationUserTests.Commands;
+namespace FitPass.Application.FunctionalTests.Tests.UserTests.Commands;
 
 using static Testing;
 
@@ -28,19 +29,16 @@ public class GymEmployeeRegisterUserTests : BaseTestFixture
     }
 
     [Test]
-    public async Task ShouldThrowIfUserAlreadyExists()
+    public async Task ShouldReturnConflictIfEmailIsAlreadyInUser()
     {
-        await RunAsGymEmployeeAsync(Roles.GymStaff);
+        var user = await CreateUserAsync();
 
-        var user = await ApplicationUserBuilder.BuildAsync();
+        var gymStaffObj = await RunAsGymEmployeeAsync(Roles.GymStaff);
 
         var command = new GymEmployeeRegisterUserCommand(user.Email!, "First", "Last");
 
-        var ex = await Should.ThrowAsync<ConflictException>(SendAsync(command));
-
-        var conflictException = new ConflictException(nameof(GymEmployeeRegisterUserCommand.Email));
-
-        ex.Message.ShouldBe(conflictException.Message);
+        var result = await SendAsync(command);
+        result.Type.ShouldBe(ResultTypes.Conflict);
     }
 
     [Test]
@@ -54,8 +52,9 @@ public class GymEmployeeRegisterUserTests : BaseTestFixture
 
         var command = new GymEmployeeRegisterUserCommand(email, firstName, lastName);
 
-        var gymMembershipDto = await SendAsync(command);
-        gymMembershipDto.ShouldNotBeNull();
+        var result = await SendAsync(command);
+        result.Succeeded.ShouldBeTrue();
+        result.Value.ShouldNotBeNull();
 
         var createdUserId = await GetUserIdByEmailAsync(email);
 

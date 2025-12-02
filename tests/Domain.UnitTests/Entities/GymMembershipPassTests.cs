@@ -1,6 +1,6 @@
 using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
-using FitPass.Domain.Events.OwnedPasses;
+using FitPass.Domain.Events.GymMembershipPasses;
 using NUnit.Framework;
 using Shouldly;
 

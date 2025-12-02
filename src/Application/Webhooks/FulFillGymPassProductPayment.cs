@@ -4,7 +4,7 @@ using FitPass.Application.GymMemberships.Commands;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Events.GymPassProducts;
 
-namespace FitPass.Application.Payments.Commands;
+namespace FitPass.Application.Webhooks;
 
 //Webhook only
 public record FulFillGymPassProductPaymentCommand(string UserId, string GymId, string GymPassProductId) : IRequest<Result>;

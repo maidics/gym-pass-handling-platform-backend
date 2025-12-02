@@ -26,7 +26,7 @@ public class GetMyUserProfileQueryHandler : IRequestHandler<GetMyUserProfileQuer
     {
         var profile = await _queryService.GetUserProfileWithEmailByApplicationUserId(_user.Id!);
 
-        Guard.Against.NullEntityRelatedToCurrentUser(profile, nameof(UserProfile), _user.Id);
+        Guard.Against.NullParameterRelatedToCurrentUser(profile, nameof(UserProfile), _user.Id);
 
         return profile;
     }

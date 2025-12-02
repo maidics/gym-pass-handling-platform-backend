@@ -1,8 +1,8 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using FitPass.Application.ApplicationUsers.DTOs;
 using FitPass.Application.Common.Interfaces;
+using FitPass.Application.Users.DTOs;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 

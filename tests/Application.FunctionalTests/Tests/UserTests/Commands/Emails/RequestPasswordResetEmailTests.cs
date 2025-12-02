@@ -1,7 +1,8 @@
-﻿using FitPass.Application.ApplicationUsers.Commands.Emails;
-using FitPass.Application.Common.Exceptions;
+﻿using FitPass.Application.Common.Exceptions;
+using FitPass.Application.Common.Models;
+using FitPass.Application.Users.Commands.Emails;
 
-namespace FitPass.Application.FunctionalTests.Tests.ApplicationUserTests.Commands.Emails;
+namespace FitPass.Application.FunctionalTests.Tests.UserTests.Commands.Emails;
 
 using static Testing;
 
@@ -22,20 +23,22 @@ public class RequestPasswordResetEmailTests : BaseTestFixture
     }
 
     [Test]
-    public async Task ShouldNotThrowIfUserDoesNotExist()
+    public async Task ShouldReturnSuccessIfUserNotExist()
     {
         var command = new RequestPasswordResetEmailCommand("userNotExist@localhost");
 
-        await Should.NotThrowAsync(SendAsync(command));
+        var result = await SendAsync(command);
+        result.Succeeded.ShouldBeTrue();
     }
 
     [Test]
-    public async Task ShouldNotThrowIfUserExists()
+    public async Task ShouldReturnSuccessIfUserExists()
     {
-        var user = await ApplicationUserBuilder.BuildAsync();
+        var user = await CreateUserAsync();
 
         var command = new RequestPasswordResetEmailCommand(user.Email!);
 
-        await Should.NotThrowAsync(SendAsync(command));
+        var result = await SendAsync(command);
+        result.Succeeded.ShouldBeTrue();
     }
 }

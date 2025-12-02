@@ -25,7 +25,7 @@ public class GymPassUsageTests
             CreatedOn = utcNow
         };
 
-        usage = usage.FinishGymSession(utcNow.AddHours(1));
+        usage = usage.EndGymSession(utcNow.AddHours(1));
 
         usage.GymSessionEndedAt.ShouldNotBeNull();
         usage.GymSessionEndedAt.ShouldBe(utcNow.AddHours(1));
@@ -54,7 +54,7 @@ public class GymPassUsageTests
             CreatedOn = utcNow
         };
 
-        Should.Throw<InvalidOperationException>(() => usage.FinishGymSession(utcNow.AddHours(1)));
+        Should.Throw<InvalidOperationException>(() => usage.EndGymSession(utcNow.AddHours(1)));
     }
 
     [Test]

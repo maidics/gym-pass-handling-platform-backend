@@ -1,7 +1,8 @@
-﻿namespace FitPass.Application.FunctionalTests.Tests.ApplicationUserTests.Commands;
+﻿namespace FitPass.Application.FunctionalTests.Tests.UserTests.Commands;
 
-using FitPass.Application.ApplicationUsers.Commands;
 using FitPass.Application.Common.Exceptions;
+using FitPass.Application.Common.Models;
+using FitPass.Application.Users.Commands;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Infrastructure.Identity;
@@ -20,29 +21,31 @@ public class RegisterUserTests : BaseTestFixture
     }
 
     [Test]
-    public async Task ShouldThrowIfEmailIsInUse()
+    public async Task ShouldReturnConflictIfEmailIsInUse()
     {
-        var existingUser = await ApplicationUserBuilder.BuildAsync();
+        var user = await CreateUserAsync();
 
-        var command = new RegisterUserCommand("First", "Last", existingUser.Email!, "Password123_", "Password123_");
+        var command = new RegisterUserCommand("First", "Last", user.Email!, "Password123!", "Password123!");
 
-        await Should.ThrowAsync<ConflictException>(SendAsync(command));
+        var result = await SendAsync(command);
+        result.Type.ShouldBe(ResultTypes.Conflict);
+        result.Message.ShouldContain("Email is already taken");
     }
 
     [Test]
     public async Task ShouldRegisterUser()
     {
-        var email = "valid@email";
+        var email = "email@test";
         var firstName = "First";
         var lastName = "Last";
 
-        var command = new RegisterUserCommand(firstName, lastName, email, "Password123_", "Password123_");
+        var command = new RegisterUserCommand(firstName, lastName, email, "Password123!", "Password123!");
 
-        var jwtToken = await SendAsync(command);
+        var result = await SendAsync(command);
+        result.Succeeded.ShouldBeTrue();
+        result.Value.ShouldNotBeNull();
 
-        jwtToken.AccessToken.ShouldNotBeNull();
-
-        var userId = await GetUserIdByEmailAsync("valid@email");
+        var userId = await GetUserIdByEmailAsync("email@test");
 
         var user = await FindAsync<ApplicationUser>(userId);
 

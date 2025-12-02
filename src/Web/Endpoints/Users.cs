@@ -1,8 +1,9 @@
 using FitPass.Application.ApplicationUsers.Commands;
-using FitPass.Application.ApplicationUsers.Commands.Emails;
-using FitPass.Application.ApplicationUsers.Commands.RoleHandling;
 using FitPass.Application.ApplicationUsers.DTOs;
 using FitPass.Application.GymMemberships.DTOs;
+using FitPass.Application.Users.Commands;
+using FitPass.Application.Users.Commands.Emails;
+using FitPass.Application.Users.Commands.RoleHandling;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
@@ -33,6 +34,8 @@ public class Users : EndpointGroupBase
         groupBuilder.MapPut(ActivateUserAccount, "ActivateAccount");
 
         groupBuilder.MapPost(GymEmployeeRegisterUser, "Register/ByGymEmployee").RequireAuthorization();
+
+        groupBuilder.MapPut(promote)
     }
 
     public async Task<IResult> RegisterUser(ISender sender, [FromBody] RegisterUserCommand command, CancellationToken cancellationToken)
@@ -106,6 +109,13 @@ public class Users : EndpointGroupBase
     }
 
     public async Task<IResult> GymEmployeeRegisterUser(ISender sender, [FromBody] GymEmployeeRegisterUserCommand command, CancellationToken cancellationToken)
+    {
+        var result = await sender.Send(command);
+
+        return result.ToTypedResult();
+    }
+
+    public async Task<IResult> PromotePendingGymEmployeeToGymAdminFromRequest(ISender sender, [FromBody] PromotePendingGymEmployeeToGymAdminFromRequestCommand command, CancellationToken cancellationToken)
     {
         var result = await sender.Send(command);
 

@@ -2944,7 +2944,7 @@ export class GymDto implements IGymDto {
     status?: GymStatus;
     tier?: GymTier;
     createdOn?: Date;
-    passProducts?: GymPassProductDto[] | undefined;
+    passProducts?: GymPassProductDto[];
 
     constructor(data?: IGymDto) {
         if (data) {
@@ -3002,7 +3002,7 @@ export interface IGymDto {
     status?: GymStatus;
     tier?: GymTier;
     createdOn?: Date;
-    passProducts?: GymPassProductDto[] | undefined;
+    passProducts?: GymPassProductDto[];
 }
 
 export type GymStatus = "Active" | "Inactive" | "Suspended";

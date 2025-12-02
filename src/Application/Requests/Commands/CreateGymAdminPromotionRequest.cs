@@ -54,7 +54,7 @@ public class CreateGymAdminPromotionRequestCommandHandler : IRequestHandler<Crea
             .AsNoTracking()
             .FirstOrDefaultAsync(ge => ge.UserId != null && ge.UserId == _user.Id);
 
-        Guard.Against.NullEntityRelatedToCurrentUser(gymEmployment, nameof(GymEmployment), _user.Id);
+        Guard.Against.NullParameterRelatedToCurrentUser(gymEmployment, nameof(GymEmployment), _user.Id);
 
         if (!await _identityService.DoesUserExist(command.UserIdToPromote))
         {

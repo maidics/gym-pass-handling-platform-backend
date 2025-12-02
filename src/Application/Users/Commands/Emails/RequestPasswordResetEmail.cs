@@ -2,7 +2,7 @@ using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Models;
 
-namespace FitPass.Application.ApplicationUsers.Commands.Emails;
+namespace FitPass.Application.Users.Commands.Emails;
 
 public record RequestPasswordResetEmailCommand(string Email) : IRequest<Result>; 
 
@@ -36,10 +36,7 @@ public class RequestPasswordResetEmailCommandHandler : IRequestHandler<RequestPa
 
         var passwordResetToken = await _identityService.GeneratePasswordResetTokenAsync(userId);
 
-        if (passwordResetToken is null)
-        {
-            return Result.InternalError("Failed to generate password reset email.");
-        }
+        Guard.Against.Null(passwordResetToken, nameof(passwordResetToken), "Failed to generate password reset token.");
 
         await _emailService.SendPasswordResetEmailAsync(command.Email, passwordResetToken, userId);
 

@@ -1728,7 +1728,6 @@
           },
           "passProducts": {
             "type": "array",
-            "nullable": true,
             "items": {
               "$ref": "#/components/schemas/GymPassProductDto"
             }

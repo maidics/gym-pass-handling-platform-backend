@@ -1,7 +1,7 @@
-﻿namespace FitPass.Application.FunctionalTests.Tests.ApplicationUserTests.Commands;
+﻿namespace FitPass.Application.FunctionalTests.Tests.UserTests.Commands;
 
-using FitPass.Application.ApplicationUsers.Commands;
 using FitPass.Application.Common.Exceptions;
+using FitPass.Application.Users.Commands;
 using static Testing;
 public class ResetPasswordTests : BaseTestFixture
 {
