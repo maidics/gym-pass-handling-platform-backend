@@ -46,7 +46,7 @@ public class ResetPasswordCommandHandler : IRequestHandler<ResetPasswordCommand,
         var result = await _identityService.ResetPasswordAsync(userId, passwordResetToken, command.NewPassword);
 
         if (!result.Succeeded)
-        {              
+        {
             return result;
         }
 

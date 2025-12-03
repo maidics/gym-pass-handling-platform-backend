@@ -1,7 +1,9 @@
 using FitPass.Application.Common.Exceptions;
+using FitPass.Application.Common.Models;
 using FitPass.Application.FunctionalTests.TestData;
 using FitPass.Application.GymEmployments.Queries;
 using FitPass.Domain.Constants;
+using FitPass.Domain.Entities;
 
 namespace FitPass.Application.FunctionalTests.Tests.GymEmploymentTests.Queries;
 
@@ -24,11 +26,13 @@ public class GetGymEmploymentsByGymIdTests : BaseTestFixture
     }
 
     [Test]
-    public async Task ShouldThrowIfGymDoesNotExist()
+    public async Task ShouldReturnNotFoundIfGymNotFound()
     {
         await RunAsAppAdminAsync();
 
-        await Should.ThrowAsync<NotFoundException>(SendAsync(new GetGymEmploymentsByGymIdQuery("invalidGymId")));
+        var result = await SendAsync(new GetGymEmploymentsByGymIdQuery("non-existing-gym-id"));
+        result.Type.ShouldBe(ResultTypes.NotFound);
+        result.Message.ShouldContain($"{nameof(Gym)} not found");
     }
 
     [Test]
@@ -38,7 +42,12 @@ public class GetGymEmploymentsByGymIdTests : BaseTestFixture
 
         await RunAsAppAdminAsync();
 
-        var gymEmployments = await SendAsync(new GetGymEmploymentsByGymIdQuery(obj.gym.Id));
+        var result = await SendAsync(new GetGymEmploymentsByGymIdQuery(obj.gym.Id));
+        result.Succeeded.ShouldBeTrue();
+        result.Value.ShouldNotBeNull();
+
+        var gymEmployments = result.Value;
+
         gymEmployments.ShouldNotBeNull();
         gymEmployments.Count.ShouldBe(2);
 

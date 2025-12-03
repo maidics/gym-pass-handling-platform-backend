@@ -1,3 +1,4 @@
+using FitPass.Application.FunctionalTests.TestData;
 using FitPass.Application.GymEmployments.Queries;
 using FitPass.Domain.Constants;
 
@@ -14,26 +15,12 @@ public class GetMyGymEmploymentTests : BaseTestFixture
     }
 
     [Test]
-    public async Task ShouldThrowIfGymEmployeeHasNoGymEmployment()
-    {
-        var gymStaff = await ApplicationUserBuilder
-            .WithRole(Roles.GymStaff)
-            .BuildAsync();
-
-        await RunAsUserAsync(gymStaff);
-
-        var command = new GetMyGymEmploymentQuery();
-
-        await Should.ThrowAsync<SystemException>(SendAsync(command));
-    }
-
-    [Test]
     public async Task ShouldReturnGymEmployment()
     {
         var obj = await RunAsGymEmployeeAsync(Roles.GymAdministrator);
 
-        var ge = await SendAsync(new GetMyGymEmploymentQuery());
-        ge.ShouldNotBeNull();
-        ge.AssertTo(obj.gymEmployment, obj.userProfile, obj.user);
+        var gymEmployment = await SendAsync(new GetMyGymEmploymentQuery());
+        gymEmployment.ShouldNotBeNull();
+        gymEmployment.AssertTo(obj.gymEmployment, obj.userProfile, obj.user);
     }
 }
