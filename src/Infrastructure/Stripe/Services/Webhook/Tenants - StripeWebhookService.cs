@@ -1,6 +1,6 @@
 using FitPass.Application.Common.Models;
-using FitPass.Application.TenantPaymentProfiles.Commands;
 using FitPass.Application.Users.Queries;
+using FitPass.Application.Webhooks;
 using Stripe;
 
 namespace FitPass.Infrastructure.Stripe.Services.Webhook;

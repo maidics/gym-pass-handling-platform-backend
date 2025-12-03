@@ -1360,6 +1360,36 @@
         ]
       }
     },
+    "/api/Users/Promote/GymAdmin/Request": {
+      "put": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "PromotePendingGymEmployeeToGymAdminFromRequest",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PromotePendingGymEmployeeToGymAdminFromRequestCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
     "/api/Webhooks/Stripe": {
       "post": {
         "tags": [
@@ -2205,12 +2235,7 @@
       },
       "SendEmailConfirmationEmailCommand": {
         "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "email": {
-            "type": "string"
-          }
-        }
+        "additionalProperties": false
       },
       "ActivateUserAccountCommand": {
         "type": "object",
@@ -2246,6 +2271,15 @@
             "type": "string"
           },
           "lastName": {
+            "type": "string"
+          }
+        }
+      },
+      "PromotePendingGymEmployeeToGymAdminFromRequestCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "requestId": {
             "type": "string"
           }
         }

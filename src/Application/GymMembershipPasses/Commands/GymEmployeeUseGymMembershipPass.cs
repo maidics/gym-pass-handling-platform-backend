@@ -63,12 +63,12 @@ public class GymEmployeeUseGymMembershipPassCommandHandler : IRequestHandler<Gym
 
         if (pass.UserId != command.UserId)
         {
-            return Result.Forbidden("This pass does not belong to user.");
+            return Result.Forbidden("This pass does not belong to the user.");
         }
 
         if (pass.GymMembership.GymId != gymEmployment.GymId)
         {
-            return Result.Forbidden();
+            return Result.Forbidden("This pass belongs to another gym.");
         }
 
         if (pass.GymMembership.Status == GymMembershipStatus.Banned)

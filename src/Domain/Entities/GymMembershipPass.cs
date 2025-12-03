@@ -1,4 +1,5 @@
-using FitPass.Domain.Events.OwnedPasses;
+
+using FitPass.Domain.Events.GymMembershipPasses;
 
 namespace FitPass.Domain.Entities;
 

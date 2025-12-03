@@ -59,6 +59,7 @@ export interface IApiClient {
     sendEmailConfirmationEmail(command: SendEmailConfirmationEmailCommand,  cancelToken?: CancelToken): Promise<void>;
     activateUserAccount(command: ActivateUserAccountCommand,  cancelToken?: CancelToken): Promise<void>;
     gymEmployeeRegisterUser(command: GymEmployeeRegisterUserCommand,  cancelToken?: CancelToken): Promise<void>;
+    promotePendingGymEmployeeToGymAdminFromRequest(command: PromotePendingGymEmployeeToGymAdminFromRequestCommand,  cancelToken?: CancelToken): Promise<void>;
     handleStripeWebhook( cancelToken?: CancelToken): Promise<void>;
 }
 
@@ -2334,6 +2335,54 @@ export class ApiClient implements IApiClient {
         return Promise.resolve<void>(null as any);
     }
 
+    promotePendingGymEmployeeToGymAdminFromRequest(command: PromotePendingGymEmployeeToGymAdminFromRequestCommand, cancelToken?: CancelToken): Promise<void> {
+        let url_ = this.baseUrl + "/api/Users/Promote/GymAdmin/Request";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(command);
+
+        let options_: AxiosRequestConfig = {
+            data: content_,
+            method: "PUT",
+            url: url_,
+            headers: {
+                "Content-Type": "application/json",
+            },
+            cancelToken
+        };
+
+        return this.instance.request(options_).catch((_error: any) => {
+            if (isAxiosError(_error) && _error.response) {
+                return _error.response;
+            } else {
+                throw _error;
+            }
+        }).then((_response: AxiosResponse) => {
+            return this.processPromotePendingGymEmployeeToGymAdminFromRequest(_response);
+        });
+    }
+
+    protected processPromotePendingGymEmployeeToGymAdminFromRequest(response: AxiosResponse): Promise<void> {
+        const status = response.status;
+        let _headers: any = {};
+        if (response.headers && typeof response.headers === "object") {
+            for (const k in response.headers) {
+                if (response.headers.hasOwnProperty(k)) {
+                    _headers[k] = response.headers[k];
+                }
+            }
+        }
+        if (status === 200) {
+            const _responseText = response.data;
+            return Promise.resolve<void>(null as any);
+
+        } else if (status !== 200 && status !== 204) {
+            const _responseText = response.data;
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+        }
+        return Promise.resolve<void>(null as any);
+    }
+
     handleStripeWebhook( cancelToken?: CancelToken): Promise<void> {
         let url_ = this.baseUrl + "/api/Webhooks/Stripe";
         url_ = url_.replace(/[?&]$/, "");
@@ -3872,7 +3921,6 @@ export interface IResetPasswordCommand {
 }
 
 export class SendEmailConfirmationEmailCommand implements ISendEmailConfirmationEmailCommand {
-    email?: string;
 
     constructor(data?: ISendEmailConfirmationEmailCommand) {
         if (data) {
@@ -3884,9 +3932,6 @@ export class SendEmailConfirmationEmailCommand implements ISendEmailConfirmation
     }
 
     init(_data?: any) {
-        if (_data) {
-            this.email = _data["email"];
-        }
     }
 
     static fromJS(data: any): SendEmailConfirmationEmailCommand {
@@ -3898,13 +3943,11 @@ export class SendEmailConfirmationEmailCommand implements ISendEmailConfirmation
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["email"] = this.email;
         return data;
     }
 }
 
 export interface ISendEmailConfirmationEmailCommand {
-    email?: string;
 }
 
 export class ActivateUserAccountCommand implements IActivateUserAccountCommand {
@@ -4001,6 +4044,42 @@ export interface IGymEmployeeRegisterUserCommand {
     email?: string;
     firstName?: string;
     lastName?: string;
+}
+
+export class PromotePendingGymEmployeeToGymAdminFromRequestCommand implements IPromotePendingGymEmployeeToGymAdminFromRequestCommand {
+    requestId?: string;
+
+    constructor(data?: IPromotePendingGymEmployeeToGymAdminFromRequestCommand) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.requestId = _data["requestId"];
+        }
+    }
+
+    static fromJS(data: any): PromotePendingGymEmployeeToGymAdminFromRequestCommand {
+        data = typeof data === 'object' ? data : {};
+        let result = new PromotePendingGymEmployeeToGymAdminFromRequestCommand();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["requestId"] = this.requestId;
+        return data;
+    }
+}
+
+export interface IPromotePendingGymEmployeeToGymAdminFromRequestCommand {
+    requestId?: string;
 }
 
 export class SwaggerException extends Error {

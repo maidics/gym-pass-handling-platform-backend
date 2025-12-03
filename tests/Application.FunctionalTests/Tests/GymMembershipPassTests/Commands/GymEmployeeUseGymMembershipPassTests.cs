@@ -1,10 +1,12 @@
 using System;
 using FitPass.Application.Common.Exceptions;
+using FitPass.Application.Common.Models;
 using FitPass.Application.FunctionalTests.TestData;
 using FitPass.Application.GymMembershipPasses.Commands;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
+using FitPass.Domain.ValueObjects;
 
 namespace FitPass.Application.FunctionalTests.Tests.GymMembershipPassTests.Commands;
 
@@ -23,107 +25,81 @@ public class GymEmployeeUseGymMembershipPassTests : BaseTestFixture
     {
         await RunAsGymEmployeeAsync(Roles.GymAdministrator);
 
-        var command = new GymEmployeeUseGymMembershipPassCommand(string.Empty, string.Empty);
+        var command = new GymEmployeeUseGymMembershipPassCommand(string.Empty, string.Empty, string.Empty);
 
         await Should.ThrowAsync<ValidationException>(SendAsync(command));
     }
 
     [Test]
-    public async Task ShouldThrowIfPassIsNotFound()
+    public async Task ShouldReturnNotFoundIfPassIsNotFound()
     {
         await RunAsGymEmployeeAsync(Roles.GymStaff);
 
-        var command = new GymEmployeeUseGymMembershipPassCommand("invalidPassId", "2");
+        var command = new GymEmployeeUseGymMembershipPassCommand("invalidPassId", "2", "3");
 
-        await Should.ThrowAsync<NotFoundException>(SendAsync(command));
+        var result = await SendAsync(command);
+        result.Type.ShouldBe(ResultTypes.NotFound);
+        result.Message.ShouldContain($"{nameof(GymMembershipPass)} not found");
     }
 
     [Test]
-    public async Task ShouldThrowIfPassIsForAnotherGym()
+    public async Task ShouldReturnForbiddenIfPassBelongsToAnotherUser()
     {
+        var user = await CreateUserAsync();
         var obj = await TestEntityBuilder.BuildGymAsync();
 
-        await RunAsGymEmployeeAsync(Roles.GymStaff);
+        await RunAsUserAsync(obj.gymStaff);
 
-        var command = new GymEmployeeUseGymMembershipPassCommand(obj.singleUsePass.Id, "30");
+        var command = new GymEmployeeUseGymMembershipPassCommand(obj.singleUsePass.Id, user.Id, "test locker");
 
-        await Should.ThrowAsync<ForbiddenAccessException>(SendAsync(command));
+        var result = await SendAsync(command);
+        result.Type.ShouldBe(ResultTypes.Forbidden);
+        result.Message.ShouldBe("This pass does not belong to the user.");
     }
 
     [Test]
-    public async Task ShouldThrowIfGymMembershipStatusIsBanned()
+    public async Task ShouldReturnForbiddenIfPassBelongsToAnotherGym()
     {
         var gymObj = await TestEntityBuilder.BuildGymAsync();
-
-        var userObj = await TestEntityBuilder.BuildDefaultUserAsync();
-
-        var bannedGymMembership = await GymMembershipBuilder
-            .WithApplicationUserId(userObj.user.Id)
-            .WithGymId(gymObj.gym.Id)
-            .WithStatus(GymMembershipStatus.Banned)
-            .BuildAsync();
-
-        var pass = await GymMembershipPassBuilder
-            .WithGymMembershipId(bannedGymMembership.Id)
-            .BuildAsync();
+        var anotherGymObj = await TestEntityBuilder.BuildGymAsync();
 
         await RunAsUserAsync(gymObj.gymStaff);
 
-        var command = new GymEmployeeUseGymMembershipPassCommand(pass.Id, "20");
-
-        await Should.ThrowAsync<BadRequestException>(SendAsync(command));
+        var command = new GymEmployeeUseGymMembershipPassCommand(anotherGymObj.singleUsePass.Id, anotherGymObj.gymMember.Id, "test locker");
+        
+        var result = await SendAsync(command);
+        result.Type.ShouldBe(ResultTypes.Forbidden);
+        result.Message.ShouldBe("This pass does not belong to this gym.");
     }
 
     [Test]
-    public async Task ShouldReturnAlreadyHasNoUsesLeftAndPassShouldBeDeleted()
+    public async Task ShouldReturnForbiddenIfUserIsBannedFromTheGym()
     {
         var obj = await TestEntityBuilder.BuildGymAsync();
 
-        await RunAsUserAsync(obj.gymAdmin);
+        var gymMember = await CreateUserAsync();
 
-        string lockerNumber = "20";
+        var bannedMembership = new GymMembership
+        {
+            UserId = gymMember.Id,
+            GymId = obj.gym.Id,
+            Status = GymMembershipStatus.Banned
+        };
 
-        var command = new GymEmployeeUseGymMembershipPassCommand(obj.noUsePass.Id, lockerNumber);
+        var pass = GymPassProduct
+                        .SingleUse(obj.gym.Id, "name", "description", true, Money.Zero("usd"))
+                        .ToGymMembershipPass(bannedMembership.Id, gymMember.Id, GetUtcNow());
 
+        await AddAsync(bannedMembership);
+        await AddAsync(pass);
+
+        await RunAsUserAsync(obj.gymStaff);
+
+        var command = new GymEmployeeUseGymMembershipPassCommand(pass.Id, gymMember.Id, "test locker");
+        
         var result = await SendAsync(command);
-
-        result.ShouldBe(PassUseResult.AlreadyHasNoUsesLeft);
-
-        var noUsePass = await FindAsync<GymMembershipPass>(obj.noUsePass.Id);
-        noUsePass.ShouldBeNull();
-
-        var gymPassUsageCount = await CountAsync<GymPassUsage>();
-        gymPassUsageCount.ShouldBe(1);
-
-        var gymPassUsage = await GetFirstAsync<GymPassUsage>();
-        gymPassUsage.ShouldNotBeNull();
-        gymPassUsage.AssertTo(obj.gymMember.Id, obj.gym.Id, obj.noUsePass, result, lockerNumber);
-    }
-
-    [Test]
-    public async Task ShouldReturnSuccessAndDeletePass()
-    {
-        var obj = await TestEntityBuilder.BuildGymAsync();
-
-        await RunAsUserAsync(obj.gymAdmin);
-
-        string lockerNumber = "20";
-
-        var command = new GymEmployeeUseGymMembershipPassCommand(obj.singleUsePass.Id, lockerNumber);
-
-        var result = await SendAsync(command);
-
-        result.ShouldBe(PassUseResult.Success);
-
-        var usedPass = await FindAsync<GymMembershipPass>(obj.singleUsePass.Id);
-        usedPass.ShouldBeNull();
-
-        var gymPassUsageCount = await CountAsync<GymPassUsage>();
-        gymPassUsageCount.ShouldBe(1);
-
-        var gymPassUsage = await GetFirstAsync<GymPassUsage>();
-        gymPassUsage.ShouldNotBeNull();
-        gymPassUsage.AssertTo(obj.gymMember.Id, obj.gym.Id, obj.singleUsePass, result, lockerNumber);
+        result.Type.ShouldBe(ResultTypes.BusinessRuleViolation);
+        result.Message.ShouldBe("User is banned from the gym.");
     }
 
     [Test]

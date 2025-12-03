@@ -1,10 +1,7 @@
-using FitPass.Application.ApplicationUsers.Commands;
-using FitPass.Application.ApplicationUsers.DTOs;
 using FitPass.Application.GymMemberships.DTOs;
 using FitPass.Application.Users.Commands;
 using FitPass.Application.Users.Commands.Emails;
 using FitPass.Application.Users.Commands.RoleHandling;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FitPass.Web.Endpoints;
@@ -35,7 +32,7 @@ public class Users : EndpointGroupBase
 
         groupBuilder.MapPost(GymEmployeeRegisterUser, "Register/ByGymEmployee").RequireAuthorization();
 
-        groupBuilder.MapPut(promote)
+        groupBuilder.MapPut(PromotePendingGymEmployeeToGymAdminFromRequest, "Promote/GymAdmin/Request").RequireAuthorization();
     }
 
     public async Task<IResult> RegisterUser(ISender sender, [FromBody] RegisterUserCommand command, CancellationToken cancellationToken)

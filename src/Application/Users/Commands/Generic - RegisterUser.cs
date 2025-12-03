@@ -1,4 +1,3 @@
-using FitPass.Application.ApplicationUsers.DTOs;
 using FitPass.Application.Common.Interfaces;
 using Microsoft.Extensions.Logging;
 
