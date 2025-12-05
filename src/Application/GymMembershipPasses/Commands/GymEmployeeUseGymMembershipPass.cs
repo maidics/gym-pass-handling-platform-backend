@@ -11,7 +11,10 @@ namespace FitPass.Application.GymMembershipPasses.Commands;
 
 [Authorize(Roles = $"{Roles.GymAdministrator},{Roles.GymStaff}")]
 //Take user id from the qr code as well, if this request does not come from qr code we can do a check to make it more safe
-public record GymEmployeeUseGymMembershipPassCommand(string GymMembershipPassId, string UserId, string LockerNumber) : IRequest<Result<PassUseResult>>;
+public record GymEmployeeUseGymMembershipPassCommand(
+    string GymMembershipPassId, 
+    string UserId, 
+    string LockerNumber) : IRequest<Result<PassUseResult>>;
 
 public class GymEmployeeUseGymMembershipPassCommandValidator : AbstractValidator<GymEmployeeUseGymMembershipPassCommand>
 {

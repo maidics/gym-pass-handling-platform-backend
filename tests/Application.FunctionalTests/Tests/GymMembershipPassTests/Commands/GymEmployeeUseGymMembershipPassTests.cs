@@ -103,28 +103,35 @@ public class GymEmployeeUseGymMembershipPassTests : BaseTestFixture
     }
 
     [Test]
-    public async Task ShouldReturnUnlimitedPassExpired()
+    public async Task ShouldUsePass()
     {
         var obj = await TestEntityBuilder.BuildGymAsync();
 
-        await RunAsUserAsync(obj.gymAdmin);
+        var pass = GymPassProduct
+                        .SingleUse(obj.gym.Id, "name", "description", true, Money.Zero("usd"))
+                        .ToGymMembershipPass(obj.gymMembership.Id, obj.gymMember.Id, GetUtcNow());
 
-        string lockerNumber = "20";
+        await RunAsUserAsync(obj.gymStaff);
 
-        var command = new GymEmployeeUseGymMembershipPassCommand(obj.expiredPass.Id, lockerNumber);
-
+        var command = new GymEmployeeUseGymMembershipPassCommand(pass.Id, obj.gymMember.Id, "test locker");
+        
         var result = await SendAsync(command);
+        result.Succeeded.ShouldBeTrue();
+        result.Value.ShouldBe(PassUseResult.Success);
+        
+        var usageCount = await CountAsync<GymPassUsage>();
+        usageCount.ShouldBe(1);
 
-        result.ShouldBe(PassUseResult.UnlimitedPassAlreadyExpired);
-
-        var usedPass = await FindAsync<GymMembershipPass>(obj.expiredPass.Id);
-        usedPass.ShouldBeNull();
-
-        var gymPassUsageCount = await CountAsync<GymPassUsage>();
-        gymPassUsageCount.ShouldBe(1);
-
-        var gymPassUsage = await GetFirstAsync<GymPassUsage>();
-        gymPassUsage.ShouldNotBeNull();
-        gymPassUsage.AssertTo(obj.gymMember.Id, obj.gym.Id, obj.expiredPass, result, lockerNumber);
+        var usage = await GetFirstAsync<GymPassUsage>();
+        usage.ShouldNotBeNull();
+        usage.PassId.ShouldBe(pass.Id);
+        usage.UserId.ShouldBe(obj.gymMember.Id);
+        usage.GymId.ShouldBe(obj.gym.Id);
+        usage.PassType.ShouldBe(pass.Type);
+        usage.TotalPassUses.ShouldBe(pass.TotalUses);
+        usage.RemainingPassUses.ShouldBe(0);
+        usage.PassExpirationDate.ShouldBeNull();
+        usage.LockerNumber.ShouldBe("test locker");
+        usage.PassUseResult.ShouldBe(PassUseResult.Success);
     }
 }
