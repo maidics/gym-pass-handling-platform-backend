@@ -51,7 +51,10 @@ public class RegisterGymFromRequestCommandHandler : IRequestHandler<RegisterGymF
             .Requests
             .FindAsync(command.RequestId);
 
-        Guard.Against.NotFound(command.RequestId, request, nameof(Request));
+        if (request is null)
+        {
+            return Result.NotFound(nameof(Request));
+        }
 
         if (request.Status != RequestStatus.Submitted)
         {
@@ -73,6 +76,14 @@ public class RegisterGymFromRequestCommandHandler : IRequestHandler<RegisterGymF
             return Result.InternalError("Request creator not found.");
         } else
         {
+            if (!await _identityService.DoesUserExist(request.CreatedBy))
+            {
+                request.Status = RequestStatus.Error;
+                request.Error = "Request creator not found.";
+                await _context.SaveChangesAsync();
+                return Result.NotFound("Request creator not found.");
+            }
+
             if (!await _identityService.IsInRoleAsync(request.CreatedBy, Roles.PendingGymEmployee))
             {
                 request.Status = RequestStatus.Error;

@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using FitPass.Application.Common.Exceptions;
+using FitPass.Application.Common.Models;
 using FitPass.Application.FunctionalTests.TestData;
 using FitPass.Application.Gyms.Commands;
 using FitPass.Application.Requests.DTOs;
@@ -27,85 +28,167 @@ public class RegisterGymFromRequestTests : BaseTestFixture
 
         var command = new RegisterGymFromRequestCommand(string.Empty);
 
-        await Should.ThrowAsync<ValidationException>(SendAsync(command));
+        await ShouldThrowIfParametersAreInvalid(command);
     }
 
     [Test]
-    public async Task ShouldThrowIfRequestNotExists()
+    public async Task ShouldReturnNotFoundIfRequestIsNotFound()
     {
         await RunAsAppAdminAsync();
 
         var command = new RegisterGymFromRequestCommand("notExistsId");
 
-        await Should.ThrowAsync<NotFoundException>(SendAsync(command));
+        var result = await SendAsync(command);
+        result.Type.ShouldBe(ResultTypes.NotFound);
+        result.Message.ShouldContain($"{nameof(Request)} not found");
     }
 
     [Test]
-    public async Task ShouldThrowIfRequestIsNoLongerSubmittedStatus()
+    public async Task ShouldReturnFobiddenIfRequestIsNoLongerSubmittedStatus()
     {
-        var request = await RequestBuilder.WithRequestStatus(RequestStatus.Completed).BuildAsync();
+        var request = new Request
+        {
+            Title = "Test Request",
+            Description = "Test Description",
+            Type = RequestType.GymCreation,
+            PriorityLevel = PriorityLevel.Medium,
+            Status = RequestStatus.Completed,
+            Payload = null
+        };
+
+        await AddAsync(request);
 
         await RunAsAppAdminAsync();
 
         var command = new RegisterGymFromRequestCommand(request.Id);
 
-        await Should.ThrowAsync<ForbiddenAccessException>(SendAsync(command));
+        var result = await SendAsync(command);
+        result.Type.ShouldBe(ResultTypes.Forbidden);
+        result.Message.ShouldBe("Request is no longer open.");
     }
 
     [Test]
-    public async Task ShouldThrowIfRequestIsNotGymCreationType()
+    public async Task ShouldReturnBusinessRuleViolationIfRequestIsNotGymCreationType()
     {
-        var request = await RequestBuilder.WithRequestType(RequestType.Other).BuildAsync();
+        var request = new Request
+        {
+            Title = "Test Request",
+            Description = "Test Description",
+            Type = RequestType.Other,
+            PriorityLevel = PriorityLevel.Medium,
+            Status = RequestStatus.Submitted,
+            Payload = null
+        };
+
+        await AddAsync(request);
 
         await RunAsAppAdminAsync();
 
         var command = new RegisterGymFromRequestCommand(request.Id);
 
-        await Should.ThrowAsync<BadRequestException>(SendAsync(command));
+        var result = await SendAsync(command);
+        result.Type.ShouldBe(ResultTypes.BusinessRuleViolation);
+        result.Message.ShouldBe("Request is not of GymCreation type.");
     }
 
     [Test]
-    public async Task ShouldThrowIfRequestCreatorNotExists()
+    public async Task ShouldReturnInternalErrorIfRequestCreatorIsNull()
     {
-        var request = await RequestBuilder
-            .WithRequestType(RequestType.GymCreation)
-            .BuildAsync();
+        var request = new Request
+        {
+            Title = "Test Request",
+            Description = "Test Description",
+            Type = RequestType.GymCreation,
+            PriorityLevel = PriorityLevel.Medium,
+            Status = RequestStatus.Submitted,
+            Payload = null,
+            CreatedBy = "notExistsUserId"
+        };
+
+        await AddAsync(request);
 
         await RunAsAppAdminAsync();
 
         var command = new RegisterGymFromRequestCommand(request.Id);
 
-        await Should.ThrowAsync<ArgumentNullException>(SendAsync(command));
+        var result = await SendAsync(command);
+        result.Type.ShouldBe(ResultTypes.InternalError);
+        result.Message.ShouldBe("Request creator is empty.");
+
+        request = await FindAsync<Request>(request.Id);
+        request.ShouldNotBeNull();
+        request.Status.ShouldBe(RequestStatus.Error);
+        request.Error.ShouldBe("Request creator is empty.");
     }
 
     [Test]
-    public async Task ShouldThrowIfPayloadIsNull()
+    public async Task ShouldReturnNotFoundIfRequestCreatorIsNotFound()
     {
-        var pendingGymEmployee = await ApplicationUserBuilder
-            .WithRole(Roles.PendingGymEmployee)
-            .BuildAsync();
+        var request = new Request
+        {
+            Title = "Test Request",
+            Description = "Test Description",
+            Type = RequestType.GymCreation,
+            PriorityLevel = PriorityLevel.Medium,
+            Status = RequestStatus.Submitted,
+            Payload = null,
+            CreatedBy = "notExistsUserId"
+        };
 
-        await RunAsUserAsync(pendingGymEmployee);
-
-        var request = await RequestBuilder
-            .WithRequestType(RequestType.GymCreation)
-            .WithRequestStatus(RequestStatus.Submitted)
-            .WithCreatedBy(pendingGymEmployee.Id)
-            .BuildAsync();
+        await AddAsync(request);
 
         await RunAsAppAdminAsync();
 
         var command = new RegisterGymFromRequestCommand(request.Id);
 
-        await Should.ThrowAsync<ArgumentException>(SendAsync(command));
+        var result = await SendAsync(command);
+        result.Type.ShouldBe(ResultTypes.NotFound);
+        result.Message.ShouldBe($"{nameof(ApplicationUser)} not found");
+
+        request = await FindAsync<Request>(request.Id);
+        request.ShouldNotBeNull();
+        request.Status.ShouldBe(RequestStatus.Error);
+        request.Error.ShouldBe("Request creator not found.");
     }
 
     [Test]
-    public async Task ShouldThrowIfPayloadFailsToDeserialize()
+    public async Task ShouldReturnBusinessRuleViolationIfRequestCreatorIsNoLongerPendingGymEmployee()
     {
-        var pendingGymEmployee = await ApplicationUserBuilder
-            .WithRole(Roles.PendingGymEmployee)
-            .BuildAsync();
+        var user = await CreateUserAsync(role: Roles.GymAdministrator);
+
+        await RunAsAppAdminAsync();
+
+        var request = new Request
+        {
+            Title = "Test Request",
+            Description = "Test Description",
+            Type = RequestType.GymCreation,
+            PriorityLevel = PriorityLevel.Medium,
+            Status = RequestStatus.Submitted,
+            Payload = null,
+            CreatedBy = user.Id
+        };
+
+        await RunAsAppAdminAsync();
+
+        var command = new RegisterGymFromRequestCommand(request.Id);
+
+        var result = await SendAsync(command);
+        result.Type.ShouldBe(ResultTypes.BusinessRuleViolation);
+        result.Message.ShouldContain("User is no longer a PendingGymEmployee");
+
+        request = await FindAsync<Request>(request.Id);
+        request.ShouldNotBeNull();
+        request.Status.ShouldBe(RequestStatus.Error);
+        request.Error.ShouldBe("Request creator is no longer eligible for request completion.");
+    }
+
+    [Test]
+    public async Task ShouldReturnInternalErrorIfPayloadFailsToDeserialize()
+    {
+        throw new NotImplementedException();
+
+        var pendingGymEmployee = await CreateUserAsync(role: Roles.PendingGymEmployee);
 
         await RunAsUserAsync(pendingGymEmployee);
 
