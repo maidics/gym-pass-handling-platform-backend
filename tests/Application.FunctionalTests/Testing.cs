@@ -3,6 +3,7 @@ using FitPass.Infrastructure.Data.Interceptors;
 using FitPass.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
+using Stripe;
 
 namespace FitPass.Application.FunctionalTests;
 
@@ -25,6 +26,14 @@ public partial class Testing
         _scopeFactory = _factory.Services.GetRequiredService<IServiceScopeFactory>();
 
         await SeedRolesIfNotExist();
+
+        using var scope = _scopeFactory.CreateScope();
+        var stripeClient = scope.ServiceProvider.GetRequiredService<IStripeClient>();
+        
+        if (stripeClient.ApiKey != "sk_test_docker_api_key")
+        {
+            throw new InvalidOperationException("Tests tried to run in non docker environment.");
+        }
     }
 
     [OneTimeTearDown]
