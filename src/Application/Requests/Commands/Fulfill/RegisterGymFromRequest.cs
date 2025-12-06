@@ -3,14 +3,13 @@ using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Security;
 using FitPass.Application.Gyms.DTOs;
-using FitPass.Application.Requests.Commands;
 using FitPass.Application.Requests.DTOs;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
 using FitPass.Domain.Strings;
 
-namespace FitPass.Application.Gyms.Commands;
+namespace FitPass.Application.Requests.Commands.Fulfill;
 
 [Authorize(Roles = Roles.AppAdministrator)]
 public record RegisterGymFromRequestCommand(string RequestId) : IRequest<Result<GymDto>>;

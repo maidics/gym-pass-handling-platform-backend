@@ -1,4 +1,5 @@
 using FitPass.Application.GymMemberships.DTOs;
+using FitPass.Application.Requests.Commands.Fulfill;
 using FitPass.Application.Users.Commands;
 using FitPass.Application.Users.Commands.Emails;
 using FitPass.Application.Users.Commands.RoleHandling;

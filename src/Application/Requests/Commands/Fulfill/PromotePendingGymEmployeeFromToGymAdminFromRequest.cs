@@ -9,7 +9,7 @@ using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
 using FitPass.Domain.Strings;
 
-namespace FitPass.Application.Users.Commands.RoleHandling;
+namespace FitPass.Application.Requests.Commands.Fulfill;
 
 
 [Authorize(Roles = Roles.AppAdministrator)]

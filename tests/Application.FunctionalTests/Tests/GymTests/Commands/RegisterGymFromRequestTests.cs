@@ -2,7 +2,7 @@
 using FitPass.Application.Common.Exceptions;
 using FitPass.Application.Common.Models;
 using FitPass.Application.FunctionalTests.TestData;
-using FitPass.Application.Gyms.Commands;
+using FitPass.Application.Requests.Commands.Fulfill;
 using FitPass.Application.Requests.DTOs;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;

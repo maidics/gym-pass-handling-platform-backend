@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using FitPass.Application.Common.Models;
 using FitPass.Application.FunctionalTests.TestData;
-using FitPass.Application.Users.Commands.RoleHandling;
+using FitPass.Application.Requests.Commands.Fulfill;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
