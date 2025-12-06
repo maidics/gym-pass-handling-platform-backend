@@ -1,12 +1,13 @@
-using System.Linq;
 using System.Text.Json;
 using FitPass.Application.Common.Exceptions;
+using FitPass.Application.Common.Models;
 using FitPass.Application.FunctionalTests.TestData;
 using FitPass.Application.Requests.Commands;
 using FitPass.Application.Requests.DTOs;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
+using FitPass.Domain.ValueObjects;
 
 namespace FitPass.Application.FunctionalTests.Tests.RequestTests.Commands;
 
@@ -31,7 +32,7 @@ public class CreateGymCreationRequestTests : BaseTestFixture
             new CreateGymDto
             {
                 GymName = string.Empty,
-                GymAddress = string.Empty,
+                GymAddress = new Address("line1", "line2", "city", null, "postalCode", "HU"),
                 GymStatus = GymStatus.Suspended,
                 GymTier = GymTier.Local,
                 EscalationEmail = string.Empty
@@ -41,56 +42,56 @@ public class CreateGymCreationRequestTests : BaseTestFixture
     }
 
     [Test]
-    public async Task ShouldThrowIfUserEmailIsNotConfirmed()
+    public async Task ShouldReturnBusinessRuleViolationIfUserEmailIsNotConfirmed()
     {
-        var user = await ApplicationUserBuilder
-            .WithRole(Roles.PendingGymEmployee)
-            .WithEmailConfirmed(false)
-            .BuildAsync();
-
-        await RunAsUserAsync(user);
+        await RunAsPendingGymEmployeeAsync();
 
         var command = new CreateGymCreationRequestCommand("Description", PriorityLevel.High, TestEntityBuilder.BuildCreateGymDto());
 
-        var ex = await Should.ThrowAsync<BadRequestException>(SendAsync(command));
-        ex.Message.ShouldBe("You must confirm your email before this action.");
+        var result = await SendAsync(command);
+        result.Type.ShouldBe(ResultTypes.BusinessRuleViolation);
+        result.Message.ShouldContain("You must confirm your email before this action.");
     }
 
     [Test]
-    public async Task ShouldThrowIfUserAlreadyHasAGymCreationRequest()
+    public async Task ShouldReturnBusinessRuleViolationIfUserAlreadyHasAGymCreationRequest()
     {
-        var obj = await RunAsPendingGymEmployeeAsync();
+        var obj = await RunAsPendingGymEmployeeAsync(true);
 
-        await RequestBuilder
-            .WithCreatedBy(obj.user.Id)
-            .WithRequestType(RequestType.GymCreation)
-            .WithPayload(TestEntityBuilder.BuildCreateGymDto())
-            .BuildAsync();
+        var request = new Request
+        {
+            Title = "Gym Creation Request",
+            CreatedBy = obj.user.Id,
+            Type = RequestType.GymCreation,
+            Description = "Existing request",
+            PriorityLevel = PriorityLevel.Medium,
+            Status = RequestStatus.Submitted,
+            Payload = JsonSerializer.Serialize(TestEntityBuilder.BuildCreateGymDto())
+        };
+
+        await AddAsync(request);
 
         var command = new CreateGymCreationRequestCommand("Description", PriorityLevel.High, TestEntityBuilder.BuildCreateGymDto());
 
-        var ex = await Should.ThrowAsync<BadRequestException>(SendAsync(command));
-        ex.Message.ShouldBe("You already have an ongoing gym creation request.");
+        var result = await SendAsync(command);
+        result.Type.ShouldBe(ResultTypes.BusinessRuleViolation);
+        result.Message.ShouldContain("You already have an ongoing gym creation request.");
     }
 
     [Test]
     public async Task ShouldCreateGymCreationRequest()
     {
-        var obj = await RunAsPendingGymEmployeeAsync();
+        var pendingGymEmployee = await CreateUserAsync(role: Roles.PendingGymEmployee, emailConfirmed: true);
+
+        await RunAsUserAsync(pendingGymEmployee);
 
         var createGymDto = TestEntityBuilder.BuildCreateGymDto();
 
         var command = new CreateGymCreationRequestCommand("Description", PriorityLevel.High, createGymDto);
 
-        try
-        {
-            await SendAsync(command);
-        } catch (ValidationException ex)
-        {
-            TestContext.Out.WriteLine(ex.Errors.ToString());
-
-            throw new Exception();
-        }
+        var result = await SendAsync(command);
+        result.Succeeded.ShouldBeTrue();
+        result.Value.ShouldNotBeNull();
 
         var request = await GetFirstAsync<Request>();
         request.ShouldNotBeNull();
@@ -99,7 +100,5 @@ public class CreateGymCreationRequestTests : BaseTestFixture
         request.Status.ShouldBe(RequestStatus.Submitted);
         request.Payload.ShouldNotBeNull();
         request.Payload.ShouldBe(JsonSerializer.Serialize(createGymDto));
-
-        //cannot check createdBy because interceptor is not injected
     }
 }

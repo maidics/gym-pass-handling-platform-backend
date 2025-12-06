@@ -8,27 +8,27 @@ using FitPass.Domain.Entities;
 
 namespace FitPass.Application.Gyms.Queries;
 
-[Authorize(Roles = $"{Roles.AppAdministrator},{Roles.GymAdministrator},{Roles.GymStaff}")]
-public record GetGymDetailsQuery(string GymId) : IRequest<Result<GymDto>>;
+[Authorize(Roles = $"{Roles.AppAdministrator}")]
+public record GetGymByIdQuery(string GymId) : IRequest<Result<GymDto>>;
 
-public class GetGymDetailsQueryValidator : AbstractValidator<GetGymDetailsQuery>
+public class GetGymByIdQueryValidator : AbstractValidator<GetGymByIdQuery>
 {
-    public GetGymDetailsQueryValidator()
+    public GetGymByIdQueryValidator()
     {
-        RuleFor(v => v.GymId).NotEmptyWithMessage(nameof(GetGymDetailsQuery.GymId));
+        RuleFor(v => v.GymId).NotEmptyWithMessage(nameof(GetGymByIdQuery.GymId));
     }
 }
 
-public class GetGymDetailsQueryHandler : IRequestHandler<GetGymDetailsQuery, Result<GymDto>>
+public class GetGymByIdQueryHandler : IRequestHandler<GetGymByIdQuery, Result<GymDto>>
 {
     private readonly IApplicationDbContext _context;
 
-    public GetGymDetailsQueryHandler(IApplicationDbContext context)
+    public GetGymByIdQueryHandler(IApplicationDbContext context)
     {
         _context = context;
     }
 
-    public async Task<Result<GymDto>> Handle(GetGymDetailsQuery query, CancellationToken cancellationToken)
+    public async Task<Result<GymDto>> Handle(GetGymByIdQuery query, CancellationToken cancellationToken)
     {
         var gym = await _context
             .Gyms

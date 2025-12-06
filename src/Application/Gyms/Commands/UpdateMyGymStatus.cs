@@ -16,7 +16,8 @@ public class UpdateMyGymStatusCommandValidator : AbstractValidator<UpdateMyGymSt
     public UpdateMyGymStatusCommandValidator()
     {
         RuleFor(v => v.NewGymStatus)
-            .NotEmptyWithMessage("New gym status");
+            .Must(status => status == GymStatus.Active || status == GymStatus.Inactive)
+            .WithMessage("You can only set your gym status to active or inactive.");
     }
 }
 
@@ -44,7 +45,12 @@ public class UpdateMyGymStatusCommandHandler : IRequestHandler<UpdateMyGymStatus
             .Gyms
             .FindAsync(gymEmployment.GymId, cancellationToken);
 
-        Guard.Against.NullParameterRelatedToCurrentUser(gym, "gym employee managed gym", _user.Id);
+        Guard.Against.Null(gym, nameof(Gym), "Gym not found.");
+
+        if (gym.Status == GymStatus.Suspended)
+        {
+            return Result.BusinessRuleViolation("Cannot change status of a suspended gym.");
+        }
 
         if (gym.Status == command.NewGymStatus)
         {

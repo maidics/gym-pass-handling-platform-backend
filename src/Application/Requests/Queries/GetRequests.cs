@@ -10,22 +10,6 @@ namespace FitPass.Application.Requests.Queries;
 [Authorize(Roles = Roles.AppAdministrator)]
 public record GetRequestsQuery(RequestType? RequestType, RequestStatus? RequestStatus) : IRequest<List<RequestDto>>;
 
-public class GetRequestsQueryValidator : AbstractValidator<GetRequestsQuery>
-{
-    public GetRequestsQueryValidator()
-    {
-        When(v => v.RequestType != null, () =>
-        {
-            RuleFor(v => (RequestType)v.RequestType!).NotEmptyWithMessage(nameof(GetRequestsQuery.RequestType));
-        });
-
-        When(v => v.RequestStatus != null, () =>
-        {
-            RuleFor(v => (RequestStatus)v.RequestStatus!).NotEmptyWithMessage(nameof(GetRequestsQuery.RequestStatus));
-        });
-    }
-}
-
 public class GetRequestsQueryHandler : IRequestHandler<GetRequestsQuery, List<RequestDto>>
 {
     private readonly IApplicationDbContext _context;

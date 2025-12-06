@@ -1,11 +1,9 @@
-using System;
-using FitPass.Application.Common.Exceptions;
+using FitPass.Application.Common.Models;
 using FitPass.Application.FunctionalTests.TestData;
 using FitPass.Application.Gyms.Commands;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
-using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace FitPass.Application.FunctionalTests.Tests.GymTests.Commands;
 
@@ -26,29 +24,32 @@ public class UpdateGymStatusTests : BaseTestFixture
 
         var command = new UpdateGymStatusCommand(string.Empty, GymStatus.Suspended);
 
-        await Should.ThrowAsync<ValidationException>(SendAsync(command));
+        await ShouldThrowIfParametersAreInvalid(command);
     }
 
     [Test]
-    public async Task ShouldThrowIfGymDoesNotExists()
+    public async Task ShouldReturnNotFoundIfGymIsNotFound()
     {
         await RunAsAppAdminAsync();
 
         var command = new UpdateGymStatusCommand("invalidGymId", GymStatus.Suspended);
 
-        await Should.ThrowAsync<NotFoundException>(SendAsync(command));
+        var result = await SendAsync(command);
+        result.Type.ShouldBe(ResultTypes.NotFound);
+        result.Message.ShouldBe("Gym not found.");
     }
 
     [Test]
     public async Task ShouldUpdateGymStatus()
     {
-        await RunAsAppAdminAsync();
-
         var obj = await TestEntityBuilder.BuildGymAsync();
+
+        await RunAsAppAdminAsync();
 
         var command = new UpdateGymStatusCommand(obj.gym.Id, GymStatus.Suspended);
 
-        await SendAsync(command);
+        var result = await SendAsync(command);
+        result.Succeeded.ShouldBeTrue();
 
         var updatedGym = await FindAsync<Gym>(command.GymId);
         updatedGym.ShouldNotBeNull();

@@ -16,11 +16,11 @@ export interface IApiClient {
     getMyGymEmployments( cancelToken?: CancelToken): Promise<GymEmploymentDto[]>;
     getMyGymEmployment( cancelToken?: CancelToken): Promise<GymEmploymentDto>;
     getGymEmploymentsByGymId(gymId: string,  cancelToken?: CancelToken): Promise<void>;
-    getGymMembershipPassesForGym(gymId: string,  cancelToken?: CancelToken): Promise<GymMembershipPassDto[]>;
+    getValidGymMembershipPasses( cancelToken?: CancelToken): Promise<GymMembershipPassDto[]>;
     gymEmployeeUseGymMembershipPass(userId: string, gymMembershipPassId: string, lockerNumber: string,  cancelToken?: CancelToken): Promise<void>;
     isGymMembershipPassValid(gymMembershipPassId: string,  cancelToken?: CancelToken): Promise<void>;
     updateUserMembershipStatus(gymMembership: string, newGymMembershipStatus: GymMembershipStatus,  cancelToken?: CancelToken): Promise<void>;
-    getGymMembershipsQueryToMyGym(query: GetGymMembershipsQueryToMyGymQuery,  cancelToken?: CancelToken): Promise<void>;
+    getGymMembershipsQueryToMyGym(query: GetGymMembershipsToMyGymQuery,  cancelToken?: CancelToken): Promise<GymMembershipWithUserProfileAndEmailDto[]>;
     createGymPassProduct(command: CreateGymPassProductCommand,  cancelToken?: CancelToken): Promise<void>;
     updateGymPassProduct(gymPassProductId: string, command: UpdateGymPassProductCommand,  cancelToken?: CancelToken): Promise<void>;
     updateGymPassProductActiveStatus(gymPassProductId: string, isActive: boolean,  cancelToken?: CancelToken): Promise<void>;
@@ -30,13 +30,12 @@ export interface IApiClient {
     updateGymPassUsageLockerNumberCommand(gymPassUsageId: string, lockerNumber: string,  cancelToken?: CancelToken): Promise<void>;
     updateMyGymProfile(command: UpdateMyGymProfileCommand,  cancelToken?: CancelToken): Promise<void>;
     getAllGyms( cancelToken?: CancelToken): Promise<GymDto[]>;
-    getGymDetails(gymId: string,  cancelToken?: CancelToken): Promise<void>;
-    getNewGymsThisMonth( cancelToken?: CancelToken): Promise<GymDto[]>;
+    getGymById(gymId: string,  cancelToken?: CancelToken): Promise<void>;
     updateGymStatus(gymId: string, newGymStatus: GymStatus,  cancelToken?: CancelToken): Promise<void>;
-    getMyGymDetails( cancelToken?: CancelToken): Promise<GymDto>;
+    getMyGym( cancelToken?: CancelToken): Promise<GymDto>;
     registerGymFromRequest(requestId: string,  cancelToken?: CancelToken): Promise<void>;
     createGymPassProductOnetimePaymentIntent(gymPassProductId: string,  cancelToken?: CancelToken): Promise<void>;
-    getRequest(requestId: string,  cancelToken?: CancelToken): Promise<void>;
+    getRequestById(requestId: string,  cancelToken?: CancelToken): Promise<void>;
     getRequests(query: GetRequestsQuery,  cancelToken?: CancelToken): Promise<RequestDto[]>;
     createGymCreationRequest(command: CreateGymCreationRequestCommand,  cancelToken?: CancelToken): Promise<void>;
     createGymAdminPromotionRequest(command: CreateGymAdminPromotionRequestCommand,  cancelToken?: CancelToken): Promise<void>;
@@ -227,11 +226,8 @@ export class ApiClient implements IApiClient {
         return Promise.resolve<void>(null as any);
     }
 
-    getGymMembershipPassesForGym(gymId: string, cancelToken?: CancelToken): Promise<GymMembershipPassDto[]> {
-        let url_ = this.baseUrl + "/api/GymMembershipPasses/My/{gymId}";
-        if (gymId === undefined || gymId === null)
-            throw new globalThis.Error("The parameter 'gymId' must be defined.");
-        url_ = url_.replace("{gymId}", encodeURIComponent("" + gymId));
+    getValidGymMembershipPasses( cancelToken?: CancelToken): Promise<GymMembershipPassDto[]> {
+        let url_ = this.baseUrl + "/api/GymMembershipPasses/My";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_: AxiosRequestConfig = {
@@ -250,11 +246,11 @@ export class ApiClient implements IApiClient {
                 throw _error;
             }
         }).then((_response: AxiosResponse) => {
-            return this.processGetGymMembershipPassesForGym(_response);
+            return this.processGetValidGymMembershipPasses(_response);
         });
     }
 
-    protected processGetGymMembershipPassesForGym(response: AxiosResponse): Promise<GymMembershipPassDto[]> {
+    protected processGetValidGymMembershipPasses(response: AxiosResponse): Promise<GymMembershipPassDto[]> {
         const status = response.status;
         let _headers: any = {};
         if (response.headers && typeof response.headers === "object") {
@@ -437,7 +433,7 @@ export class ApiClient implements IApiClient {
         return Promise.resolve<void>(null as any);
     }
 
-    getGymMembershipsQueryToMyGym(query: GetGymMembershipsQueryToMyGymQuery, cancelToken?: CancelToken): Promise<void> {
+    getGymMembershipsQueryToMyGym(query: GetGymMembershipsToMyGymQuery, cancelToken?: CancelToken): Promise<GymMembershipWithUserProfileAndEmailDto[]> {
         let url_ = this.baseUrl + "/api/GymMemberships/MyGym";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -449,6 +445,7 @@ export class ApiClient implements IApiClient {
             url: url_,
             headers: {
                 "Content-Type": "application/json",
+                "Accept": "application/json"
             },
             cancelToken
         };
@@ -464,7 +461,7 @@ export class ApiClient implements IApiClient {
         });
     }
 
-    protected processGetGymMembershipsQueryToMyGym(response: AxiosResponse): Promise<void> {
+    protected processGetGymMembershipsQueryToMyGym(response: AxiosResponse): Promise<GymMembershipWithUserProfileAndEmailDto[]> {
         const status = response.status;
         let _headers: any = {};
         if (response.headers && typeof response.headers === "object") {
@@ -476,13 +473,23 @@ export class ApiClient implements IApiClient {
         }
         if (status === 200) {
             const _responseText = response.data;
-            return Promise.resolve<void>(null as any);
+            let result200: any = null;
+            let resultData200  = _responseText;
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(GymMembershipWithUserProfileAndEmailDto.fromJS(item));
+            }
+            else {
+                result200 = null as any;
+            }
+            return Promise.resolve<GymMembershipWithUserProfileAndEmailDto[]>(result200);
 
         } else if (status !== 200 && status !== 204) {
             const _responseText = response.data;
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
         }
-        return Promise.resolve<void>(null as any);
+        return Promise.resolve<GymMembershipWithUserProfileAndEmailDto[]>(null as any);
     }
 
     createGymPassProduct(command: CreateGymPassProductCommand, cancelToken?: CancelToken): Promise<void> {
@@ -938,7 +945,7 @@ export class ApiClient implements IApiClient {
         return Promise.resolve<GymDto[]>(null as any);
     }
 
-    getGymDetails(gymId: string, cancelToken?: CancelToken): Promise<void> {
+    getGymById(gymId: string, cancelToken?: CancelToken): Promise<void> {
         let url_ = this.baseUrl + "/api/Gyms/{gymId}/Details";
         if (gymId === undefined || gymId === null)
             throw new globalThis.Error("The parameter 'gymId' must be defined.");
@@ -960,11 +967,11 @@ export class ApiClient implements IApiClient {
                 throw _error;
             }
         }).then((_response: AxiosResponse) => {
-            return this.processGetGymDetails(_response);
+            return this.processGetGymById(_response);
         });
     }
 
-    protected processGetGymDetails(response: AxiosResponse): Promise<void> {
+    protected processGetGymById(response: AxiosResponse): Promise<void> {
         const status = response.status;
         let _headers: any = {};
         if (response.headers && typeof response.headers === "object") {
@@ -983,61 +990,6 @@ export class ApiClient implements IApiClient {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
         }
         return Promise.resolve<void>(null as any);
-    }
-
-    getNewGymsThisMonth( cancelToken?: CancelToken): Promise<GymDto[]> {
-        let url_ = this.baseUrl + "/api/Gyms/NewThisMonth";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_: AxiosRequestConfig = {
-            method: "GET",
-            url: url_,
-            headers: {
-                "Accept": "application/json"
-            },
-            cancelToken
-        };
-
-        return this.instance.request(options_).catch((_error: any) => {
-            if (isAxiosError(_error) && _error.response) {
-                return _error.response;
-            } else {
-                throw _error;
-            }
-        }).then((_response: AxiosResponse) => {
-            return this.processGetNewGymsThisMonth(_response);
-        });
-    }
-
-    protected processGetNewGymsThisMonth(response: AxiosResponse): Promise<GymDto[]> {
-        const status = response.status;
-        let _headers: any = {};
-        if (response.headers && typeof response.headers === "object") {
-            for (const k in response.headers) {
-                if (response.headers.hasOwnProperty(k)) {
-                    _headers[k] = response.headers[k];
-                }
-            }
-        }
-        if (status === 200) {
-            const _responseText = response.data;
-            let result200: any = null;
-            let resultData200  = _responseText;
-            if (Array.isArray(resultData200)) {
-                result200 = [] as any;
-                for (let item of resultData200)
-                    result200!.push(GymDto.fromJS(item));
-            }
-            else {
-                result200 = null as any;
-            }
-            return Promise.resolve<GymDto[]>(result200);
-
-        } else if (status !== 200 && status !== 204) {
-            const _responseText = response.data;
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-        }
-        return Promise.resolve<GymDto[]>(null as any);
     }
 
     updateGymStatus(gymId: string, newGymStatus: GymStatus, cancelToken?: CancelToken): Promise<void> {
@@ -1091,7 +1043,7 @@ export class ApiClient implements IApiClient {
         return Promise.resolve<void>(null as any);
     }
 
-    getMyGymDetails( cancelToken?: CancelToken): Promise<GymDto> {
+    getMyGym( cancelToken?: CancelToken): Promise<GymDto> {
         let url_ = this.baseUrl + "/api/Gyms/My/Details";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -1111,11 +1063,11 @@ export class ApiClient implements IApiClient {
                 throw _error;
             }
         }).then((_response: AxiosResponse) => {
-            return this.processGetMyGymDetails(_response);
+            return this.processGetMyGym(_response);
         });
     }
 
-    protected processGetMyGymDetails(response: AxiosResponse): Promise<GymDto> {
+    protected processGetMyGym(response: AxiosResponse): Promise<GymDto> {
         const status = response.status;
         let _headers: any = {};
         if (response.headers && typeof response.headers === "object") {
@@ -1234,7 +1186,7 @@ export class ApiClient implements IApiClient {
         return Promise.resolve<void>(null as any);
     }
 
-    getRequest(requestId: string, cancelToken?: CancelToken): Promise<void> {
+    getRequestById(requestId: string, cancelToken?: CancelToken): Promise<void> {
         let url_ = this.baseUrl + "/api/Requests/{requestId}";
         if (requestId === undefined || requestId === null)
             throw new globalThis.Error("The parameter 'requestId' must be defined.");
@@ -1256,11 +1208,11 @@ export class ApiClient implements IApiClient {
                 throw _error;
             }
         }).then((_response: AxiosResponse) => {
-            return this.processGetRequest(_response);
+            return this.processGetRequestById(_response);
         });
     }
 
-    protected processGetRequest(response: AxiosResponse): Promise<void> {
+    protected processGetRequestById(response: AxiosResponse): Promise<void> {
         const status = response.status;
         let _headers: any = {};
         if (response.headers && typeof response.headers === "object") {
@@ -1800,7 +1752,7 @@ export class ApiClient implements IApiClient {
                 }
             }
         }
-        if (status === 204) {
+        if (status === 200) {
             const _responseText = response.data;
             return Promise.resolve<void>(null as any);
 
@@ -2592,10 +2544,74 @@ export type PassType = "SingleUse" | "MultiUse" | "Unlimited";
 
 export type GymMembershipStatus = "Active" | "Banned";
 
-export class GetGymMembershipsQueryToMyGymQuery implements IGetGymMembershipsQueryToMyGymQuery {
+export class GymMembershipWithUserProfileAndEmailDto implements IGymMembershipWithUserProfileAndEmailDto {
+    id?: string;
+    applicationUserId?: string | undefined;
+    gymId?: string;
+    status?: GymMembershipStatus;
+    passes?: GymMembershipPassDto[];
+    userProfile?: UserProfileWithEmailDto;
+
+    constructor(data?: IGymMembershipWithUserProfileAndEmailDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.applicationUserId = _data["applicationUserId"];
+            this.gymId = _data["gymId"];
+            this.status = _data["status"];
+            if (Array.isArray(_data["passes"])) {
+                this.passes = [] as any;
+                for (let item of _data["passes"])
+                    this.passes!.push(GymMembershipPassDto.fromJS(item));
+            }
+            this.userProfile = _data["userProfile"] ? UserProfileWithEmailDto.fromJS(_data["userProfile"]) : undefined as any;
+        }
+    }
+
+    static fromJS(data: any): GymMembershipWithUserProfileAndEmailDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new GymMembershipWithUserProfileAndEmailDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["applicationUserId"] = this.applicationUserId;
+        data["gymId"] = this.gymId;
+        data["status"] = this.status;
+        if (Array.isArray(this.passes)) {
+            data["passes"] = [];
+            for (let item of this.passes)
+                data["passes"].push(item ? item.toJSON() : undefined as any);
+        }
+        data["userProfile"] = this.userProfile ? this.userProfile.toJSON() : undefined as any;
+        return data;
+    }
+}
+
+export interface IGymMembershipWithUserProfileAndEmailDto {
+    id?: string;
+    applicationUserId?: string | undefined;
+    gymId?: string;
+    status?: GymMembershipStatus;
+    passes?: GymMembershipPassDto[];
+    userProfile?: UserProfileWithEmailDto;
+}
+
+export class GetGymMembershipsToMyGymQuery implements IGetGymMembershipsToMyGymQuery {
     gymMembershipStatus?: GymMembershipStatus | undefined;
 
-    constructor(data?: IGetGymMembershipsQueryToMyGymQuery) {
+    constructor(data?: IGetGymMembershipsToMyGymQuery) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -2610,9 +2626,9 @@ export class GetGymMembershipsQueryToMyGymQuery implements IGetGymMembershipsQue
         }
     }
 
-    static fromJS(data: any): GetGymMembershipsQueryToMyGymQuery {
+    static fromJS(data: any): GetGymMembershipsToMyGymQuery {
         data = typeof data === 'object' ? data : {};
-        let result = new GetGymMembershipsQueryToMyGymQuery();
+        let result = new GetGymMembershipsToMyGymQuery();
         result.init(data);
         return result;
     }
@@ -2624,7 +2640,7 @@ export class GetGymMembershipsQueryToMyGymQuery implements IGetGymMembershipsQue
     }
 }
 
-export interface IGetGymMembershipsQueryToMyGymQuery {
+export interface IGetGymMembershipsToMyGymQuery {
     gymMembershipStatus?: GymMembershipStatus | undefined;
 }
 
@@ -2887,7 +2903,6 @@ export class UpdateMyGymProfileCommand implements IUpdateMyGymProfileCommand {
     gymName?: string;
     gymAddress?: Address;
     gymTier?: GymTier;
-    gymOwnerName?: string | undefined;
 
     constructor(data?: IUpdateMyGymProfileCommand) {
         if (data) {
@@ -2903,7 +2918,6 @@ export class UpdateMyGymProfileCommand implements IUpdateMyGymProfileCommand {
             this.gymName = _data["gymName"];
             this.gymAddress = _data["gymAddress"] ? Address.fromJS(_data["gymAddress"]) : undefined as any;
             this.gymTier = _data["gymTier"];
-            this.gymOwnerName = _data["gymOwnerName"];
         }
     }
 
@@ -2919,7 +2933,6 @@ export class UpdateMyGymProfileCommand implements IUpdateMyGymProfileCommand {
         data["gymName"] = this.gymName;
         data["gymAddress"] = this.gymAddress ? this.gymAddress.toJSON() : undefined as any;
         data["gymTier"] = this.gymTier;
-        data["gymOwnerName"] = this.gymOwnerName;
         return data;
     }
 }
@@ -2928,7 +2941,6 @@ export interface IUpdateMyGymProfileCommand {
     gymName?: string;
     gymAddress?: Address;
     gymTier?: GymTier;
-    gymOwnerName?: string | undefined;
 }
 
 export class Address extends ValueObject implements IAddress {
@@ -3295,7 +3307,6 @@ export class CreateGymDto implements ICreateGymDto {
     gymAddress?: Address;
     gymStatus?: GymStatus;
     gymTier?: GymTier;
-    gymOwnerName?: string;
     escalationEmail?: string;
 
     constructor(data?: ICreateGymDto) {
@@ -3313,7 +3324,6 @@ export class CreateGymDto implements ICreateGymDto {
             this.gymAddress = _data["gymAddress"] ? Address.fromJS(_data["gymAddress"]) : undefined as any;
             this.gymStatus = _data["gymStatus"];
             this.gymTier = _data["gymTier"];
-            this.gymOwnerName = _data["gymOwnerName"];
             this.escalationEmail = _data["escalationEmail"];
         }
     }
@@ -3331,7 +3341,6 @@ export class CreateGymDto implements ICreateGymDto {
         data["gymAddress"] = this.gymAddress ? this.gymAddress.toJSON() : undefined as any;
         data["gymStatus"] = this.gymStatus;
         data["gymTier"] = this.gymTier;
-        data["gymOwnerName"] = this.gymOwnerName;
         data["escalationEmail"] = this.escalationEmail;
         return data;
     }
@@ -3342,7 +3351,6 @@ export interface ICreateGymDto {
     gymAddress?: Address;
     gymStatus?: GymStatus;
     gymTier?: GymTier;
-    gymOwnerName?: string;
     escalationEmail?: string;
 }
 

@@ -58,7 +58,7 @@ public class CreateGymAdminPromotionRequestCommandHandler : IRequestHandler<Crea
 
         if (!await _identityService.DoesUserExist(command.UserIdToPromote))
         {
-            return Result.NotFound("User to nominate");
+            return Result.NotFound("User to promote");
         }
 
         if (!await _identityService.IsInRoleAsync(command.UserIdToPromote, Roles.PendingGymEmployee))

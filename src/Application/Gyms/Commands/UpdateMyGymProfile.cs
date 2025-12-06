@@ -13,8 +13,7 @@ namespace FitPass.Application.Gyms.Commands;
 public record UpdateMyGymProfileCommand(
     string GymName,
     Address GymAddress,
-    GymTier GymTier,
-    string? GymOwnerName
+    GymTier GymTier
 ) : IRequest<Result>;
 
 public class UpdateMyGymProfileCommandValidator : AbstractValidator<UpdateMyGymProfileCommand>
@@ -48,9 +47,11 @@ public class UpdateMyGymProfileCommandHandler : IRequestHandler<UpdateMyGymProfi
 
         var gym = await _context.Gyms.FindAsync(gymEmployment.GymId, cancellationToken);
 
-        if (gym is null)
+        Guard.Against.Null(gym, nameof(Gym), "Gym not found.");
+
+        if (await _context.Gyms.AnyAsync(g => g.Id != gym.Id && g.Name == command.GymName, cancellationToken))
         {
-            return Result.NotFound(nameof(Gym));
+            return Result.Conflict(nameof(command.GymName));
         }
 
         gym.Name = command.GymName;

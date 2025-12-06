@@ -68,7 +68,7 @@ public class GymMembershipPassTests
             }
         };
 
-        var usage = pass.Use("locker number", now);
+        var usage = pass.Use("gymId", "locker number", now);
 
         usage.UserId.ShouldBe("userId");
         usage.GymId.ShouldBe("gymId");
@@ -79,23 +79,6 @@ public class GymMembershipPassTests
         usage.PassExpirationDate.ShouldBe(expirationDate);
         usage.PassUseResult.ShouldBe(passUseResult);
         usage.LockerNumber.ShouldBe("locker number");
-    }
-
-    [Test]
-    public void ShouldThrowIfGymMembershipNavigationPropertyIsNotLoaded()
-    {
-        var pass = new GymMembershipPass
-        {
-            Id = "id",
-            GymMembershipId = "gymMembershipId",
-            UserId = "userId",
-            Type = PassType.SingleUse,
-            TotalUses = 1,
-            RemainingUses = 1,
-            ExpirationDate = null
-        };
-
-        Should.Throw<ArgumentNullException>(() => pass.Use("locker number", DateTimeOffset.UtcNow));
     }
 
     [Test]
@@ -117,7 +100,7 @@ public class GymMembershipPassTests
             }
         };
 
-        pass.Use("locker number", DateTimeOffset.UtcNow);
+        pass.Use("gymId", "locker number", DateTimeOffset.UtcNow);
 
         pass.DomainEvents.ShouldSatisfyAllConditions(
             () => pass.DomainEvents.Count.ShouldBe(1),
@@ -143,7 +126,7 @@ public class GymMembershipPassTests
             }
         };
 
-        pass.Use("locker number", DateTimeOffset.UtcNow);
+        pass.Use("gymId", "locker number", DateTimeOffset.UtcNow);
 
         pass.DomainEvents.ShouldSatisfyAllConditions(
             () => pass.DomainEvents.Count.ShouldBe(1),

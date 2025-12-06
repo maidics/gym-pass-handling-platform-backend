@@ -79,7 +79,7 @@ public class GymEmployeeUseGymMembershipPassCommandHandler : IRequestHandler<Gym
             return Result.BusinessRuleViolation("User is banned from the gym.");
         }
 
-        var passUsage = pass.Use(command.LockerNumber, _timeProvider.GetUtcNow());
+        var passUsage = pass.Use(gymEmployment.GymId, command.LockerNumber, _timeProvider.GetUtcNow());
 
         if (passUsage.PassUseResult == PassUseResult.Expired)
         {

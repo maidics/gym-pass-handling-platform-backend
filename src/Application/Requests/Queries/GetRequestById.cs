@@ -9,25 +9,25 @@ using FitPass.Domain.Entities;
 namespace FitPass.Application.Requests.Queries;
 
 [Authorize(Roles = Roles.AppAdministrator)]
-public record GetRequestQuery(string RequestId) : IRequest<Result<RequestDto>>;
+public record GetRequestByIdQuery(string RequestId) : IRequest<Result<RequestDto>>;
 
-public class GetRequestQueryValidator : AbstractValidator<GetRequestQuery>
+public class GetRequestByIdQueryValidator : AbstractValidator<GetRequestByIdQuery>
 {
-    public GetRequestQueryValidator()
+    public GetRequestByIdQueryValidator()
     {
-        RuleFor(v => v.RequestId).NotEmptyWithMessage(nameof(GetRequestQuery.RequestId));
+        RuleFor(v => v.RequestId).NotEmptyWithMessage(nameof(GetRequestByIdQuery.RequestId));
     }
 }
 
-public class GetRequestQueryHandler : IRequestHandler<GetRequestQuery, Result<RequestDto>>
+public class GetRequestByIdQueryHandler : IRequestHandler<GetRequestByIdQuery, Result<RequestDto>>
 {
     private readonly IApplicationDbContext _context;
 
-    public GetRequestQueryHandler(IApplicationDbContext context)
+    public GetRequestByIdQueryHandler(IApplicationDbContext context)
     {
         _context = context;
     }
-    public async Task<Result<RequestDto>> Handle(GetRequestQuery query, CancellationToken cancellationToken)
+    public async Task<Result<RequestDto>> Handle(GetRequestByIdQuery query, CancellationToken cancellationToken)
     {
         var request = await _context.Requests.AsNoTracking().FirstOrDefaultAsync(gcr => gcr.Id == query.RequestId, cancellationToken);
 

@@ -88,23 +88,12 @@
         ]
       }
     },
-    "/api/GymMembershipPasses/My/{gymId}": {
+    "/api/GymMembershipPasses/My": {
       "get": {
         "tags": [
           "GymMembershipPasses"
         ],
-        "operationId": "GetGymMembershipPassesForGym",
-        "parameters": [
-          {
-            "name": "gymId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "x-position": 1
-          }
-        ],
+        "operationId": "GetValidGymMembershipPasses",
         "responses": {
           "200": {
             "description": "",
@@ -258,7 +247,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/GetGymMembershipsQueryToMyGymQuery"
+                "$ref": "#/components/schemas/GetGymMembershipsToMyGymQuery"
               }
             }
           },
@@ -267,7 +256,17 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GymMembershipWithUserProfileAndEmailDto"
+                  }
+                }
+              }
+            }
           }
         },
         "security": [
@@ -569,7 +568,7 @@
         "tags": [
           "Gyms"
         ],
-        "operationId": "GetGymDetails",
+        "operationId": "GetGymById",
         "parameters": [
           {
             "name": "gymId",
@@ -584,34 +583,6 @@
         "responses": {
           "200": {
             "description": ""
-          }
-        },
-        "security": [
-          {
-            "JWT": []
-          }
-        ]
-      }
-    },
-    "/api/Gyms/NewThisMonth": {
-      "get": {
-        "tags": [
-          "Gyms"
-        ],
-        "operationId": "GetNewGymsThisMonth",
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/GymDto"
-                  }
-                }
-              }
-            }
           }
         },
         "security": [
@@ -667,7 +638,7 @@
         "tags": [
           "Gyms"
         ],
-        "operationId": "GetMyGymDetails",
+        "operationId": "GetMyGym",
         "responses": {
           "200": {
             "description": "",
@@ -750,7 +721,7 @@
         "tags": [
           "Requests"
         ],
-        "operationId": "GetRequest",
+        "operationId": "GetRequestById",
         "parameters": [
           {
             "name": "requestId",
@@ -1061,7 +1032,7 @@
           "x-position": 1
         },
         "responses": {
-          "204": {
+          "200": {
             "description": ""
           }
         },
@@ -1509,7 +1480,35 @@
           "Banned"
         ]
       },
-      "GetGymMembershipsQueryToMyGymQuery": {
+      "GymMembershipWithUserProfileAndEmailDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "applicationUserId": {
+            "type": "string",
+            "nullable": true
+          },
+          "gymId": {
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/GymMembershipStatus"
+          },
+          "passes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GymMembershipPassDto"
+            }
+          },
+          "userProfile": {
+            "$ref": "#/components/schemas/UserProfileWithEmailDto"
+          }
+        }
+      },
+      "GetGymMembershipsToMyGymQuery": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -1677,10 +1676,6 @@
           },
           "gymTier": {
             "$ref": "#/components/schemas/GymTier"
-          },
-          "gymOwnerName": {
-            "type": "string",
-            "nullable": true
           }
         }
       },
@@ -1959,9 +1954,6 @@
           },
           "gymTier": {
             "$ref": "#/components/schemas/GymTier"
-          },
-          "gymOwnerName": {
-            "type": "string"
           },
           "escalationEmail": {
             "type": "string"

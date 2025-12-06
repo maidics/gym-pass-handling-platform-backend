@@ -7,6 +7,7 @@ using FitPass.Application.UserProfiles.DTOs;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
 using FitPass.Infrastructure.Identity;
+using Shouldly;
 
 namespace FitPass.Application.FunctionalTests;
 
@@ -110,5 +111,21 @@ public static class ApplicationEntityAssertions
         dto.CreatedOn.ShouldBe(gymMembership.CreatedOn);
         dto.CreatedBy.ShouldBe(gymMembership.CreatedBy);
         dto.Passes.ShouldBeEquivalentTo(gymMembership.Passes);
+    }
+
+    public static void AssertTo(this RequestDto? dto, Request request)
+    {
+        dto.ShouldNotBeNull();
+
+        dto.ShouldSatisfyAllConditions(
+            () => dto.Id.ShouldBe(request.Id),
+            () => dto.Title.ShouldBe(request.Title),
+            () => dto.Description.ShouldBe(request.Description),
+            () => dto.Status.ShouldBe(request.Status),
+            () => dto.PriorityLevel.ShouldBe(request.PriorityLevel),
+            () => dto.Type.ShouldBe(request.Type),
+            () => dto.Payload.ShouldBe(request.Payload),
+            () => dto.CreatedOn.ShouldBe(request.CreatedOn),
+            () => dto.CreatedBy.ShouldBe(request.CreatedBy));
     }
 }

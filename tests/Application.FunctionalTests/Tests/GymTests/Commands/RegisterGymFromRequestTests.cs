@@ -102,7 +102,7 @@ public class RegisterGymFromRequestTests : BaseTestFixture
             PriorityLevel = PriorityLevel.Medium,
             Status = RequestStatus.Submitted,
             Payload = null,
-            CreatedBy = "notExistsUserId"
+            CreatedBy = null
         };
 
         await AddAsync(request);
@@ -113,14 +113,17 @@ public class RegisterGymFromRequestTests : BaseTestFixture
 
         var result = await SendAsync(command);
         result.Type.ShouldBe(ResultTypes.InternalError);
-        result.Message.ShouldBe("Request creator is empty.");
+        result.Message.ShouldContain("Request creator is empty");
 
         request = await FindAsync<Request>(request.Id);
         request.ShouldNotBeNull();
         request.Status.ShouldBe(RequestStatus.Error);
-        request.Error.ShouldBe("Request creator is empty.");
+        request.Error.ShouldNotBeNull();
+        request.Error.ShouldContain("Request creator is empty");
     }
 
+    //not tested because of foreign key constraint on Request.CreatedBy
+    /*
     [Test]
     public async Task ShouldReturnNotFoundIfRequestCreatorIsNotFound()
     {
@@ -150,6 +153,7 @@ public class RegisterGymFromRequestTests : BaseTestFixture
         request.Status.ShouldBe(RequestStatus.Error);
         request.Error.ShouldBe("Request creator not found.");
     }
+    */
 
     [Test]
     public async Task ShouldReturnBusinessRuleViolationIfRequestCreatorIsNoLongerPendingGymEmployee()
@@ -169,6 +173,8 @@ public class RegisterGymFromRequestTests : BaseTestFixture
             CreatedBy = user.Id
         };
 
+        await AddAsync(request);
+
         await RunAsAppAdminAsync();
 
         var command = new RegisterGymFromRequestCommand(request.Id);
@@ -186,82 +192,72 @@ public class RegisterGymFromRequestTests : BaseTestFixture
     [Test]
     public async Task ShouldReturnInternalErrorIfPayloadFailsToDeserialize()
     {
-        throw new NotImplementedException();
-
         var pendingGymEmployee = await CreateUserAsync(role: Roles.PendingGymEmployee);
 
-        await RunAsUserAsync(pendingGymEmployee);
+        var request = new Request
+        {
+            Title = "Test Request",
+            Description = "Test Description",
+            Type = RequestType.GymCreation,
+            PriorityLevel = PriorityLevel.Medium,
+            Status = RequestStatus.Submitted,
+            Payload = "invalidPayload",
+            CreatedBy = pendingGymEmployee.Id
+        };
 
-        var request = await RequestBuilder
-            .WithRequestType(RequestType.GymCreation)
-            .WithRequestStatus(RequestStatus.Submitted)
-            .WithCreatedBy(pendingGymEmployee.Id)
-            .WithPayload("invalidPayload")
-            .BuildAsync();
+        await AddAsync(request);
 
         await RunAsAppAdminAsync();
 
         var command = new RegisterGymFromRequestCommand(request.Id);
 
-        await Should.ThrowAsync<ArgumentException>(SendAsync(command));
+        var result = await SendAsync(command);
+        result.Type.ShouldBe(ResultTypes.InternalError);
+        result.Message.ShouldContain("Failed to retrieve gym details from request");
+
+        request = await FindAsync<Request>(request.Id);
+        request.ShouldNotBeNull();
+        request.Status.ShouldBe(RequestStatus.Error);
+        request.Error.ShouldNotBeNull();
+        request.Error.ShouldContain("Failed to deserialize payload.");
     }
 
     [Test]
     public async Task ShouldThrowIfGymWithNameAlreadyExists()
     {
-        var gym = await GymBuilder
-            .WithName("Name")
-            .BuildAsync();
+        var pendingGymEmployee = await CreateUserAsync(role: Roles.PendingGymEmployee);
 
-        var pendingGymEmployee = await ApplicationUserBuilder
-            .WithRole(Roles.PendingGymEmployee)
-            .BuildAsync();
-
-        await RunAsUserAsync(pendingGymEmployee);
+        var obj = await TestEntityBuilder.BuildGymAsync();
 
         var createGymDto = new CreateGymDto
         {
-            GymName = "Name",
-            GymAddress = "Address",
+            GymName = obj.gym.Name,
+            GymAddress = obj.gym.Address,
             GymStatus = GymStatus.Active,
             GymTier = GymTier.Local,
-            EscalationEmail = "valid@email"
+            EscalationEmail = "test@localhost"
         };
 
-        var request = await RequestBuilder
-            .WithRequestType(RequestType.GymCreation)
-            .WithRequestStatus(RequestStatus.Submitted)
-            .WithCreatedBy(pendingGymEmployee.Id)
-            .WithPayload(createGymDto)
-            .BuildAsync();
+        var request = new Request
+        {
+            Title = "Test Request",
+            Description = "Test Description",
+            Type = RequestType.GymCreation,
+            PriorityLevel = PriorityLevel.Medium,
+            Status = RequestStatus.Submitted,
+            Payload = JsonSerializer.Serialize(createGymDto),
+            CreatedBy = pendingGymEmployee.Id
+        };
+
+        await AddAsync(request);
 
         await RunAsAppAdminAsync();
 
         var command = new RegisterGymFromRequestCommand(request.Id);
 
-        await Should.ThrowAsync<ConflictException>(SendAsync(command));
-    }
-
-    [Test]
-    public async Task ShouldThrowIfRequestCreatorIsNotPendingGymEmployee()
-    {
-        var notPendingGymEmployee = await ApplicationUserBuilder
-            .WithRole(Roles.GymStaff)
-            .BuildAsync();
-
-        await RunAsUserAsync(notPendingGymEmployee);
-
-        var request = await RequestBuilder
-            .WithRequestType(RequestType.GymCreation)
-            .WithRequestStatus(RequestStatus.Submitted)
-            .WithCreatedBy(notPendingGymEmployee.Id)
-            .BuildAsync();
-
-        await RunAsAppAdminAsync();
-
-        var command = new RegisterGymFromRequestCommand(request.Id);
-
-        await Should.ThrowAsync<BadRequestException>(SendAsync(command));
+        var result = await SendAsync(command);
+        result.Type.ShouldBe(ResultTypes.Conflict);
+        result.Message.ShouldContain("Gym name is already taken.");
     }
 
     [Test]
@@ -273,8 +269,9 @@ public class RegisterGymFromRequestTests : BaseTestFixture
 
         var command = new RegisterGymFromRequestCommand(obj.request.Id);
 
-        var gymDto = await SendAsync(command);
-        gymDto.ShouldNotBeNull();
+        var result = await SendAsync(command);
+        result.Succeeded.ShouldBeTrue();
+        result.Value.ShouldNotBeNull();
 
         var gymCount = await CountAsync<Gym>();
         gymCount.ShouldBe(1);
@@ -291,7 +288,7 @@ public class RegisterGymFromRequestTests : BaseTestFixture
         roles.Count.ShouldBe(1);
         roles.First().ShouldBe(Roles.GymAdministrator);
 
-        var createdGymEmployment = await FindByApplicationUserIdAsync<GymEmployment>(obj.pendingGymEmployee.Id);
+        var createdGymEmployment = await FindByUserIdAsync<GymEmployment>(obj.pendingGymEmployee.Id);
         createdGymEmployment.ShouldNotBeNull();
         createdGymEmployment.UserId.ShouldBe(obj.pendingGymEmployee.Id);
         createdGymEmployment.GymId.ShouldBe(createdGym.Id);

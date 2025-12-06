@@ -5,6 +5,7 @@ using FitPass.Domain.Constants;
 
 namespace FitPass.Application.Gyms.Queries;
 
+/*
 [Authorize(Roles = Roles.AppAdministrator)]
 public record GetNewGymsThisMonthQuery : IRequest<List<GymDto>>;
 
@@ -36,3 +37,4 @@ public class GetNewGymsThisMonthHandler : IRequestHandler<GetNewGymsThisMonthQue
         return newGyms.Select(g => g.MapToDto()).ToList();
     }
 }
+*/

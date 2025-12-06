@@ -73,7 +73,7 @@ public class RegisterGymFromRequestCommandHandler : IRequestHandler<RegisterGymF
 
             await _context.SaveChangesAsync();
 
-            return Result.InternalError("Request creator not found.");
+            return Result.InternalError("Request creator is empty.");
         } else
         {
             if (!await _identityService.DoesUserExist(request.CreatedBy))
@@ -99,14 +99,12 @@ public class RegisterGymFromRequestCommandHandler : IRequestHandler<RegisterGymF
 
         if (!deserializationResult.Succeeded)
         {
-            string errorMessage = "Failed to deserialize payload.";
-
             request.Status = RequestStatus.Error;
-            request.Error = errorMessage;
+            request.Error = "Failed to deserialize payload.";
 
             await _context.SaveChangesAsync();
 
-            return Result.InternalError("Failed to retrieve gym details from request");
+            return Result.InternalError("Failed to retrieve gym details from request.");
         }
 
         var createGymDto = deserializationResult.Value;
@@ -118,7 +116,7 @@ public class RegisterGymFromRequestCommandHandler : IRequestHandler<RegisterGymF
 
         if (existingGym is not null)
         {
-            return Result.Conflict("gym name");
+            return Result.Conflict("Gym name");
         }
 
         using var transaction = await _context.BeginTransactionAsync();

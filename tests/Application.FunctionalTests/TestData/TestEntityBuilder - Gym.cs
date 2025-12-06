@@ -29,7 +29,7 @@ public partial class TestEntityBuilder
     {
         var obj = await BuildGymEmployeeAsync(Roles.GymAdministrator);
 
-        var gymStaff = await CreateUserAsync(Roles.GymStaff);
+        var gymStaff = await CreateUserAsync(role: Roles.GymStaff);
 
         var gymStaffGymEmployment = new GymEmployment
         {
@@ -80,7 +80,8 @@ public partial class TestEntityBuilder
             .SingleUse(obj.gym.Id, "Test Product", "Test Description", true, Money.Eur(10))
             .ToGymMembershipPass(gymMembership.Id, gymMember.Id, GetUtcNow());
 
-        var passUsage = noUsePass.Use("Test Locker", GetUtcNow());
+        var passUsage = noUsePass.Use(obj.gym.Id, "Test Locker", GetUtcNow());
+        passUsage.CreatedOn = GetUtcNow();
         passUsage.EndGymSession(GetUtcNow());
 
         await AddAsync(noUsePass);

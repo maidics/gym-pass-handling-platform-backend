@@ -51,7 +51,7 @@ public class RegisterUserTests : BaseTestFixture
 
         user.ShouldNotBeNull();
 
-        var userProfile = await FindByApplicationUserIdAsync<UserProfile>(userId);
+        var userProfile = await FindByUserIdAsync<UserProfile>(userId);
 
         userProfile.ShouldNotBeNull();
 

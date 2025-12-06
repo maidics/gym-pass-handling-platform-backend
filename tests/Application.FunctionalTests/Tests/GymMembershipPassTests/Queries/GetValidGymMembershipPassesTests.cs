@@ -19,7 +19,9 @@ public class GetValidGymMembershipPassesTests : BaseTestFixture
     public async Task ShouldReturnPasses()
     {
         var gymObj1 = await TestEntityBuilder.BuildGymAsync();
-        var gymObj2 = await TestEntityBuilder.BuildGymAsync();
+        //var gymObj2 = await TestEntityBuilder.BuildGymAsync();
+
+        await RunAsUserAsync(gymObj1.gymMember);
 
         var command = new GetValidGymMembershipPassesQuery();
 

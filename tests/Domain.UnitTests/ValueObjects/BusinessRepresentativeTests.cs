@@ -23,6 +23,7 @@ public class BusinessRepresentativeTests
         };
     }
 
+    [Test]
     [TestCaseSource(nameof(ValidTestData))]
     public void ShouldReturnBusinessRepresentative(string firstName, string lastName, string email, PhoneNumber phoneNumber, DateOnly dateOfBirth, Address address, DateTimeOffset utcNow)
     {

@@ -26,15 +26,14 @@ public class DemoteGymStaffToPendingGymEmployeeTests : BaseTestFixture
     [Test]
     public async Task ShouldDenyDemotionToNonGymStaffUser()
     {
+        var obj = await TestEntityBuilder.BuildGymAsync();
+
         await RunAsGymEmployeeAsync(Roles.GymAdministrator);
 
-        var user = await CreateUserAsync();
-
-        var command = new DemoteGymStaffToPendingGymEmployeeCommand(user.Id);
+        var command = new DemoteGymStaffToPendingGymEmployeeCommand(obj.gymAdmin.Id);
 
         var result = await SendAsync(command);
-        result.Type.ShouldBe(ResultTypes.NotFound);
-        result.Message.ShouldContain("User not found");
+        result.Type.ShouldBe(ResultTypes.Forbidden);
     }
 
     [Test]

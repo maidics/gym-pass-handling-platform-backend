@@ -3,7 +3,6 @@ using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Security;
 using FitPass.Application.UserProfiles.DTOs;
 using FitPass.Domain.Entities;
-using Microsoft.Extensions.Logging;
 
 namespace FitPass.Application.UserProfiles.Queries;
 

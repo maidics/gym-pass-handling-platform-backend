@@ -69,7 +69,7 @@ public class PromotePendingGymEmployeeToGymStaffRoleTests : BaseTestFixture
         rolesAfterPromotion.Count.ShouldBe(1);
         rolesAfterPromotion.First().ShouldBe(Roles.GymStaff);
 
-        var gymStaffEmployment = await FindByApplicationUserIdAsync<GymEmployment>(pendingGymEmployee.Id);
+        var gymStaffEmployment = await FindByUserIdAsync<GymEmployment>(pendingGymEmployee.Id);
 
         gymStaffEmployment.ShouldNotBeNull();
         gymStaffEmployment.GymId.ShouldBe(gymAdminObj.gym.Id);

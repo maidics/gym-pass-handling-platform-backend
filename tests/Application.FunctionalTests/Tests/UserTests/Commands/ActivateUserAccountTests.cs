@@ -50,7 +50,7 @@ public class ActivateUserAccountTests : BaseTestFixture
 
         var result = await SendAsync(command);
         result.Type.ShouldBe(ResultTypes.BusinessRuleViolation);
-        result.Message.ShouldBe("User must set a password.");
+        result.Message.ShouldContain("User has to set a password");
     } 
 
     [Test]
@@ -58,11 +58,10 @@ public class ActivateUserAccountTests : BaseTestFixture
     {
         var user = await CreateUserAsync(password: null);
 
-        var command = new ActivateUserAccountCommand(Uri.EscapeDataString(user.Email!), "invalidtoken", false, null, null);
+        var command = new ActivateUserAccountCommand(Uri.EscapeDataString(user.Email!), "invalidtoken", true, "Password123!", "Password123!");
 
         var result = await SendAsync(command);
         result.Type.ShouldBe(ResultTypes.Forbidden);
-        result.Message.ShouldContain("Email confirmation token is not valid");
     }
 
     [Test]

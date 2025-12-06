@@ -111,7 +111,7 @@ public class PromotePendingGymEmployeeToGymAdminFromRequestTests : BaseTestFixtu
 
         var result = await SendAsync(command);
         result.Type.ShouldBe(ResultTypes.InternalError);
-        result.Message.ShouldContain("Failed to process request payload");
+        result.Message.ShouldContain("Failed to retrieve details from request");
 
         request = await FindAsync<Request>(request.Id);
         request.ShouldNotBeNull();
@@ -174,7 +174,7 @@ public class PromotePendingGymEmployeeToGymAdminFromRequestTests : BaseTestFixtu
     [Test]
     public async Task ShouldReturnNotFoundWhenGymNotFound()
     {
-        var pendingGymEmployee = await CreateUserAsync(Roles.PendingGymEmployee);
+        var pendingGymEmployee = await CreateUserAsync(role: Roles.PendingGymEmployee);
 
         var request = new Request
         {
@@ -201,7 +201,7 @@ public class PromotePendingGymEmployeeToGymAdminFromRequestTests : BaseTestFixtu
     [Test]
     public async Task ShouldPromotePendingGymEmployee()
     {
-        var pendingGymEmployee = await CreateUserAsync(Roles.PendingGymEmployee);
+        var pendingGymEmployee = await CreateUserAsync(role: Roles.PendingGymEmployee);
 
         var obj = await TestEntityBuilder.BuildGymAsync();
 

@@ -305,11 +305,6 @@ public class IdentityService : IIdentityService
 
         var result = await _userManager.ConfirmEmailAsync(user, emailConfirmationToken);
 
-        if (!result.Succeeded && result.Errors.Any(e => e.Code == "Invalidtoken"))
-        {
-            return Result.Forbidden("Email confirmation token is not valid.");
-        }
-
         return result.ToApplicationResult();
     }
 

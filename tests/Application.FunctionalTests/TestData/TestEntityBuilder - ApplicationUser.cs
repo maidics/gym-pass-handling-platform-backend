@@ -26,9 +26,9 @@ public static partial class TestEntityBuilder
         return (user, userProfile);
     }
 
-    public static async Task<(ApplicationUser user, UserProfile userProfile)> BuildPendingGymEmployeeAsync()
+    public static async Task<(ApplicationUser user, UserProfile userProfile)> BuildPendingGymEmployeeAsync(bool emailConfirmed = false)
     {
-        var user = await CreateUserAsync(role: Roles.PendingGymEmployee);
+        var user = await CreateUserAsync(role: Roles.PendingGymEmployee, emailConfirmed: emailConfirmed);
 
         var userProfile = new UserProfile
         {
@@ -69,7 +69,7 @@ public static partial class TestEntityBuilder
 
         var gym = new Gym
         {
-            Name = "Test Gym",
+            Name = $"Test Gym - {Guid.NewGuid()}",
             Address = new Address("line1", "line2", "city", null, "postalCode", "HU"),
             Status = GymStatus.Active,
             Tier = GymTier.Local,

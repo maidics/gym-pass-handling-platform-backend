@@ -21,7 +21,9 @@ public class SendEmailConfirmationEmailTests : BaseTestFixture
     [Test]
     public async Task ShouldReturnBusinessRuleViolationWhenUserEmailIsConfirmed()
     {
-        var user = CreateUserAsync(emailConfirmed: true);
+        var user = await CreateUserAsync(emailConfirmed: true);
+
+        await RunAsUserAsync(user);
 
         var result = await SendAsync(new SendEmailConfirmationEmailCommand());
         result.Type.ShouldBe(ResultTypes.BusinessRuleViolation);

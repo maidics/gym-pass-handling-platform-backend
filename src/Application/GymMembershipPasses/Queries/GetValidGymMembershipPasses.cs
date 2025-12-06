@@ -26,8 +26,10 @@ public class GetValidGymMembershipPassesQueryHandler : IRequestHandler<GetValidG
     public async Task<List<GymMembershipPassDto>> Handle(GetValidGymMembershipPassesQuery query, CancellationToken cancellationToken)
     {
         var passes = await _context.GymMembershipPasses
-            .Where(x => x.UserId == _user.Id && !x.IsValid(_timeProvider.GetUtcNow())) 
+            .Where(x => x.UserId == _user.Id)
             .ToListAsync(cancellationToken);
+
+        passes = passes.Where(x => x.IsValid(_timeProvider.GetUtcNow())).ToList();
             
         return passes.Select(x => x.MapToDto()).ToList();
     }

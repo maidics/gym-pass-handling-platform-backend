@@ -43,7 +43,8 @@ public class UpdateGymPassUsageLockerNumberTests : BaseTestFixture
     {
         var obj = await TestEntityBuilder.BuildGymAsync();
 
-        var usage = obj.singleUsePass.Use("test locker", GetUtcNow());
+        var usage = obj.singleUsePass.Use(obj.gym.Id, "test locker", GetUtcNow());
+        usage.EndGymSession(GetUtcNow());
 
         await AddAsync(usage);
 
@@ -61,7 +62,7 @@ public class UpdateGymPassUsageLockerNumberTests : BaseTestFixture
     {
         var obj = await TestEntityBuilder.BuildGymAsync();
 
-        var usage = obj.singleUsePass.Use("test locker", GetUtcNow());
+        var usage = obj.singleUsePass.Use(obj.gym.Id, "test locker", GetUtcNow());
 
         await AddAsync(usage);
 

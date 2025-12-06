@@ -66,10 +66,10 @@ public class GymEmployeeRegisterUserTests : BaseTestFixture
         createdUser.PasswordHash.ShouldBeNull();
         createdUser.EmailConfirmed.ShouldBeFalse();
 
-        var userProfile = await FindByApplicationUserIdAsync<UserProfile>(createdUserId);
+        var userProfile = await FindByUserIdAsync<UserProfile>(createdUserId);
         userProfile.ShouldNotBeNull();
 
-        var gymMembership = await FindByApplicationUserIdAsync<GymMembership>(createdUserId);
+        var gymMembership = await FindByUserIdAsync<GymMembership>(createdUserId);
         gymMembership.ShouldNotBeNull();
         gymMembership.GymId.ShouldBe(gymStaffObj.gym.Id);
     }
