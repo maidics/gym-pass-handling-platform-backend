@@ -4,6 +4,7 @@ using DotNet.Testcontainers.Containers;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Infrastructure.Data;
 using FitPass.Infrastructure.Data.Interceptors;
+using FitPass.Infrastructure.Stripe;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
@@ -23,10 +24,10 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
     private readonly IContainer _stripeContainer = new ContainerBuilder()
         .WithImage("stripe/stripe-mock:latest")
         .WithPortBinding(12111, true)
-        .WithWaitStrategy(Wait.ForUnixContainer().UntilHttpRequestIsSucceeded(s => s
+        .WithWaitStrategy(Wait.ForUnixContainer().UntilHttpRequestIsSucceeded(r => r
             .ForPort(12111)
-            .ForPath("healthcheck")
-        ))
+            .ForPath("/")
+            .ForStatusCode(System.Net.HttpStatusCode.Unauthorized)))
         .Build();
 
     private readonly DbConnection _connection;
@@ -40,9 +41,10 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
-        _stripeContainer.StartAsync().Wait();
-
-        var stripeUrl = $"http://{_stripeContainer.Hostname}:{_stripeContainer.GetMappedPublicPort(12111)}";
+        builder.ConfigureAppConfiguration((context, config) =>
+        {
+            config.AddJsonFile("./appsettings.Test.json", optional: false);
+        });
 
         builder.ConfigureServices((context, services) =>
         {
@@ -51,9 +53,9 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
             services.AddSingleton<IStripeClient>(provider =>
             
                 new StripeClient(
-                    apiKey: "sk_test_docker_api_key",
+                    apiKey: provider.GetRequiredService<IConfiguration>()["Stripe:Key"],
                     clientId: null,
-                    apiBase: stripeUrl)
+                    apiBase: $"http://{_stripeContainer.Hostname}:{_stripeContainer.GetMappedPublicPort(12111)}")
             );
         });
 
@@ -84,10 +86,16 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
                     options.UseSqlServer(_connection);
                 });
         });
+    }
 
-        builder.ConfigureAppConfiguration((context, config) =>
-        {
-            config.AddJsonFile("./appsettings.Test.json", optional: false);
-        });
+    public async Task InitialiseStripeAsync()
+    {
+        await _stripeContainer.StartAsync();
+    }
+
+    public override async ValueTask DisposeAsync()
+    {
+        await _stripeContainer.StopAsync();
+        await base.DisposeAsync();
     }
 }

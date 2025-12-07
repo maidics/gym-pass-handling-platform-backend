@@ -22,6 +22,7 @@ public partial class Testing
         _database = await TestDatabaseFactory.CreateAsync();
 
         _factory = new CustomWebApplicationFactory(_database.GetConnection(), _database.GetConnectionString());
+        await _factory.InitialiseStripeAsync();
 
         _scopeFactory = _factory.Services.GetRequiredService<IServiceScopeFactory>();
 
@@ -30,7 +31,7 @@ public partial class Testing
         using var scope = _scopeFactory.CreateScope();
         var stripeClient = scope.ServiceProvider.GetRequiredService<IStripeClient>();
         
-        if (stripeClient.ApiKey != "sk_test_docker_api_key")
+        if (stripeClient.ApiKey != "sk_test_123")
         {
             throw new InvalidOperationException("Tests tried to run in non docker environment.");
         }

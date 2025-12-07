@@ -52,7 +52,7 @@ public class CreateTenantPaymentProfileCommandHandler : IRequestHandler<CreateTe
 
         var paymentProfile = await _context
             .TenantPaymentProfiles
-            .FindAsync(gymEmployment.GymId);
+            .FirstOrDefaultAsync(x => x.GymId == gymEmployment.GymId);
 
         if (paymentProfile is not null)
         {
@@ -74,6 +74,7 @@ public class CreateTenantPaymentProfileCommandHandler : IRequestHandler<CreateTe
         };
 
         await _context.TenantPaymentProfiles.AddAsync(paymentProfile);
+        await _context.SaveChangesAsync();
 
         return await _paymentTenantService.GenerateAccountLinkAsync(result.Value, true);
     }
