@@ -1,6 +1,7 @@
 using FitPass.Application.Requests.DTOs;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
+using FitPass.Domain.Entities.Payment;
 using FitPass.Domain.Enums;
 using FitPass.Domain.ValueObjects;
 using FitPass.Infrastructure.Identity;
@@ -108,5 +109,46 @@ public partial class TestEntityBuilder
             noUsePass,
             passUsage,
             unlimitedUsePass);
+    }
+
+    public static async Task<(
+        Gym gym,
+        ApplicationUser gymAdmin,
+        GymEmployment gymAdminGymEmployment,
+        UserProfile gymAdminUserProfile,
+        ApplicationUser gymStaff,
+        GymEmployment gymStaffGymEmployment,
+        UserProfile gymStaffUserProfile,
+        ApplicationUser gymMember,
+        UserProfile gymMemberUserProfile,
+        GymMembership gymMembership,
+        GymMembershipPass singleUsePass,
+        GymMembershipPass noUsePass,
+        GymPassUsage passUsage,
+        GymMembershipPass unlimitedUsePass, 
+        TenantPaymentProfile tenantPaymentProfile)> BuildGymWithTenantPaymentProfileAync()
+    {
+        var obj = await BuildGymAsync();
+
+        await RunAsUserAsync(obj.gymAdmin);
+
+        var paymentProfile = await CreateTenantPaymentProfileAsync(obj.gym.Id);
+
+        return (
+            obj.gym,
+            obj.gymAdmin,
+            obj.gymAdminGymEmployment,
+            obj.gymAdminUserProfile,
+            obj.gymStaff,
+            obj.gymStaffGymEmployment,
+            obj.gymStaffUserProfile,
+            obj.gymMember,
+            obj.gymMemberUserProfile,
+            obj.gymMembership,
+            obj.singleUsePass,
+            obj.noUsePass,
+            obj.passUsage,
+            obj.unlimitedUsePass,
+            paymentProfile);
     }
 }

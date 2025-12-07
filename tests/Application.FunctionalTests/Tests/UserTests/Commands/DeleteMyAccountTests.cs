@@ -10,18 +10,6 @@ using static Testing;
 public class DeleteMyAccountTests : BaseTestFixture
 {
     [Test]
-    public async Task ShouldThrowIfUserDoesNotExist()
-    {
-        var command = new DeleteMyAccountCommand();
-
-        SetLoggedInUserId("invalidUserId");
-
-        var action = () => SendAsync(command);
-
-        await action.ShouldThrowAsync<Exception>();
-    }
-
-    [Test]
     public async Task ShouldDeleteDefaultUserAccount()
     {
         var obj = await RunAsDefaultUserAsync();

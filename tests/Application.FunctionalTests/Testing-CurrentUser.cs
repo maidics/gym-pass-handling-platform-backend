@@ -58,8 +58,9 @@ public partial class Testing
 
         return user;
     }
-    public static void SetLoggedInUserId(string userId)
+    public static void LogOutCurrentUser()
     {
-        _userId = userId;
+        _userId = null;
+        _roles = null;
     }
 }

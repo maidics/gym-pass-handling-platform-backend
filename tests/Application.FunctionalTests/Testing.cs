@@ -74,11 +74,6 @@ public partial class Testing
 
     public static async Task ResetState()
     {
-        using var scope = _scopeFactory.CreateScope();
-        var service = scope.ServiceProvider.GetRequiredService<InterceptorStateService>();
-
-        service.IsAuditableEntityDisabled = true;
-
         try
         {
             await _database.ResetAsync();
@@ -87,8 +82,7 @@ public partial class Testing
         {
         }
 
-        _userId = null;
-        _roles = null;
+        LogOutCurrentUser();
     }
 
     public static DateTimeOffset GetUtcNow()

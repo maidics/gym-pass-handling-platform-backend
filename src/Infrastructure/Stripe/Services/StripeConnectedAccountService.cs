@@ -161,7 +161,7 @@ public class StripeConnectedAccountService : IPaymentTenantService
                 options.Settings.Payouts.Schedule.MonthlyAnchor = monthlyAnchor;
             }
 
-            await _accountService.UpdateAsync(tenantAccountId, options);
+            var account = await _accountService.UpdateAsync(tenantAccountId, options);
 
             return Result.Success();
         } catch (StripeException ex)
