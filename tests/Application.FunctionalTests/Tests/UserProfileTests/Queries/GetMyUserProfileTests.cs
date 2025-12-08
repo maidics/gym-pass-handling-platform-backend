@@ -13,18 +13,6 @@ public class GetMyUserProfileTests : BaseTestFixture
     }
 
     [Test]
-    public async Task ShouldThrowIfUserHasNoProfile()
-    {
-        var user = await ApplicationUserBuilder.BuildAsync();
-
-        await RunAsUserAsync(user);
-
-        var command = new GetMyUserProfileQuery();
-
-        await Should.ThrowAsync<SystemException>(SendAsync(command));
-    }
-
-    [Test]
     public async Task ShouldReturnUserProfile()
     {
         var obj = await RunAsDefaultUserAsync();

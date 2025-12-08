@@ -6,7 +6,7 @@ using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Strings;
 
-namespace FitPass.Application.ApplicationUsers.Commands.RoleHandling;
+namespace FitPass.Application.Users.Commands.RoleHandling;
 
 [Authorize(Roles = Roles.GymAdministrator)]
 public record PromotePendingGymEmployeeToGymStaffRoleCommand (string UserId) : IRequest<Result>;
@@ -44,7 +44,7 @@ public class PromotePendingGymEmployeeToGymStaffRoleCommandHandler : IRequestHan
             .AsNoTracking()
             .FirstOrDefaultAsync(ge => ge.UserId == _user.Id);
 
-        Guard.Against.NullEntityRelatedToCurrentUser(promoterGymEmployment, "Promoter GymEmployment", _user.Id);
+        Guard.Against.NullParameterRelatedToCurrentUser(promoterGymEmployment, "Promoter GymEmployment", _user.Id);
 
         if (!await _identityService.DoesUserExist(command.UserId))
         {

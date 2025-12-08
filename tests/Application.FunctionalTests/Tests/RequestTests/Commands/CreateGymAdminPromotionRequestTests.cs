@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json;
-using System.Threading.Tasks;
+﻿using System.Text.Json;
 using FitPass.Application.Common.Exceptions;
+using FitPass.Application.Common.Models;
 using FitPass.Application.Requests.Commands;
 using FitPass.Application.Requests.DTOs;
 using FitPass.Domain.Constants;
@@ -34,11 +30,11 @@ public class CreateGymAdminPromotionRequestTests : BaseTestFixture
             PriorityLevel.High,
             string.Empty);
 
-        await Should.ThrowAsync<ValidationException>(SendAsync(command));
+        await ShouldThrowIfParametersAreInvalid(command);
     }
 
     [Test]
-    public async Task ShouldThrowIfUserToPromoteDoesNotExist()
+    public async Task ShouldReturnNotFoundIfUserToPromoteIsNotFound()
     {
         await RunAsGymEmployeeAsync(Roles.GymAdministrator);
 
@@ -47,12 +43,16 @@ public class CreateGymAdminPromotionRequestTests : BaseTestFixture
             "Description", 
             PriorityLevel.Medium, 
             "email@email");
+
+        var result = await SendAsync(command);
+        result.Type.ShouldBe(ResultTypes.NotFound);
+        result.Message.ShouldContain("User to promote not found");
     }
 
     [Test]
-    public async Task ShouldThrowIfUserToPromoteIsNotInPendingGymEmployeeRole()
+    public async Task ShouldReturnBusinessRuleViolationIfTheUserToPromoteIsNotPendingGymEmployee()
     {
-        var user = await ApplicationUserBuilder.BuildAsync();
+        var user = await CreateUserAsync();
 
         await RunAsGymEmployeeAsync(Roles.GymAdministrator);
 
@@ -62,15 +62,15 @@ public class CreateGymAdminPromotionRequestTests : BaseTestFixture
             PriorityLevel.High,
             "escalation@email");
 
-        await Should.ThrowAsync<BadRequestException>(SendAsync(command));
+        var result = await SendAsync(command);
+        result.Type.ShouldBe(ResultTypes.BusinessRuleViolation);
+        result.Message.ShouldContain("User is not in PendingGymEmployee role");
     }
 
     [Test]
     public async Task ShouldCreateRequest()
     {
-        var pendingGymEmployee = await ApplicationUserBuilder
-            .WithRole(Roles.PendingGymEmployee)
-            .BuildAsync();
+        var pendingGymEmployee = await CreateUserAsync(role: Roles.PendingGymEmployee);
 
         var gymAdminObj = await RunAsGymEmployeeAsync(Roles.GymAdministrator);
 
@@ -80,7 +80,9 @@ public class CreateGymAdminPromotionRequestTests : BaseTestFixture
             PriorityLevel.High,
             "escalation@email");
 
-        await SendAsync(command);
+        var result = await SendAsync(command);
+        result.Succeeded.ShouldBeTrue();
+        result.Value.ShouldNotBeNull();
 
         var createdRequest = await GetFirstAsync<Request>();
         createdRequest.ShouldNotBeNull();

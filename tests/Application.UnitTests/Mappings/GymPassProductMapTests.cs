@@ -13,33 +13,17 @@ public class GymPassProductMapTests
     [Test]
     public void ShouldMapToDto()
     {
-        var product = new GymPassProduct
-        {
-            Id = "id",
-            GymId = "gymId",
-            Name = "name",
-            Description = "description",
-            Type = PassType.MultiUse,
-            TotalUses = 2,
-            DaysAfterExpiring = null,
-            IsActive = true,
-            Price = Money.Zero("usd"),
-            PaymentIdentity = new ProductPaymentIdentity
-            {
-                GymPassProductId = "id",
-                PriceId = "priceId"
-            }
-        };
+        var product = GymPassProduct.SingleUse("gymId", "name", "description", true, Money.Zero("usd"));
 
         var dto = product.MapToDto();
 
         dto.ShouldSatisfyAllConditions(
-            () => dto.Id.ShouldBe("id"),
+            () => dto.Id.ShouldBe(product.Id),
             () => dto.GymId.ShouldBe("gymId"),
             () => dto.Name.ShouldBe("name"),
             () => dto.Description.ShouldBe("description"),
-            () => dto.Type.ShouldBe(PassType.MultiUse),
-            () => dto.TotalUses.ShouldBe(2),
+            () => dto.Type.ShouldBe(PassType.SingleUse),
+            () => dto.TotalUses.ShouldBe(1),
             () => dto.DaysAfterExpiring.ShouldBeNull(),
             () => dto.IsActive.ShouldBeTrue(),
             () => dto.Price.ShouldBeEquivalentTo(Money.Zero("usd")));

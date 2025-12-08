@@ -1,5 +1,4 @@
-using System;
-using FitPass.Application.Common.Exceptions;
+using FitPass.Application.Common.Models;
 using FitPass.Application.FunctionalTests.TestData;
 using FitPass.Application.GymMemberships.Commands;
 using FitPass.Domain.Constants;
@@ -23,53 +22,49 @@ public class UpdateGymMembershipStatusTests : BaseTestFixture
     {
         await RunAsGymEmployeeAsync(Roles.GymAdministrator);
 
-        await Should.ThrowAsync<ValidationException>(SendAsync(new UpdateGymMembershipStatusCommand(string.Empty, GymMembershipStatus.Banned)));
+        await ShouldThrowIfParametersAreInvalid(new UpdateGymMembershipStatusCommand(string.Empty, GymMembershipStatus.Banned));
     }
 
     [Test]
-    public async Task ShouldThrowIfGymMembershipNotExists()
+    public async Task ShouldReturnNotFoundIfGymMembershipIsNotFound()
     {
         await RunAsGymEmployeeAsync(Roles.GymAdministrator);
 
-        await Should.ThrowAsync<NotFoundException>(SendAsync(new UpdateGymMembershipStatusCommand("invalidGymMembershipId", GymMembershipStatus.Banned)));
+        var command = new UpdateGymMembershipStatusCommand("non-existing-id", GymMembershipStatus.Banned);
+
+        var result = await SendAsync(command);
+        result.Type.ShouldBe(ResultTypes.NotFound);
+        result.Message.ShouldContain($"{nameof(GymMembership)} not found.");
     }
 
     [Test]
-    public async Task ShouldThrowIfGymMembershipIsInAnotherGym()
+    public async Task ShouldReturnForbiddenIfTheGymMembershipIsInAnotherGym()
     {
-        await RunAsGymEmployeeAsync(Roles.GymAdministrator);
+        var obj1 = await TestEntityBuilder.BuildGymAsync();
 
-        var obj = await TestEntityBuilder.BuildDefaultUserAsync();
+        var obj2 = await TestEntityBuilder.BuildGymAsync();
 
-        var anotherGym = await GymBuilder.BuildAsync();
+        await RunAsUserAsync(obj1.gymAdmin);
 
-        var gymMembership = await GymMembershipBuilder
-            .WithApplicationUserId(obj.user.Id)
-            .WithGymId(anotherGym.Id)
-            .BuildAsync();
+        var command = new UpdateGymMembershipStatusCommand(obj2.gymMembership.Id, GymMembershipStatus.Banned);
 
-        var command = new UpdateGymMembershipStatusCommand(gymMembership.Id, GymMembershipStatus.Banned);
-
-        await Should.ThrowAsync<ForbiddenAccessException>(SendAsync(command));
+        var result = await SendAsync(command);
+        result.Type.ShouldBe(ResultTypes.Forbidden);
     }
 
     [Test]
     public async Task ShouldUpdateGymMembershipStatus()
     {
-        var gymAdminObj = await RunAsGymEmployeeAsync(Roles.GymAdministrator);
+        var obj = await TestEntityBuilder.BuildGymAsync();
 
-        var obj = await TestEntityBuilder.BuildDefaultUserAsync();
+        await RunAsUserAsync(obj.gymAdmin);
 
-        var gymMembership = await GymMembershipBuilder
-            .WithApplicationUserId(obj.user.Id)
-            .WithGymId(gymAdminObj.gym.Id)
-            .BuildAsync();
+        var command = new UpdateGymMembershipStatusCommand(obj.gymMembership.Id, GymMembershipStatus.Banned);
 
-        var command = new UpdateGymMembershipStatusCommand(gymMembership.Id, GymMembershipStatus.Banned);
+        var result = await SendAsync(command);
+        result.Succeeded.ShouldBeTrue();
 
-        await SendAsync(command);
-
-        var updatedGymMembership = await FindAsync<GymMembership>(gymMembership.Id);
+        var updatedGymMembership = await FindAsync<GymMembership>(obj.gymMembership.Id);
         updatedGymMembership.ShouldNotBeNull();
         updatedGymMembership.Status.ShouldBe(command.NewStatus);
     }

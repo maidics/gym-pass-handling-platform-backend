@@ -1,15 +1,14 @@
-﻿using FitPass.Application.ApplicationUsers.DTOs;
-using FitPass.Application.Common.Extensions;
+﻿using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Models;
+using FitPass.Application.Users.DTOs;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Strings;
 
-namespace FitPass.Application.ApplicationUsers.Commands;
+namespace FitPass.Application.Users.Commands;
 
-public record RegisterPendingGymEmployeeCommand
-    (
+public record RegisterPendingGymEmployeeCommand(
         string FirstName,
         string LastName,
         string Email,
@@ -69,7 +68,7 @@ public class RegisterPendingGymEmployeeCommandHandler : IRequestHandler<Register
             {
                 await transaction.RollbackAsync();
 
-                return Result.BusinessRuleViolation(string.Join(", ", resultObj.result.Errors));
+                return new ResultFailure(resultObj.result);
             }
 
             userId = resultObj.userId!;

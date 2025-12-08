@@ -43,6 +43,6 @@ public class IsGymMembershipPassValidQueryHandler : IRequestHandler<IsGymMembers
             return Result.NotFound(nameof(GymPassProduct));
         }
 
-        return Result.Success(!pass.IsExpired(_timeProvider.GetUtcNow()) && !pass.HasNoUsesLeft());
+        return Result.Success(pass.IsValid(_timeProvider.GetUtcNow()));
     }
 }

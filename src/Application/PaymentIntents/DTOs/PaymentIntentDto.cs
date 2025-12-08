@@ -1,4 +1,4 @@
-namespace FitPass.Application.Payments.DTOs;
+namespace FitPass.Application.PaymentIntents.DTOs;
 
 public record PaymentIntentDto
 {

@@ -40,6 +40,11 @@ public class UpdateGymStatusCommandHandler : IRequestHandler<UpdateGymStatusComm
             return Result.NotFound(nameof(Gym));
         }
 
+        if (gym.Status == command.NewGymStatus)
+        {
+            return Result.Success();
+        }
+
         gym.Status = command.NewGymStatus;
 
         await _context.SaveChangesAsync(cancellationToken);

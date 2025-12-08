@@ -11,7 +11,10 @@ namespace FitPass.Application.GymMembershipPasses.Commands;
 
 [Authorize(Roles = $"{Roles.GymAdministrator},{Roles.GymStaff}")]
 //Take user id from the qr code as well, if this request does not come from qr code we can do a check to make it more safe
-public record GymEmployeeUseGymMembershipPassCommand(string GymMembershipPassId, string UserId, string LockerNumber) : IRequest<Result<PassUseResult>>;
+public record GymEmployeeUseGymMembershipPassCommand(
+    string GymMembershipPassId, 
+    string UserId, 
+    string LockerNumber) : IRequest<Result<PassUseResult>>;
 
 public class GymEmployeeUseGymMembershipPassCommandValidator : AbstractValidator<GymEmployeeUseGymMembershipPassCommand>
 {
@@ -49,7 +52,7 @@ public class GymEmployeeUseGymMembershipPassCommandHandler : IRequestHandler<Gym
             .AsNoTracking()
             .FirstOrDefaultAsync(ge => ge.UserId != null && ge.UserId == _user.Id);
 
-        Guard.Against.NullEntityRelatedToCurrentUser(gymEmployment, nameof(GymEmployment), _user.Id);
+        Guard.Against.NullParameterRelatedToCurrentUser(gymEmployment, nameof(GymEmployment), _user.Id);
 
         var pass = await _context
             .GymMembershipPasses
@@ -63,12 +66,12 @@ public class GymEmployeeUseGymMembershipPassCommandHandler : IRequestHandler<Gym
 
         if (pass.UserId != command.UserId)
         {
-            return Result.Forbidden("This pass does not belong to user.");
+            return Result.Forbidden("This pass does not belong to the user.");
         }
 
         if (pass.GymMembership.GymId != gymEmployment.GymId)
         {
-            return Result.Forbidden();
+            return Result.Forbidden("This pass belongs to another gym.");
         }
 
         if (pass.GymMembership.Status == GymMembershipStatus.Banned)
@@ -76,9 +79,9 @@ public class GymEmployeeUseGymMembershipPassCommandHandler : IRequestHandler<Gym
             return Result.BusinessRuleViolation("User is banned from the gym.");
         }
 
-        var passUsage = pass.Use(command.LockerNumber, _timeProvider.GetUtcNow());
+        var passUsage = pass.Use(gymEmployment.GymId, command.LockerNumber, _timeProvider.GetUtcNow());
 
-        if (passUsage.PassUseResult == PassUseResult.AlreadyHasNoUsesLeft)
+        if (passUsage.PassUseResult == PassUseResult.Expired)
         {
             _logger.LogError("User request to use an already expired pass.");
         }

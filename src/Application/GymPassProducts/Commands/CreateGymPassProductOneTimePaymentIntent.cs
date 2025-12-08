@@ -3,13 +3,13 @@ using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Interfaces.Payment;
 using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Security;
-using FitPass.Application.Payments.DTOs;
+using FitPass.Application.PaymentIntents.DTOs;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Entities.Payment;
 using FitPass.Domain.Enums;
 
-namespace FitPass.Application.Payments.Commands;
+namespace FitPass.Application.GymPassProducts.Commands;
 
 [Authorize(Roles = Roles.User)]
 public record CreateGymPassProductOneTimePaymentIntentCommand(

@@ -6,6 +6,7 @@ using FitPass.Application.Common.Security;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Entities.Payment;
+using FitPass.Domain.Enums;
 using FitPass.Domain.Strings;
 using FitPass.Domain.ValueObjects;
 
@@ -87,7 +88,7 @@ public class UpdateGymPassProductCommandHandler : IRequestHandler<UpdateGymPassP
             .AsNoTracking()
             .FirstOrDefaultAsync(ge => ge.UserId != null && ge.UserId == _user.Id);
 
-        Guard.Against.NullEntityRelatedToCurrentUser(gymEmployment, nameof(GymEmployment), _user.Id);
+        Guard.Against.NullParameterRelatedToCurrentUser(gymEmployment, nameof(GymEmployment), _user.Id);
 
         var tenantPaymentProfile = await _context.TenantPaymentProfiles
             .AsNoTracking()
@@ -145,8 +146,8 @@ public class UpdateGymPassProductCommandHandler : IRequestHandler<UpdateGymPassP
             product.Description = command.Description;
         }
 
-        product.TotalUses = command.TotalUses;
-        product.DaysAfterExpiring = command.DaysAfterExpiring;
+        product.UpdateTotalUsesIfApplicable((int)command.TotalUses!);
+        product.UpdateDaysAfterExpiringIfApplicable((int)command.DaysAfterExpiring!);
 
         await _context.SaveChangesAsync();
 

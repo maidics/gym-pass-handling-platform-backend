@@ -1,5 +1,5 @@
 
-using FitPass.Application.Payments.Commands;
+using FitPass.Application.GymPassProducts.Commands;
 
 namespace FitPass.Web.Endpoints;
 

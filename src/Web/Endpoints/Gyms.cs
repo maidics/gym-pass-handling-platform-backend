@@ -1,6 +1,7 @@
 using FitPass.Application.Gyms.Commands;
 using FitPass.Application.Gyms.DTOs;
 using FitPass.Application.Gyms.Queries;
+using FitPass.Application.Requests.Commands.Fulfill;
 using FitPass.Domain.Enums;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -15,13 +16,13 @@ public class Gyms : EndpointGroupBase
 
         groupBuilder.MapGet(GetAllGyms);
 
-        groupBuilder.MapGet(GetGymDetails, "{gymId}/Details").RequireAuthorization();
+        groupBuilder.MapGet(GetGymById, "{gymId}/Details").RequireAuthorization();
 
-        groupBuilder.MapGet(GetNewGymsThisMonth, "NewThisMonth").RequireAuthorization();
+        //groupBuilder.MapGet(GetNewGymsThisMonth, "NewThisMonth").RequireAuthorization();
 
         groupBuilder.MapPut(UpdateGymStatus, "{gymId}/Status").RequireAuthorization();
 
-        groupBuilder.MapGet(GetMyGymDetails, "My/Details").RequireAuthorization();
+        groupBuilder.MapGet(GetMyGym, "My/Details").RequireAuthorization();
 
         groupBuilder.MapPost(RegisterGymFromRequest, "Register/FromRequest").RequireAuthorization();
 
@@ -42,19 +43,21 @@ public class Gyms : EndpointGroupBase
         return TypedResults.Ok(result);
     }
 
-    public async Task<IResult> GetGymDetails(ISender sender, string gymId, CancellationToken cancellationToken)
+    public async Task<IResult> GetGymById(ISender sender, string gymId, CancellationToken cancellationToken)
     {
-        var result = await sender.Send(new GetGymDetailsQuery(gymId), cancellationToken);
+        var result = await sender.Send(new GetGymByIdQuery(gymId), cancellationToken);
 
         return result.ToTypedResult();
     }
 
+    /*
     public async Task<Ok<List<GymDto>>> GetNewGymsThisMonth(ISender sender, CancellationToken cancellationToken)
     {
         var result = await sender.Send(new GetNewGymsThisMonthQuery(), cancellationToken);
 
         return TypedResults.Ok(result);
     }
+    */
 
     public async Task<IResult> UpdateGymStatus(ISender sender, string gymId, [FromBody] GymStatus newGymStatus, CancellationToken cancellationToken)
     {
@@ -63,7 +66,7 @@ public class Gyms : EndpointGroupBase
         return result.ToTypedResult();
     }
 
-    public async Task<Ok<GymDto>> GetMyGymDetails(ISender sender, CancellationToken cancellationToken)
+    public async Task<Ok<GymDto>> GetMyGym(ISender sender, CancellationToken cancellationToken)
     {
         var result = await sender.Send(new GetMyGymQuery(), cancellationToken);
 

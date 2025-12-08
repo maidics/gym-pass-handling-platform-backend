@@ -19,7 +19,7 @@ public class GymPassProduct : BaseAuditableEntity
     public int? DaysAfterExpiring { get; private set; }
     public bool IsActive { get; set; }
     public Money Price { get; set; }
-    public ProductPaymentIdentity PaymentIdentity { get; set; }
+    public ProductPaymentIdentity PaymentIdentity { get; set; } = null!;
     public Gym Gym { get; set; } = null!;
 
     private GymPassProduct() //for EF core
@@ -28,11 +28,6 @@ public class GymPassProduct : BaseAuditableEntity
         Name = string.Empty;
         Description = string.Empty;
         Price = Money.Zero("usd");
-        PaymentIdentity = new ProductPaymentIdentity
-        {
-            GymPassProductId = string.Empty,
-            PriceId = string.Empty
-        };
     }
 
     private GymPassProduct(
@@ -43,8 +38,7 @@ public class GymPassProduct : BaseAuditableEntity
         int? totalUses, 
         int? daysAfteExpiring, 
         bool isActive, 
-        Money price, 
-        ProductPaymentIdentity paymentIdentity)
+        Money price)
     {
         GymId = gymId;
         Name = name;
@@ -54,63 +48,66 @@ public class GymPassProduct : BaseAuditableEntity
         DaysAfterExpiring = daysAfteExpiring;
         IsActive = isActive;
         Price = price;
-        PaymentIdentity = paymentIdentity; 
     }
 
-    public static GymPassProduct SingleUse(string gymId, string name, string description, bool isActive, Money price, ProductPaymentIdentity paymentIdentity)
+    public static GymPassProduct SingleUse(string gymId, string name, string description, bool isActive, Money price)
     {
-        return new GymPassProduct(gymId, name, description, PassType.SingleUse, 1, null, isActive, price, paymentIdentity);
+        return new GymPassProduct(
+            gymId, 
+            name, 
+            description, 
+            PassType.SingleUse, 
+            1, 
+            null, 
+            isActive, 
+            price);
     }
 
-    public static GymPassProduct MultiUse(string gymId, string name, string description, int totalUses, bool isActive, Money price, ProductPaymentIdentity paymentIdentity)
+    public static GymPassProduct MultiUse(string gymId, string name, string description, int totalUses, bool isActive, Money price)
     {
         if (totalUses < 1)
         {
             throw new ArgumentOutOfRangeException(nameof(totalUses));
         }
 
-        return new GymPassProduct(gymId, name, description, PassType.MultiUse, totalUses, null, isActive, price, paymentIdentity);
+        return new GymPassProduct(gymId, name, description, PassType.MultiUse, totalUses, null, isActive, price);
     }
 
-    public static GymPassProduct UnlimitedUse(string gymId, string name, string description, int daysAfterExpiring, bool isActive, Money price, ProductPaymentIdentity paymentIdentity)
+    public static GymPassProduct UnlimitedUse(string gymId, string name, string description, int daysAfterExpiring, bool isActive, Money price)
     {
         if (daysAfterExpiring < 1)
         {
             throw new ArgumentOutOfRangeException(nameof(daysAfterExpiring));
         }
 
-        return new GymPassProduct(gymId, name, description, PassType.Unlimited, null, daysAfterExpiring, isActive, price, paymentIdentity);
+        return new GymPassProduct(gymId, name, description, PassType.Unlimited, null, daysAfterExpiring, isActive, price);
     }
 
-    public GymPassProduct UpdateTotalUses(int totalUses)
+    public GymPassProduct UpdateTotalUsesIfApplicable(int totalUses)
     {
-        if (Type != PassType.MultiUse)
+        if (Type == PassType.MultiUse)
         {
-            throw new InvalidOperationException("Cannot update total uses to non multi use passes.");
+            TotalUses = totalUses;
         }
-
-        TotalUses = totalUses;
 
         return this;
     }
 
-    public GymPassProduct UpdateDaysAfterExpiring(int daysAfterExpiring)
+    public GymPassProduct UpdateDaysAfterExpiringIfApplicable(int daysAfterExpiring)
     {
-        if (Type != PassType.Unlimited)
+        if (Type == PassType.Unlimited)
         {
-            throw new InvalidOperationException("Cannot update days after expiring to non unlimited use passes.");
+            DaysAfterExpiring = daysAfterExpiring;
         }
-
-        DaysAfterExpiring = daysAfterExpiring;
 
         return this;
     }
 
-    public DateTimeOffset GetExpirationDate(DateTimeOffset utcNow)
+    public DateTimeOffset? GetExpirationDate(DateTimeOffset utcNow)
     {
         if (DaysAfterExpiring == null)
         {
-            throw new InvalidOperationException("Use based pass type does not have an expiration date.");
+            return null;
         }
 
         return utcNow.AddDays((int)DaysAfterExpiring);

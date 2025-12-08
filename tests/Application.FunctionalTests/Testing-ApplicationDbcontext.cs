@@ -25,14 +25,14 @@ public partial class Testing
         return await context.Set<TEntity>().FirstAsync();
     }
 
-    public static async Task<TEntity?> FindByApplicationUserIdAsync<TEntity>(string applicationUserId)
+    public static async Task<TEntity?> FindByUserIdAsync<TEntity>(string userId)
         where TEntity : class
     {
         using var scope = _scopeFactory.CreateScope();
 
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-        return await context.Set<TEntity>().FirstOrDefaultAsync(e => EF.Property<string>(e, "ApplicationUserId") == applicationUserId);
+        return await context.Set<TEntity>().FirstOrDefaultAsync(e => EF.Property<string>(e, "UserId") == userId);
     }
 
     public static async Task AddAsync<TEntity>(TEntity entity)

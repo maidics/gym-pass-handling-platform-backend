@@ -6,41 +6,27 @@ namespace FitPass.Domain.UnitTests.ValueObjects;
 
 public class BusinessRepresentativeTests
 {
-    private static readonly PhoneNumber _phoneNumber = PhoneNumber.Create("+36201111111"); //by the time it gets to the constructor this will be valid anyways
-    private static readonly Address _address = new Address("Fehér utca 2", "B/34", "Veszprém", "Győr-Moson-Sopron megye", "8200", "HU");
-
-    private static IEnumerable<object[]> ValidTestData()
+    [Test]
+    public void ShouldReturnBusinessRepresentative()
     {
-        yield return new object[]
-        {
+        var phone = PhoneNumber.Create("+36201111111");
+        var address = new Address("Fehér utca 2", "B/34", "Veszprém", "Győr-Moson-Sopron megye", "8200", "HU");
+
+        var br = new BusinessRepresentative(
             "Lajos",
             "Kovács",
             "kovacs.lajos@localhost",
-            _phoneNumber,
+            phone,
             new DateOnly(1990, 10, 1),
-            _address,
-            DateTimeOffset.UtcNow
-        };
-    }
-
-    [TestCaseSource(nameof(ValidTestData))]
-    public void ShouldReturnBusinessRepresentative(string firstName, string lastName, string email, PhoneNumber phoneNumber, DateOnly dateOfBirth, Address address, DateTimeOffset utcNow)
-    {
-        var br = new BusinessRepresentative(
-            firstName,
-            lastName,
-            email,
-            phoneNumber,
-            dateOfBirth, 
             address,
-            utcNow);
+            DateTimeOffset.UtcNow);
 
         br.ShouldSatisfyAllConditions(
-            () => br.FirstName.ShouldBe(firstName),
-            () => br.LastName.ShouldBe(lastName),
-            () => br.Email.ShouldBe(email),
-            () => br.Phone.ShouldBe(phoneNumber),
-            () => br.DateOfBirth.ShouldBe(dateOfBirth),
+            () => br.FirstName.ShouldBe("Lajos"),
+            () => br.LastName.ShouldBe("Kovács"),
+            () => br.Email.ShouldBe("kovacs.lajos@localhost"),
+            () => br.Phone.ShouldBe(phone),
+            () => br.DateOfBirth.ShouldBe(new DateOnly(1990, 10, 1)),
             () => br.Address.ShouldBe(address)
         );
     }

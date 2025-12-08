@@ -1,6 +1,5 @@
 ﻿using System.Reflection;
 using FitPass.Application.Common.Behaviours;
-using FitPass.Application.Common.Configuration;
 using FitPass.Application.Common.Models;
 using FitPass.Application.Requests.Commands;
 using FitPass.Application.Requests.DTOs;
@@ -32,7 +31,5 @@ public static class DependencyInjection
         builder.Services.AddTransient(
             typeof(IRequestHandler<DeserializeRequestPayloadCommand<GymAdminPromotionDto>, Result<GymAdminPromotionDto>>),
             typeof(DeserializeRequestPayloadCommandHandler<GymAdminPromotionDto>));
-
-        builder.Services.Configure<FrontendSettings>(builder.Configuration.GetSection(ConfigurationSections.Frontend));
     }
 }

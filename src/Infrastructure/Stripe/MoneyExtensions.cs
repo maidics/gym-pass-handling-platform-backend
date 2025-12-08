@@ -10,10 +10,7 @@ public static class MoneyExtensions
     {
         public long ToStripeAmount()
         {
-            if (money == null)
-            {
-                throw new ArgumentNullException(nameof(money), "Money cannot be null.");
-            }
+            ArgumentNullException.ThrowIfNull(money);
 
             // Logic: 
             // JPY (Zero decimal): 500 JPY -> 500

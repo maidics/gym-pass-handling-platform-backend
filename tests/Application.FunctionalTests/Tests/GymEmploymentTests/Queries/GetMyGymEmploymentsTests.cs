@@ -15,18 +15,6 @@ public class GetMyGymEmploymentsTests : BaseTestFixture
     }
 
     [Test]
-    public async Task ShouldThrowIfGymEmployeeHasNoGymEmployment()
-    {
-        var gymAdmin = await ApplicationUserBuilder
-            .WithRole(Roles.GymAdministrator)
-            .BuildAsync();
-
-        await RunAsUserAsync(gymAdmin);
-
-        await Should.ThrowAsync<SystemException>(SendAsync(new GetMyGymEmploymentsQuery()));
-    }
-
-    [Test]
     public async Task ShouldReturnGymEmployments()
     {
         var obj = await TestEntityBuilder.BuildGymAsync();

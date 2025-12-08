@@ -51,7 +51,7 @@ public class UpdateGymPassProductActiveStatusCommandHandler : IRequestHandler<Up
             .AsNoTracking()
             .FirstOrDefaultAsync(ge => ge.UserId != null && ge.UserId == _user.Id);
 
-        Guard.Against.NullEntityRelatedToCurrentUser(gymEmployment, nameof(GymEmployment), _user.Id);
+        Guard.Against.NullParameterRelatedToCurrentUser(gymEmployment, nameof(GymEmployment), _user.Id);
 
         var product = await _context.GymPassProducts
             .Include(gpp => gpp.PaymentIdentity)

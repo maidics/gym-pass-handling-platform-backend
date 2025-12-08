@@ -1,5 +1,4 @@
-using System;
-using FitPass.Application.Common.Exceptions;
+using FitPass.Application.Common.Models;
 using FitPass.Application.FunctionalTests.TestData;
 using FitPass.Application.GymPassUsages.Commands;
 using FitPass.Domain.Constants;
@@ -28,56 +27,55 @@ public class UpdateGymPassUsageLockerNumberTests : BaseTestFixture
     }
 
     [Test]
-    public async Task ShouldThrowIfNotExists()
+    public async Task ShouldReturnNotFoundIfNotFound()
     {
         await RunAsGymEmployeeAsync(Roles.GymStaff);
 
         var command = new UpdateGymPassUsageLockerNumberCommand("invalidGymPassUsageId", "20");
 
-        await ShouldThrowIfNotFound(command);
+        var result = await SendAsync(command);
+        result.Type.ShouldBe(ResultTypes.NotFound);
+        result.Message.ShouldContain($"{nameof(GymPassUsage)} not found");
     }
 
     [Test]
-    public async Task ShouldThrowIfGymSessionAlreadyEnded()
+    public async Task ShouldReturnBusinessRuleViolationIfGymSessionAlreadyEnded()
     {
         var obj = await TestEntityBuilder.BuildGymAsync();
 
-        var gymPassUsage = await GymPassUsageBuilder
-            .WithApplicationUserId(obj.gymMember.Id)
-            .WithGymId(obj.gym.Id)
-            .WithPass(obj.singleUsePass)
-            .WithGymSessionFinishedAt(DateTimeOffset.UtcNow)
-            .WithLockerNumber("19")
-            .BuildAsync();
+        var usage = obj.singleUsePass.Use(obj.gym.Id, "test locker", GetUtcNow());
+        usage.EndGymSession(GetUtcNow());
+
+        await AddAsync(usage);
 
         await RunAsUserAsync(obj.gymStaff);
 
-        var command = new UpdateGymPassUsageLockerNumberCommand(gymPassUsage.Id, "20");
+        var command = new UpdateGymPassUsageLockerNumberCommand(usage.Id, "20");
 
-        await Should.ThrowAsync<BadRequestException>(SendAsync(command));
+        var result = await SendAsync(command);
+        result.Type.ShouldBe(ResultTypes.BusinessRuleViolation);
+        result.Message.ShouldContain("Gym session already ended, you cannot change the locker number after this");
     }
 
     [Test]
-    public async Task ShouldUpdateGymSessionEndedAt()
+    public async Task ShouldUpdateLockerNumber()
     {
         var obj = await TestEntityBuilder.BuildGymAsync();
 
-        var gymPassUsage = await GymPassUsageBuilder
-            .WithApplicationUserId(obj.gymMember.Id)
-            .WithGymId(obj.gym.Id)
-            .WithPass(obj.singleUsePass)
-            .WithLockerNumber("19")
-            .BuildAsync();
+        var usage = obj.singleUsePass.Use(obj.gym.Id, "test locker", GetUtcNow());
+
+        await AddAsync(usage);
 
         await RunAsUserAsync(obj.gymStaff);
 
-        string newLockerNumber = "20";
+        string newLockerNumber = "new test locker";
 
-        var command = new UpdateGymPassUsageLockerNumberCommand(gymPassUsage.Id, newLockerNumber);
+        var command = new UpdateGymPassUsageLockerNumberCommand(usage.Id, newLockerNumber);
 
-        await SendAsync(command);
+        var result = await SendAsync(command);
+        result.Succeeded.ShouldBeTrue();
 
-        var updatedGymPassUsage = await FindAsync<GymPassUsage>(gymPassUsage.Id);
+        var updatedGymPassUsage = await FindAsync<GymPassUsage>(usage.Id);
         updatedGymPassUsage.ShouldNotBeNull();
         updatedGymPassUsage.LockerNumber.ShouldBe(newLockerNumber);
     }

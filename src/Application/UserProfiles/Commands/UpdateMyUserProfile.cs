@@ -4,8 +4,6 @@ using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Security;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
-using FitPass.Domain.Strings;
-using Microsoft.Extensions.Logging;
 
 namespace FitPass.Application.UserProfiles.Commands;
 
@@ -13,7 +11,7 @@ namespace FitPass.Application.UserProfiles.Commands;
 public record UpdateMyUserProfileCommand(
     string FirstName,
     string LastName
-) : IRequest;
+) : IRequest<Result>;
 
 public class UpdateMyUserProfileCommandValidator : AbstractValidator<UpdateMyUserProfileCommand>
 {
@@ -25,7 +23,7 @@ public class UpdateMyUserProfileCommandValidator : AbstractValidator<UpdateMyUse
     }
 }
 
-public class UpdateMyUserProfileCommandHandler : IRequestHandler<UpdateMyUserProfileCommand>
+public class UpdateMyUserProfileCommandHandler : IRequestHandler<UpdateMyUserProfileCommand, Result>
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
@@ -38,17 +36,19 @@ public class UpdateMyUserProfileCommandHandler : IRequestHandler<UpdateMyUserPro
         _user = user;
     }
     
-    public async Task Handle(UpdateMyUserProfileCommand command, CancellationToken cancellationToken)
+    public async Task<Result> Handle(UpdateMyUserProfileCommand command, CancellationToken cancellationToken)
     {
         var profile = await _context
             .UserProfiles
             .FindAsync(_user.Id!);
 
-        Guard.Against.NullEntityRelatedToCurrentUser(profile, nameof(UserProfile), _user.Id);
+        Guard.Against.NullParameterRelatedToCurrentUser(profile, nameof(UserProfile), _user.Id);
 
         profile.FirstName = command.FirstName;
         profile.LastName = command.LastName;
 
         await _context.SaveChangesAsync();
+
+        return Result.Success();
     }
 }

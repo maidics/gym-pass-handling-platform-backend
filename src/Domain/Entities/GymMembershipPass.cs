@@ -1,4 +1,5 @@
-using FitPass.Domain.Events.OwnedPasses;
+
+using FitPass.Domain.Events.GymMembershipPasses;
 
 namespace FitPass.Domain.Entities;
 
@@ -13,7 +14,7 @@ public class GymMembershipPass : BaseAuditableEntity
     public required DateTimeOffset? ExpirationDate { get; set; }
     public GymMembership GymMembership { get; set; } = null!;
 
-    public bool IsUsable(DateTimeOffset utcNow)
+    public bool IsValid(DateTimeOffset utcNow)
     {
         if (RemainingUses is not null)
         {
@@ -22,27 +23,22 @@ public class GymMembershipPass : BaseAuditableEntity
 
         if (ExpirationDate is not null)
         {
-            return ExpirationDate.Value.UtcDateTime.Date < utcNow.UtcDateTime.Date;
+            return ExpirationDate.Value.UtcDateTime.Date >= utcNow.UtcDateTime.Date;
         }
 
         throw new ArgumentException($"Both {nameof(RemainingUses)} and {nameof(ExpirationDate)} is null.");
     }
 
-    public GymPassUsage Use(string lockerNumber, DateTimeOffset utcNow) //GymMembership must be loaded
+    public GymPassUsage Use(string gymId, string lockerNumber, DateTimeOffset utcNow) //GymMembership must be loaded
     {
-        if (GymMembership is null)
-        {
-            throw new ArgumentNullException(nameof(GymMembership));
-        }
-
-        if (!IsUsable(utcNow))
+        if (!IsValid(utcNow))
         {
             AddDomainEvent(new PassExpiredEvent(this)); //not throwing here because then Domain event can archive this - this should never happen
 
             return new GymPassUsage
             {
-                UserId = GymMembership.UserId,
-                GymId = GymMembership.GymId!,
+                UserId = UserId,
+                GymId = gymId,
                 PassType = Type,
                 TotalPassUses = TotalUses,
                 RemainingPassUses = RemainingUses,
@@ -57,7 +53,7 @@ public class GymMembershipPass : BaseAuditableEntity
         {
             RemainingUses--;
 
-            if (!IsUsable(utcNow))
+            if (!IsValid(utcNow))
             {
                 AddDomainEvent(new PassExpiredEvent(this));
             }
@@ -65,8 +61,8 @@ public class GymMembershipPass : BaseAuditableEntity
 
         return new GymPassUsage
         {
-            UserId = GymMembership.UserId,
-            GymId = GymMembership.GymId!,
+            UserId = UserId,
+            GymId = gymId,
             PassType = Type,
             TotalPassUses = TotalUses,
             RemainingPassUses = RemainingUses,

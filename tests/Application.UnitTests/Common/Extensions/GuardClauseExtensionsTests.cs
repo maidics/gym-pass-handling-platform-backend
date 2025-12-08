@@ -16,7 +16,7 @@ public class GuardClauseExtensionsTests
 
         GymEmployment? gymEmployment = null;
 
-        var action = () => Guard.Against.NullEntityRelatedToCurrentUser(gymEmployment, nameof(GymEmployment), userId);
+        var action = () => Guard.Against.NullParameterRelatedToCurrentUser(gymEmployment, nameof(GymEmployment), userId);
 
         var ex = Should.Throw<ArgumentNullException>(action);
         ex.Message.ShouldContain($"No {nameof(GymEmployment)} found for '{userId}' user.");
@@ -35,7 +35,7 @@ public class GuardClauseExtensionsTests
             EmploymentStart = DateTimeOffset.UtcNow
         };
 
-        var action = () => Guard.Against.NullEntityRelatedToCurrentUser(gymEmployment, nameof(GymEmployment), userId);
+        var action = () => Guard.Against.NullParameterRelatedToCurrentUser(gymEmployment, nameof(GymEmployment), userId);
 
         Should.NotThrow(action);
     }

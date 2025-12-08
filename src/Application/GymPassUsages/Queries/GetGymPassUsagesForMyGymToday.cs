@@ -32,13 +32,15 @@ public class GetGymPassUsagesForMyGymTodayQueryHandler : IRequestHandler<GetGymP
             .AsNoTracking()
             .FirstOrDefaultAsync(ge => ge.UserId != null && ge.UserId == _user.Id);
 
-        Guard.Against.NullEntityRelatedToCurrentUser(gymEmployment, nameof(GymEmployment), _user.Id);
+        Guard.Against.NullParameterRelatedToCurrentUser(gymEmployment, nameof(GymEmployment), _user.Id);
 
         var gymPassUsages =  await _context
             .GymPassUsages
-            .Where(gpu => gpu.CreatedOn.IsToday(_timeProvider.GetUtcNow()) && gpu.GymId == gymEmployment.GymId)
+            .Where(gpu => gpu.GymId == gymEmployment.GymId)
             .OrderByDescending(gpu => gpu.CreatedOn)
             .ToListAsync();
+
+        gymPassUsages = gymPassUsages.Where(x => x.CreatedOn.IsToday(_timeProvider.GetUtcNow())).ToList();
 
         return gymPassUsages.Select(gpu => gpu.MapToDto()).ToList();
     }

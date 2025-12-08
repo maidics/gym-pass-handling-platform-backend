@@ -1,4 +1,4 @@
-using System;
+using FitPass.Application.Common.Models;
 using FitPass.Application.FunctionalTests.TestData;
 using FitPass.Application.GymMembershipPasses.Queries;
 using FitPass.Domain.Constants;
@@ -26,13 +26,14 @@ public class IsGymMembershipPassValidTests : BaseTestFixture
     }
 
     [Test]
-    public async Task ShouldThrowIfNotExists()
+    public async Task ShouldReturnNotFoundIfNotFound()
     {
         await RunAsGymEmployeeAsync(Roles.GymAdministrator);
 
         var command = new IsGymMembershipPassValidQuery("invalidPassId");
 
-        await ShouldThrowIfNotFound(command);
+        var result = await SendAsync(command);
+        result.Type.ShouldBe(ResultTypes.NotFound);
     }
 
     [Test]
@@ -45,7 +46,8 @@ public class IsGymMembershipPassValidTests : BaseTestFixture
         var command = new IsGymMembershipPassValidQuery(obj.singleUsePass.Id);
 
         var result = await SendAsync(command);
-        result.ShouldBeTrue();
+        result.Succeeded.ShouldBeTrue();
+        result.Value.ShouldBeTrue();
     }
 
     [Test]
@@ -55,9 +57,10 @@ public class IsGymMembershipPassValidTests : BaseTestFixture
 
         await RunAsUserAsync(obj.gymStaff);
 
-        var command = new IsGymMembershipPassValidQuery(obj.expiredPass.Id);
+        var command = new IsGymMembershipPassValidQuery(obj.noUsePass.Id);
 
         var result = await SendAsync(command);
-        result.ShouldBeFalse();
+        result.Succeeded.ShouldBeTrue();
+        result.Value.ShouldBeFalse();
     }
 }

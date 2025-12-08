@@ -28,7 +28,11 @@ public class CreateGymCreationRequestCommandValidator : AbstractValidator<Create
             .NotEmptyWithMaxLenghtAndMessage(nameof(CreateGymCreationRequestCommand.CreateGymDto.GymName), MaxStringLengths.Description);
 
         RuleFor(v => v.CreateGymDto.GymAddress)
-            .NotEmptyWithMaxLenghtAndMessage(nameof(CreateGymCreationRequestCommand.CreateGymDto.GymAddress), MaxStringLengths.Address);
+            .NotEmptyWithMessage(nameof(CreateGymCreationRequestCommand.CreateGymDto.GymAddress));
+
+        RuleFor(v => v.CreateGymDto.GymStatus)
+            .Must(status => status != GymStatus.Suspended)
+            .WithMessage("Gym status cannot be Suspended for a new gym.");
 
         RuleFor(v => v.CreateGymDto.EscalationEmail)
             .ValidEmailAddress(nameof(CreateGymCreationRequestCommand.CreateGymDto.EscalationEmail));
@@ -59,7 +63,7 @@ public class CreateGymCreationRequestCommandHandler : IRequestHandler<CreateGymC
         }
 
         var ongoingRequests = await _context.Requests
-            .Where(r => r.CreatedBy == _user.Id && (r.Status == RequestStatus.Submitted))
+            .Where(r => r.CreatedBy == _user.Id && r.Status == RequestStatus.Submitted && r.Type == RequestType.GymCreation)
             .ToListAsync();
 
         if (ongoingRequests.Count > 0)

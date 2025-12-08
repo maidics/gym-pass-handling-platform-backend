@@ -6,7 +6,7 @@ using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Strings;
 
-namespace FitPass.Application.ApplicationUsers.Commands.RoleHandling;
+namespace FitPass.Application.Users.Commands.RoleHandling;
 
 [Authorize(Roles = Roles.GymAdministrator)]
 public record DemoteGymStaffToPendingGymEmployeeCommand(string UserId) : IRequest<Result>;
@@ -41,7 +41,7 @@ public class DemoteGymStaffToPendingGymEmployeeCommandHandler : IRequestHandler<
             .AsNoTracking()
             .FirstOrDefaultAsync(ge => ge.UserId == _user.Id);
 
-        Guard.Against.NullEntityRelatedToCurrentUser(demoterGymEmployment, nameof(GymEmployment), _user.Id);
+        Guard.Against.NullParameterRelatedToCurrentUser(demoterGymEmployment, nameof(GymEmployment), _user.Id);
 
         var gymStaffGymEmployment = await _context
             .GymEmployments

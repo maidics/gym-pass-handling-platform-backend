@@ -1,5 +1,4 @@
-﻿
-using FitPass.Application.UserProfiles.Queries;
+﻿using FitPass.Application.UserProfiles.Queries;
 using FitPass.Application.UserProfiles.Commands;
 using FitPass.Application.UserProfiles.DTOs;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -22,10 +21,10 @@ public class UserProfiles : EndpointGroupBase
         return TypedResults.Ok(result);
     }
 
-    public async Task<NoContent> UpdateMyUserProfile(ISender sender, UpdateMyUserProfileCommand command, CancellationToken cancellationToken)
+    public async Task<IResult> UpdateMyUserProfile(ISender sender, UpdateMyUserProfileCommand command, CancellationToken cancellationToken)
     {
-        await sender.Send(command);
+        var result = await sender.Send(command);
 
-        return TypedResults.NoContent();
+        return result.ToTypedResult();
     }
 }

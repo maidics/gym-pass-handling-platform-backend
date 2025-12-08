@@ -10,16 +10,16 @@ public class GymMembershipPasses : EndpointGroupBase
 {
     public override void Map(RouteGroupBuilder groupBuilder)
     {
-        groupBuilder.MapGet(GetGymMembershipPassesForGym, "My/{gymId}").RequireAuthorization();
+        groupBuilder.MapGet(GetValidGymMembershipPasses, "My").RequireAuthorization();
 
         groupBuilder.MapPut(GymEmployeeUseGymMembershipPass, "MyGymMember/Use/{userId}/{gymMembershipPassId}").RequireAuthorization();
 
         groupBuilder.MapGet(IsGymMembershipPassValid, "MyGymMember/Validity/{gymMembershipPassId}").RequireAuthorization();
     }
 
-    public async Task<Ok<List<GymMembershipPassDto>>> GetGymMembershipPassesForGym(ISender sender, string gymId, CancellationToken cancellationToken)
+    public async Task<Ok<List<GymMembershipPassDto>>> GetValidGymMembershipPasses(ISender sender, CancellationToken cancellationToken)
     {
-        var result = await sender.Send(new GetValidGymMembershipPassesQuery(gymId), cancellationToken);
+        var result = await sender.Send(new GetValidGymMembershipPassesQuery(), cancellationToken);
 
         return TypedResults.Ok(result);
     }

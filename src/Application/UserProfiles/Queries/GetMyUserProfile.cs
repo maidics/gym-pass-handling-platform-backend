@@ -3,7 +3,6 @@ using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Security;
 using FitPass.Application.UserProfiles.DTOs;
 using FitPass.Domain.Entities;
-using Microsoft.Extensions.Logging;
 
 namespace FitPass.Application.UserProfiles.Queries;
 
@@ -26,7 +25,7 @@ public class GetMyUserProfileQueryHandler : IRequestHandler<GetMyUserProfileQuer
     {
         var profile = await _queryService.GetUserProfileWithEmailByApplicationUserId(_user.Id!);
 
-        Guard.Against.NullEntityRelatedToCurrentUser(profile, nameof(UserProfile), _user.Id);
+        Guard.Against.NullParameterRelatedToCurrentUser(profile, nameof(UserProfile), _user.Id);
 
         return profile;
     }

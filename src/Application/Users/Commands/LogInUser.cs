@@ -1,16 +1,12 @@
-using System.Security.Authentication;
-using FitPass.Application.ApplicationUsers.DTOs;
 using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Models;
+using FitPass.Application.Users.DTOs;
 using FitPass.Domain.Constants;
-using FitPass.Domain.Strings;
-using Microsoft.Extensions.Logging;
 
-namespace FitPass.Application.ApplicationUsers.Commands;
+namespace FitPass.Application.Users.Commands;
 
-public record LogInUserCommand
-    (
+public record LogInUserCommand(
         string Email,
         string Password
     ) : IRequest<Result<JwtToken>>;
@@ -45,27 +41,17 @@ public class LogInUserCommandHandler : IRequestHandler<LogInUserCommand, Result<
     {
         var result = await _identityService.AuthenticateUserAsync(command.Email, command.Password, cancellationToken);
 
-        if (result.IsResultFailureWithOneErrorMessage(ErrorMessages.UserAccountIsNotActivated()))
-        {
-            return Result.BusinessRuleViolation(ErrorMessages.UserAccountIsNotActivated());
-        }
-
-        if (result.IsResultFailureWithOneErrorMessage(ErrorMessages.InvalidCredentials()))
-        {
-            return Result.Unauthorized("Invalid credentials.");
-        }
-
         if (!result.Succeeded)
         {
-            throw new Exception("Failed to authenticate user.");
+            return new ResultFailure(result);
         }
 
         var userId = await _identityService.GetUserIdByEmailAsync(command.Email);
 
         Guard.Against.Null(userId, "user id", "User was authenticated but then not found after by email.");
 
-        var jwtResponse = await _jwtTokenService.GenerateTokenAsync(userId, cancellationToken);
+        var token = await _jwtTokenService.GenerateTokenAsync(userId, cancellationToken);
 
-        return Result.Success(jwtResponse);
+        return Result.Success(token);
     }
 }

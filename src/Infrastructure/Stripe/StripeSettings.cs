@@ -2,8 +2,7 @@
 
 public class StripeSettings
 {
-    public string TestKey { get; init; } = string.Empty;
-    public string Currency { get; init; } = string.Empty;
+    public string Key { get; init; } = string.Empty;
     public required StripeTaxCodeSettings TaxCodeSettings { get; init; }
     public required StripeAccountLinkSettings AccountLinks { get; init; }
 }

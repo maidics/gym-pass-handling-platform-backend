@@ -13,7 +13,7 @@ public class GymDto
     public required GymStatus Status { get; set; }
     public required GymTier Tier { get; set; }
     public required DateTimeOffset CreatedOn { get; set; }
-    public List<GymPassProductDto>? PassProducts { get; set; }
+    public List<GymPassProductDto> PassProducts { get; set; } = [];
 }
 
 public static partial class Mappings
@@ -30,7 +30,7 @@ public static partial class Mappings
                 Status = gym.Status,
                 Tier = gym.Tier,
                 CreatedOn = gym.CreatedOn,
-                PassProducts = gym.PassProducts.Select(p => p.MapToDto()).ToList()
+                PassProducts = [.. gym.PassProducts.Select(p => p.MapToDto())]
             };
         }
     }

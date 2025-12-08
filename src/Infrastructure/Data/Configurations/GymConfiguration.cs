@@ -19,11 +19,11 @@ public class GymConfiguration : IEntityTypeConfiguration<Gym>
 
         builder.Property(g => g.Name).HasMaxLength(MaxStringLengths.Description);
 
-        builder.Property(g => g.Address).HasMaxLength(MaxStringLengths.Address);
-
         builder
             .HasOne(g => g.PaymentProfile)
             .WithOne(tpp => tpp.Gym)
             .HasForeignKey<TenantPaymentProfile>(tpp => tpp.GymId);
+
+        builder.OwnsOne(g => g.Address);
     }
 }

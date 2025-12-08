@@ -29,14 +29,14 @@ public class GetMyGymQueryHandler : IRequestHandler<GetMyGymQuery, GymDto>
             .AsNoTracking()
             .FirstOrDefaultAsync(gsa => gsa.UserId == _user.Id, cancellationToken);
 
-        Guard.Against.NullEntityRelatedToCurrentUser(gymEmployment, nameof(GymEmployment), _user.Id);
+        Guard.Against.NullParameterRelatedToCurrentUser(gymEmployment, nameof(GymEmployment), _user.Id);
 
         var gym = await _context
             .Gyms
             .AsNoTracking()
             .FirstOrDefaultAsync(g => g.Id == gymEmployment.GymId, cancellationToken);
 
-        Guard.Against.NullEntityRelatedToCurrentUser(gym, "gym employee managed gym", _user.Id);
+        Guard.Against.NullParameterRelatedToCurrentUser(gym, "gym employee managed gym", _user.Id);
 
         return gym.MapToDto();
     }

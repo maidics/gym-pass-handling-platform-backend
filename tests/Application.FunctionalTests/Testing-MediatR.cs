@@ -28,9 +28,4 @@ public partial class Testing
     {
         await Should.ThrowAsync<ValidationException>(SendAsync(request));
     }
-
-    public static async Task ShouldThrowIfNotFound(IBaseRequest request)
-    {
-        await Should.ThrowAsync<NotFoundException>(SendAsync(request));
-    }
 }

@@ -5,15 +5,15 @@ using FitPass.Domain.Constants;
 using FitPass.Domain.Enums;
 using FitPass.Domain.Entities;
 using FitPass.Application.Common.Models;
+using FitPass.Domain.ValueObjects;
 
 namespace FitPass.Application.Gyms.Commands;
 
 [Authorize(Roles = Roles.GymAdministrator)]
 public record UpdateMyGymProfileCommand(
     string GymName,
-    string GymAddress,
-    GymTier GymTier,
-    string? GymOwnerName
+    Address GymAddress,
+    GymTier GymTier
 ) : IRequest<Result>;
 
 public class UpdateMyGymProfileCommandValidator : AbstractValidator<UpdateMyGymProfileCommand>
@@ -21,8 +21,6 @@ public class UpdateMyGymProfileCommandValidator : AbstractValidator<UpdateMyGymP
     public UpdateMyGymProfileCommandValidator()
     {
         RuleFor(v => v.GymName).NotEmptyWithMaxLenghtAndMessage(nameof(UpdateMyGymProfileCommand.GymName), MaxStringLengths.Name);
-
-        RuleFor(v => v.GymAddress).NotEmptyWithMaxLenghtAndMessage(nameof(UpdateMyGymProfileCommand.GymAddress), MaxStringLengths.Address);
     }
 }
 
@@ -45,13 +43,15 @@ public class UpdateMyGymProfileCommandHandler : IRequestHandler<UpdateMyGymProfi
             .AsNoTracking()
             .FirstOrDefaultAsync(ge => ge.UserId == _user.Id);
 
-        Guard.Against.NullEntityRelatedToCurrentUser(gymEmployment, nameof(GymEmployment), _user.Id);
+        Guard.Against.NullParameterRelatedToCurrentUser(gymEmployment, nameof(GymEmployment), _user.Id);
 
         var gym = await _context.Gyms.FindAsync(gymEmployment.GymId, cancellationToken);
 
-        if (gym is null)
+        Guard.Against.Null(gym, nameof(Gym), "Gym not found.");
+
+        if (await _context.Gyms.AnyAsync(g => g.Id != gym.Id && g.Name == command.GymName, cancellationToken))
         {
-            return Result.NotFound(nameof(Gym));
+            return Result.Conflict(nameof(command.GymName));
         }
 
         gym.Name = command.GymName;

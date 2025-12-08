@@ -1,4 +1,4 @@
-using FitPass.Application.ApplicationUsers.DTOs;
+using FitPass.Application.Users.DTOs;
 
 namespace FitPass.Application.Common.Interfaces;
 

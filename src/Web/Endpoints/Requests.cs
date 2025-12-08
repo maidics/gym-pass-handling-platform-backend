@@ -10,7 +10,7 @@ public class Requests : EndpointGroupBase
 {
     public override void Map(RouteGroupBuilder groupBuilder)
     {
-        groupBuilder.MapGet(GetRequest, "{requestId}").RequireAuthorization();
+        groupBuilder.MapGet(GetRequestById, "{requestId}").RequireAuthorization();
 
         groupBuilder.MapGet(GetRequests).RequireAuthorization();
 
@@ -21,9 +21,9 @@ public class Requests : EndpointGroupBase
         groupBuilder.MapPut(RejectRequest, "Reject/{requestId}").RequireAuthorization();
     }
 
-    public async Task<IResult> GetRequest(ISender sender, string requestId, CancellationToken cancellationToken)
+    public async Task<IResult> GetRequestById(ISender sender, string requestId, CancellationToken cancellationToken)
     {
-        var result = await sender.Send(new GetRequestQuery(requestId), cancellationToken);
+        var result = await sender.Send(new GetRequestByIdQuery(requestId), cancellationToken);
 
         return result.ToTypedResult();
     }

@@ -4,8 +4,6 @@ using FitPass.Application.Common.Security;
 using FitPass.Application.GymEmployments.DTOs;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
-using FitPass.Domain.Strings;
-using Microsoft.Extensions.Logging;
 
 namespace FitPass.Application.GymEmployments.Queries;
 
@@ -33,7 +31,7 @@ public class GetMyGymEmploymentsQueryHandler : IRequestHandler<GetMyGymEmploymen
             .AsNoTracking()
             .FirstOrDefaultAsync(ge => ge.UserId != null && ge.UserId == _user.Id, cancellationToken);
 
-        Guard.Against.NullEntityRelatedToCurrentUser(gymEmployment, nameof(GymEmployment), _user.Id);
+        Guard.Against.NullParameterRelatedToCurrentUser(gymEmployment, nameof(GymEmployment), _user.Id);
 
         return await _queryService.GetGymEmploymentsWithUserProfileAndEmailByGymId(gymEmployment.GymId!);
     }

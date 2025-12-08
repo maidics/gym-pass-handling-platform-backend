@@ -23,10 +23,10 @@ public class GymMemberships : EndpointGroupBase
         return result.ToTypedResult();
     }
 
-    public async Task<IResult> GetGymMembershipsQueryToMyGym(ISender sender, [FromBody] GetGymMembershipsQueryToMyGymQuery query, CancellationToken cancellationToken)
+    public async Task<Ok<List<GymMembershipWithUserProfileAndEmailDto>>> GetGymMembershipsQueryToMyGym(ISender sender, [FromBody] GetGymMembershipsToMyGymQuery query, CancellationToken cancellationToken)
     {
         var result = await sender.Send(query, cancellationToken);
 
-        return result.ToTypedResult();
+        return TypedResults.Ok(result);
     }
 }

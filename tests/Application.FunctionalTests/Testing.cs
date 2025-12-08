@@ -1,9 +1,9 @@
-﻿using FitPass.Application.FunctionalTests.TestData.EntityBuilders;
-using FitPass.Domain.Constants;
+﻿using FitPass.Domain.Constants;
 using FitPass.Infrastructure.Data.Interceptors;
 using FitPass.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
+using Stripe;
 
 namespace FitPass.Application.FunctionalTests;
 
@@ -16,27 +16,25 @@ public partial class Testing
     private static string? _userId;
     private static List<string>? _roles;
 
-    public static ApplicationUserBuilder ApplicationUserBuilder => new(_scopeFactory);
-    public static GymBuilder GymBuilder => new(_scopeFactory);
-    public static GymEmploymentBuilder GymEmploymentBuilder => new(_scopeFactory);
-    public static GymMembershipBuilder GymMembershipBuilder => new(_scopeFactory);
-    public static GymMembershipPassBuilder GymMembershipPassBuilder => new(_scopeFactory);
-    public static GymPassProductBuilder GymPassProductBuilder => new(_scopeFactory);
-    public static GymPassUsageBuilder GymPassUsageBuilder => new(_scopeFactory);
-    public static UserProfileBuilder UserProfileBuilder => new(_scopeFactory);
-    public static RequestBuilder RequestBuilder => new(_scopeFactory);
-
-
     [OneTimeSetUp]
     public async Task RunBeforeAnyTests()
     {
         _database = await TestDatabaseFactory.CreateAsync();
 
         _factory = new CustomWebApplicationFactory(_database.GetConnection(), _database.GetConnectionString());
+        await _factory.InitialiseStripeAsync();
 
         _scopeFactory = _factory.Services.GetRequiredService<IServiceScopeFactory>();
 
         await SeedRolesIfNotExist();
+
+        using var scope = _scopeFactory.CreateScope();
+        var stripeClient = scope.ServiceProvider.GetRequiredService<IStripeClient>();
+        
+        if (stripeClient.ApiKey != "sk_test_123")
+        {
+            throw new InvalidOperationException("Tests tried to run in non docker environment.");
+        }
     }
 
     [OneTimeTearDown]
@@ -76,11 +74,6 @@ public partial class Testing
 
     public static async Task ResetState()
     {
-        using var scope = _scopeFactory.CreateScope();
-        var service = scope.ServiceProvider.GetRequiredService<InterceptorStateService>();
-
-        service.IsAuditableEntityDisabled = true;
-
         try
         {
             await _database.ResetAsync();
@@ -89,7 +82,13 @@ public partial class Testing
         {
         }
 
-        _userId = null;
-        _roles = null;
+        LogOutCurrentUser();
+    }
+
+    public static DateTimeOffset GetUtcNow()
+    {
+        using var scope = _scopeFactory.CreateScope();
+        var timeProvider = scope.ServiceProvider.GetRequiredService<TimeProvider>();
+        return timeProvider.GetUtcNow();
     }
 }

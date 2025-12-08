@@ -4,7 +4,7 @@ using FitPass.Application.GymPassProducts.DTOs;
 using FitPass.Domain.Entities.Payment;
 using FitPass.Domain.Events.GymPassProducts;
 
-namespace FitPass.Application.Payments.EventHandlers;
+namespace FitPass.Application.GymPassProducts.EventHandlers;
 
 public class GymPassProductPurchasedEventHandler : INotificationHandler<GymPassProductPurchasedEvent>
 {

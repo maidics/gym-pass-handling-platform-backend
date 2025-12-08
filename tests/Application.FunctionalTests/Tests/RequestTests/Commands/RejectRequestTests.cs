@@ -1,7 +1,9 @@
+using FitPass.Application.Common.Models;
 using FitPass.Application.FunctionalTests.TestData;
 using FitPass.Application.Requests.Commands;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
+using FitPass.Domain.Enums;
 
 namespace FitPass.Application.FunctionalTests.Tests.RequestTests.Commands;
 
@@ -26,13 +28,15 @@ public class RejectRequestTests : BaseTestFixture
     }
 
     [Test]
-    public async Task ShouldThrowIfNotExists()
+    public async Task ShouldReturnNotFoundIfRequestIsNotFound()
     {
         await RunAsAppAdminAsync();
 
         var command = new RejectRequestCommand("invalidRequestId");
 
-        await ShouldThrowIfNotFound(command);
+        var result = await SendAsync(command);
+        result.Type.ShouldBe(ResultTypes.NotFound);
+        result.Message.ShouldContain($"{nameof(Request)} not found");
     }
 
     [Test]
@@ -44,10 +48,11 @@ public class RejectRequestTests : BaseTestFixture
 
         var command = new RejectRequestCommand(obj.request.Id);
 
-        await Should.NotThrowAsync(SendAsync(command));
+        var result = await SendAsync(command);
+        result.Succeeded.ShouldBeTrue();
 
         var request = await FindAsync<Request>(obj.request.Id);
         request.ShouldNotBeNull();
-        request.Status.ShouldBe(Domain.Enums.RequestStatus.Rejected);
+        request.Status.ShouldBe(RequestStatus.Rejected);
     }
 }

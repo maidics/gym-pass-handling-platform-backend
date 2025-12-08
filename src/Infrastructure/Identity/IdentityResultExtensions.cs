@@ -61,7 +61,8 @@ public static class IdentityResultExtensions
     ];
 
     private static readonly FrozenSet<string> _forbiddenErrors = [
-        "LoginAlreadyAssociated"
+        "LoginAlreadyAssociated",
+        "InvalidToken"
     ];
 
     private static ResultTypes GetResultType(IEnumerable<string> codes)

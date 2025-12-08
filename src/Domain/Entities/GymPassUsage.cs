@@ -15,7 +15,7 @@ public class GymPassUsage : BaseAuditableEntity
     public required string PassId { get; init; }
     //public GymMembershipPass Pass { get; set; } = null!;
 
-    public GymPassUsage FinishGymSession(DateTimeOffset utcNow)
+    public GymPassUsage EndGymSession(DateTimeOffset utcNow)
     {
         if (PassUseResult != PassUseResult.Success)
         {

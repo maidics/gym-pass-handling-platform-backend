@@ -1,5 +1,5 @@
 using FitPass.Application.Common.Models;
-using FitPass.Application.Payments.Commands;
+using FitPass.Application.Webhooks;
 using Microsoft.Extensions.Logging;
 using Stripe;
 

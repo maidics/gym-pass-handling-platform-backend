@@ -39,9 +39,9 @@ public partial class Testing
         return (await RunAsUserAsync(obj.user), obj.gym, obj.gymEmployment, obj.userProfile);
     }
 
-    public static async Task<(ApplicationUser user, UserProfile userProfile)> RunAsPendingGymEmployeeAsync()
+    public static async Task<(ApplicationUser user, UserProfile userProfile)> RunAsPendingGymEmployeeAsync(bool emailConfirmed = false)
     {
-        var obj = await TestEntityBuilder.BuildPendingGymEmployeeAsync();
+        var obj = await TestEntityBuilder.BuildPendingGymEmployeeAsync(emailConfirmed);
 
         return (await RunAsUserAsync(obj.user), obj.userProfile);
     }
@@ -58,8 +58,9 @@ public partial class Testing
 
         return user;
     }
-    public static void SetLoggedInUserId(string userId)
+    public static void LogOutCurrentUser()
     {
-        _userId = userId;
+        _userId = null;
+        _roles = null;
     }
 }

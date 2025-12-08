@@ -1,12 +1,11 @@
-using FitPass.Application.Common.Exceptions;
-using FitPass.Application.ApplicationUsers.DTOs;
 using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Domain.Strings;
 using Microsoft.Extensions.Logging;
 using FitPass.Application.Common.Models;
+using FitPass.Application.Users.DTOs;
 
-namespace FitPass.Application.ApplicationUsers.Commands;
+namespace FitPass.Application.Users.Commands;
 
 public record ActivateUserAccountCommand(
     string EncodedEmail,
@@ -75,32 +74,27 @@ public class ActivateUserAccountCommandHandler : IRequestHandler<ActivateUserAcc
             return Result.NotFound("User");
         }
 
+        if (!await _identityService.DoesUserHavePassword(userId) && !command.SetPassword)
+        {
+            return Result.BusinessRuleViolation("User has to set a password.");
+        }
+
         var emailConfirmationToken = Uri.UnescapeDataString(command.EncodedEmailConfirmationToken);
 
         var emailResult = await _identityService.ConfirmEmailAsync(email, emailConfirmationToken);
 
-        if (emailResult.IsResultFailureWithOneErrorMessage(ErrorMessages.TokenIsInvalid("Email confirmation")))
+        if(!emailResult.Succeeded)
         {
-            return Result.BusinessRuleViolation("Invalid token.");
-        }
-
-        if (!emailResult.Succeeded)
-        {
-            throw new Exception(ErrorMessages.FailedToActiveAccount());
+            return new ResultFailure(emailResult);
         }
 
         if (command.SetPassword)
         {
             var passwordResult = await _identityService.AddPasswordToUserWithNoPasswordAsync(email, command.Password!);
 
-            if (passwordResult.IsResultFailureWithOneErrorMessage(ResultErrorMessages.UserAlreadyHasPassword()))
-            {
-                throw new Exception($"Malformed request received for '{email}': User already has a password but the request attempted to set it,");
-            }
-
             if (!passwordResult.Succeeded)
             {
-                throw new Exception("Failed to set password for user.");
+                return new ResultFailure(passwordResult);
             }
         }
 
