@@ -13,7 +13,7 @@ namespace FitPass.Application.TenantPaymentProfiles.Commands;
 public record CreateTenantPaymentProfileCommand(
     string PaymentAccountHolderEmail,
     string BusinessName
-) : IRequest<Result<(string url, DateTimeOffset expirationDateTime)>>;
+) : IRequest<Result<(string url, DateTimeOffset expiration)>>;
 
 public class CreateTenantPaymentProfileCommandValidator : AbstractValidator<CreateTenantPaymentProfileCommand>
 {
@@ -25,7 +25,7 @@ public class CreateTenantPaymentProfileCommandValidator : AbstractValidator<Crea
     }
 }
 
-public class CreateTenantPaymentProfileCommandHandler : IRequestHandler<CreateTenantPaymentProfileCommand, Result<(string url, DateTimeOffset expirationDateTime)>>
+public class CreateTenantPaymentProfileCommandHandler : IRequestHandler<CreateTenantPaymentProfileCommand, Result<(string url, DateTimeOffset expiration)>>
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
@@ -41,7 +41,7 @@ public class CreateTenantPaymentProfileCommandHandler : IRequestHandler<CreateTe
         _paymentTenantService = paymentTenantService;
     }
 
-    public async Task<Result<(string url, DateTimeOffset expirationDateTime)>> Handle(CreateTenantPaymentProfileCommand command, CancellationToken cancellationToken)
+    public async Task<Result<(string url, DateTimeOffset expiration)>> Handle(CreateTenantPaymentProfileCommand command, CancellationToken cancellationToken)
     {
         var gymEmployment = await _context
             .GymEmployments
@@ -64,7 +64,7 @@ public class CreateTenantPaymentProfileCommandHandler : IRequestHandler<CreateTe
 
         if (!result.Succeeded)
         {
-            return result.ToFailure<(string url, DateTimeOffset expirationDateTime)>();
+            return result.ToFailure<(string url, DateTimeOffset expiration)>();
         }
 
         paymentProfile = new TenantPaymentProfile

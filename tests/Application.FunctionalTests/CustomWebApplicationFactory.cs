@@ -4,7 +4,6 @@ using DotNet.Testcontainers.Containers;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Infrastructure.Data;
 using FitPass.Infrastructure.Data.Interceptors;
-using FitPass.Infrastructure.Stripe;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;

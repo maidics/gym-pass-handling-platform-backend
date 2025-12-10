@@ -52,7 +52,7 @@ public class CreateTenantPaymentProfileTests : BaseTestFixture
 
         result.Succeeded.ShouldBeTrue();
         result.Value.url.ShouldNotBeNullOrEmpty();
-        result.Value.expirationDateTime.ShouldBeGreaterThan(DateTimeOffset.UtcNow);
+        result.Value.expiration.ShouldBeGreaterThan(DateTimeOffset.UtcNow);
 
         var paymentProfile = await GetFirstAsync<TenantPaymentProfile>();
         paymentProfile.ShouldNotBeNull();

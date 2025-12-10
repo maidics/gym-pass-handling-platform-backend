@@ -36,5 +36,25 @@ public static class StripeExceptionExtensions
             logLevel: LogLevel.Error,
             eventId: new EventId(),
             formatString: "Caught StripeException in {ServiceClass}.{ServiceClassMethod}");
-} 
+}
 
+public static class StripeHttpResponseHelper
+{
+    public static async ValueTask<bool> IsLockTimeoutAsync(HttpResponseMessage response)
+    {
+        if (response.StatusCode != HttpStatusCode.Conflict) return false;
+
+        try
+        {
+            await response.Content.LoadIntoBufferAsync(); //from one time read to multiple reads
+
+            var content = await response.Content.ReadAsStringAsync();
+            
+            return content.Contains("lock_timeout");
+        }
+        catch
+        {
+            return false;
+        }
+    }
+}

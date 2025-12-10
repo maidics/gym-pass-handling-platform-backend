@@ -22,6 +22,7 @@ using Microsoft.IdentityModel.Tokens;
 using Polly;
 using Stripe;
 using FitPass.Application.Common.Interfaces.Payment;
+using FitPass.Application.Common.Models;
 using FitPass.Infrastructure.Email;
 using FitPass.Infrastructure.Jwt;
 using FitPass.Infrastructure.Stripe.Services.Webhook;
@@ -104,11 +105,12 @@ public static class DependencyInjection
                 };
             });
 
-        builder.Services.AddStripeServices();
+        builder.Services.AddStripeServices(builder.Configuration);
     }
 
-    private static void AddStripeServices(this IServiceCollection services)
+    private static void AddStripeServices(this IServiceCollection services, IConfiguration configuration)
     {
+        var apiKey = configuration["Stripe:TestKey"];
         string stripeClientName = "StripeClient";
 
         //Stripe Resilience:
@@ -117,17 +119,43 @@ public static class DependencyInjection
             {
                 pipelineBuilder.AddRetry(new HttpRetryStrategyOptions
                 {
-                    ShouldHandle = args => ValueTask.FromResult(args.Outcome switch
+                    ShouldHandle = async args => 
                     {
-                        { Exception: HttpRequestException } => true,
-                        { Result.StatusCode: HttpStatusCode.TooManyRequests } => true,
-                        { Result.StatusCode: >= HttpStatusCode.InternalServerError } => true,
-                        _ => false
-                    }),
-                    BackoffType = DelayBackoffType.Exponential,
-                    MaxRetryAttempts = 5,
-                    UseJitter = true,
+                        //network failures, DNS, connection dropped etc. 
+                        if (args.Outcome.Exception is HttpRequestException)
+                        {
+                            return true;
+                        }
 
+                        if (args.Outcome.Result is { } response)
+                        {
+                            //rate limit
+                            if (response.StatusCode == HttpStatusCode.TooManyRequests)
+                            {
+                                return true;
+                            }
+
+                            //server errors: 500, 502, 503, 504
+                            if (response.StatusCode >= HttpStatusCode.InternalServerError)
+                            {
+                                return true;
+                            }
+                            
+                            if (response.StatusCode == HttpStatusCode.Conflict)
+                            {
+                                return await StripeHttpResponseHelper.IsLockTimeoutAsync(response);
+                            }
+                        }
+                        
+                        return false;
+                    },
+                    BackoffType = DelayBackoffType.Exponential,
+                    MaxRetryAttempts = 3,
+                    UseJitter = true,
+                    Delay = TimeSpan.FromSeconds(2)
+                    
+                    //should log warnings automatically
+                    /*
                     OnRetry = args =>
                     {
                         var loggerFactory = services.BuildServiceProvider().GetRequiredService<ILoggerFactory>();
@@ -141,6 +169,7 @@ public static class DependencyInjection
 
                         return ValueTask.CompletedTask;
                     }
+                    */
                 });
             });
 
@@ -149,10 +178,9 @@ public static class DependencyInjection
             var httpClientFactory = provider.GetRequiredService<IHttpClientFactory>();
             var resilientHttpClient = httpClientFactory.CreateClient(stripeClientName);
 
-            var config = provider.GetRequiredService<IConfiguration>();
-            var apiKey = config["Stripe:TestKey"];
-
-            var stripeAdapter = new SystemNetHttpClient(resilientHttpClient);
+            var stripeAdapter = new SystemNetHttpClient(
+                httpClient: resilientHttpClient,
+                maxNetworkRetries: 0);
 
             return new StripeClient(httpClient: stripeAdapter, apiKey: apiKey);
         });
