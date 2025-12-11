@@ -24,7 +24,7 @@ public class UpdateGymStatusTests : BaseTestFixture
 
         var command = new UpdateGymStatusCommand(string.Empty, GymStatus.Suspended);
 
-        await ShouldThrowIfParametersAreInvalid(command);
+        await ShouldThrowIfParametersAreInvalidAsync(command);
     }
 
     [Test]

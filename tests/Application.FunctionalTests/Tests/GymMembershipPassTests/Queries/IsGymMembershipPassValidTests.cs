@@ -22,7 +22,7 @@ public class IsGymMembershipPassValidTests : BaseTestFixture
 
         var command = new IsGymMembershipPassValidQuery(string.Empty);
 
-        await ShouldThrowIfParametersAreInvalid(command);
+        await ShouldThrowIfParametersAreInvalidAsync(command);
     }
 
     [Test]

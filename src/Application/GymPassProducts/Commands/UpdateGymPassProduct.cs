@@ -3,6 +3,7 @@ using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Interfaces.Payment;
 using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Security;
+using FitPass.Application.GymPassProducts.DTOs;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Entities.Payment;
@@ -20,7 +21,7 @@ public record UpdateGymPassProductCommand(
     int? TotalUses,
     int? DaysAfterExpiring,
     Money Price
-) : IRequest<Result>;
+) : IRequest<Result<GymPassProductDto>>;
 
 public class UpdateGymPassProductCommandValidator : AbstractValidator<UpdateGymPassProductCommand>
 {
@@ -34,9 +35,9 @@ public class UpdateGymPassProductCommandValidator : AbstractValidator<UpdateGymP
         {
             RuleFor(v => v.TotalUses)
                 .NotEmptyWithMessage(nameof(CreateGymPassProductCommand.TotalUses))
-                .GreaterThan(1).WithMessage(ErrorMessages.MultiUsePassTypeAtLeastTwoUses());
+                .GreaterThan(0).WithMessage("Use based passs type must have at least one use.");
 
-            RuleFor(v => v.DaysAfterExpiring).Null().WithMessage(ErrorMessages.MultiUsePassCannotExpire());
+            RuleFor(v => v.DaysAfterExpiring).Null().WithMessage("Use based pass type cannot have expiration days.");
         });
 
         When(v => v.DaysAfterExpiring is not null, () =>
@@ -52,7 +53,7 @@ public class UpdateGymPassProductCommandValidator : AbstractValidator<UpdateGymP
     }
 }
 
-public class UpdateGymPassProductCommandHandler : IRequestHandler<UpdateGymPassProductCommand, Result>
+public class UpdateGymPassProductCommandHandler : IRequestHandler<UpdateGymPassProductCommand, Result<GymPassProductDto>>
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
@@ -75,20 +76,27 @@ public class UpdateGymPassProductCommandHandler : IRequestHandler<UpdateGymPassP
         _timeProvider = timeProvider;
     }
 
-    public async Task<Result> Handle(UpdateGymPassProductCommand command, CancellationToken cancellationToken)
+    public async Task<Result<GymPassProductDto>> Handle(UpdateGymPassProductCommand command, CancellationToken cancellationToken)
     {
         var moneyValidationResult = _paymentPriceService.ValidateMoney(command.Price);
 
         if (!moneyValidationResult.Succeeded)
         {
-            return moneyValidationResult;
+            return new ResultFailure(moneyValidationResult);
         }
         
         var gymEmployment = await _context.GymEmployments
             .AsNoTracking()
-            .FirstOrDefaultAsync(ge => ge.UserId != null && ge.UserId == _user.Id);
+            .Include(x => x.Gym)
+            .FirstOrDefaultAsync(ge => ge.UserId == _user.Id);
 
         Guard.Against.NullParameterRelatedToCurrentUser(gymEmployment, nameof(GymEmployment), _user.Id);
+        Guard.Against.NullParameterRelatedToCurrentUser(gymEmployment.Gym, nameof(Gym), _user.Id);
+
+        if (gymEmployment.Gym.Status == GymStatus.Suspended)
+        {
+            return Result.BusinessRuleViolation("You cannot update the GymPassProduct because your gym is suspended.");
+        }
 
         var tenantPaymentProfile = await _context.TenantPaymentProfiles
             .AsNoTracking()
@@ -116,7 +124,7 @@ public class UpdateGymPassProductCommandHandler : IRequestHandler<UpdateGymPassP
 
             if (!result.Succeeded)
             {
-                return result;
+                return new ResultFailure(result);
             }
 
             product.PaymentIdentity.ArchivedPaymentProviderPrices.Add(
@@ -139,7 +147,7 @@ public class UpdateGymPassProductCommandHandler : IRequestHandler<UpdateGymPassP
 
             if (!result.Succeeded)
             {
-                return result;
+                return new ResultFailure(result);
             }
 
             product.Name = command.Name;
@@ -151,6 +159,6 @@ public class UpdateGymPassProductCommandHandler : IRequestHandler<UpdateGymPassP
 
         await _context.SaveChangesAsync();
 
-        return Result.Success();
+        return Result.Success(product.MapToDto());
     }
 }

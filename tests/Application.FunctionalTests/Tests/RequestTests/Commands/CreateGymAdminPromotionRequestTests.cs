@@ -30,7 +30,7 @@ public class CreateGymAdminPromotionRequestTests : BaseTestFixture
             PriorityLevel.High,
             string.Empty);
 
-        await ShouldThrowIfParametersAreInvalid(command);
+        await ShouldThrowIfParametersAreInvalidAsync(command);
     }
 
     [Test]

@@ -101,7 +101,8 @@ public class CreateGymPassProductCommandHandler : IRequestHandler<CreateGymPassP
         
         var gymEmployment = await _context.GymEmployments
             .AsNoTracking()
-            .FirstOrDefaultAsync(ge => ge.UserId != null && ge.UserId == _user.Id);
+            .Include(x => x.Gym)
+            .FirstOrDefaultAsync(ge => ge.UserId == _user.Id);
 
         Guard.Against.NullParameterRelatedToCurrentUser(gymEmployment, nameof(GymEmployment), _user.Id);
 
@@ -109,6 +110,11 @@ public class CreateGymPassProductCommandHandler : IRequestHandler<CreateGymPassP
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.GymId == gymEmployment.GymId);
 
+        if (gymEmployment.Gym.Status == GymStatus.Suspended)
+        {
+            return Result.BusinessRuleViolation("You cannot create a pass for a gym that is suspended.");
+        }
+        
         if (tenantPaymentProfile is null)
         {
             return Result.BusinessRuleViolation("You must first create your Stripe payment account.");

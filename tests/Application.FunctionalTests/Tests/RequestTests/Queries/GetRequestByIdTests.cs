@@ -23,7 +23,7 @@ public class GetRequestByIdTests : BaseTestFixture
 
         var query = new GetRequestByIdQuery(RequestId: "");
 
-        await ShouldThrowIfParametersAreInvalid(query);
+        await ShouldThrowIfParametersAreInvalidAsync(query);
     }
 
     [Test]

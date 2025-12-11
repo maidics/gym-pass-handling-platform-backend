@@ -29,7 +29,7 @@ public class UpdateMyGymProfileTests : BaseTestFixture
             new Address("line1", "line2", "city", null, "postalCode", "HU"), 
             GymTier.Local);
 
-        await ShouldThrowIfParametersAreInvalid(command);
+        await ShouldThrowIfParametersAreInvalidAsync(command);
     }
 
     [Test]

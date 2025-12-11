@@ -49,7 +49,7 @@ public class UpdateGymPassProductActiveStatusCommandHandler : IRequestHandler<Up
     {
         var gymEmployment = await _context.GymEmployments
             .AsNoTracking()
-            .FirstOrDefaultAsync(ge => ge.UserId != null && ge.UserId == _user.Id);
+            .FirstOrDefaultAsync(ge => ge.UserId == _user.Id);
 
         Guard.Against.NullParameterRelatedToCurrentUser(gymEmployment, nameof(GymEmployment), _user.Id);
 

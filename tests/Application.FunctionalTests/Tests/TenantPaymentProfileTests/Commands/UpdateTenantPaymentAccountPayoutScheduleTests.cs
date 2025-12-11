@@ -35,7 +35,7 @@ public class UpdateTenantPaymentAccountPayoutScheduleTests : BaseTestFixture
     [Test]
     public async Task ShouldUpdatePayoutSchedule()
     {
-        var obj = await TestEntityBuilder.BuildGymWithTenantPaymentProfileAync();
+        var obj = await TestEntityBuilder.BuildGymWithTenantPaymentProfileAsync();
 
         await RunAsUserAsync(obj.gymAdmin);
 

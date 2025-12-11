@@ -1,5 +1,7 @@
 ﻿using FitPass.Application.Common.Interfaces.Payment;
+using FitPass.Domain.Entities;
 using FitPass.Domain.Entities.Payment;
+using FitPass.Domain.Enums;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FitPass.Application.FunctionalTests;

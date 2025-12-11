@@ -22,7 +22,7 @@ public class EndUserGymSessionTests : BaseTestFixture
     {
         await RunAsGymEmployeeAsync(Roles.GymAdministrator);
 
-        await ShouldThrowIfParametersAreInvalid(new EndUserGymSessionCommand(string.Empty));
+        await ShouldThrowIfParametersAreInvalidAsync(new EndUserGymSessionCommand(string.Empty));
     }
 
     [Test]

@@ -35,7 +35,7 @@ public class GenerateTenantLoginLinkTests : BaseTestFixture
     [Test]
     public async Task ShouldReturnLoginLink()
     {
-        var obj = await TestEntityBuilder.BuildGymWithTenantPaymentProfileAync();
+        var obj = await TestEntityBuilder.BuildGymWithTenantPaymentProfileAsync();
 
         await RunAsUserAsync(obj.gymAdmin);
 

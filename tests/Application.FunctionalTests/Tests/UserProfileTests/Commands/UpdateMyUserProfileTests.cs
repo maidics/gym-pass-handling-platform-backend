@@ -21,7 +21,7 @@ public class UpdateMyUserProfileTests : BaseTestFixture
 
         var command = new UpdateMyUserProfileCommand(string.Empty, string.Empty);
 
-        await ShouldThrowIfParametersAreInvalid(command);
+        await ShouldThrowIfParametersAreInvalidAsync(command);
     }
 
     [Test]

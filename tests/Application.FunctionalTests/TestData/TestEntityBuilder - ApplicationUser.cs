@@ -58,7 +58,11 @@ public static partial class TestEntityBuilder
         return (user, userProfile);
     }
     
-    public static async Task<(ApplicationUser user, Gym gym, GymEmployment gymEmployment, UserProfile userProfile)> BuildGymEmployeeAsync(string employeeRole)
+    public static async Task<(
+        ApplicationUser user, 
+        Gym gym, 
+        GymEmployment gymEmployment, 
+        UserProfile userProfile)> BuildGymEmployeeAsync(string employeeRole, GymStatus gymStatus = GymStatus.Active)
     {
         if (employeeRole != Roles.GymAdministrator && employeeRole != Roles.GymStaff)
         {
@@ -71,7 +75,7 @@ public static partial class TestEntityBuilder
         {
             Name = $"Test Gym - {Guid.NewGuid()}",
             Address = new Address("line1", "line2", "city", null, "postalCode", "HU"),
-            Status = GymStatus.Active,
+            Status = gymStatus,
             Tier = GymTier.Local,
         };
 

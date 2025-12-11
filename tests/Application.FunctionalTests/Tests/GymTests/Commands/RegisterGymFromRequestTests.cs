@@ -28,7 +28,7 @@ public class RegisterGymFromRequestTests : BaseTestFixture
 
         var command = new RegisterGymFromRequestCommand(string.Empty);
 
-        await ShouldThrowIfParametersAreInvalid(command);
+        await ShouldThrowIfParametersAreInvalidAsync(command);
     }
 
     [Test]

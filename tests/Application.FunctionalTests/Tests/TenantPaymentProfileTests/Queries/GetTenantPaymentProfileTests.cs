@@ -32,7 +32,7 @@ public class GetTenantPaymentProfileTests : BaseTestFixture
     [Test]
     public async Task ShouldReturnTenantPaymentProfile()
     {
-        var obj = await TestEntityBuilder.BuildGymWithTenantPaymentProfileAync();
+        var obj = await TestEntityBuilder.BuildGymWithTenantPaymentProfileAsync();
 
         await RunAsUserAsync(obj.gymAdmin);
 

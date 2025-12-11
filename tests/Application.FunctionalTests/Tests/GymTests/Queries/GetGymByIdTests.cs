@@ -22,7 +22,7 @@ public class GetGymByIdTests : BaseTestFixture
 
         var query = new GetGymByIdQuery(string.Empty);
 
-        await ShouldThrowIfParametersAreInvalid(query);
+        await ShouldThrowIfParametersAreInvalidAsync(query);
     }
 
     [Test]

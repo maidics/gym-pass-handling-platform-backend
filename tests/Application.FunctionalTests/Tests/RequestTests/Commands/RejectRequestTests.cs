@@ -24,7 +24,7 @@ public class RejectRequestTests : BaseTestFixture
 
         var command = new RejectRequestCommand(string.Empty);
 
-        await ShouldThrowIfParametersAreInvalid(command);
+        await ShouldThrowIfParametersAreInvalidAsync(command);
     }
 
     [Test]

@@ -1,5 +1,6 @@
 using FitPass.Application.GymEmployments.DTOs;
 using FitPass.Application.GymMemberships.DTOs;
+using FitPass.Application.GymPassProducts.DTOs;
 using FitPass.Application.GymPassUsages.DTOs;
 using FitPass.Application.Gyms.DTOs;
 using FitPass.Application.Requests.DTOs;
@@ -127,5 +128,16 @@ public static class ApplicationEntityAssertions
             () => dto.Payload.ShouldBe(request.Payload),
             () => dto.CreatedOn.ShouldBe(request.CreatedOn),
             () => dto.CreatedBy.ShouldBe(request.CreatedBy));
+    }
+    
+    public static void AssertTo(this GymPassProductDto ? dto, GymPassProduct gymPassProduct)
+    {
+        dto.ShouldNotBeNull();
+        dto.Id.ShouldBe(gymPassProduct.Id);
+        dto.Name.ShouldBe(gymPassProduct.Name);
+        dto.Description.ShouldBe(gymPassProduct.Description);
+        dto.Type.ShouldBe(gymPassProduct.Type);
+        dto.IsActive.ShouldBe(gymPassProduct.IsActive);
+        dto.Price.ShouldBeEquivalentTo(gymPassProduct.Price);
     }
 }

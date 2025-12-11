@@ -23,7 +23,7 @@ public class UpdateGymPassUsageLockerNumberTests : BaseTestFixture
 
         var command = new UpdateGymPassUsageLockerNumberCommand(string.Empty, string.Empty);
 
-        await ShouldThrowIfParametersAreInvalid(command);
+        await ShouldThrowIfParametersAreInvalidAsync(command);
     }
 
     [Test]

@@ -38,7 +38,7 @@ public class CreateGymCreationRequestTests : BaseTestFixture
                 EscalationEmail = string.Empty
             });
 
-        await ShouldThrowIfParametersAreInvalid(command);
+        await ShouldThrowIfParametersAreInvalidAsync(command);
     }
 
     [Test]

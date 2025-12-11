@@ -69,7 +69,6 @@ public class CreateGymPassProductOneTimePaymentIntentCommandHandler : IRequestHa
 
         Guard.Against.Null(tenantPaymentProfile, nameof(TenantPaymentProfile));
 
-
         var result = await _paymentService.CreateOneTimePaymentIntent(
             product.Price, 
             _user.Id!,

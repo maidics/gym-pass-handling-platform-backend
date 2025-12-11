@@ -24,7 +24,7 @@ public partial class Testing
         await mediator.Send(request);
     }
 
-    public static async Task ShouldThrowIfParametersAreInvalid(IBaseRequest request)
+    public static async Task ShouldThrowIfParametersAreInvalidAsync(IBaseRequest request)
     {
         await Should.ThrowAsync<ValidationException>(SendAsync(request));
     }

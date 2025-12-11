@@ -1,4 +1,3 @@
-using FitPass.Application.Requests.DTOs;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Entities.Payment;
@@ -26,9 +25,9 @@ public partial class TestEntityBuilder
         GymMembershipPass singleUsePass,
         GymMembershipPass noUsePass,
         GymPassUsage passUsage,
-        GymMembershipPass unlimitedUsePass)> BuildGymAsync()
+        GymMembershipPass unlimitedUsePass)> BuildGymAsync(GymStatus gymStatus = GymStatus.Active)
     {
-        var obj = await BuildGymEmployeeAsync(Roles.GymAdministrator);
+        var obj = await BuildGymEmployeeAsync(Roles.GymAdministrator, gymStatus);
 
         var gymStaff = await CreateUserAsync(role: Roles.GymStaff);
 
@@ -126,13 +125,15 @@ public partial class TestEntityBuilder
         GymMembershipPass noUsePass,
         GymPassUsage passUsage,
         GymMembershipPass unlimitedUsePass, 
-        TenantPaymentProfile tenantPaymentProfile)> BuildGymWithTenantPaymentProfileAync()
+        TenantPaymentProfile tenantPaymentProfile)> BuildGymWithTenantPaymentProfileAsync(GymStatus gymStatus = GymStatus.Active)
     {
-        var obj = await BuildGymAsync();
+        var obj = await BuildGymAsync(gymStatus);
 
         await RunAsUserAsync(obj.gymAdmin);
 
-        var paymentProfile = await CreateTenantPaymentProfileAsync(obj.gym.Id);
+        var paymentProfile = await CreateTenantPaymentProfileAsync(obj.gym.Id); //can exist without a gym
+
+        LogOutCurrentUser();
 
         return (
             obj.gym,

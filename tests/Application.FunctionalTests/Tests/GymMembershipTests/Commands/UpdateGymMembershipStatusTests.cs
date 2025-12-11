@@ -22,7 +22,7 @@ public class UpdateGymMembershipStatusTests : BaseTestFixture
     {
         await RunAsGymEmployeeAsync(Roles.GymAdministrator);
 
-        await ShouldThrowIfParametersAreInvalid(new UpdateGymMembershipStatusCommand(string.Empty, GymMembershipStatus.Banned));
+        await ShouldThrowIfParametersAreInvalidAsync(new UpdateGymMembershipStatusCommand(string.Empty, GymMembershipStatus.Banned));
     }
 
     [Test]
