@@ -17,11 +17,13 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Http.Resilience" />
+    <PackageReference Include="RazorLight" />
     <PackageReference Include="Stripe.net" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Application\Application.csproj" />
+    <EmbeddedResource Include="Email\Templates\**\*.cshtml" />
   </ItemGroup>
 
 </Project>

@@ -1,6 +1,9 @@
 ﻿using FitPass.Domain.Constants;
 using FitPass.Infrastructure.Data.Interceptors;
+using FitPass.Infrastructure.Email;
 using FitPass.Infrastructure.Identity;
+using FitPass.Infrastructure.Stripe;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Stripe;
@@ -35,6 +38,8 @@ public partial class Testing
         {
             throw new InvalidOperationException("Tests tried to run in non docker environment.");
         }
+
+        EraseEmailPickupFolder();
     }
 
     [OneTimeTearDown]
@@ -42,6 +47,31 @@ public partial class Testing
     {
         await _database.DisposeAsync();
         await _factory.DisposeAsync();
+    }
+
+    private static void EraseEmailPickupFolder()
+    {
+        using var scope = _scopeFactory.CreateScope();
+        var environment = scope.ServiceProvider.GetRequiredService<IWebHostEnvironment>();
+        var settings = scope.ServiceProvider.GetRequiredService<EmailSettings>();
+
+        if (settings.EmailPickupFolderName is null || settings.EmailPickupSubFolderName is null)
+        {
+            return;
+        }
+        
+        var pickupDirectory = Path.Combine(environment.ContentRootPath, "..", "..", settings.EmailPickupFolderName, settings.EmailPickupSubFolderName);
+
+        try
+        {
+            Directory.Delete(pickupDirectory, true);
+
+            Directory.CreateDirectory(pickupDirectory);
+        }
+        catch (IOException)
+        {
+            TestContext.WriteLine($"Failed to delete pickup folder {pickupDirectory}. Files might be in use.");
+        }
     }
 
     private static async Task SeedRolesIfNotExist()

@@ -1,7 +1,8 @@
+using FitPass.Application.Common.EmailModels;
+
 namespace FitPass.Application.Common.Interfaces;
 
 public interface IEmailService
 {
-    Task SendEmailAsync(string to, string subject, string body);
-    Task SendPasswordResetEmailAsync(string to, string resetToken, string userId);
+    Task SendEmailAsync(IEmailModel emailModel, string[] to, string[]? cc = null, string[]? bcc = null);
 }

@@ -102,6 +102,55 @@ public class GymEmployeeUseGymMembershipPassTests : BaseTestFixture
         result.Message.ShouldBe("User is banned from the gym.");
     }
 
+    [TestCase(PassType.SingleUse)]
+    [TestCase(PassType.MultiUse)]
+    [TestCase(PassType.Unlimited)]
+    public async Task ShouldReturnBusinessRuleViolationIfThePassIsNoLongerValid(PassType type)
+    {
+        var obj = await TestEntityBuilder.BuildGymAsync();
+
+        var name = "Test Pass";
+        var description = "Test Description";
+        var price = Money.Zero("usd");
+        var utcNow = GetUtcNow();
+
+        GymMembershipPass pass;
+
+        switch (type)
+        {
+            case PassType.SingleUse:
+                pass = GymPassProduct.SingleUse(obj.gym.Id, name, description, true, price)
+                    .ToGymMembershipPass(obj.gymMembership.Id, obj.gymMember.Id, utcNow);
+
+                pass.RemainingUses = 0;
+                break;
+            case PassType.MultiUse:
+                pass = GymPassProduct.MultiUse(obj.gym.Id, name, description, 10, true, price)
+                    .ToGymMembershipPass(obj.gymMembership.Id, obj.gymMember.Id, utcNow);
+
+                pass.RemainingUses = 0;
+                break;
+            case PassType.Unlimited:
+                pass = GymPassProduct.UnlimitedUse(obj.gym.Id, name, description, 10, true, price)
+                    .ToGymMembershipPass(obj.gymMembership.Id, obj.gymMember.Id, utcNow);
+            
+                pass.ExpirationDate = utcNow.AddYears(-1);
+                break;
+            default:
+                throw new NotImplementedException();
+        }
+
+        await AddAsync(pass);
+        
+        await RunAsUserAsync(obj.gymStaff);
+
+        var command = new GymEmployeeUseGymMembershipPassCommand(pass.Id, obj.gymMember.Id, "test locker");
+
+        var result = await SendAsync(command);
+        result.Type.ShouldBe(ResultTypes.BusinessRuleViolation);
+        result.Message.ShouldContain("Pass is expired or has no uses left");
+    }
+
     [Test]
     public async Task ShouldUsePass()
     {

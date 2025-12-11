@@ -1,4 +1,4 @@
-using FitPass.Application.Common.Interfaces;
+﻿using FitPass.Application.Common.Interfaces;
 using FitPass.Application.GymEmployments.DTOs;
 using FitPass.Application.GymMembershipPasses.DTOs;
 using FitPass.Application.GymMemberships.DTOs;
@@ -156,5 +156,14 @@ public class QueryService : IQueryService
                 }).ToList()
             }
         ).FirstOrDefaultAsync();
+    }
+
+    public async Task<string[]> GetGymEmployeeEmailsByGymIdAsync(string gymId)
+    {
+        return await (
+            from ge in _context.GymEmployments
+            join users in _context.Users on ge.UserId equals users.Id
+            where ge.GymId == gymId
+            select users.Email).ToArrayAsync();
     }
 }

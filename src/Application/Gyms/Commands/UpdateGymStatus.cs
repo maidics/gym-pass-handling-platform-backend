@@ -9,7 +9,7 @@ using FitPass.Domain.Enums;
 namespace FitPass.Application.Gyms.Commands;
 
 [Authorize(Roles = Roles.AppAdministrator)]
-public record UpdateGymStatusCommand(string GymId, GymStatus NewGymStatus) : IRequest<Result>;
+public record UpdateGymStatusCommand(string GymId, GymStatus NewGymStatus, string Rationale) : IRequest<Result>;
 
 public class UpdateGymStatusCommandValidator : AbstractValidator<UpdateGymStatusCommand>
 {
@@ -19,6 +19,9 @@ public class UpdateGymStatusCommandValidator : AbstractValidator<UpdateGymStatus
 
         RuleFor(v => v.NewGymStatus)
             .NotEmptyWithMessage(nameof(UpdateGymStatusCommand.NewGymStatus));
+
+        RuleFor(v => v.Rationale).NotEmptyWithMaxLenghtAndMessage(
+            nameof(UpdateGymStatusCommand.Rationale), MaxStringLengths.Description);
     }
 }
 

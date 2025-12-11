@@ -1,6 +1,4 @@
 
-using FitPass.Domain.Events.GymMembershipPasses;
-
 namespace FitPass.Domain.Entities;
 
 //Factory method on GymPassProduct
@@ -33,8 +31,6 @@ public class GymMembershipPass : BaseAuditableEntity
     {
         if (!IsValid(utcNow))
         {
-            AddDomainEvent(new PassExpiredEvent(this)); //not throwing here because then Domain event can archive this - this should never happen
-
             return new GymPassUsage
             {
                 UserId = UserId,
@@ -52,11 +48,6 @@ public class GymMembershipPass : BaseAuditableEntity
         if (Type != PassType.Unlimited)
         {
             RemainingUses--;
-
-            if (!IsValid(utcNow))
-            {
-                AddDomainEvent(new PassExpiredEvent(this));
-            }
         }
 
         return new GymPassUsage

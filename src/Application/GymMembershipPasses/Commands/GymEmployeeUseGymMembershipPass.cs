@@ -30,18 +30,15 @@ public class GymEmployeeUseGymMembershipPassCommandHandler : IRequestHandler<Gym
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
-    private readonly ILogger<GymEmployeeUseGymMembershipPassCommandHandler> _logger;
     private readonly TimeProvider _timeProvider;
 
     public GymEmployeeUseGymMembershipPassCommandHandler(
         IApplicationDbContext context, 
         IUser user, 
-        ILogger<GymEmployeeUseGymMembershipPassCommandHandler> logger,
         TimeProvider timeProvider)
     {
         _context = context;
         _user = user;
-        _logger = logger;
         _timeProvider = timeProvider;
     }
 
@@ -50,7 +47,7 @@ public class GymEmployeeUseGymMembershipPassCommandHandler : IRequestHandler<Gym
         var gymEmployment = await _context
             .GymEmployments
             .AsNoTracking()
-            .FirstOrDefaultAsync(ge => ge.UserId != null && ge.UserId == _user.Id);
+            .FirstOrDefaultAsync(ge => ge.UserId == _user.Id);
 
         Guard.Against.NullParameterRelatedToCurrentUser(gymEmployment, nameof(GymEmployment), _user.Id);
 
@@ -79,12 +76,14 @@ public class GymEmployeeUseGymMembershipPassCommandHandler : IRequestHandler<Gym
             return Result.BusinessRuleViolation("User is banned from the gym.");
         }
 
-        var passUsage = pass.Use(gymEmployment.GymId, command.LockerNumber, _timeProvider.GetUtcNow());
+        var utcNow = _timeProvider.GetUtcNow();
 
-        if (passUsage.PassUseResult == PassUseResult.Expired)
+        if (!pass.IsValid(utcNow))
         {
-            _logger.LogError("User request to use an already expired pass.");
+            return Result.BusinessRuleViolation("Pass is expired or has no uses left.");
         }
+
+        var passUsage = pass.Use(gymEmployment.GymId, command.LockerNumber, utcNow);
 
         await _context.GymPassUsages.AddAsync(passUsage);
         await _context.SaveChangesAsync();

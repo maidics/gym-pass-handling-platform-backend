@@ -17,16 +17,16 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Http.Resilience;
-using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Polly;
 using Stripe;
 using FitPass.Application.Common.Interfaces.Payment;
-using FitPass.Application.Common.Models;
 using FitPass.Infrastructure.Email;
 using FitPass.Infrastructure.Jwt;
 using FitPass.Infrastructure.Stripe.Services.Webhook;
 using FitPass.Infrastructure.Common;
+using RazorLight;
+using RazorLight.Razor;
 
 namespace FitPass.Infrastructure;
 
@@ -69,8 +69,16 @@ public static class DependencyInjection
         builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection(ConfigurationSections.Jwt));
         builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 
+        //Email
+        builder.Services.AddSingleton<IRazorLightEngine>(_ =>
+        {
+            return new RazorLightEngineBuilder()
+                .UseEmbeddedResourcesProject(typeof(LocalEmailService).Assembly)
+                .UseMemoryCachingProvider()
+                .Build();
+        });
         builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection(ConfigurationSections.Email));
-        builder.Services.AddTransient<IEmailService, LocalDevEmailService>();
+        builder.Services.AddTransient<IEmailService, LocalEmailService>();
 
         builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection(ConfigurationSections.Stripe));
 

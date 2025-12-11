@@ -1,0 +1,44 @@
+﻿@using FitPass.Application.Common.EmailModels.GymMemberships
+@model GymMembershipStatusChangedEmailModel
+
+@{
+    bool isBanned = Model.NewStatus == GymMembershipStatus.Banned;
+}
+
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="utf-8" />
+    <title>@(isBanned 
+        ? "Edzőtermi tagságod felfüggesztésre került"
+        : "Edzőtermi tagságod ismét aktív")</title>
+    <style>
+        body { font-family: Arial, sans-serif; font-size: 14px; color: #333; }
+        .status-banned { color: #b00020; font-weight: bold; }
+        .status-unbanned { color: #2e7d32; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <p>Kedves @Model.UserFirstName,</p>
+
+    @if (isBanned)
+    {
+        <p class="status-banned">A tagságod felfüggesztésre került.</p>
+        <p>
+            A mai naptól kezdve nem tudod igénybe venni a(z) @Model.GymName edzőterem szolgáltatásait,
+            amíg a problémát nem sikerül rendezni. Ha úgy gondolod, hogy ez tévedés,
+            vagy további információra van szükséged, kérjük, vedd fel velünk a kapcsolatot.
+        </p>
+    }
+    else
+    {
+        <p class="status-unbanned">A tagságod ismét aktív.</p>
+        <p>
+            A mai naptól kezdve ismét teljes körűen használhatod a(z) @Model.GymName edzőterem
+            szolgáltatásait. Várunk szeretettel az edzőteremben!
+        </p>
+    }
+
+    <p>Üdvözlettel,<br />Az edzőterem csapata</p>
+</body>
+</html>

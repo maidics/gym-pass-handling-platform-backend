@@ -1,6 +1,5 @@
 using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
-using FitPass.Domain.Events.GymMembershipPasses;
 using NUnit.Framework;
 using Shouldly;
 
@@ -101,10 +100,6 @@ public class GymMembershipPassTests
         };
 
         pass.Use("gymId", "locker number", DateTimeOffset.UtcNow);
-
-        pass.DomainEvents.ShouldSatisfyAllConditions(
-            () => pass.DomainEvents.Count.ShouldBe(1),
-            () => pass.DomainEvents.First().GetType().ShouldBe(typeof(PassExpiredEvent)));
     }
 
     [Test]
@@ -127,10 +122,6 @@ public class GymMembershipPassTests
         };
 
         pass.Use("gymId", "locker number", DateTimeOffset.UtcNow);
-
-        pass.DomainEvents.ShouldSatisfyAllConditions(
-            () => pass.DomainEvents.Count.ShouldBe(1),
-            () => pass.DomainEvents.First().GetType().ShouldBe(typeof(PassExpiredEvent)));
     }
 
     private DateTimeOffset? GetExpirationDate(DateTimeOffset utcNow, double? expirationDaysFromNow)
