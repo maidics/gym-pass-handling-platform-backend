@@ -4,6 +4,7 @@ using FitPass.Infrastructure.Common;
 using FitPass.Infrastructure.Data;
 using FitPass.Infrastructure.Localization;
 using FitPass.Web;
+using Microsoft.AspNetCore.Localization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -53,6 +54,8 @@ var localizationOptions = new RequestLocalizationOptions()
     .SetDefaultCulture(cultureSettings.Default)
     .AddSupportedCultures(cultureSettings.Supported)
     .AddSupportedUICultures(cultureSettings.Supported);
+
+localizationOptions.RequestCultureProviders = [new AcceptLanguageHeaderRequestCultureProvider()];
 
 app.UseRequestLocalization(localizationOptions);
 

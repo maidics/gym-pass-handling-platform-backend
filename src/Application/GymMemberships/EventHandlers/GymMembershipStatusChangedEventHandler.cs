@@ -9,15 +9,18 @@ public class GymMembershipStatusChangedEventHandler : INotificationHandler<GymMe
     private readonly IIdentityService _identityService;
     private readonly IApplicationDbContext _context;
     private readonly IEmailService _emailService;
+    private readonly ILocalizer _localizer;
 
     public GymMembershipStatusChangedEventHandler(
         IIdentityService identityService, 
         IApplicationDbContext context,
-        IEmailService emailService)
+        IEmailService emailService,
+        ILocalizer localizer)
     {
         _identityService = identityService;
         _context = context;
         _emailService = emailService;
+        _localizer = localizer;
     }
     
     public async Task Handle(GymMembershipStatusChangedEvent notification, CancellationToken cancellationToken)
