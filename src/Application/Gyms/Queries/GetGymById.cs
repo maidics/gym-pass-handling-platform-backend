@@ -5,6 +5,7 @@ using FitPass.Application.Common.Security;
 using FitPass.Domain.Constants;
 using FitPass.Application.Common.Models;
 using FitPass.Domain.Entities;
+using FitPass.Infrastructure.Localization.Resources;
 
 namespace FitPass.Application.Gyms.Queries;
 
@@ -13,19 +14,24 @@ public record GetGymByIdQuery(string GymId) : IRequest<Result<GymDto>>;
 
 public class GetGymByIdQueryValidator : AbstractValidator<GetGymByIdQuery>
 {
-    public GetGymByIdQueryValidator()
+    public GetGymByIdQueryValidator(ILocalizer localizer)
     {
-        RuleFor(v => v.GymId).NotEmptyLocalized(nameof(GetGymByIdQuery.GymId));
+        RuleFor(v => v.GymId)
+            .PropertyOfEntityNotEmptyWithMessageLocalized(localizer, nameof(SharedResource.Id), nameof(SharedResource.Gym));
     }
 }
 
 public class GetGymByIdQueryHandler : IRequestHandler<GetGymByIdQuery, Result<GymDto>>
 {
     private readonly IApplicationDbContext _context;
+    private readonly ILocalizer _localizer;
 
-    public GetGymByIdQueryHandler(IApplicationDbContext context)
+    public GetGymByIdQueryHandler(
+        IApplicationDbContext context,
+        ILocalizer localizer)
     {
         _context = context;
+        _localizer = localizer;
     }
 
     public async Task<Result<GymDto>> Handle(GetGymByIdQuery query, CancellationToken cancellationToken)
@@ -37,7 +43,7 @@ public class GetGymByIdQueryHandler : IRequestHandler<GetGymByIdQuery, Result<Gy
 
         if (gym is null)
         {
-            return Result.NotFound(nameof(Gym));
+            return Result.NotFound(_localizer.GetNotFound(nameof(SharedResource.Gym)));
         }
 
         return Result.Success(gym.MapToDto());

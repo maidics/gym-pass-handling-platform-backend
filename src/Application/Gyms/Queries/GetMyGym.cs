@@ -15,13 +15,11 @@ public class GetMyGymQueryHandler : IRequestHandler<GetMyGymQuery, GymDto>
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
-    private readonly ILogger<GetMyGymQueryHandler> _logger;
 
-    public GetMyGymQueryHandler(IApplicationDbContext context, IUser user, ILogger<GetMyGymQueryHandler> logger)
+    public GetMyGymQueryHandler(IApplicationDbContext context, IUser user)
     {
         _context = context;
         _user = user;
-        _logger = logger;
     }
     public async Task<GymDto> Handle(GetMyGymQuery query, CancellationToken cancellationToken)
     {

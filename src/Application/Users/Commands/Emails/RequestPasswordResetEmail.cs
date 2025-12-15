@@ -8,9 +8,10 @@ public record RequestPasswordResetEmailCommand(string Email) : IRequest<Result>;
 
 public class RequestPasswordResetEmailCommandValidator : AbstractValidator<RequestPasswordResetEmailCommand>
 {
-    public RequestPasswordResetEmailCommandValidator()
+    public RequestPasswordResetEmailCommandValidator(ILocalizer localizer)
     {
-        RuleFor(v => v.Email).ValidEmailAddressWithMessageLocalized(nameof(RequestPasswordResetEmailCommand.Email));
+        RuleFor(v => v.Email)
+            .EmailAddressWithMessageLocalized(localizer);
     }
 }
 
@@ -38,7 +39,7 @@ public class RequestPasswordResetEmailCommandHandler : IRequestHandler<RequestPa
 
         Guard.Against.Null(passwordResetToken, nameof(passwordResetToken), "Failed to generate password reset token.");
 
-        await _emailService.SendPasswordResetEmailAsync(command.Email, passwordResetToken, userId);
+        //TODO: await _emailService.SendPasswordResetEmailAsync(command.Email, passwordResetToken, userId);
 
         return Result.Success();
     }

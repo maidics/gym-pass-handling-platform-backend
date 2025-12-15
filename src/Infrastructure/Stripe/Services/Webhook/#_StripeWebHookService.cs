@@ -61,7 +61,7 @@ public partial class StripeWebhookService : IPaymentWebhookService
         {
             _logger.LogError("{T} data is null in webhook StripeEvent {StripeEvent}", typeof(T), stripeEvent);
 
-            return Result.BusinessRuleViolation();
+            return Result.BusinessRuleViolation("Invalid request.");
         }
 
         return Result.Success(instance);

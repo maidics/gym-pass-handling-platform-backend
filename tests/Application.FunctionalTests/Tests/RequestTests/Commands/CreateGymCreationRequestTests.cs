@@ -31,10 +31,10 @@ public class CreateGymCreationRequestTests : BaseTestFixture
             PriorityLevel.Medium,
             new CreateGymDto
             {
-                GymName = string.Empty,
-                GymAddress = new Address("line1", "line2", "city", null, "postalCode", "HU"),
-                GymStatus = GymStatus.Suspended,
-                GymTier = GymTier.Local,
+                Name = string.Empty,
+                Address = new Address("line1", "line2", "city", null, "postalCode", "HU"),
+                Status = GymStatus.Suspended,
+                Tier = GymTier.Local,
                 EscalationEmail = string.Empty
             });
 

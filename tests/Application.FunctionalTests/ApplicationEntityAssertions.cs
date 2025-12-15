@@ -76,10 +76,10 @@ public static class ApplicationEntityAssertions
     public static void AssertToCreateGymDto(this GymDto? gymDto, CreateGymDto createGymDto)
     {
         gymDto.ShouldNotBeNull();
-        gymDto.Name.ShouldBe(createGymDto.GymName);
-        gymDto.Address.ShouldBe(createGymDto.GymAddress);
-        gymDto.Status.ShouldBe(createGymDto.GymStatus);
-        gymDto.Tier.ShouldBe(createGymDto.GymTier);
+        gymDto.Name.ShouldBe(createGymDto.Name);
+        gymDto.Address.ShouldBe(createGymDto.Address);
+        gymDto.Status.ShouldBe(createGymDto.Status);
+        gymDto.Tier.ShouldBe(createGymDto.Tier);
     }
 
     public static void AssertToDto(this Gym? gym, GymDto dto)

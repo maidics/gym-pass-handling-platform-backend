@@ -1,11 +1,11 @@
-﻿using FitPass.Application.Common.Constants;
-using FitPass.Application.Common.Extensions;
+﻿using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Security;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
+using FitPass.Infrastructure.Localization.Resources;
 
 namespace FitPass.Application.GymMembershipPasses.Commands;
 
@@ -21,10 +21,10 @@ public class GymEmployeeUseGymMembershipPassCommandValidator : AbstractValidator
     public GymEmployeeUseGymMembershipPassCommandValidator(ILocalizer localizer)
     {
         RuleFor(v => v.GymMembershipPassId)
-            .NotEmptyLocalized(localizer, LocalizationKeys.GymMembershipId);
+            .PropertyOfEntityNotEmptyWithMessageLocalized(localizer, nameof(SharedResource.Id), nameof(SharedResource.GymMembershipPass));
 
         RuleFor(v => v.LockerNumber)
-            .NotEmptyLocalized(localizer, LocalizationKeys.LockerNumber);
+            .NotEmptyWithMessageLocalized(localizer, nameof(SharedResource.LockerNumber));
     }
 }
 
@@ -63,22 +63,22 @@ public class GymEmployeeUseGymMembershipPassCommandHandler : IRequestHandler<Gym
 
         if (pass is null)
         {
-            return Result.NotFound(_localizer.Get(LocalizationKeys.NotFound, nameof(GymMembershipPass)));
+            return Result.NotFound(_localizer.GetNotFound(nameof(SharedResource.GymMembershipPass)));
         }
 
         if (pass.UserId != command.UserId)
         {
-            return Result.Forbidden(_localizer.Get(LocalizationKeys.PassNotBelongsToUser));
+            return Result.Forbidden(_localizer.Get(nameof(SharedResource.PassNotBelongsToUser)));
         }
 
         if (pass.GymMembership.GymId != gymEmployment.GymId)
         {
-            return Result.Forbidden(_localizer.Get(LocalizationKeys.PassIsForAnotherGym));
+            return Result.Forbidden(_localizer.Get(nameof(SharedResource.PassIsForAnotherGym)));
         }
 
         if (pass.GymMembership.Status == GymMembershipStatus.Banned)
         {
-            return Result.BusinessRuleViolation(_localizer.Get(LocalizationKeys.UserIsBannedFromTheGym));
+            return Result.BusinessRuleViolation(_localizer.Get(nameof(SharedResource.GymMembershipIsBannedFromTheGym)));
         }
 
         var utcNow = _timeProvider.GetUtcNow();
@@ -86,8 +86,8 @@ public class GymEmployeeUseGymMembershipPassCommandHandler : IRequestHandler<Gym
         if (!pass.IsValid(utcNow))
         {
             var key = pass.Type == PassType.Unlimited
-                ? LocalizationKeys.PassIsExpired
-                : LocalizationKeys.PassHasNoUsesLeft;
+                ? nameof(SharedResource.PassIsExpired)
+                : nameof(SharedResource.PassHasNoUsesLeft);
             
             return Result.BusinessRuleViolation(_localizer.Get(key));
         }

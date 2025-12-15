@@ -3,7 +3,7 @@ using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Security;
 using FitPass.Domain.Constants;
-using FitPass.Domain.Entities;
+using FitPass.Infrastructure.Localization.Resources;
 
 namespace FitPass.Application.GymPassUsages.Commands;
 
@@ -12,9 +12,10 @@ public record EndUserGymSessionCommand(string GymPassUsageId) : IRequest<Result>
 
 public class EndUserGymSessionCommandValidator : AbstractValidator<EndUserGymSessionCommand>
 {
-    public EndUserGymSessionCommandValidator()
+    public EndUserGymSessionCommandValidator(ILocalizer localizer)
     {
-        RuleFor(v => v.GymPassUsageId).NotEmptyLocalized(nameof(EndUserGymSessionCommand.GymPassUsageId));
+        RuleFor(v => v.GymPassUsageId)
+            .PropertyOfEntityNotEmptyWithMessageLocalized(localizer, nameof(SharedResource.Id), nameof(SharedResource.GymPassUsage));
     }
 }
 
@@ -22,13 +23,16 @@ public class EndUserGymSessionCommandHandler : IRequestHandler<EndUserGymSession
 {
     private readonly IApplicationDbContext _context;
     private readonly TimeProvider _timeProvider;
+    private readonly ILocalizer _localizer;
 
     public EndUserGymSessionCommandHandler(
         IApplicationDbContext context,
-        TimeProvider timeProvider)
+        TimeProvider timeProvider,
+        ILocalizer localizer)
     {
         _context = context;
         _timeProvider = timeProvider;
+        _localizer = localizer;
     }
 
     public async Task<Result> Handle(EndUserGymSessionCommand command, CancellationToken cancellationToken)
@@ -37,7 +41,7 @@ public class EndUserGymSessionCommandHandler : IRequestHandler<EndUserGymSession
 
         if (gymPassUsage is null)
         {
-            return Result.NotFound(nameof(GymPassUsage));
+            return Result.NotFound(_localizer.GetNotFound(nameof(SharedResource.GymPassUsage)));
         }
 
         gymPassUsage.EndGymSession(_timeProvider.GetUtcNow());

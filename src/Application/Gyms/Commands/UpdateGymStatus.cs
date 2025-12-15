@@ -3,8 +3,8 @@ using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Security;
 using FitPass.Domain.Constants;
-using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
+using FitPass.Infrastructure.Localization.Resources;
 
 namespace FitPass.Application.Gyms.Commands;
 
@@ -13,25 +13,31 @@ public record UpdateGymStatusCommand(string GymId, GymStatus NewGymStatus, strin
 
 public class UpdateGymStatusCommandValidator : AbstractValidator<UpdateGymStatusCommand>
 {
-    public UpdateGymStatusCommandValidator()
+    public UpdateGymStatusCommandValidator(ILocalizer localizer)
     {
-        RuleFor(v => v.GymId).NotEmptyLocalized(nameof(UpdateGymStatusCommand.GymId));
+        RuleFor(v => v.GymId)
+            .PropertyOfEntityNotEmptyWithMessageLocalized(localizer, nameof(SharedResource.Id), nameof(SharedResource.Gym));
 
         RuleFor(v => v.NewGymStatus)
-            .NotEmptyLocalized(nameof(UpdateGymStatusCommand.NewGymStatus));
+            .NotEmpty()
+            .WithMessage(localizer.GetNewValueIsRequired(nameof(SharedResource.GymStatus)));
 
-        RuleFor(v => v.Rationale).NotEmptyWithMaxLenghtAndMessageLocalized(
-            nameof(UpdateGymStatusCommand.Rationale), MaxStringLengths.Description);
+        RuleFor(v => v.Rationale)
+            .NotEmptyWithMaxLengthAndMessageLocalized(localizer, nameof(SharedResource.Rationale), MaxStringLengths.Description);
     }
 }
 
 public class UpdateGymStatusCommandHandler : IRequestHandler<UpdateGymStatusCommand, Result>
 {
     private readonly IApplicationDbContext _context;
+    private readonly ILocalizer _localizer;
 
-    public UpdateGymStatusCommandHandler(IApplicationDbContext context)
+    public UpdateGymStatusCommandHandler(
+        IApplicationDbContext context,
+        ILocalizer localizer)
     {
         _context = context;
+        _localizer = localizer;
     }
 
     public async Task<Result> Handle(UpdateGymStatusCommand command, CancellationToken cancellationToken)
@@ -40,7 +46,7 @@ public class UpdateGymStatusCommandHandler : IRequestHandler<UpdateGymStatusComm
 
         if (gym is null)
         {
-            return Result.NotFound(nameof(Gym));
+            return Result.NotFound(_localizer.GetNotFound(nameof(SharedResource.Gym)));
         }
 
         if (gym.Status == command.NewGymStatus)

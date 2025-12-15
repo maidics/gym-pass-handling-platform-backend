@@ -2,7 +2,7 @@ using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Models;
 using FitPass.Application.GymPassProducts.DTOs;
-using FitPass.Domain.Entities;
+using FitPass.Infrastructure.Localization.Resources;
 
 namespace FitPass.Application.GymPassProducts.Queries;
 
@@ -10,19 +10,24 @@ public record GetGymPassProductsByGymIdQuery(string GymId) : IRequest<Result<Lis
 
 public class GetGymPassProductsByGymIdQueryValidator : AbstractValidator<GetGymPassProductsByGymIdQuery>
 {
-    public GetGymPassProductsByGymIdQueryValidator()
+    public GetGymPassProductsByGymIdQueryValidator(ILocalizer localizer)
     {
-        RuleFor(v => v.GymId).NotEmptyLocalized(nameof(GetGymPassProductsByGymIdQuery.GymId));
+        RuleFor(v => v.GymId)
+            .PropertyOfEntityNotEmptyWithMessageLocalized(localizer, nameof(SharedResource.Id), nameof(SharedResource.Gym));
     }
 }
 
 public class GetGymPassProductsByGymIdQueryHandler : IRequestHandler<GetGymPassProductsByGymIdQuery, Result<List<GymPassProductDto>>>
 {
     private readonly IApplicationDbContext _context;
+    private readonly ILocalizer _localizer;
 
-    public GetGymPassProductsByGymIdQueryHandler(IApplicationDbContext context)
+    public GetGymPassProductsByGymIdQueryHandler(
+        IApplicationDbContext context,
+        ILocalizer localizer)
     {
         _context = context;
+        _localizer = localizer;
     }
     public async Task<Result<List<GymPassProductDto>>> Handle(GetGymPassProductsByGymIdQuery query, CancellationToken cancellationToken)
     {
@@ -33,7 +38,7 @@ public class GetGymPassProductsByGymIdQueryHandler : IRequestHandler<GetGymPassP
 
         if (gym is null)
         {
-            return Result.NotFound(nameof(Gym));
+            return Result.NotFound(_localizer.GetNotFound(nameof(SharedResource.Gym)));
         }
 
         return Result.Success(gym.PassProducts.Select(p => p.MapToDto()).ToList());

@@ -2,7 +2,7 @@ using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Security;
-using FitPass.Domain.Strings;
+using FitPass.Infrastructure.Localization.Resources;
 
 namespace FitPass.Application.Users.Commands.Emails;
 
@@ -14,22 +14,25 @@ public class SendEmailConfirmationEmailCommandHandler : IRequestHandler<SendEmai
     private readonly IIdentityService _identityService;
     private readonly IUser _user;
     private readonly IEmailService _emailService;
+    private readonly ILocalizer _localizer;
 
     public SendEmailConfirmationEmailCommandHandler(
         IIdentityService identityService,
         IUser user,
-        IEmailService emailService)
+        IEmailService emailService,
+        ILocalizer localizer)
     {
         _identityService = identityService;
         _user = user;
         _emailService = emailService;
+        _localizer = localizer;
     }
 
     public async Task<Result> Handle(SendEmailConfirmationEmailCommand command, CancellationToken cancellationToken)
     {
         if (await _identityService.IsUserEmailConfirmed(_user.Id!))
         {
-            return Result.BusinessRuleViolation("Email is already confirmed.");
+            return Result.BusinessRuleViolation(_localizer.Get(nameof(SharedResource.EmailIsAlreadyConfirmed)));
         }
 
         var token = await _identityService.GenerateEmailConfirmationTokenAsync(_user.Id!);
@@ -48,7 +51,7 @@ public class SendEmailConfirmationEmailCommandHandler : IRequestHandler<SendEmai
 
         var url = $"localhost/email-confirmation?token={encodedToken}&user={encodedEmail}&=flag{(setPassword ? 1 : 0)}";
 
-        await _emailService.SendEmailAsync(email, EmailSubjects.EmailConfirmation(), EmailBodies.EmailConfirmation(url));
+        //TODO: await _emailService.SendEmailAsync(email, EmailSubjects.EmailConfirmation(), EmailBodies.EmailConfirmation(url));
 
         return Result.Success();
     }

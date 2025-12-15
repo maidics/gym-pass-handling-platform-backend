@@ -5,6 +5,7 @@ using FitPass.Domain.Entities;
 using FitPass.Domain.Strings;
 using FitPass.Application.Common.Models;
 using FitPass.Application.Users.DTOs;
+using FitPass.Infrastructure.Localization.Resources;
 
 namespace FitPass.Application.Users.Commands;
 
@@ -18,19 +19,21 @@ public record RegisterUserCommand(
 
 public class RegisterUserCommandValidator : AbstractValidator<RegisterUserCommand>
 {
-    public RegisterUserCommandValidator()
+    public RegisterUserCommandValidator(ILocalizer localizer)
     {
-        RuleFor(v => v.FirstName).NotEmptyWithMaxLenghtAndMessageLocalized(nameof(RegisterUserCommand.FirstName), MaxStringLengths.Name);
+        RuleFor(v => v.FirstName)
+            .NotEmptyWithMaxLengthAndMessageLocalized(localizer, nameof(SharedResource.FirstName), MaxStringLengths.Name);
 
-        RuleFor(v => v.LastName!).NotEmptyWithMaxLenghtAndMessageLocalized(nameof(RegisterUserCommand.LastName), MaxStringLengths.Name);
+        RuleFor(v => v.LastName!)
+            .NotEmptyWithMaxLengthAndMessageLocalized(localizer, nameof(SharedResource.LastName), MaxStringLengths.Name);
 
-        RuleFor(v => v.Email).ValidEmailAddressWithMessageLocalized(nameof(RegisterUserCommand.Email));
+        RuleFor(v => v.Email).EmailAddressWithMessageLocalized(localizer);
 
-        RuleFor(v => v.Password).StrongPasswordLocalized();
+        RuleFor(v => v.Password).StrongPasswordLocalized(localizer);
 
         RuleFor(v => v.PasswordConfirm)
             .Equal(v => v.PasswordConfirm)
-            .WithMessage(ErrorMessages.PropertyMustEqualToAnotherProperty(nameof(RegisterUserCommand.Password), nameof(RegisterUserCommand.PasswordConfirm)));
+            .WithMessage(localizer.Get(nameof(SharedResource.PasswordsMustMatch)));
     }
 }
 
@@ -39,21 +42,24 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, R
     private readonly IIdentityService _identityService;
     private readonly IApplicationDbContext _context;
     private readonly IJwtTokenService _jwtTokenService;
+    private readonly ILocalizer _localizer;
 
     public RegisterUserCommandHandler(
         IIdentityService identityService,
         IApplicationDbContext context,
-        IJwtTokenService jwtTokenService)
+        IJwtTokenService jwtTokenService,
+        ILocalizer localizer)
     {
         _identityService = identityService;
         _context = context;
         _jwtTokenService = jwtTokenService;
+        _localizer = localizer;
     }
     public async Task<Result<JwtToken>> Handle(RegisterUserCommand command, CancellationToken cancellationToken)
     {
         if (await _identityService.IsEmailInUseAsync(command.Email))
         {
-            return Result.Conflict("Email");
+            return Result.Conflict(_localizer.GetWithParamsLocalized(nameof(SharedResource.Conflict), nameof(SharedResource.Email)));
         }
 
         string userId;
@@ -79,7 +85,7 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, R
             {
                 await transaction.RollbackAsync();
 
-                throw new Exception(ErrorMessages.FailedToHandleRole(Roles.User, true, roleResult.Errors));
+                throw new Exception($"Failed to add user to role. Result: {roleResult}.");
             }
 
             var userProfile = new UserProfile

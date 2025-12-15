@@ -231,10 +231,10 @@ public class RegisterGymFromRequestTests : BaseTestFixture
 
         var createGymDto = new CreateGymDto
         {
-            GymName = obj.gym.Name,
-            GymAddress = obj.gym.Address,
-            GymStatus = GymStatus.Active,
-            GymTier = GymTier.Local,
+            Name = obj.gym.Name,
+            Address = obj.gym.Address,
+            Status = GymStatus.Active,
+            Tier = GymTier.Local,
             EscalationEmail = "test@localhost"
         };
 
@@ -277,10 +277,10 @@ public class RegisterGymFromRequestTests : BaseTestFixture
         gymCount.ShouldBe(1);
         var createdGym = await GetFirstAsync<Gym>();
         createdGym.ShouldNotBeNull();
-        createdGym.Name.ShouldBe(obj.createGymDto.GymName);
-        createdGym.Address.ShouldBe(obj.createGymDto.GymAddress);
-        createdGym.Status.ShouldBe(obj.createGymDto.GymStatus);
-        createdGym.Tier.ShouldBe(obj.createGymDto.GymTier);
+        createdGym.Name.ShouldBe(obj.createGymDto.Name);
+        createdGym.Address.ShouldBe(obj.createGymDto.Address);
+        createdGym.Status.ShouldBe(obj.createGymDto.Status);
+        createdGym.Tier.ShouldBe(obj.createGymDto.Tier);
 
         var nominatedGymAdmin = await FindAsync<ApplicationUser>(obj.pendingGymEmployee.Id);
         nominatedGymAdmin.ShouldNotBeNull();

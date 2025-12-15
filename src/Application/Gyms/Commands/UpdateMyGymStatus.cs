@@ -5,6 +5,7 @@ using FitPass.Application.Common.Security;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
+using FitPass.Infrastructure.Localization.Resources;
 
 namespace FitPass.Application.Gyms.Commands;
 
@@ -13,11 +14,11 @@ public record UpdateMyGymStatusCommand(GymStatus NewGymStatus) : IRequest<Result
 
 public class UpdateMyGymStatusCommandValidator : AbstractValidator<UpdateMyGymStatusCommand>
 {
-    public UpdateMyGymStatusCommandValidator()
+    public UpdateMyGymStatusCommandValidator(ILocalizer localizer)
     {
         RuleFor(v => v.NewGymStatus)
-            .Must(status => status == GymStatus.Active || status == GymStatus.Inactive)
-            .WithMessage("You can only set your gym status to active or inactive.");
+            .Must(status => status is GymStatus.Active or GymStatus.Inactive)
+            .WithMessage(localizer.Get(nameof(SharedResource.GymAdminCanOnlySetGymStatusToActiveOrInactive)));
     }
 }
 
@@ -25,13 +26,16 @@ public class UpdateMyGymStatusCommandHandler : IRequestHandler<UpdateMyGymStatus
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
+    private readonly ILocalizer _localizer;
 
     public UpdateMyGymStatusCommandHandler(
         IApplicationDbContext context, 
-        IUser user)
+        IUser user,
+        ILocalizer localizer)
     {
         _context = context;
         _user = user;
+        _localizer = localizer;
     }
     public async Task<Result> Handle(UpdateMyGymStatusCommand command, CancellationToken cancellationToken)
     {
@@ -49,7 +53,7 @@ public class UpdateMyGymStatusCommandHandler : IRequestHandler<UpdateMyGymStatus
 
         if (gym.Status == GymStatus.Suspended)
         {
-            return Result.BusinessRuleViolation("Cannot change status of a suspended gym.");
+            return Result.BusinessRuleViolation(_localizer.Get(nameof(SharedResource.YourGymIsSuspended)));
         }
 
         if (gym.Status == command.NewGymStatus)

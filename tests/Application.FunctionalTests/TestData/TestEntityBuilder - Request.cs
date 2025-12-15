@@ -37,10 +37,10 @@ public partial class TestEntityBuilder
     {
         return new CreateGymDto
         {
-            GymName = $"CreateGymDto GymName - {Guid.NewGuid()}",
-            GymAddress = new Address("line1", "line2", "city", null, "postalCode", "HU"),
-            GymStatus = GymStatus.Active,
-            GymTier = GymTier.Local,
+            Name = $"CreateGymDto GymName - {Guid.NewGuid()}",
+            Address = new Address("line1", "line2", "city", null, "postalCode", "HU"),
+            Status = GymStatus.Active,
+            Tier = GymTier.Local,
             EscalationEmail = "escalation@email"
         };
     }

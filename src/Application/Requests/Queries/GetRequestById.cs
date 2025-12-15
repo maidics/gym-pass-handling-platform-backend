@@ -5,6 +5,7 @@ using FitPass.Application.Common.Security;
 using FitPass.Domain.Constants;
 using FitPass.Application.Common.Models;
 using FitPass.Domain.Entities;
+using FitPass.Infrastructure.Localization.Resources;
 
 namespace FitPass.Application.Requests.Queries;
 
@@ -13,19 +14,22 @@ public record GetRequestByIdQuery(string RequestId) : IRequest<Result<RequestDto
 
 public class GetRequestByIdQueryValidator : AbstractValidator<GetRequestByIdQuery>
 {
-    public GetRequestByIdQueryValidator()
+    public GetRequestByIdQueryValidator(ILocalizer localizer)
     {
-        RuleFor(v => v.RequestId).NotEmptyLocalized(nameof(GetRequestByIdQuery.RequestId));
+        RuleFor(v => v.RequestId)
+            .PropertyOfEntityNotEmptyWithMessageLocalized(localizer, nameof(SharedResource.Id), nameof(SharedResource.Request));
     }
 }
 
 public class GetRequestByIdQueryHandler : IRequestHandler<GetRequestByIdQuery, Result<RequestDto>>
 {
     private readonly IApplicationDbContext _context;
+    private readonly ILocalizer _localizer;
 
-    public GetRequestByIdQueryHandler(IApplicationDbContext context)
+    public GetRequestByIdQueryHandler(IApplicationDbContext context, ILocalizer localizer)
     {
         _context = context;
+        _localizer = localizer;
     }
     public async Task<Result<RequestDto>> Handle(GetRequestByIdQuery query, CancellationToken cancellationToken)
     {
@@ -33,7 +37,7 @@ public class GetRequestByIdQueryHandler : IRequestHandler<GetRequestByIdQuery, R
 
         if (request is null)
         {
-            return Result.NotFound(nameof(Request));
+            return Result.NotFound(_localizer.GetNotFound(nameof(SharedResource.Request)));
         }
 
         return Result.Success(request.MapToDto());

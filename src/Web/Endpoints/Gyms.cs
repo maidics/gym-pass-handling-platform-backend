@@ -59,9 +59,9 @@ public class Gyms : EndpointGroupBase
     }
     */
 
-    public async Task<IResult> UpdateGymStatus(ISender sender, string gymId, [FromBody] GymStatus newGymStatus, CancellationToken cancellationToken)
+    public async Task<IResult> UpdateGymStatus(ISender sender, string gymId, [FromBody] GymStatus newGymStatus, [FromBody] string rationale, CancellationToken cancellationToken)
     {
-        var result = await sender.Send(new UpdateGymStatusCommand(gymId, newGymStatus), cancellationToken);
+        var result = await sender.Send(new UpdateGymStatusCommand(gymId, newGymStatus, rationale), cancellationToken);
 
         return result.ToTypedResult();
     }

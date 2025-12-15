@@ -87,7 +87,7 @@ public class CreateGymAdminPromotionRequestTests : BaseTestFixture
         var createdRequest = await GetFirstAsync<Request>();
         createdRequest.ShouldNotBeNull();
         createdRequest.Type.ShouldBe(RequestType.GymAdminPromotion);
-        createdRequest.Description.ShouldBe(command.RequestDescription);
+        createdRequest.Description.ShouldBe(command.Description);
         createdRequest.PriorityLevel.ShouldBe(PriorityLevel.High);
         createdRequest.Payload.ShouldNotBeNull();
         var payload = JsonSerializer.Deserialize<GymAdminPromotionDto>(createdRequest.Payload);

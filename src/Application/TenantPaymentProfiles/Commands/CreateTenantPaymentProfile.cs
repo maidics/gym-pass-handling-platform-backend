@@ -6,6 +6,7 @@ using FitPass.Application.Common.Security;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Entities.Payment;
+using FitPass.Infrastructure.Localization.Resources;
 
 namespace FitPass.Application.TenantPaymentProfiles.Commands;
 
@@ -17,11 +18,13 @@ public record CreateTenantPaymentProfileCommand(
 
 public class CreateTenantPaymentProfileCommandValidator : AbstractValidator<CreateTenantPaymentProfileCommand>
 {
-    public CreateTenantPaymentProfileCommandValidator()
+    public CreateTenantPaymentProfileCommandValidator(ILocalizer localizer)
     {
-        RuleFor(v => v.PaymentAccountHolderEmail).ValidEmailAddressWithMessageLocalized(nameof(CreateTenantPaymentProfileCommand.PaymentAccountHolderEmail));
+        RuleFor(v => v.PaymentAccountHolderEmail)
+            .EmailAddressWithMessageLocalized(localizer);
 
-        RuleFor(v => v.BusinessName).NotEmptyLocalized(nameof(CreateTenantPaymentProfileCommand.BusinessName));
+        RuleFor(v => v.BusinessName)
+            .NotEmptyWithMaxLengthAndMessageLocalized(localizer, nameof(SharedResource.BusinessName), MaxStringLengths.Name);
     }
 }
 
@@ -30,15 +33,18 @@ public class CreateTenantPaymentProfileCommandHandler : IRequestHandler<CreateTe
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
     private readonly IPaymentTenantService _paymentTenantService;
+    private readonly ILocalizer _localizer;
 
     public CreateTenantPaymentProfileCommandHandler(
         IApplicationDbContext context,
         IUser user,
-        IPaymentTenantService paymentTenantService)
+        IPaymentTenantService paymentTenantService,
+        ILocalizer localizer)
     {
         _context = context;
         _user = user;
         _paymentTenantService = paymentTenantService;
+        _localizer = localizer;
     }
 
     public async Task<Result<(string url, DateTimeOffset expiration)>> Handle(CreateTenantPaymentProfileCommand command, CancellationToken cancellationToken)
@@ -56,7 +62,8 @@ public class CreateTenantPaymentProfileCommandHandler : IRequestHandler<CreateTe
 
         if (paymentProfile is not null)
         {
-            return Result.Forbidden("Payment profile already exists.");
+            return Result.Forbidden(
+                _localizer.GetWithParamsLocalized(nameof(SharedResource.ResourceAlreadyExists), nameof(SharedResource.TenantPaymentProfile)));
         }
 
         var result = await _paymentTenantService

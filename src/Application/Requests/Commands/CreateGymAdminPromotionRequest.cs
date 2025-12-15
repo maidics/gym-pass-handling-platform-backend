@@ -7,28 +7,31 @@ using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
 using FitPass.Application.Common.Models;
+using FitPass.Infrastructure.Localization.Resources;
 
 namespace FitPass.Application.Requests.Commands;
 
 [Authorize(Roles = Roles.GymAdministrator)]
 public record CreateGymAdminPromotionRequestCommand
 (
-    string UserIdToPromote,
-    string RequestDescription,
-    PriorityLevel RequestPriorityLevel,
+    string UserId,
+    string Description,
+    PriorityLevel PriorityLevel,
     string EscalationEmail
 ) : IRequest<Result<RequestDto>>;
 
 public class CreateGymAdminPromotionRequestCommandValidator : AbstractValidator<CreateGymAdminPromotionRequestCommand>
 {
-    public CreateGymAdminPromotionRequestCommandValidator()
+    public CreateGymAdminPromotionRequestCommandValidator(ILocalizer localizer)
     {
-        RuleFor(v => v.UserIdToPromote).NotEmptyLocalized(nameof(CreateGymAdminPromotionRequestCommand.UserIdToPromote));
+        RuleFor(v => v.UserId)
+            .PropertyOfEntityNotEmptyWithMessageLocalized(localizer, nameof(SharedResource.Id), nameof(SharedResource.User));
 
-        RuleFor(v => v.RequestDescription!)
-            .NotEmptyWithMaxLenghtAndMessageLocalized(nameof(CreateGymAdminPromotionRequestCommand.RequestDescription), MaxStringLengths.Description);
+        RuleFor(v => v.Description!)
+            .NotEmptyWithMaxLengthAndMessageLocalized(localizer, nameof(SharedResource.Description), MaxStringLengths.Description);
 
-        RuleFor(v => v.EscalationEmail).ValidEmailAddressWithMessageLocalized(nameof(CreateGymAdminPromotionRequestCommand.EscalationEmail));
+        RuleFor(v => v.EscalationEmail)
+            .EmailAddressWithMessageLocalized(localizer);
     }
 }
 
@@ -37,46 +40,49 @@ public class CreateGymAdminPromotionRequestCommandHandler : IRequestHandler<Crea
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
     private readonly IIdentityService _identityService;
+    private readonly ILocalizer _localizer;
 
     public CreateGymAdminPromotionRequestCommandHandler(
         IApplicationDbContext context, 
         IUser user,
-        IIdentityService identityService)
+        IIdentityService identityService,
+        ILocalizer localizer)
     {
         _context = context;
         _user = user;
         _identityService = identityService;
+        _localizer = localizer;
     }
     public async Task<Result<RequestDto>> Handle(CreateGymAdminPromotionRequestCommand command, CancellationToken cancellationToken)
     {
         var gymEmployment = await _context
             .GymEmployments
             .AsNoTracking()
-            .FirstOrDefaultAsync(ge => ge.UserId != null && ge.UserId == _user.Id);
+            .FirstOrDefaultAsync(ge => ge.UserId == _user.Id);
 
         Guard.Against.NullParameterRelatedToCurrentUser(gymEmployment, nameof(GymEmployment), _user.Id);
 
-        if (!await _identityService.DoesUserExist(command.UserIdToPromote))
+        if (!await _identityService.DoesUserExist(command.UserId))
         {
-            return Result.NotFound("User to promote");
+            return Result.NotFound(_localizer.GetNotFound(nameof(SharedResource.User)));
         }
 
-        if (!await _identityService.IsInRoleAsync(command.UserIdToPromote, Roles.PendingGymEmployee))
+        if (!await _identityService.IsInRoleAsync(command.UserId, Roles.PendingGymEmployee))
         {
-            return Result.BusinessRuleViolation("User is not in PendingGymEmployee role.");
+            return Result.BusinessRuleViolation(_localizer.Get(nameof(SharedResource.CannotPerformActionOnRoleType)));
         }
 
         var request = new Request
         {
             Id = Guid.NewGuid().ToString(),
             Title = "Gym Administrator Nomination",
-            Description = command.RequestDescription,
-            PriorityLevel = command.RequestPriorityLevel,
+            Description = command.Description,
+            PriorityLevel = command.PriorityLevel,
             Type = RequestType.GymAdminPromotion,
             Payload = JsonSerializer.Serialize(new GymAdminPromotionDto
             {
                 GymId = gymEmployment.GymId!,
-                UserIdToNominate = command.UserIdToPromote,
+                UserIdToNominate = command.UserId,
                 EscalationEmail = command.EscalationEmail
             })
         };

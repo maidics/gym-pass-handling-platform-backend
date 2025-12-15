@@ -3,7 +3,7 @@ using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Security;
 using FitPass.Domain.Constants;
-using FitPass.Domain.Entities;
+using FitPass.Infrastructure.Localization.Resources;
 
 namespace FitPass.Application.GymPassUsages.Commands;
 
@@ -12,21 +12,27 @@ public record UpdateGymPassUsageLockerNumberCommand(string GymPassUsageId, strin
 
 public class UpdateGymPassUsageLockerNumberCommandValidator : AbstractValidator<UpdateGymPassUsageLockerNumberCommand>
 {
-    public UpdateGymPassUsageLockerNumberCommandValidator()
+    public UpdateGymPassUsageLockerNumberCommandValidator(ILocalizer localizer)
     {
-        RuleFor(v => v.GymPassUsageId).NotEmptyLocalized(nameof(UpdateGymPassUsageLockerNumberCommand.GymPassUsageId));
+        RuleFor(v => v.GymPassUsageId)
+            .PropertyOfEntityNotEmptyWithMessageLocalized(localizer, nameof(SharedResource.Id), nameof(SharedResource.GymPassUsage));
 
-        RuleFor(v => v.LockerNumber).NotEmptyLocalized(nameof(UpdateGymPassUsageLockerNumberCommand.LockerNumber));
+        RuleFor(v => v.LockerNumber)
+            .NotEmptyWithMessageLocalized(localizer, nameof(SharedResource.LockerNumber));
     }
 }
 
 public class UpdateGymPassUsageLockerNumberCommandHandler : IRequestHandler<UpdateGymPassUsageLockerNumberCommand, Result>
 {
     private readonly IApplicationDbContext _context;
+    private readonly ILocalizer _localizer;
 
-    public UpdateGymPassUsageLockerNumberCommandHandler(IApplicationDbContext context)
+    public UpdateGymPassUsageLockerNumberCommandHandler(
+        IApplicationDbContext context,
+        ILocalizer localizer)
     {
         _context = context;
+        _localizer = localizer;
     }
     public async Task<Result> Handle(UpdateGymPassUsageLockerNumberCommand command, CancellationToken cancellationToken)
     {
@@ -34,12 +40,13 @@ public class UpdateGymPassUsageLockerNumberCommandHandler : IRequestHandler<Upda
 
         if (gymPassUsage is null)
         {
-            return Result.NotFound(nameof(GymPassUsage));
+            return Result.NotFound(_localizer.GetNotFound(nameof(SharedResource.GymPassUsage)));
         }
 
         if (gymPassUsage.HasGymSessionEnded())
         {
-            return Result.BusinessRuleViolation("Gym session already ended, you cannot change the locker number after this.");
+            return Result.BusinessRuleViolation(_localizer.Get(
+                nameof(SharedResource.NoChangingLockerNumberAfterGymSessionEnded)));
         }
 
         gymPassUsage.LockerNumber = command.LockerNumber;

@@ -1,7 +1,6 @@
-using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Models;
-using FitPass.Domain.Strings;
+using FitPass.Infrastructure.Localization.Resources;
 
 namespace FitPass.Application.Users.Commands;
 
@@ -14,18 +13,20 @@ public record ResetPasswordCommand(
 
 public class ResetPasswordCommandValidator : AbstractValidator<ResetPasswordCommand>
 {
-    public ResetPasswordCommandValidator()
+    public ResetPasswordCommandValidator(ILocalizer localizer)
     {
-        RuleFor(v => v.EncodedUserId).NotEmptyLocalized(nameof(ResetPasswordCommand.EncodedUserId));
+        RuleFor(v => v.EncodedUserId).NotEmpty();
 
-        RuleFor(v => v.EncodedPasswordResetToken).NotEmptyLocalized(nameof(ResetPasswordCommand.EncodedPasswordResetToken));
+        RuleFor(v => v.EncodedPasswordResetToken).NotEmpty();
 
-        RuleFor(v => v.NewPassword).StrongPasswordLocalized();
+        RuleFor(v => v.NewPassword).NotEmpty();
 
         RuleFor(v => v.NewPasswordConfirm)
-            .NotEmptyLocalized(nameof(ResetPasswordCommand.NewPasswordConfirm))
+            .NotEmpty()
+            .WithMessage(localizer.Get(
+                nameof(SharedResource.PropertyIsRequired), localizer.GetWithParamsLocalized(nameof(SharedResource.NewValue), nameof(SharedResource.Password))))
             .Equal(v => v.NewPassword)
-            .WithMessage(ErrorMessages.PropertyMustEqualToAnotherProperty(nameof(ResetPasswordCommand.NewPassword), nameof(ResetPasswordCommand.NewPasswordConfirm)));
+            .WithMessage(localizer.Get(nameof(SharedResource.PasswordsMustMatch)));
     }
 }
 

@@ -3,6 +3,7 @@ using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Models;
 using FitPass.Application.Users.DTOs;
 using FitPass.Domain.Constants;
+using FitPass.Infrastructure.Localization.Resources;
 
 namespace FitPass.Application.Users.Commands;
 
@@ -13,15 +14,14 @@ public record LogInUserCommand(
 
 public class LogInUserCommandValidator : AbstractValidator<LogInUserCommand>
 {
-    public LogInUserCommandValidator()
+    public LogInUserCommandValidator(ILocalizer localizer)
     {
         RuleFor(v => v.Email)
-            .NotEmptyWithMaxLenghtAndMessageLocalized(nameof(LogInUserCommand.Email), MaxStringLengths.Email)
-            .ValidEmailAddressWithMessageLocalized(nameof(LogInUserCommand.Email));
+            .EmailAddressWithMessageLocalized(localizer);
 
         RuleFor(v => v.Password)
-            .NotEmptyWithMaxLenghtAndMessageLocalized(nameof(LogInUserCommand.Password), MaxStringLengths.Password)
-            .MinimumLengthWithMessageLocalized(nameof(LogInUserCommand.Password), MinStringLengths.Password);
+            .NotEmptyWithMaxLengthAndMessageLocalized(localizer, nameof(SharedResource.Password), MaxStringLengths.Password)
+            .NotEmptyWithMinLengthAndMessageLocalized(localizer, nameof(SharedResource.Password), MinStringLengths.Password);
     }
 }
 

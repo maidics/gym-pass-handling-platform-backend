@@ -4,7 +4,7 @@ using FitPass.Application.Common.Models;
 using FitPass.Application.Users.DTOs;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
-using FitPass.Domain.Strings;
+using FitPass.Infrastructure.Localization.Resources;
 
 namespace FitPass.Application.Users.Commands;
 
@@ -18,19 +18,23 @@ public record RegisterPendingGymEmployeeCommand(
 
 public class RegisterPendingGymEmployeeCommandValidator : AbstractValidator<RegisterPendingGymEmployeeCommand>
 {
-    public RegisterPendingGymEmployeeCommandValidator()
+    public RegisterPendingGymEmployeeCommandValidator(ILocalizer localizer)
     {
-        RuleFor(v => v.FirstName).NotEmptyWithMaxLenghtAndMessageLocalized(nameof(RegisterPendingGymEmployeeCommand.FirstName), MaxStringLengths.Name);
+        RuleFor(v => v.FirstName)
+            .NotEmptyWithMaxLengthAndMessageLocalized(localizer, nameof(SharedResource.FirstName), MaxStringLengths.Name);
 
-        RuleFor(v => v.LastName).NotEmptyWithMaxLenghtAndMessageLocalized(nameof(RegisterPendingGymEmployeeCommand.LastName), MaxStringLengths.Name);
+        RuleFor(v => v.LastName)
+            .NotEmptyWithMaxLengthAndMessageLocalized(localizer, nameof(SharedResource.LastName), MaxStringLengths.Name);
 
-        RuleFor(v => v.Email).ValidEmailAddressWithMessageLocalized(nameof(RegisterPendingGymEmployeeCommand.Email));
+        RuleFor(v => v.Email)
+            .EmailAddressWithMessageLocalized(localizer);
 
-        RuleFor(v => v.Password).StrongPasswordLocalized();
+        RuleFor(v => v.Password)
+            .StrongPasswordLocalized(localizer);
 
         RuleFor(v => v.PasswordConfirm)
             .Equal(v => v.PasswordConfirm)
-            .WithMessage(ErrorMessages.PropertyMustEqualToAnotherProperty(nameof(RegisterPendingGymEmployeeCommand.Password), nameof(RegisterPendingGymEmployeeCommand.PasswordConfirm)));
+            .WithMessage(localizer.Get(nameof(SharedResource.PasswordsMustMatch)));
     }
 }
 
@@ -39,21 +43,24 @@ public class RegisterPendingGymEmployeeCommandHandler : IRequestHandler<Register
     private readonly IIdentityService _identityService;
     private readonly IJwtTokenService _jwtTokenService;
     private readonly IApplicationDbContext _context;
+    private readonly ILocalizer _localizer;
 
     public RegisterPendingGymEmployeeCommandHandler(
         IIdentityService identityService,
         IJwtTokenService jwtTokenService,
-        IApplicationDbContext context)
+        IApplicationDbContext context,
+        ILocalizer localizer)
     {
         _identityService = identityService;
         _jwtTokenService = jwtTokenService;
         _context = context;
+        _localizer = localizer;
     }
     public async Task<Result<JwtToken>> Handle(RegisterPendingGymEmployeeCommand command, CancellationToken cancellationToken)
     {
         if (await _identityService.IsEmailInUseAsync(command.Email))
         {
-            return Result.Conflict("Email");
+            return Result.Conflict(_localizer.GetWithParamsLocalized(nameof(SharedResource.Conflict), nameof(SharedResource.Email)));
         }
 
         using var transaction = await _context.BeginTransactionAsync();
@@ -79,7 +86,7 @@ public class RegisterPendingGymEmployeeCommandHandler : IRequestHandler<Register
             {
                 await transaction.RollbackAsync();
 
-                throw new Exception(ErrorMessages.FailedToHandleRole(Roles.PendingGymEmployee, true, roleResult.Errors));
+                throw new Exception($"Failed to add user to role. Result: {roleResult}");
             }
 
             var userProfile = new UserProfile

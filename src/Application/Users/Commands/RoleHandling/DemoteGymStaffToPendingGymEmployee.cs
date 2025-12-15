@@ -4,7 +4,7 @@ using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Security;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
-using FitPass.Domain.Strings;
+using FitPass.Infrastructure.Localization.Resources;
 
 namespace FitPass.Application.Users.Commands.RoleHandling;
 
@@ -13,9 +13,10 @@ public record DemoteGymStaffToPendingGymEmployeeCommand(string UserId) : IReques
 
 public class DemoteGymStaffToPendingGymEmployeeCommandValidator : AbstractValidator<DemoteGymStaffToPendingGymEmployeeCommand>
 {
-    public DemoteGymStaffToPendingGymEmployeeCommandValidator()
+    public DemoteGymStaffToPendingGymEmployeeCommandValidator(ILocalizer localizer)
     {
-        RuleFor(v => v.UserId).NotEmptyLocalized(nameof(DemoteGymStaffToPendingGymEmployeeCommand.UserId));
+        RuleFor(v => v.UserId)
+            .PropertyOfEntityNotEmptyWithMessageLocalized(localizer, nameof(SharedResource.Id), nameof(SharedResource.User));
     }
 }
 
@@ -24,15 +25,18 @@ public class DemoteGymStaffToPendingGymEmployeeCommandHandler : IRequestHandler<
     private readonly IIdentityService _identityService;
     private readonly IUser _user;
     private readonly IApplicationDbContext _context;
+    private readonly ILocalizer _localizer;
 
     public DemoteGymStaffToPendingGymEmployeeCommandHandler(
         IIdentityService identityService,
         IUser user,
-        IApplicationDbContext context)
+        IApplicationDbContext context,
+        ILocalizer localizer)
     {
         _identityService = identityService;
         _user = user;
         _context = context;
+        _localizer = localizer;
     }
     public async Task<Result> Handle(DemoteGymStaffToPendingGymEmployeeCommand command, CancellationToken cancellationToken)
     {
@@ -49,12 +53,12 @@ public class DemoteGymStaffToPendingGymEmployeeCommandHandler : IRequestHandler<
 
         if (gymStaffGymEmployment is null)
         {
-            return Result.NotFound("GymStaff user's gym employment");
+            return Result.NotFound(_localizer.GetNotFound(nameof(SharedResource.GymEmployment)));
         }
 
         if (gymStaffGymEmployment.GymId != demoterGymEmployment.GymId || gymStaffGymEmployment.Role != Roles.GymStaff)
         {
-            return Result.Forbidden();
+            return Result.Forbidden(nameof(SharedResource.Forbidden));
         }
 
         using var transaction = await _context.BeginTransactionAsync();
@@ -67,7 +71,7 @@ public class DemoteGymStaffToPendingGymEmployeeCommandHandler : IRequestHandler<
             {
                 await transaction.RollbackAsync();
 
-                throw new Exception(ErrorMessages.FailedToHandleRole(Roles.PendingGymEmployee, false, demotionResult.Errors));
+                throw new Exception($"Failed to remove user from their role. Result: {demotionResult}.");
             }
 
             var promotionResult = await _identityService.AddToRoleAsync(command.UserId, Roles.PendingGymEmployee);
@@ -76,7 +80,7 @@ public class DemoteGymStaffToPendingGymEmployeeCommandHandler : IRequestHandler<
             {
                 await transaction.RollbackAsync();
 
-                throw new Exception(ErrorMessages.FailedToHandleRole(Roles.PendingGymEmployee, true, promotionResult.Errors));
+                throw new Exception($"Failed to add user to role. Result: {promotionResult}.");
             }
 
             _context.GymEmployments.Remove(gymStaffGymEmployment);

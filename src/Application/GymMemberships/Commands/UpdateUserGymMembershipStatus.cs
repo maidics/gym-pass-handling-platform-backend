@@ -1,4 +1,3 @@
-using FitPass.Application.Common.Constants;
 using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Models;
@@ -7,6 +6,7 @@ using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
 using FitPass.Domain.Events.GymMemberships;
+using FitPass.Infrastructure.Localization.Resources;
 
 namespace FitPass.Application.GymMemberships.Commands;
 
@@ -18,7 +18,7 @@ public class UpdateGymMembershipStatusCommandValidator : AbstractValidator<Updat
     public UpdateGymMembershipStatusCommandValidator(ILocalizer localizer)
     {
         RuleFor(v => v.GymMembershipId)
-            .NotEmptyLocalized(localizer, LocalizationKeys.GymMembershipId);
+            .PropertyOfEntityNotEmptyWithMessageLocalized(localizer, nameof(SharedResource.Id), nameof(SharedResource.GymMembership));
     }
 }
 
@@ -49,12 +49,12 @@ public class UpdateGymMembershipStatusCommandHandler : IRequestHandler<UpdateGym
 
         if(membership is null)
         {
-            return Result.NotFound(_localizer.Get(LocalizationKeys.NotFound, nameof(GymMembership)));
+            return Result.NotFound(_localizer.GetNotFound(nameof(SharedResource.GymMembership)));
         }
 
         if (membership.GymId != gymEmployment.GymId)
         {
-            return Result.Forbidden(_localizer.Get(LocalizationKeys.Forbidden));
+            return Result.Forbidden(_localizer.Get(nameof(SharedResource.Forbidden)));
         }
 
         if (membership.Status == command.NewStatus)

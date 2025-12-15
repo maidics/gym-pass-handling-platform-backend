@@ -114,107 +114,114 @@ public static class DependencyInjection
                 };
             });
 
-        builder.Services.AddStripeServices(builder.Configuration);
+        builder.Services
+            .AddStripeServices(builder.Configuration)
+            .AddStringLocalization(builder.Configuration);
     }
 
-    private static void AddStripeServices(this IServiceCollection services, IConfiguration configuration)
+    extension(IServiceCollection services)
     {
-        var apiKey = configuration["Stripe:TestKey"];
-        string stripeClientName = "StripeClient";
-
-        //Stripe Resilience:
-        services.AddHttpClient(stripeClientName)
-            .AddResilienceHandler("StripeResiliencePolicy", pipelineBuilder =>
-            {
-                pipelineBuilder.AddRetry(new HttpRetryStrategyOptions
+        private IServiceCollection AddStripeServices(IConfiguration configuration)
+        {
+            var apiKey = configuration["Stripe:TestKey"];
+            string stripeClientName = "StripeClient";
+    
+            //Stripe Resilience:
+            services.AddHttpClient(stripeClientName)
+                .AddResilienceHandler("StripeResiliencePolicy", pipelineBuilder =>
                 {
-                    ShouldHandle = async args => 
+                    pipelineBuilder.AddRetry(new HttpRetryStrategyOptions
                     {
-                        //network failures, DNS, connection dropped etc. 
-                        if (args.Outcome.Exception is HttpRequestException)
+                        ShouldHandle = async args => 
                         {
-                            return true;
-                        }
-
-                        if (args.Outcome.Result is { } response)
-                        {
-                            //rate limit
-                            if (response.StatusCode == HttpStatusCode.TooManyRequests)
+                            //network failures, DNS, connection dropped etc. 
+                            if (args.Outcome.Exception is HttpRequestException)
                             {
                                 return true;
                             }
-
-                            //server errors: 500, 502, 503, 504
-                            if (response.StatusCode >= HttpStatusCode.InternalServerError)
+    
+                            if (args.Outcome.Result is { } response)
                             {
-                                return true;
+                                //rate limit
+                                if (response.StatusCode == HttpStatusCode.TooManyRequests)
+                                {
+                                    return true;
+                                }
+    
+                                //server errors: 500, 502, 503, 504
+                                if (response.StatusCode >= HttpStatusCode.InternalServerError)
+                                {
+                                    return true;
+                                }
+                                
+                                if (response.StatusCode == HttpStatusCode.Conflict)
+                                {
+                                    return await StripeHttpResponseHelper.IsLockTimeoutAsync(response);
+                                }
                             }
                             
-                            if (response.StatusCode == HttpStatusCode.Conflict)
-                            {
-                                return await StripeHttpResponseHelper.IsLockTimeoutAsync(response);
-                            }
-                        }
+                            return false;
+                        },
+                        BackoffType = DelayBackoffType.Exponential,
+                        MaxRetryAttempts = 3,
+                        UseJitter = true,
+                        Delay = TimeSpan.FromSeconds(2)
                         
-                        return false;
-                    },
-                    BackoffType = DelayBackoffType.Exponential,
-                    MaxRetryAttempts = 3,
-                    UseJitter = true,
-                    Delay = TimeSpan.FromSeconds(2)
-                    
-                    //should log warnings automatically
-                    /*
-                    OnRetry = args =>
-                    {
-                        var loggerFactory = services.BuildServiceProvider().GetRequiredService<ILoggerFactory>();
-                        var logger = loggerFactory.CreateLogger("StripeResilience");
-
-                        logger.LogWarning(
-                            "Retrying request to Stripe... Attempt: {AttemptNumber}, Reason: {Reason}",
-                            args.AttemptNumber + 1,
-                            args.Outcome.Exception?.Message ?? args.Outcome.Result?.StatusCode.ToString()
-                        );
-
-                        return ValueTask.CompletedTask;
-                    }
-                    */
+                        //should log warnings automatically
+                        /*
+                        OnRetry = args =>
+                        {
+                            var loggerFactory = services.BuildServiceProvider().GetRequiredService<ILoggerFactory>();
+                            var logger = loggerFactory.CreateLogger("StripeResilience");
+    
+                            logger.LogWarning(
+                                "Retrying request to Stripe... Attempt: {AttemptNumber}, Reason: {Reason}",
+                                args.AttemptNumber + 1,
+                                args.Outcome.Exception?.Message ?? args.Outcome.Result?.StatusCode.ToString()
+                            );
+    
+                            return ValueTask.CompletedTask;
+                        }
+                        */
+                    });
                 });
+    
+            services.AddSingleton<IStripeClient>(provider =>
+            {
+                var httpClientFactory = provider.GetRequiredService<IHttpClientFactory>();
+                var resilientHttpClient = httpClientFactory.CreateClient(stripeClientName);
+    
+                var stripeAdapter = new SystemNetHttpClient(
+                    httpClient: resilientHttpClient,
+                    maxNetworkRetries: 0);
+    
+                return new StripeClient(httpClient: stripeAdapter, apiKey: apiKey);
             });
+    
+            services.AddScoped(provider => new AccountService(provider.GetRequiredService<IStripeClient>()));
+            services.AddScoped(provider => new AccountLinkService(provider.GetRequiredService<IStripeClient>()));
+            services.AddScoped(provider => new AccountLoginLinkService(provider.GetRequiredService<IStripeClient>()));
+            services.AddScoped(provider => new PaymentIntentService(provider.GetRequiredService<IStripeClient>()));
+            services.AddScoped(provider => new CustomerService(provider.GetRequiredService<IStripeClient>()));
+            services.AddScoped(provider => new PriceService(provider.GetRequiredService<IStripeClient>()));
+            services.AddScoped(provider => new ProductService(provider.GetRequiredService<IStripeClient>()));
+    
+            services.AddScoped<IPaymentWebhookService, StripeWebhookService>();
+            services.AddScoped<IPaymentTenantService, StripeConnectedAccountService>();
+            services.AddScoped<IPaymentService, StripePaymentService>();
+            services.AddScoped<IPaymentPriceService, StripePriceService>();
+            services.AddScoped<IPaymentProductService, StripeProductService>();
 
-        services.AddSingleton<IStripeClient>(provider =>
+            return services;
+        }
+    
+        private IServiceCollection AddStringLocalization(IConfiguration configuration)
         {
-            var httpClientFactory = provider.GetRequiredService<IHttpClientFactory>();
-            var resilientHttpClient = httpClientFactory.CreateClient(stripeClientName);
-
-            var stripeAdapter = new SystemNetHttpClient(
-                httpClient: resilientHttpClient,
-                maxNetworkRetries: 0);
-
-            return new StripeClient(httpClient: stripeAdapter, apiKey: apiKey);
-        });
-
-        services.AddScoped(provider => new AccountService(provider.GetRequiredService<IStripeClient>()));
-        services.AddScoped(provider => new AccountLinkService(provider.GetRequiredService<IStripeClient>()));
-        services.AddScoped(provider => new AccountLoginLinkService(provider.GetRequiredService<IStripeClient>()));
-        services.AddScoped(provider => new PaymentIntentService(provider.GetRequiredService<IStripeClient>()));
-        services.AddScoped(provider => new CustomerService(provider.GetRequiredService<IStripeClient>()));
-        services.AddScoped(provider => new PriceService(provider.GetRequiredService<IStripeClient>()));
-        services.AddScoped(provider => new ProductService(provider.GetRequiredService<IStripeClient>()));
-
-        services.AddScoped<IPaymentWebhookService, StripeWebhookService>();
-        services.AddScoped<IPaymentTenantService, StripeConnectedAccountService>();
-        services.AddScoped<IPaymentService, StripePaymentService>();
-        services.AddScoped<IPaymentPriceService, StripePriceService>();
-        services.AddScoped<IPaymentProductService, StripeProductService>();
-    }
-
-    private static IServiceCollection AddLocalization(this IServiceCollection services, IConfiguration configuration)
-    {
-        services.Configure<CultureSettings>(configuration.GetSection(ConfigurationSections.Cultures));
-        services.AddLocalization(); //SharedResource.cs marks the resx files directory
-        services.AddTransient<ILocalizer, Localizer>();
-
-        return services;
+            services.Configure<CultureSettings>(configuration.GetSection(ConfigurationSections.Cultures));
+            services.AddLocalization(); //SharedResource.cs marks the resx files directory
+            services.AddTransient<ILocalizer, Localizer>();
+    
+            return services;
+        }
     }
 }

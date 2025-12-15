@@ -7,35 +7,36 @@ using FitPass.Application.Requests.DTOs;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
+using FitPass.Infrastructure.Localization.Resources;
 
 namespace FitPass.Application.Requests.Commands;
 
 [Authorize(Roles = Roles.PendingGymEmployee)]
 public record CreateGymCreationRequestCommand(
-    string RequestDescription,
+    string Description,
     PriorityLevel PriorityLevel,
     CreateGymDto CreateGymDto
 ) : IRequest<Result<RequestDto>>;
 
 public class CreateGymCreationRequestCommandValidator : AbstractValidator<CreateGymCreationRequestCommand>
 {
-    public CreateGymCreationRequestCommandValidator()
+    public CreateGymCreationRequestCommandValidator(ILocalizer localizer)
     {
-        RuleFor(v => v.RequestDescription)
-            .NotEmptyWithMaxLenghtAndMessageLocalized(nameof(CreateGymCreationRequestCommand.RequestDescription), MaxStringLengths.Description);
+        RuleFor(v => v.Description)
+            .NotEmptyWithMaxLengthAndMessageLocalized(localizer, nameof(SharedResource.Description), MaxStringLengths.Description);
 
-        RuleFor(v => v.CreateGymDto.GymName)
-            .NotEmptyWithMaxLenghtAndMessageLocalized(nameof(CreateGymCreationRequestCommand.CreateGymDto.GymName), MaxStringLengths.Description);
+        RuleFor(v => v.CreateGymDto.Name)
+            .NotEmptyWithMaxLengthAndMessageLocalized(localizer, nameof(SharedResource.Name), MaxStringLengths.Name);
 
-        RuleFor(v => v.CreateGymDto.GymAddress)
-            .NotEmptyLocalized(nameof(CreateGymCreationRequestCommand.CreateGymDto.GymAddress));
+        RuleFor(v => v.CreateGymDto.Address)
+            .NotEmptyWithMessageLocalized(localizer, nameof(SharedResource.Address));
 
-        RuleFor(v => v.CreateGymDto.GymStatus)
+        RuleFor(v => v.CreateGymDto.Status)
             .Must(status => status != GymStatus.Suspended)
-            .WithMessage("Gym status cannot be Suspended for a new gym.");
+            .WithMessage(localizer.GetWithParamsLocalized(nameof(SharedResource.ValueIsInvalid), nameof(SharedResource.GymStatus)));
 
         RuleFor(v => v.CreateGymDto.EscalationEmail)
-            .ValidEmailAddressWithMessageLocalized(nameof(CreateGymCreationRequestCommand.CreateGymDto.EscalationEmail));
+            .EmailAddressWithMessageLocalized(localizer);
     }
 }
 
@@ -44,22 +45,25 @@ public class CreateGymCreationRequestCommandHandler : IRequestHandler<CreateGymC
     private readonly IIdentityService _identityService;
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
+    private readonly ILocalizer _localizer;
 
     public CreateGymCreationRequestCommandHandler(
         IIdentityService identityService,
         IApplicationDbContext context,
-        IUser user)
+        IUser user,
+        ILocalizer localizer)
     {
         _identityService = identityService;
         _context = context;
         _user = user;
+        _localizer = localizer;
     }
 
     public async Task<Result<RequestDto>> Handle(CreateGymCreationRequestCommand command, CancellationToken cancellationToken)
     {
         if (!await _identityService.IsUserEmailConfirmed(_user.Id!))
         {
-            return Result.BusinessRuleViolation("You must confirm your email before this action.");
+            return Result.BusinessRuleViolation(_localizer.Get(nameof(SharedResource.RequiresEmailConfirmation)));
         }
 
         var ongoingRequests = await _context.Requests
@@ -68,7 +72,7 @@ public class CreateGymCreationRequestCommandHandler : IRequestHandler<CreateGymC
 
         if (ongoingRequests.Count > 0)
         {
-            return Result.BusinessRuleViolation("You already have an ongoing gym creation request.");
+            return Result.BusinessRuleViolation(_localizer.Get(nameof(SharedResource.AlreadyHaveOnGoingRequestOfThisType)));
         }
 
         //TODO: add validations here
@@ -77,7 +81,7 @@ public class CreateGymCreationRequestCommandHandler : IRequestHandler<CreateGymC
         {
             Id = Guid.NewGuid().ToString(),
             Title = "Gym creation",
-            Description = command.RequestDescription,
+            Description = command.Description,
             PriorityLevel = command.PriorityLevel,
             Type = RequestType.GymCreation,
             Payload = JsonSerializer.Serialize(command.CreateGymDto),

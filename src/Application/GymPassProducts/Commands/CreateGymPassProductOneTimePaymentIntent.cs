@@ -8,6 +8,7 @@ using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Entities.Payment;
 using FitPass.Domain.Enums;
+using FitPass.Infrastructure.Localization.Resources;
 
 namespace FitPass.Application.GymPassProducts.Commands;
 
@@ -18,9 +19,10 @@ public record CreateGymPassProductOneTimePaymentIntentCommand(
 
 public class CreateGymPassProductOneTimePaymentIntentCommandValidator : AbstractValidator<CreateGymPassProductOneTimePaymentIntentCommand>
 {
-    public CreateGymPassProductOneTimePaymentIntentCommandValidator()
+    public CreateGymPassProductOneTimePaymentIntentCommandValidator(ILocalizer localizer)
     {
-        RuleFor(v => v.GymPassProductId).NotEmptyLocalized(nameof(CreateGymPassProductOneTimePaymentIntentCommand.GymPassProductId));
+        RuleFor(v => v.GymPassProductId)
+            .PropertyOfEntityNotEmptyWithMessageLocalized(localizer, nameof(SharedResource.Id), nameof(SharedResource.GymPassProduct));
     }
 }
 
@@ -29,16 +31,19 @@ public class CreateGymPassProductOneTimePaymentIntentCommandHandler : IRequestHa
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
     private readonly IPaymentService _paymentService;
+    private readonly ILocalizer _localizer;
 
     public CreateGymPassProductOneTimePaymentIntentCommandHandler(
         IApplicationDbContext context,
         IUser user,
-        IPaymentService paymentService
+        IPaymentService paymentService,
+        ILocalizer localizer
     )
     {
         _context = context;
         _user = user;
         _paymentService = paymentService;
+        _localizer = localizer;
     }
 
     public async Task<Result<PaymentIntentDto>> Handle(CreateGymPassProductOneTimePaymentIntentCommand command, CancellationToken cancellationToken)
@@ -50,17 +55,17 @@ public class CreateGymPassProductOneTimePaymentIntentCommandHandler : IRequestHa
 
         if (product is null)
         {
-            return Result.NotFound(nameof(GymPassProduct));
+            return Result.NotFound(_localizer.GetNotFound(nameof(SharedResource.GymPassProduct)));
         }
 
         if (!product.IsActive)
         {
-            return Result.BusinessRuleViolation("You cannot buy a pass that is not currently active.");
+            return Result.BusinessRuleViolation(_localizer.Get(nameof(SharedResource.CannotBuyPassThatIsNotActive)));
         }
 
         if (product.Gym.Status != GymStatus.Active)
         {
-            return Result.BusinessRuleViolation("You cannot buy a pass to a gym that is not currently active.");
+            return Result.BusinessRuleViolation(_localizer.Get(nameof(SharedResource.GymIsNotActive), product.Gym.Name));
         }
 
         var tenantPaymentProfile = await _context.TenantPaymentProfiles

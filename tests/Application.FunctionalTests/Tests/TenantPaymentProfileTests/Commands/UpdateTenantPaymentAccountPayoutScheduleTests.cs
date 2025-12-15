@@ -24,7 +24,7 @@ public class UpdateTenantPaymentAccountPayoutScheduleTests : BaseTestFixture
         await RunAsUserAsync(obj.gymAdmin);
 
         var command = new UpdateTenantPaymentAccountPayoutScheduleCommand(
-            Interval: TimeIntervals.Daily,
+            TimeInterval: TimeIntervals.Daily,
             DelayDays: 1);
 
         var result = await SendAsync(command);
@@ -40,7 +40,7 @@ public class UpdateTenantPaymentAccountPayoutScheduleTests : BaseTestFixture
         await RunAsUserAsync(obj.gymAdmin);
 
         var command = new UpdateTenantPaymentAccountPayoutScheduleCommand(
-            Interval: TimeIntervals.Weekly,
+            TimeInterval: TimeIntervals.Weekly,
             WeeklyAnchor: DayOfWeek.Wednesday);
 
         var result = await SendAsync(command);

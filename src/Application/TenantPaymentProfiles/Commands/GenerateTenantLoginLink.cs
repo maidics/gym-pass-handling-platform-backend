@@ -5,6 +5,7 @@ using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Security;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
+using FitPass.Infrastructure.Localization.Resources;
 
 namespace FitPass.Application.TenantPaymentProfiles.Commands;
 
@@ -16,15 +17,18 @@ public class GenerateTenantLoginLinkCommandHandler : IRequestHandler<GenerateTen
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
     private readonly IPaymentTenantService _paymentTenantService;
+    private readonly ILocalizer _localizer;
 
     public GenerateTenantLoginLinkCommandHandler(
         IApplicationDbContext context,
         IUser user,
-        IPaymentTenantService paymentTenantService)
+        IPaymentTenantService paymentTenantService,
+        ILocalizer localizer)
     {
         _context = context;
         _user = user;
         _paymentTenantService = paymentTenantService;
+        _localizer = localizer;
     }
 
     public async Task<Result<string>> Handle(GenerateTenantLoginLinkCommand command, CancellationToken cancellationToken)
@@ -41,7 +45,7 @@ public class GenerateTenantLoginLinkCommandHandler : IRequestHandler<GenerateTen
 
         if (paymentProfile is null)
         {
-            return Result.BusinessRuleViolation("You must first onboard your gym before this action: create your tenant payment account.");
+            return Result.BusinessRuleViolation(_localizer.Get(nameof(SharedResource.RequiresStripeAccount)));
         }
 
         return await _paymentTenantService.GenerateLoginLinkAsync(paymentProfile.PaymentAccountId, cancellationToken);

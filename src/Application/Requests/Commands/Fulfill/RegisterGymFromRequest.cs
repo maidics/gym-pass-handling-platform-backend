@@ -7,7 +7,7 @@ using FitPass.Application.Requests.DTOs;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
-using FitPass.Domain.Strings;
+using FitPass.Infrastructure.Localization.Resources;
 
 namespace FitPass.Application.Requests.Commands.Fulfill;
 
@@ -16,32 +16,33 @@ public record RegisterGymFromRequestCommand(string RequestId) : IRequest<Result<
 
 public class RegisterGymFromRequestCommandValidator : AbstractValidator<RegisterGymFromRequestCommand>
 {
-    public RegisterGymFromRequestCommandValidator()
+    public RegisterGymFromRequestCommandValidator(ILocalizer localizer)
     {
-        RuleFor(v => v.RequestId).NotEmptyLocalized(nameof(RegisterGymFromRequestCommand.RequestId));
+        RuleFor(v => v.RequestId)
+            .PropertyOfEntityNotEmptyWithMessageLocalized(localizer, nameof(SharedResource.Id), nameof(SharedResource.Request));
     }
 }
 
 public class RegisterGymFromRequestCommandHandler : IRequestHandler<RegisterGymFromRequestCommand, Result<GymDto>>
 {
     private readonly IApplicationDbContext _context;
-    private readonly IUser _user;
     private readonly IIdentityService _identityService;
     private readonly ISender _sender;
     private readonly TimeProvider _timeProvider;
+    private readonly ILocalizer _localizer;
 
     public RegisterGymFromRequestCommandHandler(
         IApplicationDbContext context,
-        IUser user,
         IIdentityService identityService,
         ISender sender,
-        TimeProvider timeProvider)
+        TimeProvider timeProvider,
+        ILocalizer localizer)
     {
         _context = context;
-        _user = user;
         _identityService = identityService;
         _sender = sender;
         _timeProvider = timeProvider;
+        _localizer = localizer;
     }
     
     public async Task<Result<GymDto>> Handle(RegisterGymFromRequestCommand command, CancellationToken cancellationToken)
@@ -52,17 +53,17 @@ public class RegisterGymFromRequestCommandHandler : IRequestHandler<RegisterGymF
 
         if (request is null)
         {
-            return Result.NotFound(nameof(Request));
+            return Result.NotFound(_localizer.GetNotFound(nameof(SharedResource.Request)));
         }
 
         if (request.Status != RequestStatus.Submitted)
         {
-            return Result.Forbidden("Request is no longer open.");
+            return Result.Forbidden(_localizer.Get(nameof(SharedResource.RequestIsNotOpen)));
         }
 
         if (request.Type != RequestType.GymCreation)
         {
-            return Result.BusinessRuleViolation("Request is not of GymCreation type.");
+            return Result.BusinessRuleViolation(_localizer.Get(nameof(SharedResource.ActionIsApplicableForRequestType)));
         }
 
         if (request.CreatedBy is null)
@@ -72,15 +73,17 @@ public class RegisterGymFromRequestCommandHandler : IRequestHandler<RegisterGymF
 
             await _context.SaveChangesAsync();
 
-            return Result.InternalError("Request creator is empty.");
+            return Result.InternalError(_localizer.Get(nameof(SharedResource.RequestHandlingError)));
         } else
         {
             if (!await _identityService.DoesUserExist(request.CreatedBy))
             {
                 request.Status = RequestStatus.Error;
                 request.Error = "Request creator not found.";
+                
                 await _context.SaveChangesAsync();
-                return Result.NotFound("Request creator not found.");
+                
+                return Result.NotFound(_localizer.Get(nameof(SharedResource.RequestHandlingError)));
             }
 
             if (!await _identityService.IsInRoleAsync(request.CreatedBy, Roles.PendingGymEmployee))
@@ -90,7 +93,7 @@ public class RegisterGymFromRequestCommandHandler : IRequestHandler<RegisterGymF
 
                 await _context.SaveChangesAsync();
 
-                return Result.BusinessRuleViolation("User is no longer a PendingGymEmployee.");
+                return Result.BusinessRuleViolation(_localizer.Get(nameof(SharedResource.CannotPerformActionOnRoleType)));
             }
         }
 
@@ -103,7 +106,7 @@ public class RegisterGymFromRequestCommandHandler : IRequestHandler<RegisterGymF
 
             await _context.SaveChangesAsync();
 
-            return Result.InternalError("Failed to retrieve gym details from request.");
+            return Result.InternalError(_localizer.Get(nameof(SharedResource.RequestHandlingError)));
         }
 
         var createGymDto = deserializationResult.Value;
@@ -111,11 +114,13 @@ public class RegisterGymFromRequestCommandHandler : IRequestHandler<RegisterGymF
         var existingGym = await _context
                 .Gyms
                 .AsNoTracking()
-                .FirstOrDefaultAsync(g => g.Name == createGymDto.GymName); //TODO: make this more robust
+                .FirstOrDefaultAsync(g => g.Name == createGymDto.Name); //TODO: make this more robust
 
         if (existingGym is not null)
         {
-            return Result.Conflict("Gym name");
+            return Result.Conflict(
+                _localizer.Get(nameof(SharedResource.Conflict), 
+                    _localizer.GetWithParamsLocalized(nameof(SharedResource.Name), nameof(SharedResource.Gym))));
         }
 
         using var transaction = await _context.BeginTransactionAsync();
@@ -124,10 +129,10 @@ public class RegisterGymFromRequestCommandHandler : IRequestHandler<RegisterGymF
         {
             var gym = new Gym
             {
-                Name = createGymDto.GymName,
-                Address = createGymDto.GymAddress,
-                Status = createGymDto.GymStatus,
-                Tier = createGymDto.GymTier,
+                Name = createGymDto.Name,
+                Address = createGymDto.Address,
+                Status = createGymDto.Status,
+                Tier = createGymDto.Tier,
             };
 
             await _context.Gyms.AddAsync(gym);
@@ -143,7 +148,7 @@ public class RegisterGymFromRequestCommandHandler : IRequestHandler<RegisterGymF
 
                 await _context.SaveChangesAsync();
 
-                throw new Exception(ErrorMessages.FailedToHandleRole(Roles.PendingGymEmployee, false, demotionResult.Errors));
+                throw new Exception($"Failed to remove user from their role. Result: {demotionResult}.");
             }
 
             var promotionResult = await _identityService.AddToRoleAsync(request.CreatedBy, Roles.GymAdministrator);
@@ -157,7 +162,7 @@ public class RegisterGymFromRequestCommandHandler : IRequestHandler<RegisterGymF
 
                 await _context.SaveChangesAsync();
 
-                throw new Exception(ErrorMessages.FailedToHandleRole(Roles.GymAdministrator, true, promotionResult.Errors));
+                throw new Exception($"Failed to add user to role. Result: {promotionResult}");
             }
 
             var gymEmployment = new GymEmployment

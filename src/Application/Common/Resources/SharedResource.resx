@@ -1,0 +1,264 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>1.3</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="NotFound" xml:space="preserve">
+    <value>{0} not found.</value>
+  </data>
+  <data name="Conflict" xml:space="preserve">
+    <value>{0} is already in use.</value>
+  </data>
+  <data name="ExternalServiceUnavailable" xml:space="preserve">
+    <value>{0} external service is not available.</value>
+  </data>
+  <data name="BusinessRuleViolation" xml:space="preserve">
+    <value>Business rule violation.</value>
+  </data>
+  <data name="InternalServerError" xml:space="preserve">
+    <value>An unexpected error occured.</value>
+  </data>
+  <data name="PaymentRequired" xml:space="preserve">
+    <value>Payment required.</value>
+  </data>
+  <data name="Unauthorized" xml:space="preserve">
+    <value>Unauthorized.</value>
+  </data>
+  <data name="Forbidden" xml:space="preserve">
+    <value>Forbidden.</value>
+  </data>
+  <data name="PassNotBelongsToUser" xml:space="preserve">
+    <value>Pass does not belong to user.</value>
+  </data>
+  <data name="PassIsForAnotherGym" xml:space="preserve">
+    <value>This pass is for another gym.</value>
+  </data>
+  <data name="GymMembershipIsBannedFromTheGym" xml:space="preserve">
+    <value>User is banned from the gym.</value>
+  </data>
+  <data name="PassIsExpired" xml:space="preserve">
+    <value>Pass is expired.</value>
+  </data>
+  <data name="PassHasNoUsesLeft" xml:space="preserve">
+    <value>Pass has no uses left.</value>
+  </data>
+  <data name="PropertyIsRequired" xml:space="preserve">
+    <value>{0} is required.</value>
+  </data>
+  <data name="Password" xml:space="preserve">
+    <value>password</value>
+  </data>
+  <data name="PasswordMinimumLength" xml:space="preserve">
+    <value>Password must be at least {0} characters.</value>
+  </data>
+  <data name="PasswordMaximumLength" xml:space="preserve">
+    <value>Password cannot be longer than {0} characters.</value>
+  </data>
+  <data name="PasswordAtLeastOneLowerCase" xml:space="preserve">
+    <value>Password must contain at least one lower case character.</value>
+  </data>
+  <data name="PasswordAtLeastOneUpperCase" xml:space="preserve">
+    <value>Password must contain at least one upper case character.</value>
+  </data>
+  <data name="PasswordAtLeastOneNumber" xml:space="preserve">
+    <value>Password must contain at least one number.</value>
+  </data>
+  <data name="PasswordAtLeastOneSpecial" xml:space="preserve">
+    <value>Password must contain at least one special character.</value>
+  </data>
+  <data name="PropertyMaxLength" xml:space="preserve">
+    <value>{0} cannot be longer than {1} characters.</value>
+  </data>
+  <data name="PropertyMinLength" xml:space="preserve">
+    <value>{0} must be at least {1} characters.</value>
+  </data>
+  <data name="PhoneNumber" xml:space="preserve">
+    <value>phone number</value>
+  </data>
+  <data name="Email" xml:space="preserve">
+    <value>Email address</value>
+  </data>
+  <data name="LockerNumber" xml:space="preserve">
+    <value>locker number</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>name</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>description</value>
+  </data>
+  <data name="TotalUses" xml:space="preserve">
+    <value>total uses</value>
+  </data>
+  <data name="SingleUsePassCanOnlyHaveOneTotalUse" xml:space="preserve">
+    <value>Single use type pass can only have one total use.</value>
+  </data>
+  <data name="UseBasedPassTypeCannotHaveExpirationTime" xml:space="preserve">
+    <value>Use based pass type cannot have expiration time.</value>
+  </data>
+  <data name="MultiUsePassTypeMustHaveAtLeastTwoUses" xml:space="preserve">
+    <value>Multi use pass type must have at least two uses.</value>
+  </data>
+  <data name="DaysAfterExpires" xml:space="preserve">
+    <value>days after expires</value>
+  </data>
+  <data name="UnlimitedPassDaysAfterExpiresAtLeastOne" xml:space="preserve">
+    <value>Unlimited pass types' days after expires must be at least one.</value>
+  </data>
+  <data name="UnlimitedPassTypesCannotHaveUses" xml:space="preserve">
+    <value>Unlimited pass type cannot have uses.</value>
+  </data>
+  <data name="Price" xml:space="preserve">
+    <value>price</value>
+  </data>
+  <data name="IsActive" xml:space="preserve">
+    <value>active status</value>
+  </data>
+  <data name="CannotCreateGymPassProductForGymThatIsSuspended" xml:space="preserve">
+    <value>You cannot create a gym pass product for your gym because it is suspended.</value>
+  </data>
+  <data name="RequiresStripeAccount" xml:space="preserve">
+    <value>You must first create your Stripe account.</value>
+  </data>
+  <data name="CannotBuyPassThatIsNotActive" xml:space="preserve">
+    <value>This pass is currently not available.</value>
+  </data>
+  <data name="GymIsNotActive" xml:space="preserve">
+    <value>{0} is not in active status.</value>
+  </data>
+  <data name="UseBasedPassTypeMustHaveOneUse" xml:space="preserve">
+    <value>Use based pass type must have at least one use.</value>
+  </data>
+  <data name="YourGymIsSuspended" xml:space="preserve">
+    <value>Your gym is suspended.</value>
+  </data>
+  <data name="GymPassProduct" xml:space="preserve">
+    <value>gym pass product</value>
+  </data>
+  <data name="Gym" xml:space="preserve">
+    <value>gym</value>
+  </data>
+  <data name="GymPassUsage" xml:space="preserve">
+    <value>pass usage</value>
+  </data>
+  <data name="NoChangingLockerNumberAfterGymSessionEnded" xml:space="preserve">
+    <value>You cannot change the locker number once the gym session ended.</value>
+  </data>
+  <data name="Rationale" xml:space="preserve">
+    <value>rationale</value>
+  </data>
+  <data name="PropertyOf" xml:space="preserve">
+    <value>{0} of {1}</value>
+  </data>
+  <data name="ValueIsInvalid" xml:space="preserve">
+    <value>{0} is invalid</value>
+  </data>
+  <data name="Id" xml:space="preserve">
+    <value>id</value>
+  </data>
+  <data name="GymMembershipPass" xml:space="preserve">
+    <value>pass</value>
+  </data>
+  <data name="GymMembership" xml:space="preserve">
+    <value>gym membership</value>
+  </data>
+  <data name="NewValue" xml:space="preserve">
+    <value>new {0}</value>
+  </data>
+  <data name="GymStatus" xml:space="preserve">
+    <value>gym status</value>
+  </data>
+  <data name="GymAdminCanOnlySetGymStatusToActiveOrInactive" xml:space="preserve">
+    <value>You can only your gym status to active or inactive.</value>
+  </data>
+  <data name="Request" xml:space="preserve">
+    <value>request</value>
+  </data>
+  <data name="RequestIsNotOpen" xml:space="preserve">
+    <value>Request is not open.</value>
+  </data>
+  <data name="ActionIsApplicableForRequestType" xml:space="preserve">
+    <value>Action is not applicable for this request.</value>
+  </data>
+  <data name="RequestHandlingError" xml:space="preserve">
+    <value>There was an unexpected error while handling request.</value>
+  </data>
+  <data name="User" xml:space="preserve">
+    <value>user</value>
+  </data>
+  <data name="CannotPerformActionOnRoleType" xml:space="preserve">
+    <value>Cannot perform action on user because they're in a different role.</value>
+  </data>
+  <data name="Address" xml:space="preserve">
+    <value>address</value>
+  </data>
+  <data name="RequiresEmailConfirmation" xml:space="preserve">
+    <value>This action requires email confirmation.</value>
+  </data>
+  <data name="AlreadyHaveOnGoingRequestOfThisType" xml:space="preserve">
+    <value>You already have an ongoing request of this type.</value>
+  </data>
+  <data name="BusinessName" xml:space="preserve">
+    <value>business name</value>
+  </data>
+  <data name="ResourceAlreadyExists" xml:space="preserve">
+    <value>{0} already exists.</value>
+  </data>
+  <data name="TenantPaymentProfile" xml:space="preserve">
+    <value>payment profile</value>
+  </data>
+  <data name="TimeInterval" xml:space="preserve">
+    <value>time interval</value>
+  </data>
+  <data name="DelayDaysMustBeNullIfTimeIntervalisDaily" xml:space="preserve">
+    <value>You cannot set delay days if time interval is daily.</value>
+  </data>
+  <data name="WeeklyAnchorCannotBeNullIfTimeIntervalIsWeekly" xml:space="preserve">
+    <value>Weekly anchor cannot be empty is the time interval is weekly.</value>
+  </data>
+  <data name="MonthlyAnchorCannotBeEmptyIfTheTimeIntervalIsMonthly" xml:space="preserve">
+    <value>Monthly anchor cannot be empty if the time interval is monthly.</value>
+  </data>
+  <data name="FirstName" xml:space="preserve">
+    <value>first name</value>
+  </data>
+  <data name="LastName" xml:space="preserve">
+    <value>last name</value>
+  </data>
+  <data name="EmailIsAlreadyConfirmed" xml:space="preserve">
+    <value>Email is already confirmed.</value>
+  </data>
+  <data name="GymEmployment" xml:space="preserve">
+    <value>gym employee</value>
+  </data>
+  <data name="UserHasToSetAPassword" xml:space="preserve">
+    <value>You have to set a password.</value>
+  </data>
+  <data name="PasswordsMustMatch" xml:space="preserve">
+    <value>Passwords must match.</value>
+  </data>
+  <data name="InvalidCredentials" xml:space="preserve">
+    <value>Invalid email or password.</value>
+  </data>
+  <data name="RequiresAccountActivation" xml:space="preserve">
+    <value>This action requires account activation.</value>
+  </data>
+  <data name="UserAlreadyHasPassword" xml:space="preserve">
+    <value>User already has password set.</value>
+  </data>
+</root>

@@ -49,8 +49,8 @@ public class UpdateMyGymProfileTests : BaseTestFixture
 
         var updatedGym = await FindAsync<Gym>(obj.gym.Id);
         updatedGym.ShouldNotBeNull();
-        updatedGym.Name.ShouldBe(command.GymName);
-        updatedGym.Address.ShouldBe(command.GymAddress);
-        updatedGym.Tier.ShouldBe(command.GymTier);
+        updatedGym.Name.ShouldBe(command.NewName);
+        updatedGym.Address.ShouldBe(command.NewAddress);
+        updatedGym.Tier.ShouldBe(command.NewTier);
     }
 }

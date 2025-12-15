@@ -7,12 +7,14 @@ using FitPass.Application.Common.Security;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
+using FitPass.Infrastructure.Localization.Resources;
+using FitPass.Infrastructure.Localization.Resources;
 
 namespace FitPass.Application.TenantPaymentProfiles.Commands;
 
 [Authorize(Roles = Roles.GymAdministrator)]
 public record UpdateTenantPaymentAccountPayoutScheduleCommand(
-    TimeIntervals Interval,
+    TimeIntervals TimeInterval,
     int? MonhtlyAnchor = null,
     DayOfWeek? WeeklyAnchor = null,
     int? DelayDays = null //only applicable when using daily interval
@@ -20,23 +22,30 @@ public record UpdateTenantPaymentAccountPayoutScheduleCommand(
 
 public class UpdateTenantPaymentAccountPayoutScheduleCommandValidator : AbstractValidator<UpdateTenantPaymentAccountPayoutScheduleCommand>
 {
-    public UpdateTenantPaymentAccountPayoutScheduleCommandValidator()
+    public UpdateTenantPaymentAccountPayoutScheduleCommandValidator(ILocalizer localizer)
     {
-        RuleFor(v => v.Interval).NotEmptyLocalized(nameof(UpdateTenantPaymentAccountPayoutScheduleCommand.Interval));
+        RuleFor(v => v.TimeInterval)
+            .NotEmptyWithMessageLocalized(localizer, nameof(SharedResource.TimeInterval));
 
-        When(v => v.Interval == TimeIntervals.Daily, () =>
+        When(v => v.TimeInterval == TimeIntervals.Daily, () =>
         {
-            RuleFor(v => v.DelayDays).NotNull().WithMessage("Delay days cannot be null when time interval is daily");
+            RuleFor(v => v.DelayDays)
+                .NotNull()
+                .WithMessage(localizer.Get(nameof(SharedResource.DelayDaysMustBeNullIfTimeIntervalisDaily)));
         });
 
-        When(v => v.Interval == TimeIntervals.Weekly, () =>
+        When(v => v.TimeInterval == TimeIntervals.Weekly, () =>
         {
-            RuleFor(v => v.WeeklyAnchor).NotNull().WithMessage("Weekly anchor cannot be null when time interval is weekly.");
+            RuleFor(v => v.WeeklyAnchor)
+                .NotNull()
+                .WithMessage(localizer.Get(nameof(SharedResource.WeeklyAnchorCannotBeNullIfTimeIntervalIsWeekly)));
         });
 
-        When(v => v.Interval == TimeIntervals.Monthly, () =>
+        When(v => v.TimeInterval == TimeIntervals.Monthly, () =>
         {
-            RuleFor(v => v.MonhtlyAnchor).NotNull().WithMessage("Monthly anchor cannot be null when time interval is monthly.");
+            RuleFor(v => v.MonhtlyAnchor)
+                .NotNull()
+                .WithMessage(localizer.Get(nameof(SharedResource.MonthlyAnchorCannotBeEmptyIfTheTimeIntervalIsMonthly)));
         });
     }
 }
@@ -46,15 +55,18 @@ public class UpdateTenantPaymentAccountPayoutScheduleCommandHandler : IRequestHa
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
     private readonly IPaymentTenantService _paymentTenantService;
+    private readonly ILocalizer _localizer;
 
     public UpdateTenantPaymentAccountPayoutScheduleCommandHandler(
         IApplicationDbContext context,
         IUser user,
-        IPaymentTenantService paymentTenantService)
+        IPaymentTenantService paymentTenantService,
+        ILocalizer localizer)
     {
         _context = context;
         _user = user;
         _paymentTenantService = paymentTenantService;
+        _localizer = localizer;
     }
      
     public async Task<Result> Handle(UpdateTenantPaymentAccountPayoutScheduleCommand command, CancellationToken cancellationToken)
@@ -70,12 +82,12 @@ public class UpdateTenantPaymentAccountPayoutScheduleCommandHandler : IRequestHa
 
         if (tenantPaymentProfile is null)
         {
-            return Result.BusinessRuleViolation("Gym has no payment account created.");
+            return Result.BusinessRuleViolation(_localizer.Get(nameof(SharedResource.RequiresStripeAccount)));
         }
 
         return await _paymentTenantService.UpdateTenantPaymentAccountPayoutIntervalAsync(
             tenantPaymentProfile.PaymentAccountId,
-            command.Interval,
+            command.TimeInterval,
             command.MonhtlyAnchor,
             command.WeeklyAnchor,
             command.DelayDays);

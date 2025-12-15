@@ -1,11 +1,10 @@
-using FitPass.Application.Common.Constants;
 using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Security;
 using FitPass.Application.GymEmployments.DTOs;
 using FitPass.Domain.Constants;
-using FitPass.Domain.Entities;
+using FitPass.Infrastructure.Localization.Resources;
 
 namespace FitPass.Application.GymEmployments.Queries;
 
@@ -16,7 +15,8 @@ public class GetGymEmploymentsByGymIdQueryValidator : AbstractValidator<GetGymEm
 {
     public GetGymEmploymentsByGymIdQueryValidator(ILocalizer localizer)
     {
-        RuleFor(v => v.GymId).NotEmptyLocalized(localizer, LocalizationKeys.GymMembershipId);
+        RuleFor(v => v.GymId)
+            .PropertyOfEntityNotEmptyWithMessageLocalized(localizer, nameof(SharedResource.Id), nameof(SharedResource.Gym));
     }
 }
 
@@ -42,7 +42,7 @@ public class GetGymEmploymentsByGymIdQueryHandler : IRequestHandler<GetGymEmploy
 
         if (gym is null)
         {
-            return Result.NotFound(_localizer.Get(LocalizationKeys.NotFound, nameof(Gym)));
+            return Result.NotFound(_localizer.GetWithParamsLocalized(nameof(SharedResource.NotFound), nameof(SharedResource.Gym)));
         }
 
         return Result.Success(await _queryService.GetGymEmploymentsWithUserProfileAndEmailByGymId(gym.Id));

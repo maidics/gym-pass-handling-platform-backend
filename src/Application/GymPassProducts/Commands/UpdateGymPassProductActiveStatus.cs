@@ -5,7 +5,7 @@ using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Security;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
-using Microsoft.Extensions.Logging;
+using FitPass.Infrastructure.Localization.Resources;
 
 namespace FitPass.Application.GymPassProducts.Commands;
 
@@ -17,11 +17,13 @@ public record UpdateGymPassProductActiveStatusCommand(
 
 public class UpdateGymPassProductActiveStatusCommandValidator : AbstractValidator<UpdateGymPassProductActiveStatusCommand>
 {
-    public UpdateGymPassProductActiveStatusCommandValidator()
+    public UpdateGymPassProductActiveStatusCommandValidator(ILocalizer localizer)
     {
-        RuleFor(v => v.GymPassProductId).NotEmptyLocalized(nameof(UpdateGymPassProductActiveStatusCommand.GymPassProductId));
+        RuleFor(v => v.GymPassProductId)
+            .PropertyOfEntityNotEmptyWithMessageLocalized(localizer, nameof(SharedResource.Id), nameof(SharedResource.GymPassProduct));
 
-        RuleFor(v => v.IsActive).NotEmptyLocalized(nameof(UpdateGymPassProductActiveStatusCommand.IsActive));
+        RuleFor(v => v.IsActive)
+            .NotEmptyWithMessageLocalized(localizer, nameof(SharedResource.IsActive));
     }
 }
 
@@ -31,18 +33,21 @@ public class UpdateGymPassProductActiveStatusCommandHandler : IRequestHandler<Up
     private readonly IUser _user;
     private readonly IPaymentProductService _paymentProductService;
     private readonly IPaymentPriceService _paymentPriceService;
+    private readonly ILocalizer _localizer;
 
     public UpdateGymPassProductActiveStatusCommandHandler(
         IApplicationDbContext context,
         IUser user,
         IPaymentProductService paymentProductService,
-        IPaymentPriceService paymentPriceService
+        IPaymentPriceService paymentPriceService,
+        ILocalizer localizer
     )
     {
         _context = context;
         _user = user;
         _paymentProductService = paymentProductService;
         _paymentPriceService = paymentPriceService;
+        _localizer = localizer;
     }
 
     public async Task<Result> Handle(UpdateGymPassProductActiveStatusCommand command, CancellationToken cancellationToken)
@@ -59,7 +64,7 @@ public class UpdateGymPassProductActiveStatusCommandHandler : IRequestHandler<Up
 
         if (product is null)
         {
-            return Result.NotFound(nameof(GymPassProduct));
+            return Result.NotFound(_localizer.GetNotFound(nameof(SharedResource.GymPassProduct)));
         }
 
         if (product.IsActive == command.IsActive)

@@ -1,10 +1,9 @@
-﻿using FitPass.Application.Common.Constants;
-using FitPass.Application.Common.Extensions;
+﻿using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Security;
 using FitPass.Domain.Constants;
-using FitPass.Domain.Entities;
+using FitPass.Infrastructure.Localization.Resources;
 
 namespace FitPass.Application.GymMembershipPasses.Queries;
 
@@ -16,7 +15,7 @@ public class IsGymMembershipPassValidQueryValidator : AbstractValidator<IsGymMem
     public IsGymMembershipPassValidQueryValidator(ILocalizer localizer)
     {
         RuleFor(v => v.GymMembershipPassId)
-            .NotEmptyLocalized(localizer, LocalizationKeys.GymMembershipPassId);
+            .PropertyOfEntityNotEmptyWithMessageLocalized(localizer, nameof(SharedResource.Id), nameof(SharedResource.GymMembershipPass));
     }
 }
 
@@ -45,7 +44,7 @@ public class IsGymMembershipPassValidQueryHandler : IRequestHandler<IsGymMembers
 
         if (pass is null)
         {
-            return Result.NotFound(_localizer.Get(LocalizationKeys.NotFound, nameof(GymPassProduct)));
+            return Result.NotFound(_localizer.GetNotFound(nameof(SharedResource.GymPassProduct)));
         }
 
         return Result.Success(pass.IsValid(_timeProvider.GetUtcNow()));

@@ -13,7 +13,7 @@ public partial class StripeWebhookService
         {
             _logger.LogError("Payment intent data is null in webhook StripeEvent {StripeEvent}", stripeEvent);
 
-            return Result.BusinessRuleViolation();
+            return Result.BusinessRuleViolation("Invalid payload.");
         }
 
         var userId = intent.Metadata.GetValueOrDefault("UserId");
@@ -29,7 +29,7 @@ public partial class StripeWebhookService
                 gymId,
                 gymPassProductId);
 
-            return Result.BusinessRuleViolation();
+            return Result.BusinessRuleViolation("Invalid request.");
         }
 
         return Result.Success((userId, gymId, gymPassProductId));

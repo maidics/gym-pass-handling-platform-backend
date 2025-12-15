@@ -4,6 +4,7 @@ using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Security;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
+using FitPass.Infrastructure.Localization.Resources;
 
 namespace FitPass.Application.UserProfiles.Commands;
 
@@ -15,11 +16,13 @@ public record UpdateMyUserProfileCommand(
 
 public class UpdateMyUserProfileCommandValidator : AbstractValidator<UpdateMyUserProfileCommand>
 {
-    public UpdateMyUserProfileCommandValidator()
+    public UpdateMyUserProfileCommandValidator(ILocalizer localizer)
     {
-        RuleFor(v => v.FirstName).NotEmptyWithMaxLenghtAndMessageLocalized(nameof(UpdateMyUserProfileCommand.FirstName), MaxStringLengths.Name);
+        RuleFor(v => v.FirstName)
+            .NotEmptyWithMaxLengthAndMessageLocalized(localizer, nameof(SharedResource.FirstName), MaxStringLengths.Name);
 
-        RuleFor(v => v.LastName).NotEmptyWithMaxLenghtAndMessageLocalized(nameof(UpdateMyUserProfileCommand.LastName), MaxStringLengths.Name);
+        RuleFor(v => v.LastName)
+            .NotEmptyWithMaxLengthAndMessageLocalized(localizer, nameof(SharedResource.LastName), MaxStringLengths.Name);
     }
 }
 

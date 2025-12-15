@@ -6,6 +6,7 @@ using FitPass.Application.GymMemberships.DTOs;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Strings;
+using FitPass.Infrastructure.Localization.Resources;
 
 namespace FitPass.Application.Users.Commands;
 
@@ -14,13 +15,16 @@ public record GymEmployeeRegisterUserCommand(string Email, string FirstName, str
 
 public class GymEmployeeRegisterUserCommandValidator : AbstractValidator<GymEmployeeRegisterUserCommand>
 {
-    public GymEmployeeRegisterUserCommandValidator()
+    public GymEmployeeRegisterUserCommandValidator(ILocalizer localizer)
     {
-        RuleFor(v => v.Email).ValidEmailAddressWithMessageLocalized(nameof(GymEmployeeRegisterUserCommand.Email));
+        RuleFor(v => v.Email)
+            .EmailAddressWithMessageLocalized(localizer);
 
-        RuleFor(v => v.FirstName).NotEmptyWithMaxLenghtAndMessageLocalized(nameof(GymEmployeeRegisterUserCommand.FirstName), MaxStringLengths.Name);
+        RuleFor(v => v.FirstName)
+            .NotEmptyWithMaxLengthAndMessageLocalized(localizer, nameof(SharedResource.FirstName), MaxStringLengths.Name);
 
-        RuleFor(v => v.LastName).NotEmptyWithMaxLenghtAndMessageLocalized(nameof(GymEmployeeRegisterUserCommand.LastName), MaxStringLengths.Name);
+        RuleFor(v => v.LastName)
+            .NotEmptyWithMaxLengthAndMessageLocalized(localizer, nameof(SharedResource.LastName), MaxStringLengths.Name);
     }
 }
 
@@ -29,31 +33,32 @@ public class GymEmployeeRegisterUserCommandHandler : IRequestHandler<GymEmployee
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
     private readonly IIdentityService _identityService;
-    private readonly ISender _sender;
+    private readonly ILocalizer _localizer;
 
     public GymEmployeeRegisterUserCommandHandler(
         IApplicationDbContext context,
         IUser user,
         IIdentityService identityService,
-        ISender sender)
+        ILocalizer localizer)
     {
         _context = context;
         _user = user;
         _identityService = identityService;
-        _sender = sender;
+        _localizer = localizer;
     }
     public async Task<Result<GymMembershipDto>> Handle(GymEmployeeRegisterUserCommand command, CancellationToken cancellationToken)
     {
         var gymEmployment = await _context
             .GymEmployments
             .AsNoTracking()
-            .FirstOrDefaultAsync(ge => ge.UserId != null && ge.UserId == _user.Id);
+            .FirstOrDefaultAsync(ge => ge.UserId == _user.Id);
 
         Guard.Against.NullParameterRelatedToCurrentUser(gymEmployment, nameof(GymEmployment), _user.Id);
 
         if (await _identityService.IsEmailInUseAsync(command.Email))
         {
-            return Result.Conflict("Email");
+            return Result.Conflict(
+                _localizer.GetWithParamsLocalized(nameof(SharedResource.Conflict), nameof(SharedResource.Email)));
         }
 
         using var transaction = await _context.BeginTransactionAsync();
@@ -75,7 +80,7 @@ public class GymEmployeeRegisterUserCommandHandler : IRequestHandler<GymEmployee
             {
                 await transaction.RollbackAsync();
 
-                throw new Exception(ErrorMessages.FailedToHandleRole(Roles.User, true, roleResult.Errors));
+                throw new Exception($"Failed to add user to role. Result: {roleResult}.");
             }
 
             var userProfile = new UserProfile

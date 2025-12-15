@@ -19,21 +19,17 @@ public class UpdateTenantPaymentProfileAccountStatusCommandValidator : AbstractV
 {
     public UpdateTenantPaymentProfileAccountStatusCommandValidator()
     {
-        RuleFor(v => v.TenantAccountId).NotEmptyLocalized(nameof(UpdateTenantPaymentProfileAccountStatusCommand.TenantAccountId));
+        RuleFor(v => v.TenantAccountId).NotEmpty();
 
-        RuleFor(v => v.DetailsSubmitted).NotEmptyLocalized(nameof(UpdateTenantPaymentProfileAccountStatusCommand.DetailsSubmitted));
+        RuleFor(v => v.DetailsSubmitted).NotEmpty();
 
-        RuleFor(v => v.ChargesEnabled).NotEmptyLocalized(nameof(UpdateTenantPaymentProfileAccountStatusCommand.ChargesEnabled));
+        RuleFor(v => v.ChargesEnabled).NotEmpty();
 
-        RuleFor(v => v.PayoutsEnabled).NotEmptyLocalized(nameof(UpdateTenantPaymentProfileAccountStatusCommand.DetailsSubmitted));
+        RuleFor(v => v.PayoutsEnabled).NotEmpty();
 
-        RuleFor(v => v.RequirementsDue)
-            .NotNull()
-            .WithMessage(ErrorMessages.PropertyIsRequired(nameof(UpdateTenantPaymentProfileAccountStatusCommand.RequirementsDue)));
+        RuleFor(v => v.RequirementsDue).NotNull();
 
-        RuleFor(v => v.RequirementsEventuallyDue)
-            .NotNull()
-            .WithMessage(ErrorMessages.PropertyIsRequired(nameof(UpdateTenantPaymentProfileAccountStatusCommand.RequirementsEventuallyDue)));
+        RuleFor(v => v.RequirementsEventuallyDue).NotNull();
     }
 }
 
@@ -50,7 +46,7 @@ public class UpdateTenantPaymentProfileAccountStatusCommandHandler : IRequestHan
     {
         var tenantPaymentProfile = await _context
             .TenantPaymentProfiles
-            .FirstOrDefaultAsync(tpp => tpp != null && command.TenantAccountId == tpp.PaymentAccountId);
+            .FirstOrDefaultAsync(tpp => command.TenantAccountId == tpp.PaymentAccountId);
 
         Guard.Against.Null(tenantPaymentProfile, nameof(TenantPaymentProfile));
 

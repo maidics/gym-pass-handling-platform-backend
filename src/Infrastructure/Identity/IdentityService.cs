@@ -2,6 +2,7 @@ using System.Transactions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Models;
 using FitPass.Domain.Strings;
+using FitPass.Infrastructure.Localization.Resources;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
@@ -14,17 +15,20 @@ public class IdentityService : IIdentityService
     private readonly IUserClaimsPrincipalFactory<ApplicationUser> _userClaimsPrincipalFactory;
     private readonly IAuthorizationService _authorizationService;
     private readonly ILogger<IdentityService> _logger;
+    private readonly ILocalizer _localizer;
 
     public IdentityService(
         UserManager<ApplicationUser> userManager,
         IUserClaimsPrincipalFactory<ApplicationUser> userClaimsPrincipalFactory,
         IAuthorizationService authorizationService,
-        ILogger<IdentityService> logger)
+        ILogger<IdentityService> logger,
+        ILocalizer localizer)
     {
         _userManager = userManager;
         _userClaimsPrincipalFactory = userClaimsPrincipalFactory;
         _authorizationService = authorizationService;
         _logger = logger;
+        _localizer = localizer;
     }
 
     public async Task<bool> IsInRoleAsync(string userId, string role, CancellationToken cancellationToken = default)
@@ -63,7 +67,7 @@ public class IdentityService : IIdentityService
 
         if (user == null)
         {
-            return Result.NotFound("User");
+            return Result.NotFound(_localizer.GetNotFound(nameof(SharedResource.User)));
         }
 
         var result = await _userManager.DeleteAsync(user);
@@ -109,19 +113,19 @@ public class IdentityService : IIdentityService
 
         if (user == null)
         {
-            return Result.Unauthorized(ErrorMessages.InvalidCredentials());
+            return Result.Unauthorized(_localizer.Get(nameof(SharedResource.InvalidCredentials)));
         }
 
         if (user.PasswordHash == null)
         {
-            return Result.Unauthorized(ErrorMessages.UserAccountIsNotActivated());
+            return Result.Unauthorized(_localizer.Get(nameof(SharedResource.RequiresAccountActivation)));
         }
 
         cancellationToken.ThrowIfCancellationRequested();
 
         if (!await _userManager.CheckPasswordAsync(user, password))
         {
-            return Result.Unauthorized(ErrorMessages.InvalidCredentials());
+            return Result.Unauthorized(_localizer.Get(nameof(SharedResource.InvalidCredentials)));
         }
 
         return Result.Success();
@@ -140,7 +144,7 @@ public class IdentityService : IIdentityService
 
         if (user == null)
         {
-            return Result.NotFound(ErrorMessages.UserNotFound());
+            return Result.NotFound(_localizer.GetNotFound(nameof(SharedResource.User)));
         }
 
         var transactionOptions = new TransactionOptions
@@ -227,7 +231,7 @@ public class IdentityService : IIdentityService
 
         if (user == null)
         {
-            return Result.NotFound("User");
+            return Result.NotFound(_localizer.GetNotFound(nameof(SharedResource.User)));
         }
 
         var result = await _userManager.AddToRoleAsync(user, role);
@@ -241,7 +245,7 @@ public class IdentityService : IIdentityService
 
         if (user == null)
         {
-            return Result.NotFound("User");
+            return Result.NotFound(_localizer.GetNotFound(nameof(SharedResource.User)));
         }
 
         var result = await _userManager.RemoveFromRoleAsync(user, role);
@@ -269,12 +273,12 @@ public class IdentityService : IIdentityService
 
         if (user == null)
         {
-            return Result.NotFound("User");
+            return Result.NotFound(_localizer.GetNotFound(nameof(SharedResource.User)));
         }
 
         if (user.PasswordHash != null)
         {
-            return Result.Forbidden("User already has password.");
+            return Result.Forbidden(_localizer.Get(nameof(SharedResource.UserAlreadyHasPassword)));
         }
 
         var result = await _userManager.AddPasswordAsync(user, password);
@@ -300,7 +304,7 @@ public class IdentityService : IIdentityService
 
         if (user == null)
         {
-            return Result.NotFound("User");
+            return Result.NotFound(_localizer.GetNotFound(nameof(SharedResource.User)));
         }
 
         var result = await _userManager.ConfirmEmailAsync(user, emailConfirmationToken);

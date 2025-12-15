@@ -1,9 +1,9 @@
 using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
-using FitPass.Domain.Strings;
 using Microsoft.Extensions.Logging;
 using FitPass.Application.Common.Models;
 using FitPass.Application.Users.DTOs;
+using FitPass.Infrastructure.Localization.Resources;
 
 namespace FitPass.Application.Users.Commands;
 
@@ -16,11 +16,13 @@ public record ActivateUserAccountCommand(
 
 public class ActivateUserAccountCommandValidator : AbstractValidator<ActivateUserAccountCommand>
 {
-    public ActivateUserAccountCommandValidator()
+    public ActivateUserAccountCommandValidator(ILocalizer localizer)
     {
-        RuleFor(v => v.EncodedEmail).NotEmptyLocalized(nameof(ActivateUserAccountCommand.EncodedEmail));
+        RuleFor(v => v.EncodedEmail)
+            .NotEmpty();
 
-        RuleFor(v => v.EncodedEmailConfirmationToken).NotEmptyLocalized(nameof(ActivateUserAccountCommand.EncodedEmailConfirmationToken));
+        RuleFor(v => v.EncodedEmailConfirmationToken)
+            .NotEmpty();
 
         When(v => v.SetPassword == true, () =>
         {
@@ -34,33 +36,28 @@ public class ActivateUserAccountCommandValidator : AbstractValidator<ActivateUse
             RuleFor(v => v.PasswordConfirm).Null();
         });
 
-        When(v => v.Password != null, () => RuleFor(v => v.Password!).StrongPasswordLocalized());
+        When(v => v.Password != null, () => RuleFor(v => v.Password!)
+            .StrongPasswordLocalized(localizer));
 
         RuleFor(v => v.Password) //they both have to be null or StrongPassword
-            .Equal(v => v.PasswordConfirm)
-            .WithMessage(
-                ErrorMessages.PropertyMustEqualToAnotherProperty(
-                    nameof(ActivateUserAccountCommand.Password),
-                    nameof(ActivateUserAccountCommand.PasswordConfirm)
-                )
-            );
+            .Equal(v => v.PasswordConfirm);
     }
 }
 
 public class ActivateUserAccountCommandHandler : IRequestHandler<ActivateUserAccountCommand, Result<JwtToken>>
 {
     private readonly IIdentityService _identityService;
-    private readonly ILogger<ActivateUserAccountCommandHandler> _logger;
     private readonly IJwtTokenService _jwtTokenService;
+    private readonly ILocalizer _localizer;
 
     public ActivateUserAccountCommandHandler(
         IIdentityService identityService,
-        ILogger<ActivateUserAccountCommandHandler> logger,
-        IJwtTokenService jwtTokenService)
+        IJwtTokenService jwtTokenService,
+        ILocalizer localizer)
     {
         _identityService = identityService;
-        _logger = logger;
         _jwtTokenService = jwtTokenService;
+        _localizer = localizer;
     }
     
     public async Task<Result<JwtToken>> Handle(ActivateUserAccountCommand command, CancellationToken cancellationToken)
@@ -71,12 +68,12 @@ public class ActivateUserAccountCommandHandler : IRequestHandler<ActivateUserAcc
 
         if (userId is null)
         {
-            return Result.NotFound("User");
+            return Result.NotFound(_localizer.GetNotFound(nameof(SharedResource.User)));
         }
 
         if (!await _identityService.DoesUserHavePassword(userId) && !command.SetPassword)
         {
-            return Result.BusinessRuleViolation("User has to set a password.");
+            return Result.BusinessRuleViolation(_localizer.Get(nameof(SharedResource.UserHasToSetAPassword)));
         }
 
         var emailConfirmationToken = Uri.UnescapeDataString(command.EncodedEmailConfirmationToken);

@@ -6,6 +6,7 @@ using FitPass.Application.TenantPaymentProfiles.DTOs;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Entities.Payment;
+using FitPass.Infrastructure.Localization.Resources;
 using Microsoft.Extensions.Logging;
 
 namespace FitPass.Application.TenantPaymentProfiles.Queries;
@@ -17,17 +18,17 @@ public class GetTenantPaymentProfileQueryHandler : IRequestHandler<GetTenantPaym
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
-    private readonly ILogger<GetTenantPaymentProfileQueryHandler> _logger;
+    private readonly ILocalizer _localizer;
 
     public GetTenantPaymentProfileQueryHandler(
         IApplicationDbContext context,
         IUser user,
-        ILogger<GetTenantPaymentProfileQueryHandler> logger
+        ILocalizer localizer
     )
     {
         _context = context;
         _user = user;
-        _logger = logger;
+        _localizer = localizer;
     }
 
     public async Task<Result<TenantPaymentProfileDto>> Handle(GetTenantPaymentProfileQuery request, CancellationToken cancellationToken)
@@ -46,7 +47,7 @@ public class GetTenantPaymentProfileQueryHandler : IRequestHandler<GetTenantPaym
 
         if (tenantPaymentProfile is null)
         {
-            return Result.NotFound(nameof(TenantPaymentProfile));
+            return Result.BusinessRuleViolation(_localizer.Get(nameof(SharedResource.RequiresStripeAccount)));
         }
 
         return Result.Success(tenantPaymentProfile.MapToDto());

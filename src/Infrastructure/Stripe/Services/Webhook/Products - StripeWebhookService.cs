@@ -13,7 +13,7 @@ public partial class StripeWebhookService
         {
             _logger.LogError("Product data is null in webhook StripeEvent {StripeEvent}", stripeEvent);
 
-            return Result.BusinessRuleViolation();
+            return Result.BusinessRuleViolation("Invalid request.");
         }
 
         return Result.Success((stripeEvent.Account, product));

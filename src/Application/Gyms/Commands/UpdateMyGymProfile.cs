@@ -6,21 +6,24 @@ using FitPass.Domain.Enums;
 using FitPass.Domain.Entities;
 using FitPass.Application.Common.Models;
 using FitPass.Domain.ValueObjects;
+using FitPass.Infrastructure.Localization.Resources;
 
 namespace FitPass.Application.Gyms.Commands;
 
 [Authorize(Roles = Roles.GymAdministrator)]
 public record UpdateMyGymProfileCommand(
-    string GymName,
-    Address GymAddress,
-    GymTier GymTier
+    string NewName,
+    Address NewAddress,
+    GymTier NewTier
 ) : IRequest<Result>;
 
 public class UpdateMyGymProfileCommandValidator : AbstractValidator<UpdateMyGymProfileCommand>
 {
-    public UpdateMyGymProfileCommandValidator()
+    public UpdateMyGymProfileCommandValidator(ILocalizer localizer)
     {
-        RuleFor(v => v.GymName).NotEmptyWithMaxLenghtAndMessageLocalized(nameof(UpdateMyGymProfileCommand.GymName), MaxStringLengths.Name);
+        RuleFor(v => v.NewName)
+            .NotEmpty()
+            .WithMessage(localizer.GetNewValueIsRequired(nameof(SharedResource.Name)));
     }
 }
 
@@ -28,13 +31,16 @@ public class UpdateMyGymProfileCommandHandler : IRequestHandler<UpdateMyGymProfi
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
+    private readonly ILocalizer _localizer;
 
     public UpdateMyGymProfileCommandHandler(
         IApplicationDbContext context,
-        IUser user)
+        IUser user,
+        ILocalizer localizer)
     {
         _context = context;
         _user = user;
+        _localizer = localizer;
     }
     public async Task<Result> Handle(UpdateMyGymProfileCommand command, CancellationToken cancellationToken)
     {
@@ -49,14 +55,16 @@ public class UpdateMyGymProfileCommandHandler : IRequestHandler<UpdateMyGymProfi
 
         Guard.Against.Null(gym, nameof(Gym), "Gym not found.");
 
-        if (await _context.Gyms.AnyAsync(g => g.Id != gym.Id && g.Name == command.GymName, cancellationToken))
+        if (await _context.Gyms.AnyAsync(g => g.Id != gym.Id && g.Name == command.NewName, cancellationToken))
         {
-            return Result.Conflict(nameof(command.GymName));
+            return Result.Conflict(
+                _localizer.Get(nameof(SharedResource.Conflict), 
+                    _localizer.GetWithParamsLocalized(nameof(SharedResource.NewValue), nameof(SharedResource.Name))));
         }
 
-        gym.Name = command.GymName;
-        gym.Address = command.GymAddress;
-        gym.Tier = command.GymTier;
+        gym.Name = command.NewName;
+        gym.Address = command.NewAddress;
+        gym.Tier = command.NewTier;
 
         await _context.SaveChangesAsync(cancellationToken);
 
