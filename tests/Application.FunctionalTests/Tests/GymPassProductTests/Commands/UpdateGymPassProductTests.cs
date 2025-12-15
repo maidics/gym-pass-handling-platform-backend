@@ -123,7 +123,7 @@ public class UpdateGymPassProductTests : BaseTestFixture
         product.Name.ShouldBe(newName);
         product.Description.ShouldBe(newDescription);
         product.TotalUses.ShouldBe(newTotalUses);
-        product.DaysAfterExpiring.ShouldBe(newDaysAfterExpiring);
+        product.DaysAfterExpires.ShouldBe(newDaysAfterExpiring);
         product.Price.Amount.ShouldBe(newMoneyAmount);
         product.Price.Currency.ShouldBe(newMoneyCurrency);
 

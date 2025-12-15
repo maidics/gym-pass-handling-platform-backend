@@ -31,7 +31,7 @@ public static partial class Mappings
                 Description = gymPassProduct.Description,
                 Type = gymPassProduct.Type,
                 TotalUses = gymPassProduct.TotalUses,
-                DaysAfterExpiring = gymPassProduct.DaysAfterExpiring,
+                DaysAfterExpiring = gymPassProduct.DaysAfterExpires,
                 Price = gymPassProduct.Price,
                 IsActive = gymPassProduct.IsActive
             };

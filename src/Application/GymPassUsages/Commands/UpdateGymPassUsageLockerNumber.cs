@@ -14,9 +14,9 @@ public class UpdateGymPassUsageLockerNumberCommandValidator : AbstractValidator<
 {
     public UpdateGymPassUsageLockerNumberCommandValidator()
     {
-        RuleFor(v => v.GymPassUsageId).NotEmptyWithMessage(nameof(UpdateGymPassUsageLockerNumberCommand.GymPassUsageId));
+        RuleFor(v => v.GymPassUsageId).NotEmptyLocalized(nameof(UpdateGymPassUsageLockerNumberCommand.GymPassUsageId));
 
-        RuleFor(v => v.LockerNumber).NotEmptyWithMessage(nameof(UpdateGymPassUsageLockerNumberCommand.LockerNumber));
+        RuleFor(v => v.LockerNumber).NotEmptyLocalized(nameof(UpdateGymPassUsageLockerNumberCommand.LockerNumber));
     }
 }
 

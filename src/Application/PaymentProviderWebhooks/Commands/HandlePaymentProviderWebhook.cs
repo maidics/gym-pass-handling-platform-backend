@@ -14,9 +14,9 @@ public class HandlePaymentProviderWebhookCommandValidator : AbstractValidator<Ha
 {
     public HandlePaymentProviderWebhookCommandValidator()
     {
-        RuleFor(v => v.Json).NotEmptyWithMessage(nameof(HandlePaymentProviderWebhookCommand.Json));
+        RuleFor(v => v.Json).NotEmptyLocalized(nameof(HandlePaymentProviderWebhookCommand.Json));
 
-        RuleFor(v => v.Json).NotEmptyWithMessage(nameof(HandlePaymentProviderWebhookCommand.SignatureHeader));
+        RuleFor(v => v.Json).NotEmptyLocalized(nameof(HandlePaymentProviderWebhookCommand.SignatureHeader));
     }
 }
 

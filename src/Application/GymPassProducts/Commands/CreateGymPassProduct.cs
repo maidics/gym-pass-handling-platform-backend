@@ -1,3 +1,4 @@
+using FitPass.Application.Common.Constants;
 using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Interfaces.Payment;
@@ -18,55 +19,55 @@ public record CreateGymPassProductCommand
     (
         string Name,
         string Description,
-        PassType Type,
+        PassType PassType,
         int? TotalUses,
-        int? DaysAfterExpiring,
+        int? DaysAfterExpires,
         bool IsActive,
         Money Price
     ) : IRequest<Result<GymPassProductDto>>;
 
 public class CreateGymPassProductCommandValidator : AbstractValidator<CreateGymPassProductCommand>
 {
-    public CreateGymPassProductCommandValidator()
+    public CreateGymPassProductCommandValidator(ILocalizer localizer)
     {
-        RuleFor(v => v.Name).NotEmptyWithMaxLenghtAndMessage(nameof(CreateGymPassProductCommand.Name), MaxStringLengths.Name);
+        RuleFor(v => v.Name)
+            .NotEmptyWithMaxLenghtAndMessageLocalized(localizer, LocalizationKeys.Name,  MaxStringLengths.Name);
 
-        RuleFor(v => v.Description).NotEmptyWithMaxLenghtAndMessage(nameof(CreateGymPassProductCommand.Description), MaxStringLengths.Description);
+        RuleFor(v => v.Description)
+            .NotEmptyWithMaxLenghtAndMessageLocalized(localizer, LocalizationKeys.Description,  MaxStringLengths.Description);
 
-        RuleFor(v => v.Type).NotEmptyWithMessage(nameof(CreateGymPassProductCommand.Type));
-
-        When(v => v.Type == PassType.SingleUse, () =>
+        When(v => v.PassType == PassType.SingleUse, () =>
         {
             RuleFor(v => v.TotalUses)
-                .NotEmptyWithMessage(nameof(CreateGymPassProductCommand.TotalUses))
-                .Equal(1).WithMessage(ErrorMessages.SingleUsePassTypeOnlyOneUse());
+                .NotEmptyLocalized(localizer, LocalizationKeys.TotalUses)
+                .Equal(1).WithMessage(localizer.Get(LocalizationKeys.SingleUsePassCanOnlyHaveOneTotalUse));
 
-            RuleFor(v => v.DaysAfterExpiring)
-                .Null().WithMessage(ErrorMessages.SingleUsePassCannotExpire());
+            RuleFor(v => v.DaysAfterExpires)
+                .Null().WithMessage(localizer.Get(LocalizationKeys.UseBasedPassTypeCannotHaveExpirationTime));
         });
 
-        When(v => v.Type == PassType.MultiUse, () =>
+        When(v => v.PassType == PassType.MultiUse, () =>
         {
             RuleFor(v => v.TotalUses)
-                .NotEmptyWithMessage(nameof(CreateGymPassProductCommand.TotalUses))
-                .GreaterThan(1).WithMessage(ErrorMessages.MultiUsePassTypeAtLeastTwoUses());
+                .NotEmptyLocalized(localizer, LocalizationKeys.TotalUses)
+                .GreaterThan(1).WithMessage(localizer.Get(LocalizationKeys.MultiUsePassTypeMustHaveAtLeastTwoUses));
 
-            RuleFor(v => v.DaysAfterExpiring).Null().WithMessage(ErrorMessages.MultiUsePassCannotExpire());
+            RuleFor(v => v.DaysAfterExpires).Null().WithMessage(ErrorMessages.MultiUsePassCannotExpire());
         });
 
-        When(v => v.Type == PassType.Unlimited, () =>
+        When(v => v.PassType == PassType.Unlimited, () =>
         {
-            RuleFor(v => v.DaysAfterExpiring)
-                .NotEmptyWithMessage(nameof(CreateGymPassProductCommand.DaysAfterExpiring))
+            RuleFor(v => v.DaysAfterExpires)
+                .NotEmptyLocalized(localizer, LocalizationKeys.DaysAfterExpires)
                 .GreaterThan(0).WithMessage(ErrorMessages.UnlimitedPassTypeExpirationDayAtleastOne());
 
             RuleFor(v => v.TotalUses).Null().WithMessage(ErrorMessages.UnlimitedPassTypeNoUses());
         });
 
         RuleFor(v => v.Price)
-            .NotEmptyWithMessage(nameof(CreateGymPassProductCommand.Price));
+            .NotEmptyLocalized(nameof(CreateGymPassProductCommand.Price));
 
-        RuleFor(v => v.IsActive).NotEmptyWithMessage("Active status");
+        RuleFor(v => v.IsActive).NotEmptyLocalized("Active status");
     }
 }
 
@@ -123,7 +124,7 @@ public class CreateGymPassProductCommandHandler : IRequestHandler<CreateGymPassP
         var productResult = await _paymentProductService.CreateProductAsync(
             command.Name, 
             command.Description, 
-            command.Type, 
+            command.PassType, 
             command.IsActive,
             tenantPaymentProfile.PaymentAccountId);
 
@@ -143,7 +144,7 @@ public class CreateGymPassProductCommandHandler : IRequestHandler<CreateGymPassP
             return priceResult.ToFailure<GymPassProductDto>();
         }
 
-        var product = command.Type switch
+        var product = command.PassType switch
         {
             PassType.SingleUse => GymPassProduct.SingleUse(
                 gymEmployment.GymId,
@@ -164,7 +165,7 @@ public class CreateGymPassProductCommandHandler : IRequestHandler<CreateGymPassP
                 gymEmployment.GymId,
                 command.Name,
                 command.Description,
-                (int)command.DaysAfterExpiring!,
+                (int)command.DaysAfterExpires!,
                 command.IsActive,
                 command.Price),
 

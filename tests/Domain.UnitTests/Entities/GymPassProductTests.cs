@@ -19,7 +19,7 @@ public class GymPassProductTests
             () => product.Description.ShouldBe("description"),
             () => product.Type.ShouldBe(PassType.SingleUse),
             () => product.TotalUses.ShouldBe(1),
-            () => product.DaysAfterExpiring.ShouldBeNull(),
+            () => product.DaysAfterExpires.ShouldBeNull(),
             () => product.IsActive.ShouldBeFalse(),
             () => product.Price.ShouldBe(Money.Zero("usd")));
     }
@@ -35,7 +35,7 @@ public class GymPassProductTests
             () => product.Description.ShouldBe("description"),
             () => product.Type.ShouldBe(PassType.MultiUse),
             () => product.TotalUses.ShouldBe(5),
-            () => product.DaysAfterExpiring.ShouldBeNull(),
+            () => product.DaysAfterExpires.ShouldBeNull(),
             () => product.IsActive.ShouldBeTrue(),
             () => product.Price.ShouldBe(Money.Zero("usd")));
     }
@@ -51,7 +51,7 @@ public class GymPassProductTests
             () => product.Description.ShouldBe("description"),
             () => product.Type.ShouldBe(PassType.Unlimited),
             () => product.TotalUses.ShouldBeNull(),
-            () => product.DaysAfterExpiring.ShouldBe(5),
+            () => product.DaysAfterExpires.ShouldBe(5),
             () => product.IsActive.ShouldBeFalse(),
             () => product.Price.ShouldBe(Money.Zero("usd")));
     }

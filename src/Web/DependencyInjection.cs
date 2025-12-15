@@ -22,18 +22,17 @@ public static class DependencyInjection
             .AddDbContextCheck<ApplicationDbContext>();
 
         builder.Services.AddExceptionHandler<CustomExceptionHandler>();
-
-
+        
         // Customise default API behaviour
         builder.Services.Configure<ApiBehaviorOptions>(options =>
             options.SuppressModelStateInvalidFilter = true);
 
         builder.Services.AddEndpointsApiExplorer();
 
-        //Json - Enum converter
+        //Json - Enum converter: strings only: AbstractValidators do not have to check enums
         builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options =>
         {
-            options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+            options.SerializerOptions.Converters.Add(new JsonStringEnumConverter(namingPolicy: null, allowIntegerValues: false));
         });
 
         builder.Services.AddOpenApiDocument((configure, sp) =>

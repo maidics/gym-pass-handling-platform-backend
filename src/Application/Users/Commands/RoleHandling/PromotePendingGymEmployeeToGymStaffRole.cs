@@ -15,7 +15,7 @@ public class PromotePendingGymEmployeeToGymStaffRoleCommandValidator : AbstractV
 {
     public PromotePendingGymEmployeeToGymStaffRoleCommandValidator()
     {
-        RuleFor(v => v.UserId).NotEmptyWithMessage(nameof(PromotePendingGymEmployeeToGymStaffRoleCommand.UserId));
+        RuleFor(v => v.UserId).NotEmptyLocalized(nameof(PromotePendingGymEmployeeToGymStaffRoleCommand.UserId));
     }
 }
 

@@ -15,7 +15,7 @@ public class GetRequestByIdQueryValidator : AbstractValidator<GetRequestByIdQuer
 {
     public GetRequestByIdQueryValidator()
     {
-        RuleFor(v => v.RequestId).NotEmptyWithMessage(nameof(GetRequestByIdQuery.RequestId));
+        RuleFor(v => v.RequestId).NotEmptyLocalized(nameof(GetRequestByIdQuery.RequestId));
     }
 }
 

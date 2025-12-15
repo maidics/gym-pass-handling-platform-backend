@@ -18,9 +18,9 @@ public class ActivateUserAccountCommandValidator : AbstractValidator<ActivateUse
 {
     public ActivateUserAccountCommandValidator()
     {
-        RuleFor(v => v.EncodedEmail).NotEmptyWithMessage(nameof(ActivateUserAccountCommand.EncodedEmail));
+        RuleFor(v => v.EncodedEmail).NotEmptyLocalized(nameof(ActivateUserAccountCommand.EncodedEmail));
 
-        RuleFor(v => v.EncodedEmailConfirmationToken).NotEmptyWithMessage(nameof(ActivateUserAccountCommand.EncodedEmailConfirmationToken));
+        RuleFor(v => v.EncodedEmailConfirmationToken).NotEmptyLocalized(nameof(ActivateUserAccountCommand.EncodedEmailConfirmationToken));
 
         When(v => v.SetPassword == true, () =>
         {
@@ -34,7 +34,7 @@ public class ActivateUserAccountCommandValidator : AbstractValidator<ActivateUse
             RuleFor(v => v.PasswordConfirm).Null();
         });
 
-        When(v => v.Password != null, () => RuleFor(v => v.Password!).StrongPassword());
+        When(v => v.Password != null, () => RuleFor(v => v.Password!).StrongPasswordLocalized());
 
         RuleFor(v => v.Password) //they both have to be null or StrongPassword
             .Equal(v => v.PasswordConfirm)

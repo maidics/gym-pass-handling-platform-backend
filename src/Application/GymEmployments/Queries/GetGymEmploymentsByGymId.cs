@@ -1,3 +1,4 @@
+using FitPass.Application.Common.Constants;
 using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Models;
@@ -13,19 +14,24 @@ public record GetGymEmploymentsByGymIdQuery(string GymId) : IRequest<Result<List
 
 public class GetGymEmploymentsByGymIdQueryValidator : AbstractValidator<GetGymEmploymentsByGymIdQuery>
 {
-    public GetGymEmploymentsByGymIdQueryValidator()
+    public GetGymEmploymentsByGymIdQueryValidator(ILocalizer localizer)
     {
-        RuleFor(v => v.GymId).NotEmptyWithMessage(nameof(GetGymEmploymentsByGymIdQuery.GymId));
+        RuleFor(v => v.GymId).NotEmptyLocalized(localizer, LocalizationKeys.GymMembershipId);
     }
 }
 
 public class GetGymEmploymentsByGymIdQueryHandler : IRequestHandler<GetGymEmploymentsByGymIdQuery, Result<List<GymEmploymentDto>>>
 {
+    private readonly ILocalizer _localizer;
     private readonly IApplicationDbContext _context;
-    private readonly IQueryService _queryService;    
+    private readonly IQueryService _queryService;
 
-    public GetGymEmploymentsByGymIdQueryHandler(IApplicationDbContext context, IQueryService queryService)
+    public GetGymEmploymentsByGymIdQueryHandler(
+        ILocalizer localizer,
+        IApplicationDbContext context, 
+        IQueryService queryService)
     {
+        _localizer = localizer;
         _context = context;
         _queryService = queryService;
     }
@@ -36,7 +42,7 @@ public class GetGymEmploymentsByGymIdQueryHandler : IRequestHandler<GetGymEmploy
 
         if (gym is null)
         {
-            return Result.NotFound(nameof(Gym));
+            return Result.NotFound(_localizer.Get(LocalizationKeys.NotFound, nameof(Gym)));
         }
 
         return Result.Success(await _queryService.GetGymEmploymentsWithUserProfileAndEmailByGymId(gym.Id));

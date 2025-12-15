@@ -1,4 +1,5 @@
-﻿using FitPass.Application.Common.Extensions;
+﻿using FitPass.Application.Common.Constants;
+using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Security;
@@ -12,22 +13,26 @@ public record IsGymMembershipPassValidQuery(string GymMembershipPassId) : IReque
 
 public class IsGymMembershipPassValidQueryValidator : AbstractValidator<IsGymMembershipPassValidQuery>
 {
-    public IsGymMembershipPassValidQueryValidator()
+    public IsGymMembershipPassValidQueryValidator(ILocalizer localizer)
     {
-        RuleFor(v => v.GymMembershipPassId).NotEmptyWithMessage(nameof(IsGymMembershipPassValidQuery.GymMembershipPassId));
+        RuleFor(v => v.GymMembershipPassId)
+            .NotEmptyLocalized(localizer, LocalizationKeys.GymMembershipPassId);
     }
 }
 
 public class IsGymMembershipPassValidQueryHandler : IRequestHandler<IsGymMembershipPassValidQuery, Result<bool>>
 {
     private readonly IApplicationDbContext _context;
+    private readonly ILocalizer _localizer;
     private readonly TimeProvider _timeProvider;
 
     public IsGymMembershipPassValidQueryHandler(
         IApplicationDbContext context,
+        ILocalizer localizer,
         TimeProvider timeProvider)
     {
         _context = context;
+        _localizer = localizer;
         _timeProvider = timeProvider;
     }
 
@@ -40,7 +45,7 @@ public class IsGymMembershipPassValidQueryHandler : IRequestHandler<IsGymMembers
 
         if (pass is null)
         {
-            return Result.NotFound(nameof(GymPassProduct));
+            return Result.NotFound(_localizer.Get(LocalizationKeys.NotFound, nameof(GymPassProduct)));
         }
 
         return Result.Success(pass.IsValid(_timeProvider.GetUtcNow()));

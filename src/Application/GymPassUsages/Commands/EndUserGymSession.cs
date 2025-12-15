@@ -14,7 +14,7 @@ public class EndUserGymSessionCommandValidator : AbstractValidator<EndUserGymSes
 {
     public EndUserGymSessionCommandValidator()
     {
-        RuleFor(v => v.GymPassUsageId).NotEmptyWithMessage(nameof(EndUserGymSessionCommand.GymPassUsageId));
+        RuleFor(v => v.GymPassUsageId).NotEmptyLocalized(nameof(EndUserGymSessionCommand.GymPassUsageId));
     }
 }
 

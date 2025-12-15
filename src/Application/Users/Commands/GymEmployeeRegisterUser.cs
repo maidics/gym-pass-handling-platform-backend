@@ -16,11 +16,11 @@ public class GymEmployeeRegisterUserCommandValidator : AbstractValidator<GymEmpl
 {
     public GymEmployeeRegisterUserCommandValidator()
     {
-        RuleFor(v => v.Email).ValidEmailAddress(nameof(GymEmployeeRegisterUserCommand.Email));
+        RuleFor(v => v.Email).ValidEmailAddressWithMessageLocalized(nameof(GymEmployeeRegisterUserCommand.Email));
 
-        RuleFor(v => v.FirstName).NotEmptyWithMaxLenghtAndMessage(nameof(GymEmployeeRegisterUserCommand.FirstName), MaxStringLengths.Name);
+        RuleFor(v => v.FirstName).NotEmptyWithMaxLenghtAndMessageLocalized(nameof(GymEmployeeRegisterUserCommand.FirstName), MaxStringLengths.Name);
 
-        RuleFor(v => v.LastName).NotEmptyWithMaxLenghtAndMessage(nameof(GymEmployeeRegisterUserCommand.LastName), MaxStringLengths.Name);
+        RuleFor(v => v.LastName).NotEmptyWithMaxLenghtAndMessageLocalized(nameof(GymEmployeeRegisterUserCommand.LastName), MaxStringLengths.Name);
     }
 }
 

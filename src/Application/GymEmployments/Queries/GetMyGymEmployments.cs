@@ -29,7 +29,7 @@ public class GetMyGymEmploymentsQueryHandler : IRequestHandler<GetMyGymEmploymen
     {
         var gymEmployment = await _context.GymEmployments
             .AsNoTracking()
-            .FirstOrDefaultAsync(ge => ge.UserId != null && ge.UserId == _user.Id, cancellationToken);
+            .FirstOrDefaultAsync(ge => ge.UserId == _user.Id, cancellationToken);
 
         Guard.Against.NullParameterRelatedToCurrentUser(gymEmployment, nameof(GymEmployment), _user.Id);
 

@@ -24,6 +24,13 @@
   <ItemGroup>
     <ProjectReference Include="..\Application\Application.csproj" />
     <EmbeddedResource Include="Email\Templates\**\*.cshtml" />
+    <EmbeddedResource Update="Localization\Resources\SharedResource.resx">
+      <LastGenOutput>SharedResource.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Localization\Resources\SharedResource.hu.resx">
+      <LastGenOutput>SharedResource.hu.Designer.cs</LastGenOutput>
+      <DependentUpon>SharedResource.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
 
 </Project>

@@ -27,14 +27,14 @@ public class UpdateGymPassProductCommandValidator : AbstractValidator<UpdateGymP
 {
     public UpdateGymPassProductCommandValidator()
     {
-        RuleFor(v => v.Name).NotEmptyWithMaxLenghtAndMessage(nameof(UpdateGymPassProductCommand.Name), MaxStringLengths.Name);
+        RuleFor(v => v.Name).NotEmptyWithMaxLenghtAndMessageLocalized(nameof(UpdateGymPassProductCommand.Name), MaxStringLengths.Name);
 
-        RuleFor(v => v.Description).NotEmptyWithMaxLenghtAndMessage(nameof(UpdateGymPassProductCommand.Description), MaxStringLengths.Description);
+        RuleFor(v => v.Description).NotEmptyWithMaxLenghtAndMessageLocalized(nameof(UpdateGymPassProductCommand.Description), MaxStringLengths.Description);
 
         When(v => v.TotalUses is not null, () =>
         {
             RuleFor(v => v.TotalUses)
-                .NotEmptyWithMessage(nameof(CreateGymPassProductCommand.TotalUses))
+                .NotEmptyLocalized(nameof(CreateGymPassProductCommand.TotalUses))
                 .GreaterThan(0).WithMessage("Use based passs type must have at least one use.");
 
             RuleFor(v => v.DaysAfterExpiring).Null().WithMessage("Use based pass type cannot have expiration days.");
@@ -43,13 +43,13 @@ public class UpdateGymPassProductCommandValidator : AbstractValidator<UpdateGymP
         When(v => v.DaysAfterExpiring is not null, () =>
         {
            RuleFor(v => v.DaysAfterExpiring)
-                .NotEmptyWithMessage(nameof(UpdateGymPassProductCommand.DaysAfterExpiring))
+                .NotEmptyLocalized(nameof(UpdateGymPassProductCommand.DaysAfterExpiring))
                 .GreaterThan(0).WithMessage(ErrorMessages.UnlimitedPassTypeExpirationDayAtleastOne());
 
            RuleFor(v => v.TotalUses).Null().WithMessage(ErrorMessages.UnlimitedPassTypeNoUses()); 
         });
 
-        RuleFor(v => v.Price).NotEmptyWithMessage(nameof(UpdateGymPassProductCommand.Price));
+        RuleFor(v => v.Price).NotEmptyLocalized(nameof(UpdateGymPassProductCommand.Price));
     }
 }
 

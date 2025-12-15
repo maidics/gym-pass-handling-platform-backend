@@ -19,9 +19,9 @@ public class CreateTenantPaymentProfileCommandValidator : AbstractValidator<Crea
 {
     public CreateTenantPaymentProfileCommandValidator()
     {
-        RuleFor(v => v.PaymentAccountHolderEmail).ValidEmailAddress(nameof(CreateTenantPaymentProfileCommand.PaymentAccountHolderEmail));
+        RuleFor(v => v.PaymentAccountHolderEmail).ValidEmailAddressWithMessageLocalized(nameof(CreateTenantPaymentProfileCommand.PaymentAccountHolderEmail));
 
-        RuleFor(v => v.BusinessName).NotEmptyWithMessage(nameof(CreateTenantPaymentProfileCommand.BusinessName));
+        RuleFor(v => v.BusinessName).NotEmptyLocalized(nameof(CreateTenantPaymentProfileCommand.BusinessName));
     }
 }
 

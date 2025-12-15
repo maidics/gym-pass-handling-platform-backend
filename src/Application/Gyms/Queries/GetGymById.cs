@@ -15,7 +15,7 @@ public class GetGymByIdQueryValidator : AbstractValidator<GetGymByIdQuery>
 {
     public GetGymByIdQueryValidator()
     {
-        RuleFor(v => v.GymId).NotEmptyWithMessage(nameof(GetGymByIdQuery.GymId));
+        RuleFor(v => v.GymId).NotEmptyLocalized(nameof(GetGymByIdQuery.GymId));
     }
 }
 

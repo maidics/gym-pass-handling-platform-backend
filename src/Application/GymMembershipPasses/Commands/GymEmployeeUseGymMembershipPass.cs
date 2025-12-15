@@ -1,11 +1,11 @@
-﻿using FitPass.Application.Common.Extensions;
+﻿using FitPass.Application.Common.Constants;
+using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Security;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
-using Microsoft.Extensions.Logging;
 
 namespace FitPass.Application.GymMembershipPasses.Commands;
 
@@ -18,11 +18,13 @@ public record GymEmployeeUseGymMembershipPassCommand(
 
 public class GymEmployeeUseGymMembershipPassCommandValidator : AbstractValidator<GymEmployeeUseGymMembershipPassCommand>
 {
-    public GymEmployeeUseGymMembershipPassCommandValidator()
+    public GymEmployeeUseGymMembershipPassCommandValidator(ILocalizer localizer)
     {
-        RuleFor(v => v.GymMembershipPassId).NotEmptyWithMessage(nameof(GymEmployeeUseGymMembershipPassCommand.GymMembershipPassId));
+        RuleFor(v => v.GymMembershipPassId)
+            .NotEmptyLocalized(localizer, LocalizationKeys.GymMembershipId);
 
-        RuleFor(v => v.LockerNumber).NotEmptyWithMessage(nameof(GymEmployeeUseGymMembershipPassCommand.LockerNumber));
+        RuleFor(v => v.LockerNumber)
+            .NotEmptyLocalized(localizer, LocalizationKeys.LockerNumber);
     }
 }
 
@@ -30,13 +32,16 @@ public class GymEmployeeUseGymMembershipPassCommandHandler : IRequestHandler<Gym
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
+    private readonly ILocalizer _localizer;
     private readonly TimeProvider _timeProvider;
 
     public GymEmployeeUseGymMembershipPassCommandHandler(
+        ILocalizer localizer,
         IApplicationDbContext context, 
         IUser user, 
         TimeProvider timeProvider)
     {
+        _localizer = localizer;
         _context = context;
         _user = user;
         _timeProvider = timeProvider;
@@ -58,29 +63,33 @@ public class GymEmployeeUseGymMembershipPassCommandHandler : IRequestHandler<Gym
 
         if (pass is null)
         {
-            return Result.NotFound(nameof(GymMembershipPass));
+            return Result.NotFound(_localizer.Get(LocalizationKeys.NotFound, nameof(GymMembershipPass)));
         }
 
         if (pass.UserId != command.UserId)
         {
-            return Result.Forbidden("This pass does not belong to the user.");
+            return Result.Forbidden(_localizer.Get(LocalizationKeys.PassNotBelongsToUser));
         }
 
         if (pass.GymMembership.GymId != gymEmployment.GymId)
         {
-            return Result.Forbidden("This pass belongs to another gym.");
+            return Result.Forbidden(_localizer.Get(LocalizationKeys.PassIsForAnotherGym));
         }
 
         if (pass.GymMembership.Status == GymMembershipStatus.Banned)
         {
-            return Result.BusinessRuleViolation("User is banned from the gym.");
+            return Result.BusinessRuleViolation(_localizer.Get(LocalizationKeys.UserIsBannedFromTheGym));
         }
 
         var utcNow = _timeProvider.GetUtcNow();
 
         if (!pass.IsValid(utcNow))
         {
-            return Result.BusinessRuleViolation("Pass is expired or has no uses left.");
+            var key = pass.Type == PassType.Unlimited
+                ? LocalizationKeys.PassIsExpired
+                : LocalizationKeys.PassHasNoUsesLeft;
+            
+            return Result.BusinessRuleViolation(_localizer.Get(key));
         }
 
         var passUsage = pass.Use(gymEmployment.GymId, command.LockerNumber, utcNow);

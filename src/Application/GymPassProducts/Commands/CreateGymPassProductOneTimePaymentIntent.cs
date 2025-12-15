@@ -20,7 +20,7 @@ public class CreateGymPassProductOneTimePaymentIntentCommandValidator : Abstract
 {
     public CreateGymPassProductOneTimePaymentIntentCommandValidator()
     {
-        RuleFor(v => v.GymPassProductId).NotEmptyWithMessage(nameof(CreateGymPassProductOneTimePaymentIntentCommand.GymPassProductId));
+        RuleFor(v => v.GymPassProductId).NotEmptyLocalized(nameof(CreateGymPassProductOneTimePaymentIntentCommand.GymPassProductId));
     }
 }
 

@@ -16,14 +16,14 @@ public class ResetPasswordCommandValidator : AbstractValidator<ResetPasswordComm
 {
     public ResetPasswordCommandValidator()
     {
-        RuleFor(v => v.EncodedUserId).NotEmptyWithMessage(nameof(ResetPasswordCommand.EncodedUserId));
+        RuleFor(v => v.EncodedUserId).NotEmptyLocalized(nameof(ResetPasswordCommand.EncodedUserId));
 
-        RuleFor(v => v.EncodedPasswordResetToken).NotEmptyWithMessage(nameof(ResetPasswordCommand.EncodedPasswordResetToken));
+        RuleFor(v => v.EncodedPasswordResetToken).NotEmptyLocalized(nameof(ResetPasswordCommand.EncodedPasswordResetToken));
 
-        RuleFor(v => v.NewPassword).StrongPassword();
+        RuleFor(v => v.NewPassword).StrongPasswordLocalized();
 
         RuleFor(v => v.NewPasswordConfirm)
-            .NotEmptyWithMessage(nameof(ResetPasswordCommand.NewPasswordConfirm))
+            .NotEmptyLocalized(nameof(ResetPasswordCommand.NewPasswordConfirm))
             .Equal(v => v.NewPassword)
             .WithMessage(ErrorMessages.PropertyMustEqualToAnotherProperty(nameof(ResetPasswordCommand.NewPassword), nameof(ResetPasswordCommand.NewPasswordConfirm)));
     }

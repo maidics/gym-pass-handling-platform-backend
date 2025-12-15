@@ -10,7 +10,7 @@ public class RequestPasswordResetEmailCommandValidator : AbstractValidator<Reque
 {
     public RequestPasswordResetEmailCommandValidator()
     {
-        RuleFor(v => v.Email).ValidEmailAddress(nameof(RequestPasswordResetEmailCommand.Email));
+        RuleFor(v => v.Email).ValidEmailAddressWithMessageLocalized(nameof(RequestPasswordResetEmailCommand.Email));
     }
 }
 

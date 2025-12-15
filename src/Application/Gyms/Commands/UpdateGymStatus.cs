@@ -15,12 +15,12 @@ public class UpdateGymStatusCommandValidator : AbstractValidator<UpdateGymStatus
 {
     public UpdateGymStatusCommandValidator()
     {
-        RuleFor(v => v.GymId).NotEmptyWithMessage(nameof(UpdateGymStatusCommand.GymId));
+        RuleFor(v => v.GymId).NotEmptyLocalized(nameof(UpdateGymStatusCommand.GymId));
 
         RuleFor(v => v.NewGymStatus)
-            .NotEmptyWithMessage(nameof(UpdateGymStatusCommand.NewGymStatus));
+            .NotEmptyLocalized(nameof(UpdateGymStatusCommand.NewGymStatus));
 
-        RuleFor(v => v.Rationale).NotEmptyWithMaxLenghtAndMessage(
+        RuleFor(v => v.Rationale).NotEmptyWithMaxLenghtAndMessageLocalized(
             nameof(UpdateGymStatusCommand.Rationale), MaxStringLengths.Description);
     }
 }

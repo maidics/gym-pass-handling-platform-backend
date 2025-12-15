@@ -1,3 +1,4 @@
+using FitPass.Application.Common.Constants;
 using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Models;
@@ -14,9 +15,10 @@ public record UpdateGymMembershipStatusCommand(string GymMembershipId, GymMember
 
 public class UpdateGymMembershipStatusCommandValidator : AbstractValidator<UpdateGymMembershipStatusCommand>
 {
-    public UpdateGymMembershipStatusCommandValidator()
+    public UpdateGymMembershipStatusCommandValidator(ILocalizer localizer)
     {
-        RuleFor(v => v.GymMembershipId).NotEmptyWithMessage(nameof(UpdateGymMembershipStatusCommand.GymMembershipId));
+        RuleFor(v => v.GymMembershipId)
+            .NotEmptyLocalized(localizer, LocalizationKeys.GymMembershipId);
     }
 }
 
@@ -24,13 +26,16 @@ public class UpdateGymMembershipStatusCommandHandler : IRequestHandler<UpdateGym
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
+    private readonly ILocalizer _localizer;
 
     public UpdateGymMembershipStatusCommandHandler(
         IApplicationDbContext context,
-        IUser user)
+        IUser user,
+        ILocalizer localizer)
     {
         _context = context;
         _user = user;
+        _localizer = localizer;
     }
     public async Task<Result> Handle(UpdateGymMembershipStatusCommand command, CancellationToken cancellationToken)
     {
@@ -44,12 +49,12 @@ public class UpdateGymMembershipStatusCommandHandler : IRequestHandler<UpdateGym
 
         if(membership is null)
         {
-            return Result.NotFound(nameof(GymMembership));
+            return Result.NotFound(_localizer.Get(LocalizationKeys.NotFound, nameof(GymMembership)));
         }
 
         if (membership.GymId != gymEmployment.GymId)
         {
-            return Result.Forbidden();
+            return Result.Forbidden(_localizer.Get(LocalizationKeys.Forbidden));
         }
 
         if (membership.Status == command.NewStatus)

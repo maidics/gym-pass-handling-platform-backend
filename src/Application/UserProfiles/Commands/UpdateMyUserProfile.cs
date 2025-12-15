@@ -17,9 +17,9 @@ public class UpdateMyUserProfileCommandValidator : AbstractValidator<UpdateMyUse
 {
     public UpdateMyUserProfileCommandValidator()
     {
-        RuleFor(v => v.FirstName).NotEmptyWithMaxLenghtAndMessage(nameof(UpdateMyUserProfileCommand.FirstName), MaxStringLengths.Name);
+        RuleFor(v => v.FirstName).NotEmptyWithMaxLenghtAndMessageLocalized(nameof(UpdateMyUserProfileCommand.FirstName), MaxStringLengths.Name);
 
-        RuleFor(v => v.LastName).NotEmptyWithMaxLenghtAndMessage(nameof(UpdateMyUserProfileCommand.LastName), MaxStringLengths.Name);
+        RuleFor(v => v.LastName).NotEmptyWithMaxLenghtAndMessageLocalized(nameof(UpdateMyUserProfileCommand.LastName), MaxStringLengths.Name);
     }
 }
 

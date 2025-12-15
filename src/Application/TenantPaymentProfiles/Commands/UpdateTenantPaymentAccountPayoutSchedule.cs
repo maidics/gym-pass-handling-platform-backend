@@ -22,7 +22,7 @@ public class UpdateTenantPaymentAccountPayoutScheduleCommandValidator : Abstract
 {
     public UpdateTenantPaymentAccountPayoutScheduleCommandValidator()
     {
-        RuleFor(v => v.Interval).NotEmptyWithMessage(nameof(UpdateTenantPaymentAccountPayoutScheduleCommand.Interval));
+        RuleFor(v => v.Interval).NotEmptyLocalized(nameof(UpdateTenantPaymentAccountPayoutScheduleCommand.Interval));
 
         When(v => v.Interval == TimeIntervals.Daily, () =>
         {

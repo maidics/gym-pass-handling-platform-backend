@@ -19,9 +19,9 @@ public class UpdateGymPassProductActiveStatusCommandValidator : AbstractValidato
 {
     public UpdateGymPassProductActiveStatusCommandValidator()
     {
-        RuleFor(v => v.GymPassProductId).NotEmptyWithMessage(nameof(UpdateGymPassProductActiveStatusCommand.GymPassProductId));
+        RuleFor(v => v.GymPassProductId).NotEmptyLocalized(nameof(UpdateGymPassProductActiveStatusCommand.GymPassProductId));
 
-        RuleFor(v => v.IsActive).NotEmptyWithMessage(nameof(UpdateGymPassProductActiveStatusCommand.IsActive));
+        RuleFor(v => v.IsActive).NotEmptyLocalized(nameof(UpdateGymPassProductActiveStatusCommand.IsActive));
     }
 }
 

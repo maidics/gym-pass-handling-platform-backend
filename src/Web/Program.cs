@@ -1,6 +1,8 @@
 using FitPass.Application;
 using FitPass.Infrastructure;
+using FitPass.Infrastructure.Common;
 using FitPass.Infrastructure.Data;
+using FitPass.Infrastructure.Localization;
 using FitPass.Web;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -44,6 +46,15 @@ app.UseAuthorization();
 app.Map("/", () => Results.Redirect("/api"));
 
 app.MapEndpoints();
+
+var cultureSettings = app.Configuration.GetSection(ConfigurationSections.Cultures).Get<CultureSettings>();
+Guard.Against.Null(cultureSettings);
+var localizationOptions = new RequestLocalizationOptions()
+    .SetDefaultCulture(cultureSettings.Default)
+    .AddSupportedCultures(cultureSettings.Supported)
+    .AddSupportedUICultures(cultureSettings.Supported);
+
+app.UseRequestLocalization(localizationOptions);
 
 app.Run();
 

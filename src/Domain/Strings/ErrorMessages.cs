@@ -1,34 +1,6 @@
-﻿using FitPass.Domain.Constants;
-
-namespace FitPass.Domain.Strings;
-
+﻿/*
 public static class ErrorMessages
 {
-    public static string PropertyIsRequired(string propertyName)
-    {
-        return $"'{propertyName}' is required.";
-    }
-
-    public static string PropertyCannotBeLongerThan(string propertyName, int maxLength)
-    {
-        return $"'{propertyName}' cannot be longer than {maxLength} characters.";
-    }
-
-    public static string PropertyMustBeAtLeastLength(string propertyName, int minimumLength)
-    {
-        return $"'{propertyName}' must be at least {minimumLength} characters.";
-    }
-
-    public static string InvalidEmailAddress(string emailPropertyName)
-    {
-        return $"Provided '{emailPropertyName}' is invalid.";
-    }
-
-    public static string InvalidPhoneNumber()
-    {
-        return "Phone number, it must contain 7 to 15 digits, with an optional '+' prefix and it must not contain any spaces or other special characters.";
-    }
-
     public static string PropertyMustEqualToAnotherProperty(string property, string anotherProperty)
     {
         return $"'{property}' and '{anotherProperty}' must be the same";
@@ -37,41 +9,6 @@ public static class ErrorMessages
     public static string PropertyMustNotEqualToAnotherProperty(string property, string anotherProperty)
     {
         return $"'{property}' and '{anotherProperty}' must not be the same";
-    }
-
-    public static string PasswordMinimumLength()
-    {
-        return $"Password must be at least {MinStringLengths.Password} characters.";
-    }
-
-    public static string PasswordMaximumLength()
-    {
-        return $"Password cannot be longer than {MaxStringLengths.Password} characters.";
-    }
-
-    public static string PasswordAtLeastOneLowerCase()
-    {
-        return "Password must contain at least one lowercase character.";
-    }
-
-    public static string PasswordAtLeastOneUpperCase()
-    {
-        return "Password must contain at least one uppercase character.";
-    }
-
-    public static string PasswordAtLeastOneNumber()
-    {
-        return "Password must contain at least one number.";
-    }
-
-    public static string PasswordAtLeastOneSpecial()
-    {
-        return "Password must contain at least one special character";
-    }
-
-    public static string NotContainedByEnum(string enumName)
-    {
-        return $"Provided {enumName} is not valid.";
     }
 
     public static string SingleUsePassTypeOnlyOneUse()
@@ -184,3 +121,4 @@ public static class ErrorMessages
         return "User account is not activated";
     }
 }
+*/

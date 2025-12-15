@@ -19,7 +19,7 @@ public class PromotePendingGymEmployeeToGymAdminFromRequestCommandValidator : Ab
 {
     public PromotePendingGymEmployeeToGymAdminFromRequestCommandValidator()
     {
-        RuleFor(v => v.RequestId).NotEmptyWithMessage(nameof(PromotePendingGymEmployeeToGymAdminFromRequestCommand.RequestId));
+        RuleFor(v => v.RequestId).NotEmptyLocalized(nameof(PromotePendingGymEmployeeToGymAdminFromRequestCommand.RequestId));
     }
 }
 

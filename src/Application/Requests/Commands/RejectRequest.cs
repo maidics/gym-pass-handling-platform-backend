@@ -14,7 +14,7 @@ public class RejectRequestCommandValidator : AbstractValidator<RejectRequestComm
 {
     public RejectRequestCommandValidator()
     {
-        RuleFor(v => v.RequestId).NotEmptyWithMessage(nameof(RejectRequestCommand.RequestId));
+        RuleFor(v => v.RequestId).NotEmptyLocalized(nameof(RejectRequestCommand.RequestId));
     }
 }
 

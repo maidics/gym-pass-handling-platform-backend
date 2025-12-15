@@ -12,7 +12,7 @@ public class GetGymPassProductsByGymIdQueryValidator : AbstractValidator<GetGymP
 {
     public GetGymPassProductsByGymIdQueryValidator()
     {
-        RuleFor(v => v.GymId).NotEmptyWithMessage(nameof(GetGymPassProductsByGymIdQuery.GymId));
+        RuleFor(v => v.GymId).NotEmptyLocalized(nameof(GetGymPassProductsByGymIdQuery.GymId));
     }
 }
 

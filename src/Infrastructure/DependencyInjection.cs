@@ -25,6 +25,7 @@ using FitPass.Infrastructure.Email;
 using FitPass.Infrastructure.Jwt;
 using FitPass.Infrastructure.Stripe.Services.Webhook;
 using FitPass.Infrastructure.Common;
+using FitPass.Infrastructure.Localization;
 using RazorLight;
 using RazorLight.Razor;
 
@@ -206,5 +207,14 @@ public static class DependencyInjection
         services.AddScoped<IPaymentService, StripePaymentService>();
         services.AddScoped<IPaymentPriceService, StripePriceService>();
         services.AddScoped<IPaymentProductService, StripeProductService>();
+    }
+
+    private static IServiceCollection AddLocalization(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.Configure<CultureSettings>(configuration.GetSection(ConfigurationSections.Cultures));
+        services.AddLocalization(); //SharedResource.cs marks the resx files directory
+        services.AddTransient<ILocalizer, Localizer>();
+
+        return services;
     }
 }

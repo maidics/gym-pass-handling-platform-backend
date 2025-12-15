@@ -20,7 +20,7 @@ public class UpdateMyGymProfileCommandValidator : AbstractValidator<UpdateMyGymP
 {
     public UpdateMyGymProfileCommandValidator()
     {
-        RuleFor(v => v.GymName).NotEmptyWithMaxLenghtAndMessage(nameof(UpdateMyGymProfileCommand.GymName), MaxStringLengths.Name);
+        RuleFor(v => v.GymName).NotEmptyWithMaxLenghtAndMessageLocalized(nameof(UpdateMyGymProfileCommand.GymName), MaxStringLengths.Name);
     }
 }
 

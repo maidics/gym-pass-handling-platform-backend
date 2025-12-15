@@ -19,13 +19,13 @@ public class UpdateTenantPaymentProfileAccountStatusCommandValidator : AbstractV
 {
     public UpdateTenantPaymentProfileAccountStatusCommandValidator()
     {
-        RuleFor(v => v.TenantAccountId).NotEmptyWithMessage(nameof(UpdateTenantPaymentProfileAccountStatusCommand.TenantAccountId));
+        RuleFor(v => v.TenantAccountId).NotEmptyLocalized(nameof(UpdateTenantPaymentProfileAccountStatusCommand.TenantAccountId));
 
-        RuleFor(v => v.DetailsSubmitted).NotEmptyWithMessage(nameof(UpdateTenantPaymentProfileAccountStatusCommand.DetailsSubmitted));
+        RuleFor(v => v.DetailsSubmitted).NotEmptyLocalized(nameof(UpdateTenantPaymentProfileAccountStatusCommand.DetailsSubmitted));
 
-        RuleFor(v => v.ChargesEnabled).NotEmptyWithMessage(nameof(UpdateTenantPaymentProfileAccountStatusCommand.ChargesEnabled));
+        RuleFor(v => v.ChargesEnabled).NotEmptyLocalized(nameof(UpdateTenantPaymentProfileAccountStatusCommand.ChargesEnabled));
 
-        RuleFor(v => v.PayoutsEnabled).NotEmptyWithMessage(nameof(UpdateTenantPaymentProfileAccountStatusCommand.DetailsSubmitted));
+        RuleFor(v => v.PayoutsEnabled).NotEmptyLocalized(nameof(UpdateTenantPaymentProfileAccountStatusCommand.DetailsSubmitted));
 
         RuleFor(v => v.RequirementsDue)
             .NotNull()

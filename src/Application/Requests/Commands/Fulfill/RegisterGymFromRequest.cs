@@ -18,7 +18,7 @@ public class RegisterGymFromRequestCommandValidator : AbstractValidator<Register
 {
     public RegisterGymFromRequestCommandValidator()
     {
-        RuleFor(v => v.RequestId).NotEmptyWithMessage(nameof(RegisterGymFromRequestCommand.RequestId));
+        RuleFor(v => v.RequestId).NotEmptyLocalized(nameof(RegisterGymFromRequestCommand.RequestId));
     }
 }
 

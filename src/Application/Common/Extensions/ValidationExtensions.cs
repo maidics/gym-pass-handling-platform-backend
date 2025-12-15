@@ -1,73 +1,75 @@
+using FitPass.Application.Common.Constants;
+using FitPass.Application.Common.Interfaces;
 using FitPass.Domain.Constants;
-using FitPass.Domain.Strings;
 
 namespace FitPass.Application.Common.Extensions;
 
 public static class ValidationExtensions
 {
-    public static IRuleBuilderOptions<T, TProperty> NotEmptyWithMessage<T, TProperty>(this IRuleBuilder<T, TProperty> rule, string propertyName)
+    public static IRuleBuilderOptions<T, TProperty> NotEmptyLocalized<T, TProperty>(this IRuleBuilder<T, TProperty> rule, ILocalizer localizer, string propertyNameKey)
     {
         return rule
             .NotEmpty()
-            .WithMessage(ErrorMessages.PropertyIsRequired(propertyName));
+            .WithMessage(localizer.Get(LocalizationKeys.PropertyIsRequired, localizer.Get(propertyNameKey)));
     }
 
-    public static IRuleBuilderOptions<T, string> StrongPassword<T>(this IRuleBuilder<T, string> rule)
+    public static IRuleBuilderOptions<T, string> StrongPasswordLocalized<T>(this IRuleBuilder<T, string> rule, ILocalizer localizer)
     {
         return rule
-            .NotEmptyWithMessage("Password")
-            .MinimumLength(8).WithMessage(ErrorMessages.PasswordMinimumLength())
-            .MaximumLength(MaxStringLengths.Password).WithMessage(ErrorMessages.PasswordMaximumLength())
-            .Must(p => p.Any(char.IsLower)).WithMessage(ErrorMessages.PasswordAtLeastOneLowerCase())
-            .Must(p => p.Any(char.IsUpper)).WithMessage(ErrorMessages.PasswordAtLeastOneUpperCase())
-            .Must(p => p.Any(char.IsDigit)).WithMessage(ErrorMessages.PasswordAtLeastOneNumber())
-            .Must(p => p.Any(c => !char.IsLetterOrDigit(c))).WithMessage(ErrorMessages.PasswordAtLeastOneSpecial());
+            .NotEmptyLocalized(localizer, LocalizationKeys.Password)
+            .MinimumLength(8).WithMessage(localizer.Get(LocalizationKeys.PasswordMinimumLength, 8))
+            .MaximumLength(MaxStringLengths.Password).WithMessage(localizer.Get(LocalizationKeys.PasswordMaximumLength, MaxStringLengths.Password))
+            .Must(p => p.Any(char.IsLower)).WithMessage(localizer.Get(LocalizationKeys.PasswordAtLeastOneLowerCase))
+            .Must(p => p.Any(char.IsUpper)).WithMessage(localizer.Get(LocalizationKeys.PasswordAtLeastOneUpperCase))
+            .Must(p => p.Any(char.IsDigit)).WithMessage(localizer.Get(LocalizationKeys.PasswordAtLeastOneNumber))
+            .Must(p => p.Any(c => !char.IsLetterOrDigit(c))).WithMessage(localizer.Get(LocalizationKeys.PasswordAtLeastOneSpecial));
     }
 
-    public static IRuleBuilderOptions<T, string> MaxLengthWithMessage<T>(this IRuleBuilder<T, string> rule, string propertyName, int maxLength)
+    public static IRuleBuilderOptions<T, string> MaxLengthWithMessageLocalized<T>(this IRuleBuilder<T, string> rule, ILocalizer localizer, string propertyNameKey, int maxLength)
     {
         return rule
-            .MaximumLength(maxLength).WithMessage(ErrorMessages.PropertyCannotBeLongerThan(propertyName, maxLength));
+            .MaximumLength(maxLength).WithMessage(
+                localizer.Get(
+                    LocalizationKeys.PropertyCannotBeLongerThan,
+                    localizer.Get(propertyNameKey), 
+                    maxLength));
     }
 
-    public static IRuleBuilderOptions<T, string> MinimumLengthWithMessage<T>(this IRuleBuilder<T, string> rule, string propertyName, int minLength)
+    public static IRuleBuilderOptions<T, string> MinimumLengthWithMessageLocalized<T>(this IRuleBuilder<T, string> rule, ILocalizer localizer, string propertyNameKey, int minLength)
     {
         return rule
-            .MinimumLength(minLength).WithMessage(ErrorMessages.PropertyMustBeAtLeastLength(propertyName, minLength));
+            .MinimumLength(minLength).WithMessage(
+                localizer.Get(
+                    LocalizationKeys.PropertyMustBeAtLeastLength,
+                    localizer.Get(propertyNameKey),
+                    minLength));
     }
 
-    public static IRuleBuilderOptions<T, string> NotEmptyWithMaxLenghtAndMessage<T>(this IRuleBuilder<T, string> rule, string propertyName, int maxLength)
+    public static IRuleBuilderOptions<T, string> NotEmptyWithMaxLenghtAndMessageLocalized<T>(this IRuleBuilder<T, string> rule, ILocalizer localizer, string propertyNameKey, int maxLength)
     {
         return rule
-            .NotEmptyWithMessage(propertyName)
-            .MaxLengthWithMessage(propertyName, maxLength);
+            .NotEmptyLocalized(localizer, propertyNameKey)
+            .MaxLengthWithMessageLocalized(localizer, propertyNameKey, maxLength);
     }
 
-    public static IRuleBuilderOptions<T, string> NotEmptyWithMinimumLength<T>(this IRuleBuilder<T, string> rule, string propertyName, int minLength)
+    public static IRuleBuilderOptions<T, string> NotEmptyWithMinimumLengthLocalized<T>(this IRuleBuilder<T, string> rule, ILocalizer localizer, string propertyNameKey, int minLength)
     {
         return rule
-            .NotEmptyWithMessage(propertyName)
-            .MinimumLengthWithMessage(propertyName, minLength);
+            .NotEmptyLocalized(localizer, propertyNameKey)
+            .MinimumLengthWithMessageLocalized(localizer, propertyNameKey, minLength);
     }
 
-    public static IRuleBuilder<T, string> PhoneNumber<T>(this IRuleBuilder<T, string> rule, string propertyName)
+    public static IRuleBuilder<T, string> PhoneNumberWithMessageLocalized<T>(this IRuleBuilder<T, string> rule, ILocalizer localizer)
     {
         return rule
-            .NotEmptyWithMaxLenghtAndMessage(propertyName, MaxStringLengths.PhoneNumber)
-            .Must(Domain.ValueObjects.PhoneNumber.IsValid).WithMessage(ErrorMessages.InvalidPhoneNumber());
+            .NotEmptyWithMaxLenghtAndMessageLocalized(localizer, LocalizationKeys.PhoneNumber, MaxStringLengths.PhoneNumber)
+            .Must(Domain.ValueObjects.PhoneNumber.IsValid).WithMessage(localizer.Get(LocalizationKeys.InvalidPhoneNumber));
     }
 
-    public static IRuleBuilder<T, string> ValidEmailAddress<T>(this IRuleBuilder<T, string> rule, string emailPropertyName)
+    public static IRuleBuilder<T, string> ValidEmailAddressWithMessageLocalized<T>(this IRuleBuilder<T, string> rule, ILocalizer localizer)
     {
         return rule
-            .NotEmptyWithMaxLenghtAndMessage(emailPropertyName, MaxStringLengths.Email)
-            .EmailAddress().WithMessage(ErrorMessages.InvalidEmailAddress(emailPropertyName));
-    }
-
-    public static IRuleBuilder<T, string>IsApplicationRole<T>(this IRuleBuilder<T, string> rule, string propertyName)
-    {
-        return rule
-            .NotEmptyWithMessage(ErrorMessages.PropertyIsRequired(propertyName))
-            .Must(Roles.IsValidRole).WithMessage((_, invalidRole) => ErrorMessages.InvalidRole(invalidRole));
+            .NotEmptyWithMaxLenghtAndMessageLocalized(localizer, LocalizationKeys.Email, MaxStringLengths.Email)
+            .EmailAddress().WithMessage(localizer.Get(LocalizationKeys.InvalidEmailAddress));
     }
 }

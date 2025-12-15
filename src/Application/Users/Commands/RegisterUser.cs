@@ -20,13 +20,13 @@ public class RegisterUserCommandValidator : AbstractValidator<RegisterUserComman
 {
     public RegisterUserCommandValidator()
     {
-        RuleFor(v => v.FirstName).NotEmptyWithMaxLenghtAndMessage(nameof(RegisterUserCommand.FirstName), MaxStringLengths.Name);
+        RuleFor(v => v.FirstName).NotEmptyWithMaxLenghtAndMessageLocalized(nameof(RegisterUserCommand.FirstName), MaxStringLengths.Name);
 
-        RuleFor(v => v.LastName!).NotEmptyWithMaxLenghtAndMessage(nameof(RegisterUserCommand.LastName), MaxStringLengths.Name);
+        RuleFor(v => v.LastName!).NotEmptyWithMaxLenghtAndMessageLocalized(nameof(RegisterUserCommand.LastName), MaxStringLengths.Name);
 
-        RuleFor(v => v.Email).ValidEmailAddress(nameof(RegisterUserCommand.Email));
+        RuleFor(v => v.Email).ValidEmailAddressWithMessageLocalized(nameof(RegisterUserCommand.Email));
 
-        RuleFor(v => v.Password).StrongPassword();
+        RuleFor(v => v.Password).StrongPasswordLocalized();
 
         RuleFor(v => v.PasswordConfirm)
             .Equal(v => v.PasswordConfirm)

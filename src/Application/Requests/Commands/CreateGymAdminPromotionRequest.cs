@@ -23,12 +23,12 @@ public class CreateGymAdminPromotionRequestCommandValidator : AbstractValidator<
 {
     public CreateGymAdminPromotionRequestCommandValidator()
     {
-        RuleFor(v => v.UserIdToPromote).NotEmptyWithMessage(nameof(CreateGymAdminPromotionRequestCommand.UserIdToPromote));
+        RuleFor(v => v.UserIdToPromote).NotEmptyLocalized(nameof(CreateGymAdminPromotionRequestCommand.UserIdToPromote));
 
         RuleFor(v => v.RequestDescription!)
-            .NotEmptyWithMaxLenghtAndMessage(nameof(CreateGymAdminPromotionRequestCommand.RequestDescription), MaxStringLengths.Description);
+            .NotEmptyWithMaxLenghtAndMessageLocalized(nameof(CreateGymAdminPromotionRequestCommand.RequestDescription), MaxStringLengths.Description);
 
-        RuleFor(v => v.EscalationEmail).ValidEmailAddress(nameof(CreateGymAdminPromotionRequestCommand.EscalationEmail));
+        RuleFor(v => v.EscalationEmail).ValidEmailAddressWithMessageLocalized(nameof(CreateGymAdminPromotionRequestCommand.EscalationEmail));
     }
 }
 

@@ -22,20 +22,20 @@ public class CreateGymCreationRequestCommandValidator : AbstractValidator<Create
     public CreateGymCreationRequestCommandValidator()
     {
         RuleFor(v => v.RequestDescription)
-            .NotEmptyWithMaxLenghtAndMessage(nameof(CreateGymCreationRequestCommand.RequestDescription), MaxStringLengths.Description);
+            .NotEmptyWithMaxLenghtAndMessageLocalized(nameof(CreateGymCreationRequestCommand.RequestDescription), MaxStringLengths.Description);
 
         RuleFor(v => v.CreateGymDto.GymName)
-            .NotEmptyWithMaxLenghtAndMessage(nameof(CreateGymCreationRequestCommand.CreateGymDto.GymName), MaxStringLengths.Description);
+            .NotEmptyWithMaxLenghtAndMessageLocalized(nameof(CreateGymCreationRequestCommand.CreateGymDto.GymName), MaxStringLengths.Description);
 
         RuleFor(v => v.CreateGymDto.GymAddress)
-            .NotEmptyWithMessage(nameof(CreateGymCreationRequestCommand.CreateGymDto.GymAddress));
+            .NotEmptyLocalized(nameof(CreateGymCreationRequestCommand.CreateGymDto.GymAddress));
 
         RuleFor(v => v.CreateGymDto.GymStatus)
             .Must(status => status != GymStatus.Suspended)
             .WithMessage("Gym status cannot be Suspended for a new gym.");
 
         RuleFor(v => v.CreateGymDto.EscalationEmail)
-            .ValidEmailAddress(nameof(CreateGymCreationRequestCommand.CreateGymDto.EscalationEmail));
+            .ValidEmailAddressWithMessageLocalized(nameof(CreateGymCreationRequestCommand.CreateGymDto.EscalationEmail));
     }
 }
 

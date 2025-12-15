@@ -1,0 +1,132 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>1.3</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="NotFound" xml:space="preserve">
+    <value>{0} nem található.</value>
+  </data>
+  <data name="Conflict" xml:space="preserve">
+    <value>{0} már használatban van.</value>
+  </data>
+  <data name="ExternalServiceUnavailable" xml:space="preserve">
+    <value>{0} külső szolgáltató nem elérhető.</value>
+  </data>
+  <data name="BusinessRuleViolation" xml:space="preserve">
+    <value>Üzleti szabály sértés.</value>
+  </data>
+  <data name="InternalServerError" xml:space="preserve">
+    <value>Váratlan hiba történt.</value>
+  </data>
+  <data name="PaymentRequired" xml:space="preserve">
+    <value>Fizetés szükséges.</value>
+  </data>
+  <data name="Unauthorized" xml:space="preserve">
+    <value>Nincs jogosultság.</value>
+  </data>
+  <data name="Forbidden" xml:space="preserve">
+    <value>Hozzáférés megtagadva.</value>
+  </data>
+  <data name="PassNotBelongsToUser" xml:space="preserve">
+    <value>Ez a bérlet nem a felhasználóé.</value>
+  </data>
+  <data name="PassIsForAnotherGym" xml:space="preserve">
+    <value>Ez a bérlet egy másik edzőteremhez szól.</value>
+  </data>
+  <data name="UserIsBannedFromTheGym" xml:space="preserve">
+    <value>A felhasználó ki van tiltva az edzőteremből.</value>
+  </data>
+  <data name="PassIsExpired" xml:space="preserve">
+    <value>A bérlet lejárt.</value>
+  </data>
+  <data name="PassHasNoUsesLeft" xml:space="preserve">
+    <value>A bérleten nincs több felhasználható alkalom</value>
+  </data>
+  <data name="PropertyIsRequired" xml:space="preserve">
+    <value>{0} megadása kötelező.</value>
+  </data>
+  <data name="Password" xml:space="preserve">
+    <value>jelszó</value>
+  </data>
+  <data name="PasswordMinimumLength" xml:space="preserve">
+    <value>A jelszónak legalább {0} karakterből kell állnia.</value>
+  </data>
+  <data name="PasswordMaximumLength" xml:space="preserve">
+    <value>A jelszó nem lehet hosszabb {0} karakternél</value>
+  </data>
+  <data name="GymMembershipId" xml:space="preserve">
+    <value>edzőtermi tag azonosító</value>
+  </data>
+  <data name="PasswordAtLeastOneLowerCase" xml:space="preserve">
+    <value>A jelszónak tartalmaznia kell legalább egy kis betűt.</value>
+  </data>
+  <data name="PasswordAtLeastOneUpperCase" xml:space="preserve">
+    <value>A jelszónak tartalmaznia kell egy nagy betűt.</value>
+  </data>
+  <data name="PasswordAtLeastOneNumber" xml:space="preserve">
+    <value>A jelszónak tartalmaznia kell egy számot.</value>
+  </data>
+  <data name="PasswordAtLeastOneSpecial" xml:space="preserve">
+    <value>A jelszónak tartalmaznia kell legalább egy speciális karaktert.</value>
+  </data>
+  <data name="PropertyCannotBeLongerThan" xml:space="preserve">
+    <value>{0} nem lehet hosszabb, mint {1} karakter.</value>
+  </data>
+  <data name="PropertyMustBeAtLeastLength" xml:space="preserve">
+    <value>{0} legalább {1} karakter hosszúnak kell lennie.</value>
+  </data>
+  <data name="PhoneNumber" xml:space="preserve">
+    <value>Telefonszám</value>
+  </data>
+  <data name="InvalidPhoneNumber" xml:space="preserve">
+    <value>Telefonszámnak 7 és 15 karakter között kell lennie és tartalmazhat '+' jelet az elején, ezen kívül nem tartalmazhat speciális karaktert.</value>
+  </data>
+  <data name="InvalidEmailAddress" xml:space="preserve">
+    <value>Érvénytelen email cím.</value>
+  </data>
+  <data name="Email" xml:space="preserve">
+    <value>Email cím</value>
+  </data>
+  <data name="LockerNumber" xml:space="preserve">
+    <value>Öltözőszekrény szám</value>
+  </data>
+  <data name="GymMembershipPassId" xml:space="preserve">
+    <value>Bérlet azonosító</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>Név</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>Leírás</value>
+  </data>
+  <data name="TotalUses" xml:space="preserve">
+    <value>Összes felhasználható alkalom</value>
+  </data>
+  <data name="SingleUsePassCanOnlyHaveOneTotalUse" xml:space="preserve">
+    <value>Egyszer használatos bérlet csak egy felhasználható alkalommal rendelkezhet.</value>
+  </data>
+  <data name="UseBasedPassTypeCannotHaveExpirationTime" xml:space="preserve">
+    <value>Limitált felhasználható alkalom alapú bérletnek nem lehet lejárási ideje.</value>
+  </data>
+  <data name="MultiUsePassTypeMustHaveAtLeastTwoUses" xml:space="preserve">
+    <value>A több alkalmas bérletnek legalább két felhasználási alkalommal kell rendelkeznie</value>
+  </data>
+  <data name="DaysAfterExpires" xml:space="preserve">
+    <value>Napok száma amiután lejár</value>
+  </data>
+</root>

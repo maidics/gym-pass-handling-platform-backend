@@ -4,7 +4,7 @@
 //used starting from Application Layer 
 //if something fails then that Result will be converted to http error or handled when it comes to that specific case
 //should I differentiate between certain types of Internal Server Errors?
-//logger would already log it so client only needs a user friendly error message anyways
+//logger would already log it so client only needs a user-friendly error message anyway
 public class Result
 {
     protected Result(bool succeeded, string message, IEnumerable<string> errors, ResultTypes type)
@@ -44,46 +44,46 @@ public class Result
         return new Result(failure);
     }
 
-    public static Result Failure(string message, IEnumerable<string> errors, ResultTypes type)
+    public static Result Failure(string message, string[] errors, ResultTypes type)
     {
         return new Result(false, message, errors, type);
     } 
 
-    public static ResultFailure NotFound(string parameterName, IEnumerable<string> errors = default!) =>
-        new ResultFailure(ResultTypes.NotFound, $"{parameterName} not found.", [..errors ?? []]);
+    public static ResultFailure NotFound(string? message, params string[] errors) =>
+        new ResultFailure(ResultTypes.NotFound, message ?? "Resource not found.", errors);
 
-    public static ResultFailure Conflict(string parameterName, IEnumerable<string> errors = default!) =>
-        new ResultFailure(ResultTypes.Conflict, $"{parameterName} is already taken.", [..errors ?? []]);
+    public static ResultFailure Conflict(string? message, params string[] errors) =>
+        new ResultFailure(ResultTypes.Conflict, message ?? "Resource is already in use.", errors);
 
-    public static ResultFailure ExternalServiceUnavailable(string externalServiceName, IEnumerable<string> errors = default!) =>
-        new ResultFailure(ResultTypes.ExternalServiceUnavailable, $"{externalServiceName} is currently not available.", [..errors ?? []]);
+    public static ResultFailure ExternalServiceUnavailable(string? message, params string[] errors) =>
+        new ResultFailure(ResultTypes.ExternalServiceUnavailable, message ?? "An external service is unavailable.", errors);
 
-    public static ResultFailure BusinessRuleViolation(string? message = default, IEnumerable<string> errors = default!) =>
-        new ResultFailure(ResultTypes.BusinessRuleViolation, message is null ? "Business rule violation." : message, [..errors ?? []]);
+    public static ResultFailure BusinessRuleViolation(string? message, params string[] errors) =>
+        new ResultFailure(ResultTypes.BusinessRuleViolation, message ?? "Business rule violation.", errors);
 
-    public static ResultFailure InternalError(string? message = default, IEnumerable<string> errors = default!) => 
-        new ResultFailure(ResultTypes.InternalError, message is null ? "Internal server error." : message, [..errors ?? []]);
+    public static ResultFailure InternalError(string? message, params string[] errors ) => 
+        new ResultFailure(ResultTypes.InternalError, message ?? "Internal server error.", errors);
 
-    public static ResultFailure PaymentRequired(IEnumerable<string> errors = default!) =>
-        new ResultFailure(ResultTypes.PaymentRequired, "Payment required.", [..errors ?? []]);
+    public static ResultFailure PaymentRequired(string?  message, params string[] errors) =>
+        new ResultFailure(ResultTypes.PaymentRequired, message ?? "Payment required.", errors);
 
-    public static ResultFailure Unauthorized(string? message = default) => 
-        new ResultFailure(ResultTypes.Unauthorized, message is null ? "Unauthorized access." : message, []);
+    public static ResultFailure Unauthorized(string? message) => 
+        new ResultFailure(ResultTypes.Unauthorized, message ?? "Unauthorized.", []);
 
-    public static ResultFailure Forbidden(string? message = default) => 
-        new ResultFailure(ResultTypes.Forbidden, message is null ? "Forbidden access." : message, []);
+    public static ResultFailure Forbidden(string? message) => 
+        new ResultFailure(ResultTypes.Forbidden, message ?? "Forbidden access.", []);
 }
 
 public class Result<T> : Result
 {
     private readonly T _value;
-    protected Result(bool succeeded, string message, IEnumerable<string> errors, T value, ResultTypes type)
+    private Result(bool succeeded, string message, IEnumerable<string> errors, T value, ResultTypes type)
         : base(succeeded, message, errors, type)
     {
         _value = value;
     }
 
-    protected Result(ResultFailure failure) : base(failure)
+    private Result(ResultFailure failure) : base(failure)
     {
         _value = default!;
     }

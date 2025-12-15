@@ -20,13 +20,13 @@ public class RegisterPendingGymEmployeeCommandValidator : AbstractValidator<Regi
 {
     public RegisterPendingGymEmployeeCommandValidator()
     {
-        RuleFor(v => v.FirstName).NotEmptyWithMaxLenghtAndMessage(nameof(RegisterPendingGymEmployeeCommand.FirstName), MaxStringLengths.Name);
+        RuleFor(v => v.FirstName).NotEmptyWithMaxLenghtAndMessageLocalized(nameof(RegisterPendingGymEmployeeCommand.FirstName), MaxStringLengths.Name);
 
-        RuleFor(v => v.LastName).NotEmptyWithMaxLenghtAndMessage(nameof(RegisterPendingGymEmployeeCommand.LastName), MaxStringLengths.Name);
+        RuleFor(v => v.LastName).NotEmptyWithMaxLenghtAndMessageLocalized(nameof(RegisterPendingGymEmployeeCommand.LastName), MaxStringLengths.Name);
 
-        RuleFor(v => v.Email).ValidEmailAddress(nameof(RegisterPendingGymEmployeeCommand.Email));
+        RuleFor(v => v.Email).ValidEmailAddressWithMessageLocalized(nameof(RegisterPendingGymEmployeeCommand.Email));
 
-        RuleFor(v => v.Password).StrongPassword();
+        RuleFor(v => v.Password).StrongPasswordLocalized();
 
         RuleFor(v => v.PasswordConfirm)
             .Equal(v => v.PasswordConfirm)

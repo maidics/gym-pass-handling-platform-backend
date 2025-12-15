@@ -15,7 +15,7 @@ public class DemoteGymStaffToPendingGymEmployeeCommandValidator : AbstractValida
 {
     public DemoteGymStaffToPendingGymEmployeeCommandValidator()
     {
-        RuleFor(v => v.UserId).NotEmptyWithMessage(nameof(DemoteGymStaffToPendingGymEmployeeCommand.UserId));
+        RuleFor(v => v.UserId).NotEmptyLocalized(nameof(DemoteGymStaffToPendingGymEmployeeCommand.UserId));
     }
 }
 
