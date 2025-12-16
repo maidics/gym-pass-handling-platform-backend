@@ -67,5 +67,7 @@ public class UpdateGymMembershipStatusTests : BaseTestFixture
         var updatedGymMembership = await FindAsync<GymMembership>(obj.gymMembership.Id);
         updatedGymMembership.ShouldNotBeNull();
         updatedGymMembership.Status.ShouldBe(command.NewStatus);
+
+        //TODO: assert emails
     }
 }

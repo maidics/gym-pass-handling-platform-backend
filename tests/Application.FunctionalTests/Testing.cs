@@ -60,7 +60,12 @@ public partial class Testing
             return;
         }
         
-        var pickupDirectory = Path.Combine(environment.ContentRootPath, "..", "..", settings.EmailPickupFolderName, settings.EmailPickupSubFolderName);
+        var pickupDirectory = Path.Combine(
+            environment.ContentRootPath, 
+            "..", 
+            "..", 
+            settings.EmailPickupFolderName, 
+            settings.EmailPickupSubFolderName);
 
         try
         {
