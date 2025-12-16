@@ -28,7 +28,7 @@ public class CreateGymAdminPromotionRequestCommandValidator : AbstractValidator<
             .PropertyOfEntityNotEmptyWithMessageLocalized(localizer, nameof(SharedResource.Id), nameof(SharedResource.User));
 
         RuleFor(v => v.Description!)
-            .NotEmptyWithMaxLengthAndMessageLocalized(localizer, nameof(SharedResource.Description), MaxStringLengths.Description);
+            .NotEmptyWithMaxLengthAndMessageLocalized(localizer, nameof(SharedResource.Description), MaxLength.Description);
 
         RuleFor(v => v.EscalationEmail)
             .EmailAddressWithMessageLocalized(localizer);

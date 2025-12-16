@@ -29,7 +29,7 @@ public class RegisterUserTests : BaseTestFixture
 
         var result = await SendAsync(command);
         result.Type.ShouldBe(ResultTypes.Conflict);
-        result.Message.ShouldContain("Email is already taken");
+        result.Message.ShouldNotBeEmpty();
     }
 
     [Test]

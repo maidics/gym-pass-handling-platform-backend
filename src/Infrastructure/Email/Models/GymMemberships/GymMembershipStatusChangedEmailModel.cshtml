@@ -1,17 +1,19 @@
 ﻿@using FitPass.Application.Common.EmailModels.GymMemberships
+@using FitPass.Application.Common.Resources
 @model GymMembershipStatusChangedEmailModel
+@inject ILocalizer localizer
 
 @{
-    bool isBanned = Model.NewStatus == GymMembershipStatus.Banned;
+    bool isBanned = Model.NewStatus == GymMembershipStatus.Banned; 
 }
 
 <!DOCTYPE html>
-<html lang="hu">
+<html lang="@Model.Language">
 <head>
     <meta charset="utf-8" />
     <title>@(isBanned 
-        ? "Edzőtermi tagságod felfüggesztésre került"
-        : "Edzőtermi tagságod ismét aktív")</title>
+        ?  @localizer.Get(nameof(SharedResource.GymMembershipStatusBannedEmailSubject), @Model.GymName)
+        : @localizer.Get(nameof(SharedResource.GymMembershipStatusUnbannedEmailSubject), @Model.GymName))</title>
     <style>
         body { font-family: Arial, sans-serif; font-size: 14px; color: #333; }
         .status-banned { color: #b00020; font-weight: bold; }
@@ -19,26 +21,22 @@
     </style>
 </head>
 <body>
-    <p>Kedves @Model.UserFirstName,</p>
+    <p>@localizer.Get(nameof(SharedResource.EmailGreeting), @Model.UserFirstName)</p>
 
     @if (isBanned)
     {
-        <p class="status-banned">A tagságod felfüggesztésre került.</p>
-        <p>
-            A mai naptól kezdve nem tudod igénybe venni a(z) @Model.GymName edzőterem szolgáltatásait,
-            amíg a problémát nem sikerül rendezni. Ha úgy gondolod, hogy ez tévedés,
-            vagy további információra van szükséged, kérjük, vedd fel velünk a kapcsolatot.
-        </p>
+        <p class="status-banned">@localizer.Get(nameof(SharedResource.GymMembershipStatusBannedEmailBody1))</p>
+        <p>@localizer.Get(nameof(SharedResource.GymMembershipStatusBannedEmailBody2), @Model.GymName)</p>
     }
     else
     {
-        <p class="status-unbanned">A tagságod ismét aktív.</p>
-        <p>
-            A mai naptól kezdve ismét teljes körűen használhatod a(z) @Model.GymName edzőterem
-            szolgáltatásait. Várunk szeretettel az edzőteremben!
-        </p>
+        <p class="status-unbanned">@localizer.Get(nameof(SharedResource.GymMembershipStatusUnbannedEmailBody1))</p>
+        <p>@localizer.Get(nameof(SharedResource.GymMembershipStatusUnbannedEmailBody2), @Model.GymName)</p>
     }
 
-    <p>Üdvözlettel,<br />Az edzőterem csapata</p>
+    <p>@localizer.Get(nameof(SharedResource.EmailFarewell))
+        <br />
+        @FitPass.Domain.Strings.CommonStrings.AppName
+    </p>
 </body>
 </html>

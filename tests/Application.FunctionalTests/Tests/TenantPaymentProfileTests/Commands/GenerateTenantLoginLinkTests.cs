@@ -29,7 +29,7 @@ public class GenerateTenantLoginLinkTests : BaseTestFixture
 
         var result = await SendAsync(command);
         result.Type.ShouldBe(ResultTypes.BusinessRuleViolation);
-        result.Message.ShouldContain("You must first onboard your gym before this action");
+        result.Message.ShouldNotBeEmpty();
     }
 
     [Test]

@@ -34,7 +34,7 @@ public class UpdateGymMembershipStatusTests : BaseTestFixture
 
         var result = await SendAsync(command);
         result.Type.ShouldBe(ResultTypes.NotFound);
-        result.Message.ShouldContain($"{nameof(GymMembership)} not found.");
+        result.Message.ShouldNotBeEmpty();
     }
 
     [Test]

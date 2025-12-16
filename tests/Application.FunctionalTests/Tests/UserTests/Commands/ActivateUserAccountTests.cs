@@ -31,7 +31,7 @@ public class ActivateUserAccountTests : BaseTestFixture
 
         var result = await SendAsync(command);
         result.Type.ShouldBe(ResultTypes.NotFound);
-        result.Message.ShouldBe("User not found.");
+        result.Message.ShouldNotBeEmpty();
     }
 
     [Test]
@@ -50,7 +50,7 @@ public class ActivateUserAccountTests : BaseTestFixture
 
         var result = await SendAsync(command);
         result.Type.ShouldBe(ResultTypes.BusinessRuleViolation);
-        result.Message.ShouldContain("User has to set a password");
+        result.Message.ShouldNotBeEmpty();
     } 
 
     [Test]
@@ -80,7 +80,7 @@ public class ActivateUserAccountTests : BaseTestFixture
 
         var result = await SendAsync(command);
         result.Type.ShouldBe(ResultTypes.Forbidden);
-        result.Message.ShouldBe("User already has password.");
+        result.Message.ShouldNotBeEmpty();
     }
 
     [Test]

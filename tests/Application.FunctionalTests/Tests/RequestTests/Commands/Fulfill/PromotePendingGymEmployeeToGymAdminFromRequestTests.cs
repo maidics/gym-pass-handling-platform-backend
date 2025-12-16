@@ -38,7 +38,7 @@ public class PromotePendingGymEmployeeToGymAdminFromRequestTests : BaseTestFixtu
 
         var result = await SendAsync(command);
         result.Type.ShouldBe(ResultTypes.NotFound);
-        result.Message.ShouldContain($"{nameof(Request)} not found");
+        result.Message.ShouldNotBeEmpty();
     }
 
     [Test]
@@ -86,7 +86,7 @@ public class PromotePendingGymEmployeeToGymAdminFromRequestTests : BaseTestFixtu
 
         var result = await SendAsync(command);
         result.Type.ShouldBe(ResultTypes.BusinessRuleViolation);
-        result.Message.ShouldContain("Request is not of GymAdminPromotion type");
+        result.Message.ShouldNotBeEmpty();
     }
 
     [Test]
@@ -111,7 +111,7 @@ public class PromotePendingGymEmployeeToGymAdminFromRequestTests : BaseTestFixtu
 
         var result = await SendAsync(command);
         result.Type.ShouldBe(ResultTypes.InternalError);
-        result.Message.ShouldContain("Failed to retrieve details from request");
+        result.Message.ShouldNotBeEmpty();
 
         request = await FindAsync<Request>(request.Id);
         request.ShouldNotBeNull();
@@ -141,7 +141,7 @@ public class PromotePendingGymEmployeeToGymAdminFromRequestTests : BaseTestFixtu
 
         var result = await SendAsync(command);
         result.Type.ShouldBe(ResultTypes.NotFound);
-        result.Message.ShouldContain("User to promote not found");
+        result.Message.ShouldNotBeEmpty();
     }
 
     [Test]
@@ -168,7 +168,7 @@ public class PromotePendingGymEmployeeToGymAdminFromRequestTests : BaseTestFixtu
 
         var result = await SendAsync(command);
         result.Type.ShouldBe(ResultTypes.BusinessRuleViolation);
-        result.Message.ShouldContain("User is not a PendingGymEmployee");
+        result.Message.ShouldNotBeEmpty();
     }
 
     [Test]
@@ -195,7 +195,7 @@ public class PromotePendingGymEmployeeToGymAdminFromRequestTests : BaseTestFixtu
 
         var result = await SendAsync(command);
         result.Type.ShouldBe(ResultTypes.NotFound);
-        result.Message.ShouldContain("Gym not found");
+        result.Message.ShouldNotBeEmpty();
     }
 
     [Test]

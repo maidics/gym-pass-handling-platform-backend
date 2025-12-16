@@ -1,4 +1,5 @@
 using FitPass.Application.Common.Models;
+using FitPass.Application.GymPassProducts.Commands;
 using FitPass.Application.Webhooks;
 using Microsoft.Extensions.Logging;
 using Stripe;
@@ -46,7 +47,7 @@ public partial class StripeWebhookService
 
         var (userId, gymId, gymPassProductId) = result.Value;
 
-        return await _sender.Send(new FulFillGymPassProductPaymentCommand(userId, gymId, gymPassProductId));
+        return await _sender.Send(new WebhookFulFillGymPassProductPaymentCommand(userId, gymId, gymPassProductId));
     }
 
     private async Task<Result> HandlePaymentIntentCanceled(Event stripeEvent)

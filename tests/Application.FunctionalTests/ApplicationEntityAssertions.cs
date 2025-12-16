@@ -24,7 +24,7 @@ public static class ApplicationEntityAssertions
         gymEmploymentDto.UserProfile.Email.ShouldBe(user.Email!);
         gymEmploymentDto.UserProfile.FirstName.ShouldBe(userProfile.FirstName);
         gymEmploymentDto.UserProfile.LastName.ShouldBe(userProfile.LastName);
-        gymEmploymentDto.UserProfile.ApplicationUserId.ShouldBe(user.Id);
+        gymEmploymentDto.UserProfile.UserId.ShouldBe(user.Id);
     }
 
     public static void AssertToGym(this GymDto? gymDto, Gym gym)
@@ -96,7 +96,7 @@ public static class ApplicationEntityAssertions
     public static void AssertTo(this UserProfileWithEmailDto? dto, UserProfile userProfile, string email)
     {
         dto.ShouldNotBeNull();
-        dto.ApplicationUserId.ShouldBe(userProfile.UserId);
+        dto.UserId.ShouldBe(userProfile.UserId);
         dto.FirstName.ShouldBe(userProfile.FirstName);
         dto.LastName.ShouldBe(userProfile.LastName);
         dto.Email.ShouldBe(email);

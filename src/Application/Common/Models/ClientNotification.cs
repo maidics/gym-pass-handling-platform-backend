@@ -2,12 +2,14 @@ namespace FitPass.Application.Common.Models;
 
 public enum ClientNotificationType
 {
-    GymMembershipPassPurchaseSuccessful,
     Default,
     Error,
     PaymentFailed,
     PaymentProviderProductSynced,
-    PaymentProviderPriceSynced
+    PaymentProviderPriceSynced,
+    GymMembershipStatusChange,
+    GymPassProductPurchaseFulfillmentFailed,
+    SuccessfulPurchase
 }
 
 public class ClientNotification

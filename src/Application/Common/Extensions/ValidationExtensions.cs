@@ -45,8 +45,8 @@ public static class ValidationExtensions
     {
         return rule
             .NotEmptyWithMessageLocalized(localizer, nameof(SharedResource.Password))
-            .MinimumLength(8).WithMessage(localizer.GetWithParamsLocalized(nameof(SharedResource.PasswordMinimumLength), 8))
-            .MaximumLength(MaxStringLengths.Password).WithMessage(localizer.GetWithParamsLocalized(nameof(SharedResource.PasswordMaximumLength), MaxStringLengths.Password))
+            .MinimumLength(8).WithMessage(localizer.Get(nameof(SharedResource.PasswordMinimumLength), 8))
+            .MaximumLength(MaxLength.Password).WithMessage(localizer.Get(nameof(SharedResource.PasswordMaximumLength), MaxLength.Password))
             .Must(p => p.Any(char.IsLower)).WithMessage(localizer.Get(nameof(SharedResource.PasswordAtLeastOneLowerCase)))
             .Must(p => p.Any(char.IsUpper)).WithMessage(localizer.Get(nameof(SharedResource.PasswordAtLeastOneUpperCase)))
             .Must(p => p.Any(char.IsDigit)).WithMessage(localizer.Get(nameof(SharedResource.PasswordAtLeastOneNumber)))

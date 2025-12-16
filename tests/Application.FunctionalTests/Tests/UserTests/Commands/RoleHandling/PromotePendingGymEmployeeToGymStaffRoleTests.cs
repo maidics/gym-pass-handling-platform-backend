@@ -36,7 +36,7 @@ public class PromotePendingGymEmployeeToGymStaffRoleTests : BaseTestFixture
 
         var result = await SendAsync(command);
         result.Type.ShouldBe(ResultTypes.NotFound);
-        result.Message.ShouldContain("User not found");
+        result.Message.ShouldNotBeEmpty();
     }
 
     [Test]

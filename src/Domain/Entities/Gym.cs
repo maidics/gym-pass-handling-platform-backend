@@ -1,3 +1,4 @@
+using FitPass.Domain.Entities.ContactInfos;
 using FitPass.Domain.Entities.Payment;
 using FitPass.Domain.ValueObjects;
 
@@ -11,4 +12,5 @@ public class Gym : BaseAuditableEntity
     public required GymTier Tier { get; set; }
     public TenantPaymentProfile? PaymentProfile { get; set; }
     public ICollection<GymPassProduct> PassProducts { get; set; } = [];
+    public ICollection<GymContactInfo> ContactInfos { get; set; } = [];
 }

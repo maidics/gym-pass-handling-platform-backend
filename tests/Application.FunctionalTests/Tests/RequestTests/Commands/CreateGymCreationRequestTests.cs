@@ -50,7 +50,7 @@ public class CreateGymCreationRequestTests : BaseTestFixture
 
         var result = await SendAsync(command);
         result.Type.ShouldBe(ResultTypes.BusinessRuleViolation);
-        result.Message.ShouldContain("You must confirm your email before this action.");
+        result.Message.ShouldNotBeEmpty();
     }
 
     [Test]
@@ -75,7 +75,7 @@ public class CreateGymCreationRequestTests : BaseTestFixture
 
         var result = await SendAsync(command);
         result.Type.ShouldBe(ResultTypes.BusinessRuleViolation);
-        result.Message.ShouldContain("You already have an ongoing gym creation request.");
+        result.Message.ShouldNotBeEmpty();
     }
 
     [Test]

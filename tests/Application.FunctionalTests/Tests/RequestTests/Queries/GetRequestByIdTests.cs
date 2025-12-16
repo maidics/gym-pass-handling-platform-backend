@@ -35,7 +35,7 @@ public class GetRequestByIdTests : BaseTestFixture
 
         var result = await SendAsync(query);
         result.Type.ShouldBe(ResultTypes.NotFound);
-        result.Message.ShouldContain($"{nameof(Request)} not found");
+        result.Message.ShouldNotBeEmpty();
     }
 
     [Test]

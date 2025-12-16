@@ -28,10 +28,10 @@ public class UpdateGymPassProductCommandValidator : AbstractValidator<UpdateGymP
     public UpdateGymPassProductCommandValidator(ILocalizer localizer)
     {
         RuleFor(v => v.Name)
-            .NotEmptyWithMaxLengthAndMessageLocalized(localizer, nameof(SharedResource.Name), MaxStringLengths.Name);
+            .NotEmptyWithMaxLengthAndMessageLocalized(localizer, nameof(SharedResource.Name), MaxLength.Name);
 
         RuleFor(v => v.Description)
-            .NotEmptyWithMaxLengthAndMessageLocalized(localizer, nameof(SharedResource.Description), MaxStringLengths.Description);
+            .NotEmptyWithMaxLengthAndMessageLocalized(localizer, nameof(SharedResource.Description), MaxLength.Description);
 
         When(v => v.TotalUses is not null, () =>
         {

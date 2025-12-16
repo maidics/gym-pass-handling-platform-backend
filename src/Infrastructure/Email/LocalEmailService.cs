@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 using FitPass.Application.Common.EmailModels;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Domain.Strings;
+using FitPass.Infrastructure.Localization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Options;
 using RazorLight;
@@ -11,17 +12,16 @@ using RazorLight;
 namespace FitPass.Infrastructure.Email;
 public class LocalEmailService : IEmailService
 {
-    private readonly string _pickupDirectory;
     private readonly EmailSettings _settings;
     private readonly IRazorLightEngine _razorEngine;
     private readonly SmtpClient _smtpClient;
-    private readonly IUser _user;
+    private readonly ILocalizer _localizer;
 
     public LocalEmailService(
         IWebHostEnvironment environment, 
         IOptions<EmailSettings> emailOptions, 
         IRazorLightEngine razorEngine,
-        IUser user)
+        ILocalizer localizer)
     {
         _settings = emailOptions.Value;
 
@@ -30,47 +30,55 @@ public class LocalEmailService : IEmailService
             throw new InvalidOperationException("No email pickup folder configured for local email service.");
         }
 
-        _pickupDirectory = Path.Combine(environment.ContentRootPath, "..", "..", _settings.EmailPickupFolderName, _settings.EmailPickupSubFolderName);
+        var pickupDirectory = Path.Combine(environment.ContentRootPath, "..", "..", _settings.EmailPickupFolderName, _settings.EmailPickupSubFolderName);
         
-        if (!Directory.Exists(_pickupDirectory))
+        if (!Directory.Exists(pickupDirectory))
         {
-            Directory.CreateDirectory(_pickupDirectory);
+            Directory.CreateDirectory(pickupDirectory);
         }
 
         _razorEngine = razorEngine;
 
         _smtpClient = new SmtpClient
         {
-            DeliveryMethod = SmtpDeliveryMethod.SpecifiedPickupDirectory, PickupDirectoryLocation = _pickupDirectory
+            DeliveryMethod = SmtpDeliveryMethod.SpecifiedPickupDirectory, PickupDirectoryLocation = pickupDirectory
         };
 
-        _user = user;
+        _localizer = localizer;
     }
 
     public async Task SendEmailAsync(IEmailModel emailModel, string[] to, string[]? cc = null, string[]? bcc = null)
     {
-        var originalCulture = CultureInfo.CurrentUICulture; //this culture is tied to the thread of IRazorLightEngine so this have to be forced based on IUser
-        var originalCultureParams = CultureInfo.CurrentCulture;
+        var defaultCulture = _localizer.DefaultCulture;
+        
+        using var scope = new CultureInfoScope(defaultCulture); 
+        //overriding here because multiple people receiving the email, TODO: ensure the languages are the one that each user prefers?
+        //using ensures the scope is disposed even if this method throws
+        //this culture is tied to the thread of IRazorLightEngine so this have to be forced
 
-        try
+        emailModel.Language = defaultCulture;
+        
+        var mailMessage = await GetMailMessage(emailModel);
+
+        foreach (string address in to)
         {
-            var targetCulture = new CultureInfo(_user.Language);
-            CultureInfo.CurrentCulture = targetCulture;
-
-            var mailMessage = await GetMailMessage(emailModel);
-
-            foreach (string address in to)
-            {
-                mailMessage.To.Add(address);
-            }
-
-            await _smtpClient.SendMailAsync(mailMessage);
+            mailMessage.To.Add(address);
         }
-        finally
-        {
-            CultureInfo.CurrentUICulture = originalCulture;
-            CultureInfo.CurrentCulture = originalCultureParams;
-        }
+
+        await _smtpClient.SendMailAsync(mailMessage);
+    }
+
+    public async Task SendEmailAsync(IEmailModel emailModel, string to)
+    {
+        var language = emailModel.Language ?? _localizer.DefaultCulture;
+        
+        using var scope = new CultureInfoScope(language);
+
+        var mailMessage = await GetMailMessage(emailModel);
+
+        mailMessage.To.Add(to);
+        
+        await _smtpClient.SendMailAsync(mailMessage);
     }
 
     private async Task<MailMessage> GetMailMessage(IEmailModel model)

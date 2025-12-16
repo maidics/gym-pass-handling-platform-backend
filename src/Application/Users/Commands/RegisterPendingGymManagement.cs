@@ -21,10 +21,10 @@ public class RegisterPendingGymEmployeeCommandValidator : AbstractValidator<Regi
     public RegisterPendingGymEmployeeCommandValidator(ILocalizer localizer)
     {
         RuleFor(v => v.FirstName)
-            .NotEmptyWithMaxLengthAndMessageLocalized(localizer, nameof(SharedResource.FirstName), MaxStringLengths.Name);
+            .NotEmptyWithMaxLengthAndMessageLocalized(localizer, nameof(SharedResource.FirstName), MaxLength.Name);
 
         RuleFor(v => v.LastName)
-            .NotEmptyWithMaxLengthAndMessageLocalized(localizer, nameof(SharedResource.LastName), MaxStringLengths.Name);
+            .NotEmptyWithMaxLengthAndMessageLocalized(localizer, nameof(SharedResource.LastName), MaxLength.Name);
 
         RuleFor(v => v.Email)
             .EmailAddressWithMessageLocalized(localizer);
@@ -44,17 +44,20 @@ public class RegisterPendingGymEmployeeCommandHandler : IRequestHandler<Register
     private readonly IJwtTokenService _jwtTokenService;
     private readonly IApplicationDbContext _context;
     private readonly ILocalizer _localizer;
+    private readonly TimeProvider  _timeProvider;
 
     public RegisterPendingGymEmployeeCommandHandler(
         IIdentityService identityService,
         IJwtTokenService jwtTokenService,
         IApplicationDbContext context,
-        ILocalizer localizer)
+        ILocalizer localizer,
+        TimeProvider  timeProvider)
     {
         _identityService = identityService;
         _jwtTokenService = jwtTokenService;
         _context = context;
         _localizer = localizer;
+        _timeProvider = timeProvider;
     }
     public async Task<Result<JwtToken>> Handle(RegisterPendingGymEmployeeCommand command, CancellationToken cancellationToken)
     {
@@ -93,7 +96,9 @@ public class RegisterPendingGymEmployeeCommandHandler : IRequestHandler<Register
             {
                 UserId = userId,
                 FirstName = command.FirstName,
-                LastName = command.LastName
+                LastName = command.LastName,
+                PreferredLanguage = _localizer.DefaultCulture,
+                CreatedOn = _timeProvider.GetUtcNow()
             };
 
             await _context.UserProfiles.AddAsync(userProfile);

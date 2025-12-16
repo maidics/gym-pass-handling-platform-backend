@@ -4,6 +4,7 @@ using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Security;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Enums;
+using FitPass.Domain.Events.Gyms;
 using FitPass.Infrastructure.Localization.Resources;
 
 namespace FitPass.Application.Gyms.Commands;
@@ -20,10 +21,12 @@ public class UpdateGymStatusCommandValidator : AbstractValidator<UpdateGymStatus
 
         RuleFor(v => v.NewGymStatus)
             .NotEmpty()
-            .WithMessage(localizer.GetNewValueIsRequired(nameof(SharedResource.GymStatus)));
+            .WithMessage(localizer.GetNewValueIsRequired(nameof(SharedResource.GymStatus)))
+            .Must(x => x is GymStatus.Active or GymStatus.Suspended)
+            .WithMessage(localizer.Get(nameof(SharedResource.AppAdminAllowedNewGymStatuses)));
 
         RuleFor(v => v.Rationale)
-            .NotEmptyWithMaxLengthAndMessageLocalized(localizer, nameof(SharedResource.Rationale), MaxStringLengths.Description);
+            .NotEmptyWithMaxLengthAndMessageLocalized(localizer, nameof(SharedResource.Rationale), MaxLength.Description);
     }
 }
 
@@ -51,10 +54,17 @@ public class UpdateGymStatusCommandHandler : IRequestHandler<UpdateGymStatusComm
 
         if (gym.Status == command.NewGymStatus)
         {
-            return Result.Success();
+            return Result.Success(); //TODO: call .NoChange here
         }
 
         gym.Status = command.NewGymStatus;
+
+        //TODO: save Rationale to db in some form
+        gym.AddDomainEvent(new GymStatusUpdatedByAppAdminEvent(
+            gym.Id, 
+            command.NewGymStatus, 
+            command.Rationale,
+            gym.Name));
 
         await _context.SaveChangesAsync(cancellationToken);
 

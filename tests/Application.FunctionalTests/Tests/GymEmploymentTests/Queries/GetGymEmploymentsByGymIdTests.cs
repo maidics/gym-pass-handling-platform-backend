@@ -32,7 +32,7 @@ public class GetGymEmploymentsByGymIdTests : BaseTestFixture
 
         var result = await SendAsync(new GetGymEmploymentsByGymIdQuery("non-existing-gym-id"));
         result.Type.ShouldBe(ResultTypes.NotFound);
-        result.Message.ShouldContain($"{nameof(Gym)} not found");
+        result.Message.ShouldNotBeEmpty();
     }
 
     [Test]

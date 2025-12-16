@@ -23,10 +23,10 @@ public class CreateGymCreationRequestCommandValidator : AbstractValidator<Create
     public CreateGymCreationRequestCommandValidator(ILocalizer localizer)
     {
         RuleFor(v => v.Description)
-            .NotEmptyWithMaxLengthAndMessageLocalized(localizer, nameof(SharedResource.Description), MaxStringLengths.Description);
+            .NotEmptyWithMaxLengthAndMessageLocalized(localizer, nameof(SharedResource.Description), MaxLength.Description);
 
         RuleFor(v => v.CreateGymDto.Name)
-            .NotEmptyWithMaxLengthAndMessageLocalized(localizer, nameof(SharedResource.Name), MaxStringLengths.Name);
+            .NotEmptyWithMaxLengthAndMessageLocalized(localizer, nameof(SharedResource.Name), MaxLength.Name);
 
         RuleFor(v => v.CreateGymDto.Address)
             .NotEmptyWithMessageLocalized(localizer, nameof(SharedResource.Address));

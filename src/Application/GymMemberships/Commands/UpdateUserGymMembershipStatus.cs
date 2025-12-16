@@ -62,12 +62,11 @@ public class UpdateGymMembershipStatusCommandHandler : IRequestHandler<UpdateGym
             return Result.Success();
         }
 
-        membership.AddDomainEvent(new GymMembershipStatusChangedEvent
-        {
-            UserId = membership.UserId,
-            NewStatus = command.NewStatus,
-            GymId = membership.GymId
-        });
+        membership.AddDomainEvent(new GymMembershipStatusChangedEvent(
+            membership.UserId,
+            command.NewStatus, 
+            membership.GymId
+        ));
         
         await _context.SaveChangesAsync(cancellationToken);
         

@@ -87,6 +87,15 @@ namespace FitPass.Infrastructure.Localization.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to You can only update the gym&apos;s status to active or suspended..
+        /// </summary>
+        public static string AppAdminAllowedNewGymStatuses {
+            get {
+                return ResourceManager.GetString("AppAdminAllowedNewGymStatuses", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to business name.
         /// </summary>
         public static string BusinessName {
@@ -177,6 +186,24 @@ namespace FitPass.Infrastructure.Localization.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Best regards,.
+        /// </summary>
+        public static string EmailFarewell {
+            get {
+                return ResourceManager.GetString("EmailFarewell", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Dear {0},.
+        /// </summary>
+        public static string EmailGreeting {
+            get {
+                return ResourceManager.GetString("EmailGreeting", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Email is already confirmed..
         /// </summary>
         public static string EmailIsAlreadyConfirmed {
@@ -191,6 +218,15 @@ namespace FitPass.Infrastructure.Localization.Resources {
         public static string ExternalServiceUnavailable {
             get {
                 return ResourceManager.GetString("ExternalServiceUnavailable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to fulfill your payment. The selected product not found. Please contact support..
+        /// </summary>
+        public static string FailedToFulfillGymPassProductPayment {
+            get {
+                return ResourceManager.GetString("FailedToFulfillGymPassProductPayment", resourceCulture);
             }
         }
         
@@ -276,11 +312,84 @@ namespace FitPass.Infrastructure.Localization.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Your gym membership has been banned..
+        /// </summary>
+        public static string GymMembershipStatusBannedEmailBody1 {
+            get {
+                return ResourceManager.GetString("GymMembershipStatusBannedEmailBody1", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to From today onwards, you will not be able to use the services of the {0} gym until the issue has been resolved. If you believe this is a mistake or you need further information, please contact the gym..
+        /// </summary>
+        public static string GymMembershipStatusBannedEmailBody2 {
+            get {
+                return ResourceManager.GetString("GymMembershipStatusBannedEmailBody2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You have been banned from {0}.
+        /// </summary>
+        public static string GymMembershipStatusBannedEmailSubject {
+            get {
+                return ResourceManager.GetString("GymMembershipStatusBannedEmailSubject", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your gym membership is active again!.
+        /// </summary>
+        public static string GymMembershipStatusUnbannedEmailBody1 {
+            get {
+                return ResourceManager.GetString("GymMembershipStatusUnbannedEmailBody1", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to From today onwards, you can once again make full use of the services of the {0} gym.
+        ///We look forward to welcoming you back!.
+        /// </summary>
+        public static string GymMembershipStatusUnbannedEmailBody2 {
+            get {
+                return ResourceManager.GetString("GymMembershipStatusUnbannedEmailBody2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your gym membership ban has been lifted from {0}.
+        /// </summary>
+        public static string GymMembershipStatusUnbannedEmailSubject {
+            get {
+                return ResourceManager.GetString("GymMembershipStatusUnbannedEmailSubject", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to gym pass product.
         /// </summary>
         public static string GymPassProduct {
             get {
                 return ResourceManager.GetString("GymPassProduct", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to We were recently unable to fulfill your payment to {0}. Please check that your payment was correct. If it was open a ticket with and reference the following receipt id: {1}.
+        /// </summary>
+        public static string GymPassProductPurchaseFulfillmentFailedEmailBody {
+            get {
+                return ResourceManager.GetString("GymPassProductPurchaseFulfillmentFailedEmailBody", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your recent payment could not be completed.
+        /// </summary>
+        public static string GymPassProductPurchaseFulfillmentFailedEmailSubject {
+            get {
+                return ResourceManager.GetString("GymPassProductPurchaseFulfillmentFailedEmailSubject", resourceCulture);
             }
         }
         
@@ -294,11 +403,47 @@ namespace FitPass.Infrastructure.Localization.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Your gym has been reactivated by an application administrator. To avoid potential misunderstandings going forward, we kindly ask that you review our guidelines. Please note that the following rationale was previously given with the suspension: {0}.
+        /// </summary>
+        public static string GymReactivatedByAppAdminEmailBody {
+            get {
+                return ResourceManager.GetString("GymReactivatedByAppAdminEmailBody", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your gym has been reactivated..
+        /// </summary>
+        public static string GymReactivatedByAppAdminEmailSubject {
+            get {
+                return ResourceManager.GetString("GymReactivatedByAppAdminEmailSubject", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to gym status.
         /// </summary>
         public static string GymStatus {
             get {
                 return ResourceManager.GetString("GymStatus", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your gym has been suspended by an application administrator. To avoid potential misunderstandings going forward, we kindly ask that you review our guidelines. The following rationale was given with the suspension: {0}.
+        /// </summary>
+        public static string GymSuspendedByAppAdminEmailBody {
+            get {
+                return ResourceManager.GetString("GymSuspendedByAppAdminEmailBody", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your gym has been suspended..
+        /// </summary>
+        public static string GymSuspendedByAppAdminEmailSubject {
+            get {
+                return ResourceManager.GetString("GymSuspendedByAppAdminEmailSubject", resourceCulture);
             }
         }
         
@@ -335,6 +480,15 @@ namespace FitPass.Infrastructure.Localization.Resources {
         public static string IsActive {
             get {
                 return ResourceManager.GetString("IsActive", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Given language is not supported. Supported languages: {0}.
+        /// </summary>
+        public static string LanguageIsNotSupported {
+            get {
+                return ResourceManager.GetString("LanguageIsNotSupported", resourceCulture);
             }
         }
         
@@ -537,6 +691,15 @@ namespace FitPass.Infrastructure.Localization.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to language.
+        /// </summary>
+        public static string PreferredLanguage {
+            get {
+                return ResourceManager.GetString("PreferredLanguage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to price.
         /// </summary>
         public static string Price {
@@ -659,6 +822,24 @@ namespace FitPass.Infrastructure.Localization.Resources {
         public static string SingleUsePassCanOnlyHaveOneTotalUse {
             get {
                 return ResourceManager.GetString("SingleUsePassCanOnlyHaveOneTotalUse", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Successful purchase!.
+        /// </summary>
+        public static string SuccessfulPurchase {
+            get {
+                return ResourceManager.GetString("SuccessfulPurchase", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to team.
+        /// </summary>
+        public static string Team {
+            get {
+                return ResourceManager.GetString("Team", resourceCulture);
             }
         }
         

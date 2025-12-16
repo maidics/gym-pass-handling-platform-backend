@@ -6,7 +6,7 @@ public partial class PhoneNumber : ValueObject
 {
     [GeneratedRegex(@"^\+[1-9]\d{1,14}$")]
     private static partial Regex E164Regex();
-    
+
     public string Value { get; private set; }
     
     private PhoneNumber(string value)

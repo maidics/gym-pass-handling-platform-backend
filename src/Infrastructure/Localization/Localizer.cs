@@ -2,16 +2,46 @@
 using FitPass.Application.Common.Interfaces;
 using FitPass.Infrastructure.Localization.Resources;
 using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Options;
 
 namespace FitPass.Infrastructure.Localization;
 
 public class Localizer : ILocalizer
 {
     private readonly IStringLocalizer<SharedResource> _localizer;
+    private readonly CultureSettings _cultureSettings;
 
-    public Localizer(IStringLocalizer<SharedResource> localizer)
+    public Localizer(
+        IStringLocalizer<SharedResource> localizer,
+        IOptions<CultureSettings> options)
     {
         _localizer = localizer;
+        _cultureSettings = options.Value;
+    }
+    
+    public string DefaultCulture => _cultureSettings.Default;
+
+    public string[] SupportedCultures => _cultureSettings.Supported;
+
+    public bool IsSupported(string culture)
+    {
+        if (string.IsNullOrEmpty(culture)) return false;
+        
+        return _cultureSettings.Supported.Contains(culture, StringComparer.OrdinalIgnoreCase);
+    }
+
+    public string GetForCulture(string culture, string key)
+    {
+        using var scope = new CultureInfoScope(culture);
+        
+        return Get(key);
+    }
+
+    public string GetForCulture(string culture, string key, params object[] args)
+    {
+        using var scope = new CultureInfoScope(culture);
+        
+        return Get(key, args);
     }
 
     public string Get(string key) => CapitalizeFirstLetter(_localizer[key]);
@@ -21,13 +51,13 @@ public class Localizer : ILocalizer
     public string GetNotFound(string key) =>
         CapitalizeFirstLetter(_localizer[nameof(SharedResource.NotFound), _localizer[key]]);
 
-    public string GetWithParamsLocalized(string key, params object[] args)
+    public string GetWithParamsLocalized(string key, params string[] args)
     {
         var localizedArgs = args.Select(arg =>
         {
-            if (arg is string stringArg)
+            if (!string.IsNullOrEmpty(arg))
             {
-                return _localizer[stringArg];
+                return _localizer[arg];
             }
 
             return arg;

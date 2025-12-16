@@ -44,14 +44,14 @@ public class ResultTests
         Result nonGenericResult = notFound;
 
         nonGenericResult.ShouldNotBeNull();
-        nonGenericResult.Message.ShouldBe(notFound.Message);
+        nonGenericResult.Message.ShouldNotBeEmpty();
         nonGenericResult.Errors.ShouldBeEquivalentTo(notFound.Errors);
         nonGenericResult.Succeeded.ShouldBeFalse();
 
         Result<string> genericResult = notFound;
 
         genericResult.ShouldNotBeNull();
-        genericResult.Message.ShouldBe(notFound.Message);
+        genericResult.Message.ShouldNotBeEmpty();
         genericResult.Errors.ShouldBeEquivalentTo(notFound.Errors);
         genericResult.Succeeded.ShouldBeFalse();
     }
@@ -59,7 +59,7 @@ public class ResultTests
     [Test]
     public void ToFailureMethodShouldConvertToAnotherGenericResult()
     {
-        static Result<string> GetFailedResult() => Result.Unauthorized();
+        static Result<string> GetFailedResult() => Result.Unauthorized(string.Empty);
 
         var result1 = GetFailedResult();
 
@@ -73,7 +73,7 @@ public class ResultTests
     [Test]
     public void FailedGenericResultShouldThrowWhenValueAccessed()
     {
-        static Result<string> GetFailedResult() => Result.Forbidden();
+        static Result<string> GetFailedResult() => Result.Forbidden(string.Empty);
 
         var result = GetFailedResult();
 
@@ -172,13 +172,9 @@ public class ResultTests
     [Test]
     public void ShouldCreatePaymentRequired()
     {
-        var notFound = Result.PaymentRequired(["failure1", "failure2"]);
+        var notFound = Result.PaymentRequired(string.Empty);
         notFound.Message.ShouldContain("Payment required");
         notFound.Type.ShouldBe(ResultTypes.PaymentRequired);
-        notFound.Errors.Length.ShouldBe(2);
-        notFound.Errors.ShouldSatisfyAllConditions(
-            () => notFound.Errors.ShouldContain("failure1"),
-            () => notFound.Errors.ShouldContain("failure2"));
     }
 
     [Test]

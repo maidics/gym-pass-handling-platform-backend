@@ -20,8 +20,8 @@ public class LogInUserCommandValidator : AbstractValidator<LogInUserCommand>
             .EmailAddressWithMessageLocalized(localizer);
 
         RuleFor(v => v.Password)
-            .NotEmptyWithMaxLengthAndMessageLocalized(localizer, nameof(SharedResource.Password), MaxStringLengths.Password)
-            .NotEmptyWithMinLengthAndMessageLocalized(localizer, nameof(SharedResource.Password), MinStringLengths.Password);
+            .NotEmptyWithMaxLengthAndMessageLocalized(localizer, nameof(SharedResource.Password), MaxLength.Password)
+            .NotEmptyWithMinLengthAndMessageLocalized(localizer, nameof(SharedResource.Password), MinLength.Password);
     }
 }
 

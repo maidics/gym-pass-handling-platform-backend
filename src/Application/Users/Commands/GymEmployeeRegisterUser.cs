@@ -21,10 +21,10 @@ public class GymEmployeeRegisterUserCommandValidator : AbstractValidator<GymEmpl
             .EmailAddressWithMessageLocalized(localizer);
 
         RuleFor(v => v.FirstName)
-            .NotEmptyWithMaxLengthAndMessageLocalized(localizer, nameof(SharedResource.FirstName), MaxStringLengths.Name);
+            .NotEmptyWithMaxLengthAndMessageLocalized(localizer, nameof(SharedResource.FirstName), MaxLength.Name);
 
         RuleFor(v => v.LastName)
-            .NotEmptyWithMaxLengthAndMessageLocalized(localizer, nameof(SharedResource.LastName), MaxStringLengths.Name);
+            .NotEmptyWithMaxLengthAndMessageLocalized(localizer, nameof(SharedResource.LastName), MaxLength.Name);
     }
 }
 
@@ -34,17 +34,20 @@ public class GymEmployeeRegisterUserCommandHandler : IRequestHandler<GymEmployee
     private readonly IUser _user;
     private readonly IIdentityService _identityService;
     private readonly ILocalizer _localizer;
+    private readonly TimeProvider _timeProvider;
 
     public GymEmployeeRegisterUserCommandHandler(
         IApplicationDbContext context,
         IUser user,
         IIdentityService identityService,
-        ILocalizer localizer)
+        ILocalizer localizer,
+        TimeProvider timeProvider)
     {
         _context = context;
         _user = user;
         _identityService = identityService;
         _localizer = localizer;
+        _timeProvider = timeProvider;
     }
     public async Task<Result<GymMembershipDto>> Handle(GymEmployeeRegisterUserCommand command, CancellationToken cancellationToken)
     {
@@ -87,7 +90,9 @@ public class GymEmployeeRegisterUserCommandHandler : IRequestHandler<GymEmployee
             {
                 UserId = creationResultObj.userId!,
                 FirstName = command.FirstName,
-                LastName = command.LastName
+                LastName = command.LastName,
+                PreferredLanguage = _localizer.DefaultCulture,
+                CreatedOn = _timeProvider.GetUtcNow()
             };
 
             await _context.UserProfiles.AddAsync(userProfile);

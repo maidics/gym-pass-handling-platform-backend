@@ -261,4 +261,69 @@
   <data name="UserAlreadyHasPassword" xml:space="preserve">
     <value>A felhasználónak van már jelszava.</value>
   </data>
+  <data name="PreferredLanguage" xml:space="preserve">
+    <value>nyelv</value>
+  </data>
+  <data name="LanguageIsNotSupported" xml:space="preserve">
+    <value>A megadott nyelv nem támogatott. Támogatott nyelveink: {0}</value>
+  </data>
+  <data name="GymMembershipStatusBannedEmailSubject" xml:space="preserve">
+    <value>A tagságod felfüggesztésre került a(z) {0} edzőteremben</value>
+  </data>
+  <data name="GymMembershipStatusUnbannedEmailSubject" xml:space="preserve">
+    <value>A tagságod ismét aktív a(z) {0} edzőteremben</value>
+  </data>
+  <data name="EmailGreeting" xml:space="preserve">
+    <value>Kedves {0},</value>
+  </data>
+  <data name="GymMembershipStatusBannedEmailBody1" xml:space="preserve">
+    <value>Az edzőtermi tagságod felfüggesztésre került.</value>
+  </data>
+  <data name="GymMembershipStatusBannedEmailBody2" xml:space="preserve">
+    <value>A mai naptól kezdve nem tudod igénybe venni a(z) {0} edzőterem szolgáltatásait,
+            amíg a problémát nem sikerül rendezni. Ha úgy gondolod, hogy ez tévedés,
+            vagy további információra van szükséged, kérjük, vedd fel az edzőteremmel a kapcsolatot.</value>
+  </data>
+  <data name="GymMembershipStatusUnbannedEmailBody1" xml:space="preserve">
+    <value>Az edzőtermi tagságod ismét aktív!</value>
+  </data>
+  <data name="GymMembershipStatusUnbannedEmailBody2" xml:space="preserve">
+    <value>A mai naptól kezdve ismét teljes körűen használhatod a(z) {0} edzőterem
+            szolgáltatásait. Várunk szeretettel az edzőteremben!</value>
+  </data>
+  <data name="EmailFarewell" xml:space="preserve">
+    <value>Üdvözlettel,</value>
+  </data>
+  <data name="AppAdminAllowedNewGymStatuses" xml:space="preserve">
+    <value>Csak aktív vagy felfüggesztett státuszra állíthatod az edzőterem állapotát.</value>
+  </data>
+  <data name="GymSuspendedByAppAdminEmailSubject" xml:space="preserve">
+    <value>Az edzőtermed fel lett függesztve.</value>
+  </data>
+  <data name="GymReactivatedByAppAdminEmailSubject" xml:space="preserve">
+    <value>Az edzőtermed újra lett aktiválva.</value>
+  </data>
+  <data name="Team" xml:space="preserve">
+    <value>csapat</value>
+  </data>
+  <data name="GymSuspendedByAppAdminEmailBody" xml:space="preserve">
+    <value>Az edzőtermedet az alkalmazás egyik adminisztrátora felfüggesztette. A jövőbeni félreértések elkerülése érdekében kérjük, olvasd el az irányelveinket. A felfüggesztés indoklásaként a következőt adták meg (angolul): {0}</value>
+  </data>
+  <data name="GymReactivatedByAppAdminEmailBody" xml:space="preserve">
+    <value>Az edzőtermedet az alkalmazás egyik adminisztrátora újraaktiválta. A jövőbeni félreértések elkerülése érdekében kérjük, olvasd el az irányelveinket. Kérjük, vedd figyelembe, hogy a felfüggesztéshez korábban a következő indoklást adták meg (angolul): {0}</value>
+  </data>
+  <data name="FailedToFulfillGymPassProductPayment" xml:space="preserve">
+    <value>Hiba történt a fizetés kiszolgálásakor. Nem található a kiválasztott tétel. Kérlek vedd fel a kapcsolatot velünk.</value>
+  </data>
+  <data name="GymPassProductPurchaseFulfillmentFailedEmailSubject" xml:space="preserve">
+    <value>A legutóbbi fizetésedet nem tudtuk nem tudtuk sikeresen teljesíteni</value>
+  </data>
+  <data name="GymPassProductPurchaseFulfillmentFailedEmailBody" xml:space="preserve">
+    <value>Nemrég nem sikerült teljesítenünk a(z) {0} részére indított fizetését.
+Kérjük, ellenőrizze, hogy a fizetés végbement-e.
+Ha igen, nyisson egy hibajegyet, és hivatkozzon a következő bizonylatszámra: {1}</value>
+  </data>
+  <data name="SuccessfulPurchase" xml:space="preserve">
+    <value>Sikeres vásárlás!</value>
+  </data>
 </root>

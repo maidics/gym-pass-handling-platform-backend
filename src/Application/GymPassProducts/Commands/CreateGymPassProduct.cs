@@ -30,10 +30,10 @@ public class CreateGymPassProductCommandValidator : AbstractValidator<CreateGymP
     public CreateGymPassProductCommandValidator(ILocalizer localizer)
     {
         RuleFor(v => v.Name)
-            .NotEmptyWithMaxLengthAndMessageLocalized(localizer, nameof(SharedResource.Name), MaxStringLengths.Name);
+            .NotEmptyWithMaxLengthAndMessageLocalized(localizer, nameof(SharedResource.Name), MaxLength.Name);
 
         RuleFor(v => v.Description)
-            .NotEmptyWithMaxLengthAndMessageLocalized(localizer, nameof(SharedResource.Description), MaxStringLengths.Description);
+            .NotEmptyWithMaxLengthAndMessageLocalized(localizer, nameof(SharedResource.Description), MaxLength.Description);
 
         When(v => v.PassType == PassType.SingleUse, () =>
         {

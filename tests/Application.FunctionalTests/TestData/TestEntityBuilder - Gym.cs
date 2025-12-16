@@ -46,6 +46,8 @@ public partial class TestEntityBuilder
             UserId = gymStaff.Id,
             FirstName = "Gym",
             LastName = "Staff",
+            PreferredLanguage = GetDefaultCulture(),
+            CreatedOn = GetUtcNow()
         };
 
         await AddAsync(gymStaffUserProfile);
@@ -57,6 +59,8 @@ public partial class TestEntityBuilder
             UserId = gymMember.Id,
             FirstName = "Gym",
             LastName = "Member",
+            PreferredLanguage = GetDefaultCulture(),
+            CreatedOn = GetUtcNow()
         };
 
         await AddAsync(gymMemberUserProfile);

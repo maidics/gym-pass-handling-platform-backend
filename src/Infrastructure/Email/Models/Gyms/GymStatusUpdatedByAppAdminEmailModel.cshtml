@@ -1,0 +1,47 @@
+﻿@using FitPass.Infrastructure.Email.Models.Gyms
+@using FitPass.Infrastructure.Localization
+@using FitPass.Domain.Enums
+@using FitPass.Application.Common.Resources
+
+@model GymStatusUpdatedByAppAdminEmailModel
+
+@inject ILocalizer localizer
+
+@{
+    bool isSuspended = Model.NewStatus == GymStatus.Suspended
+}
+
+<!DOCTYPE html>
+
+<html lang="@Model.Language">
+<head>
+    <meta charset="utf-8" />
+    <title>
+        @(isSuspended ? 
+            @localizer.Get(nameof(SharedResource.GymSuspendedByAppAdminEmailSubject)) :
+            @localizer.Get(nameof(SharedResource.GymReactivatedByAppAdminEmailSubject)))
+    </title>
+    <style>
+        body { font-family: Arial, sans-serif; font-size: 14px; color: #333; }
+        .status-active { color: #2e7d32; font-weight: bold; }
+        .status-suspended { color: #b00020; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <p>@localizer.Get(nameof(SharedResource.EmailGreeting), @Model.GymName) @localizer.Get(nameof(SharedResource.Team))</p>
+
+    @if (isSuspended) 
+    {
+        <p>@localizer.Get(nameof(SharedResource.GymSuspendedByAppAdminEmailBody), @Model.Rationale)</p>
+    } 
+    else 
+    {
+        <p>@localizer.Get(nameof(SharedResource.GymReactivatedByAppAdminEmailSubject), @Model.Rationale)</p>
+    }
+
+    <p>@localizer.Get(nameof(SharedResource.EmailFarewell))
+        <br />
+        @FitPass.Domain.Strings.CommonStrings.AppName
+    </p>
+</body>
+</html>

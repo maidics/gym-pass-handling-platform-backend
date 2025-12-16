@@ -24,7 +24,7 @@ public class CreateTenantPaymentProfileCommandValidator : AbstractValidator<Crea
             .EmailAddressWithMessageLocalized(localizer);
 
         RuleFor(v => v.BusinessName)
-            .NotEmptyWithMaxLengthAndMessageLocalized(localizer, nameof(SharedResource.BusinessName), MaxStringLengths.Name);
+            .NotEmptyWithMaxLengthAndMessageLocalized(localizer, nameof(SharedResource.BusinessName), MaxLength.Name);
     }
 }
 

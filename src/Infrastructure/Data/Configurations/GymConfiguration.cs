@@ -1,6 +1,7 @@
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Entities.Payment;
+using FitPass.Infrastructure.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -17,13 +18,13 @@ public class GymConfiguration : IEntityTypeConfiguration<Gym>
 
         builder.HasIndex(g => g.Name).IsUnique();
 
-        builder.Property(g => g.Name).HasMaxLength(MaxStringLengths.Description);
+        builder.Property(g => g.Name).HasMaxLength(MaxLength.Description);
 
         builder
             .HasOne(g => g.PaymentProfile)
             .WithOne(tpp => tpp.Gym)
             .HasForeignKey<TenantPaymentProfile>(tpp => tpp.GymId);
 
-        builder.OwnsOne(g => g.Address);
+        builder.OwnsOne(g => g.Address).ConfigureAddress();
     }
 }

@@ -19,6 +19,8 @@ public static partial class TestEntityBuilder
             UserId = user.Id,
             FirstName = "Default",
             LastName = "User",
+            PreferredLanguage = GetDefaultCulture(),
+            CreatedOn = GetUtcNow()
         };
 
         await AddAsync(userProfile);
@@ -35,6 +37,8 @@ public static partial class TestEntityBuilder
             UserId = user.Id,
             FirstName = "Pending",
             LastName = "GymEmployee",
+            PreferredLanguage = GetDefaultCulture(),
+            CreatedOn = GetUtcNow()
         };
 
         await AddAsync(userProfile);
@@ -51,6 +55,8 @@ public static partial class TestEntityBuilder
             UserId = user.Id,
             FirstName = "App",
             LastName = "Admin",
+            PreferredLanguage = GetDefaultCulture(),
+            CreatedOn = GetUtcNow()
         };
 
         await AddAsync(userProfile);
@@ -96,6 +102,8 @@ public static partial class TestEntityBuilder
             UserId = user.Id,
             FirstName = "Gym",
             LastName = "Employee",
+            PreferredLanguage = GetDefaultCulture(),
+            CreatedOn = GetUtcNow()
         };
 
         await AddAsync(userProfile);

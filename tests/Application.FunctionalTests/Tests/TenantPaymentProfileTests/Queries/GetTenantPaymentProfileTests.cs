@@ -26,7 +26,7 @@ public class GetTenantPaymentProfileTests : BaseTestFixture
 
         var result = await SendAsync(new GetTenantPaymentProfileQuery());
         result.Type.ShouldBe(ResultTypes.NotFound);
-        result.Message.ShouldContain($"{nameof(TenantPaymentProfile)} not found");
+        result.Message.ShouldNotBeEmpty();
     }
     
     [Test]

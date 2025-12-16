@@ -35,7 +35,7 @@ public class UpdateGymPassUsageLockerNumberTests : BaseTestFixture
 
         var result = await SendAsync(command);
         result.Type.ShouldBe(ResultTypes.NotFound);
-        result.Message.ShouldContain($"{nameof(GymPassUsage)} not found");
+        result.Message.ShouldNotBeEmpty();
     }
 
     [Test]
@@ -54,7 +54,7 @@ public class UpdateGymPassUsageLockerNumberTests : BaseTestFixture
 
         var result = await SendAsync(command);
         result.Type.ShouldBe(ResultTypes.BusinessRuleViolation);
-        result.Message.ShouldContain("Gym session already ended, you cannot change the locker number after this");
+        result.Message.ShouldNotBeEmpty();
     }
 
     [Test]

@@ -2,7 +2,6 @@ using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
-using FitPass.Domain.Strings;
 using FitPass.Application.Common.Models;
 using FitPass.Application.Users.DTOs;
 using FitPass.Infrastructure.Localization.Resources;
@@ -22,10 +21,10 @@ public class RegisterUserCommandValidator : AbstractValidator<RegisterUserComman
     public RegisterUserCommandValidator(ILocalizer localizer)
     {
         RuleFor(v => v.FirstName)
-            .NotEmptyWithMaxLengthAndMessageLocalized(localizer, nameof(SharedResource.FirstName), MaxStringLengths.Name);
+            .NotEmptyWithMaxLengthAndMessageLocalized(localizer, nameof(SharedResource.FirstName), MaxLength.Name);
 
         RuleFor(v => v.LastName!)
-            .NotEmptyWithMaxLengthAndMessageLocalized(localizer, nameof(SharedResource.LastName), MaxStringLengths.Name);
+            .NotEmptyWithMaxLengthAndMessageLocalized(localizer, nameof(SharedResource.LastName), MaxLength.Name);
 
         RuleFor(v => v.Email).EmailAddressWithMessageLocalized(localizer);
 
@@ -43,17 +42,20 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, R
     private readonly IApplicationDbContext _context;
     private readonly IJwtTokenService _jwtTokenService;
     private readonly ILocalizer _localizer;
+    private readonly TimeProvider _timeProvider;
 
     public RegisterUserCommandHandler(
         IIdentityService identityService,
         IApplicationDbContext context,
         IJwtTokenService jwtTokenService,
-        ILocalizer localizer)
+        ILocalizer localizer,
+        TimeProvider  timeProvider)
     {
         _identityService = identityService;
         _context = context;
         _jwtTokenService = jwtTokenService;
         _localizer = localizer;
+        _timeProvider = timeProvider;
     }
     public async Task<Result<JwtToken>> Handle(RegisterUserCommand command, CancellationToken cancellationToken)
     {
@@ -92,7 +94,9 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, R
             {
                 UserId = userId,
                 FirstName = command.FirstName,
-                LastName = command.LastName
+                LastName = command.LastName,
+                PreferredLanguage = _localizer.DefaultCulture,
+                CreatedOn = _timeProvider.GetUtcNow()
             };
 
             await _context.UserProfiles.AddAsync(userProfile);

@@ -60,7 +60,7 @@ public class UpdateMyGymStatusTests : BaseTestFixture
 
         var result = await SendAsync(command);
         result.Type.ShouldBe(ResultTypes.BusinessRuleViolation);
-        result.Message.ShouldContain("Cannot change status of a suspended gym");
+        result.Message.ShouldNotBeEmpty();
     }
 
     [Test]

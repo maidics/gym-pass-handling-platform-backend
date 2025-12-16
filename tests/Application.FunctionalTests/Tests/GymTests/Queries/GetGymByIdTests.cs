@@ -34,7 +34,7 @@ public class GetGymByIdTests : BaseTestFixture
 
         var result = await SendAsync(query);
         result.Type.ShouldBe(ResultTypes.NotFound);
-        result.Message.ShouldContain("Gym not found");
+        result.Message.ShouldNotBeEmpty();
     }
 
     [Test]

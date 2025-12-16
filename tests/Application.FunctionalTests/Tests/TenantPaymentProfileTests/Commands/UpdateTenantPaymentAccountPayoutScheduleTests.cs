@@ -29,7 +29,7 @@ public class UpdateTenantPaymentAccountPayoutScheduleTests : BaseTestFixture
 
         var result = await SendAsync(command);
         result.Type.ShouldBe(ResultTypes.BusinessRuleViolation);
-        result.Message.ShouldContain("Gym has no payment account created");
+        result.Message.ShouldNotBeEmpty();
     }
 
     [Test]

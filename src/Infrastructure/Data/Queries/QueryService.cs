@@ -32,13 +32,13 @@ public class QueryService : IQueryService
                 Role = ge.Role,
                 EmploymentStart = ge.EmploymentStart,
                 EmploymentEnd = ge.EmploymentEnd,
-                UserProfile = new UserProfileWithEmailDto
-                {
-                    ApplicationUserId = user.Id,
-                    FirstName = up.FirstName,
-                    LastName = up.LastName,
-                    Email = user.Email!
-                }
+                UserProfile = new UserProfileWithEmailDto(
+                    user.Id,
+                    up.FirstName,
+                    up.LastName,
+                    user.Email!,
+                    up.PreferredLanguage,
+                    up.CreatedOn)
             }
         ).ToListAsync();
     }
@@ -58,13 +58,13 @@ public class QueryService : IQueryService
                 Role = ge.Role,
                 EmploymentStart = ge.EmploymentStart,
                 EmploymentEnd = ge.EmploymentEnd,
-                UserProfile = new UserProfileWithEmailDto
-                {
-                    ApplicationUserId = user.Id,
-                    FirstName = up.FirstName,
-                    LastName = up.LastName,
-                    Email = user.Email!
-                }
+                UserProfile = new UserProfileWithEmailDto(
+                    user.Id,
+                    up.FirstName,
+                    up.LastName,
+                    user.Email!,
+                    up.PreferredLanguage,
+                    up.CreatedOn)
             }
         ).FirstOrDefaultAsync();
     }
@@ -75,13 +75,13 @@ public class QueryService : IQueryService
             from up in _context.UserProfiles
             join user in _context.Users on up.UserId equals user.Id
             where up.UserId == applicationUserId
-            select new UserProfileWithEmailDto
-            {
-                ApplicationUserId = user.Id,
-                FirstName = up.FirstName,
-                LastName = up.LastName,
-                Email = user.Email!
-            }
+            select new UserProfileWithEmailDto(
+                user.Id,
+                up.FirstName,
+                up.LastName,
+                user.Email!,
+                up.PreferredLanguage,
+                up.CreatedOn)
         ).FirstOrDefaultAsync();
     }
 
@@ -98,13 +98,13 @@ public class QueryService : IQueryService
                     ApplicationUserId = user.Id,
                     GymId = gm.GymId!,
                     Status = gm.Status,
-                    UserProfile = new UserProfileWithEmailDto
-                    {
-                        ApplicationUserId = user.Id,
-                        FirstName = up.FirstName,
-                        LastName = up.LastName,
-                        Email = user.Email!
-                    },
+                    UserProfile = new UserProfileWithEmailDto(
+                        user.Id,
+                        up.FirstName,
+                        up.LastName,
+                        user.Email!,
+                        up.PreferredLanguage,
+                        up.CreatedOn),
                     Passes = gm.Passes.Select(p => new GymMembershipPassDto
                     {
                         Id = p.Id,
@@ -138,13 +138,13 @@ public class QueryService : IQueryService
                 ApplicationUserId = user.Id,
                 GymId = gm.GymId!,
                 Status = gm.Status,
-                UserProfile = new UserProfileWithEmailDto
-                {
-                    ApplicationUserId = user.Id,
-                    FirstName = up.FirstName,
-                    LastName = up.LastName,
-                    Email = user.Email!
-                },
+                UserProfile = new UserProfileWithEmailDto(
+                    user.Id,
+                    up.FirstName,
+                    up.LastName,
+                    user.Email!,
+                    up.PreferredLanguage,
+                    up.CreatedOn),
                 Passes = gm.Passes.Select(p => new GymMembershipPassDto
                 {
                     Id = p.Id,

@@ -1,0 +1,34 @@
+﻿@using FitPass.Infrastructure.Localization
+@using FitPass.Application.Common.EmailModels.GymPassProducts
+@using FitPass.Application.Common.Resources
+
+@model GymPassProductPurchaseFulfillmentFailedEmailModel
+
+@inject ILocalizer localizer
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>@localizer.Get(nameof(SharedResource.GymPassProductPurchaseFulfillmentFailedEmailSubject))</title>
+    <style>
+        body { font-family: Arial, sans-serif; font-size: 14px; color: #333; }
+        .status-failed { color: #b00020; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <p>@localizer.Get(nameof(SharedResource.EmailGreeting), @Model.UserFirstName)</p>
+
+    <p>@localizer.Get(nameof(SharedResource.GymPassProductPurchaseFulfillmentFailedEmailBody), @Model.GymName, @Model.ReceiptId)</p>
+
+    <p>@localizer.Get(nameof(SharedResource.EmailFarewell))
+        <br />
+        @FitPass.Domain.Strings.CommonStrings.AppName
+    </p>
+</body>
+</html>

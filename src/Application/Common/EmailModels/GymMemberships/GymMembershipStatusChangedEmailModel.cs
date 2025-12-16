@@ -3,7 +3,11 @@
 namespace FitPass.Application.Common.EmailModels.GymMemberships;
 
 //TODO: add gym contact here & add it to .cshtml
-public record GymMembershipStatusChangedEmailModel(
-    GymMembershipStatus NewGymMembershipStatus,
-    string UserFirstName,
-    string GymName) : IEmailModel;
+public class GymMembershipStatusChangedEmailModel : IEmailModel
+{
+    public required string? Language { get; set; }
+    public required GymMembershipStatus NewGymMembershipStatus { get; init; }
+    public required string UserFirstName  { get; init; }
+    public required string GymName { get; init; }
+}
+    

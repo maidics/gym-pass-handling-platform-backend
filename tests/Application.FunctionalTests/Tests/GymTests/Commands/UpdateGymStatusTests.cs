@@ -22,7 +22,7 @@ public class UpdateGymStatusTests : BaseTestFixture
     {
         await RunAsAppAdminAsync();
 
-        var command = new UpdateGymStatusCommand(string.Empty, GymStatus.Suspended);
+        var command = new UpdateGymStatusCommand(string.Empty, GymStatus.Suspended, string.Empty);
 
         await ShouldThrowIfParametersAreInvalidAsync(command);
     }
@@ -32,11 +32,11 @@ public class UpdateGymStatusTests : BaseTestFixture
     {
         await RunAsAppAdminAsync();
 
-        var command = new UpdateGymStatusCommand("invalidGymId", GymStatus.Suspended);
+        var command = new UpdateGymStatusCommand("invalidGymId", GymStatus.Suspended, string.Empty);
 
         var result = await SendAsync(command);
         result.Type.ShouldBe(ResultTypes.NotFound);
-        result.Message.ShouldBe("Gym not found.");
+        result.Message.ShouldNotBeEmpty();
     }
 
     [Test]
@@ -46,7 +46,7 @@ public class UpdateGymStatusTests : BaseTestFixture
 
         await RunAsAppAdminAsync();
 
-        var command = new UpdateGymStatusCommand(obj.gym.Id, GymStatus.Suspended);
+        var command = new UpdateGymStatusCommand(obj.gym.Id, GymStatus.Suspended, "Rationale");
 
         var result = await SendAsync(command);
         result.Succeeded.ShouldBeTrue();

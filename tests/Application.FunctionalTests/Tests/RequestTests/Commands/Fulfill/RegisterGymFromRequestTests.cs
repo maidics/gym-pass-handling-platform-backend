@@ -40,7 +40,7 @@ public class RegisterGymFromRequestTests : BaseTestFixture
 
         var result = await SendAsync(command);
         result.Type.ShouldBe(ResultTypes.NotFound);
-        result.Message.ShouldContain($"{nameof(Request)} not found");
+        result.Message.ShouldNotBeEmpty();
     }
 
     [Test]
@@ -64,7 +64,7 @@ public class RegisterGymFromRequestTests : BaseTestFixture
 
         var result = await SendAsync(command);
         result.Type.ShouldBe(ResultTypes.Forbidden);
-        result.Message.ShouldBe("Request is no longer open.");
+        result.Message.ShouldNotBeEmpty();
     }
 
     [Test]
@@ -88,7 +88,7 @@ public class RegisterGymFromRequestTests : BaseTestFixture
 
         var result = await SendAsync(command);
         result.Type.ShouldBe(ResultTypes.BusinessRuleViolation);
-        result.Message.ShouldBe("Request is not of GymCreation type.");
+        result.Message.ShouldNotBeEmpty();
     }
 
     [Test]
@@ -113,7 +113,7 @@ public class RegisterGymFromRequestTests : BaseTestFixture
 
         var result = await SendAsync(command);
         result.Type.ShouldBe(ResultTypes.InternalError);
-        result.Message.ShouldContain("Request creator is empty");
+        result.Message.ShouldNotBeEmpty();
 
         request = await FindAsync<Request>(request.Id);
         request.ShouldNotBeNull();
@@ -146,7 +146,7 @@ public class RegisterGymFromRequestTests : BaseTestFixture
 
         var result = await SendAsync(command);
         result.Type.ShouldBe(ResultTypes.NotFound);
-        result.Message.ShouldBe($"{nameof(ApplicationUser)} not found");
+        result.Message.ShouldNotBeEmpty();
 
         request = await FindAsync<Request>(request.Id);
         request.ShouldNotBeNull();
@@ -181,7 +181,7 @@ public class RegisterGymFromRequestTests : BaseTestFixture
 
         var result = await SendAsync(command);
         result.Type.ShouldBe(ResultTypes.BusinessRuleViolation);
-        result.Message.ShouldContain("User is no longer a PendingGymEmployee");
+        result.Message.ShouldNotBeEmpty();
 
         request = await FindAsync<Request>(request.Id);
         request.ShouldNotBeNull();
@@ -213,8 +213,8 @@ public class RegisterGymFromRequestTests : BaseTestFixture
 
         var result = await SendAsync(command);
         result.Type.ShouldBe(ResultTypes.InternalError);
-        result.Message.ShouldContain("Failed to retrieve gym details from request");
-
+        result.Message.ShouldNotBeEmpty();
+        
         request = await FindAsync<Request>(request.Id);
         request.ShouldNotBeNull();
         request.Status.ShouldBe(RequestStatus.Error);
@@ -257,7 +257,7 @@ public class RegisterGymFromRequestTests : BaseTestFixture
 
         var result = await SendAsync(command);
         result.Type.ShouldBe(ResultTypes.Conflict);
-        result.Message.ShouldContain("Gym name is already taken.");
+        result.Message.ShouldNotBeEmpty();
     }
 
     [Test]

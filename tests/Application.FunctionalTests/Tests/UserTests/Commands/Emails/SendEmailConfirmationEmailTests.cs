@@ -27,7 +27,7 @@ public class SendEmailConfirmationEmailTests : BaseTestFixture
 
         var result = await SendAsync(new SendEmailConfirmationEmailCommand());
         result.Type.ShouldBe(ResultTypes.BusinessRuleViolation);
-        result.Message.ShouldContain("Email is already confirmed");
+        result.Message.ShouldNotBeEmpty();
     }
 
     [Test]

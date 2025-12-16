@@ -19,10 +19,10 @@ public class UpdateMyUserProfileCommandValidator : AbstractValidator<UpdateMyUse
     public UpdateMyUserProfileCommandValidator(ILocalizer localizer)
     {
         RuleFor(v => v.FirstName)
-            .NotEmptyWithMaxLengthAndMessageLocalized(localizer, nameof(SharedResource.FirstName), MaxStringLengths.Name);
+            .NotEmptyWithMaxLengthAndMessageLocalized(localizer, nameof(SharedResource.FirstName), MaxLength.Name);
 
         RuleFor(v => v.LastName)
-            .NotEmptyWithMaxLengthAndMessageLocalized(localizer, nameof(SharedResource.LastName), MaxStringLengths.Name);
+            .NotEmptyWithMaxLengthAndMessageLocalized(localizer, nameof(SharedResource.LastName), MaxLength.Name);
     }
 }
 

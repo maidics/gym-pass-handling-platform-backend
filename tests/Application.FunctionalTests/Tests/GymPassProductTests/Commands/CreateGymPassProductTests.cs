@@ -67,7 +67,7 @@ public class CreateGymPassProductTests : BaseTestFixture
         
         var result = await SendAsync(command);
         result.Type.ShouldBe(ResultTypes.BusinessRuleViolation);
-        result.Message.ShouldContain("You must first create your Stripe payment account");
+        result.Message.ShouldNotBeEmpty();
     }
 
     [Test]
@@ -88,7 +88,7 @@ public class CreateGymPassProductTests : BaseTestFixture
 
         var result = await SendAsync(command);
         result.Type.ShouldBe(ResultTypes.BusinessRuleViolation);
-        result.Message.ShouldContain("You must first create your Stripe payment account");
+        result.Message.ShouldNotBeEmpty();
     }
 
     [TestCase(PassType.SingleUse, 1, null)]

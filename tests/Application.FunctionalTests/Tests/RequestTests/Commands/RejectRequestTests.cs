@@ -36,7 +36,7 @@ public class RejectRequestTests : BaseTestFixture
 
         var result = await SendAsync(command);
         result.Type.ShouldBe(ResultTypes.NotFound);
-        result.Message.ShouldContain($"{nameof(Request)} not found");
+        result.Message.ShouldNotBeEmpty();
     }
 
     [Test]

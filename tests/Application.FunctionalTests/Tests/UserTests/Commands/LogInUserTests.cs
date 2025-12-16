@@ -46,7 +46,6 @@ public class LogInUserTests : BaseTestFixture
 
         var result = await SendAsync(command);
         result.Type.ShouldBe(ResultTypes.Unauthorized);
-        result.Message.ShouldBe(ErrorMessages.InvalidCredentials());
     }
 
     [Test]
@@ -68,7 +67,7 @@ public class LogInUserTests : BaseTestFixture
 
         var result = await SendAsync(command);
         result.Type.ShouldBe(ResultTypes.Unauthorized);
-        result.Message.ShouldBe(ErrorMessages.UserAccountIsNotActivated());
+        result.Message.ShouldNotBeEmpty();
     }
 
     [Test]

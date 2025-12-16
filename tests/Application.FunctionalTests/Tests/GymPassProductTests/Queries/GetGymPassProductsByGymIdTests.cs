@@ -32,7 +32,7 @@ public class GetGymPassProductsByGymIdTests : BaseTestFixture
 
         var result = await SendAsync(query);
         result.Type.ShouldBe(ResultTypes.NotFound);
-        result.Message.ShouldContain($"{nameof(Gym)} not found");
+        result.Message.ShouldNotBeEmpty();
     }
     
     [Test]

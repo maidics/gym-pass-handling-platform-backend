@@ -7,9 +7,9 @@ public class Address : ValueObject
     public string City { get; private init; }
     public string? State { get; private init; }
     public string PostalCode { get; private init; }
-    public string CountryAlpha2 { get; private init; } //two letter country code
+    public string CountryAlpha2 { get; private init; } //two-letter country code
     
-    private Address()
+    private Address() //for ef core
     {
         Line1 = string.Empty;
         City = string.Empty;

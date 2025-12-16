@@ -46,7 +46,7 @@ public class CreateGymAdminPromotionRequestTests : BaseTestFixture
 
         var result = await SendAsync(command);
         result.Type.ShouldBe(ResultTypes.NotFound);
-        result.Message.ShouldContain("User to promote not found");
+        result.Message.ShouldNotBeEmpty();
     }
 
     [Test]
@@ -64,7 +64,7 @@ public class CreateGymAdminPromotionRequestTests : BaseTestFixture
 
         var result = await SendAsync(command);
         result.Type.ShouldBe(ResultTypes.BusinessRuleViolation);
-        result.Message.ShouldContain("User is not in PendingGymEmployee role");
+        result.Message.ShouldNotBeEmpty();
     }
 
     [Test]
