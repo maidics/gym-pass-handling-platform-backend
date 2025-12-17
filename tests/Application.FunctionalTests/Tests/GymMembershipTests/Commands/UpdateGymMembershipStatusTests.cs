@@ -68,6 +68,7 @@ public class UpdateGymMembershipStatusTests : BaseTestFixture
         updatedGymMembership.ShouldNotBeNull();
         updatedGymMembership.Status.ShouldBe(command.NewStatus);
 
-        //TODO: assert emails
+        EmailFolderShouldContainEmails(1);
+        await ShouldContainNotificationForUser(obj.gymMember.Id);
     }
 }

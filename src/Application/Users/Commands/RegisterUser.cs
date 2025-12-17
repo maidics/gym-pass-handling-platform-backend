@@ -4,6 +4,7 @@ using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Application.Common.Models;
 using FitPass.Application.Users.DTOs;
+using FitPass.Domain.Events.Users;
 using FitPass.Infrastructure.Localization.Resources;
 
 namespace FitPass.Application.Users.Commands;
@@ -90,7 +91,7 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, R
                 throw new Exception($"Failed to add user to role. Result: {roleResult}.");
             }
 
-            var userProfile = new UserProfile
+            var profile = new UserProfile
             {
                 UserId = userId,
                 FirstName = command.FirstName,
@@ -99,9 +100,9 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, R
                 CreatedOn = _timeProvider.GetUtcNow()
             };
 
-            await _context.UserProfiles.AddAsync(userProfile);
+            await _context.UserProfiles.AddAsync(profile);
 
-            //user.AddDomainEvent(new UserRegisteredEvent(user));
+            profile.AddDomainEvent(new UserRegisteredEvent(userId, command.Email, command.FirstName, false));
 
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();

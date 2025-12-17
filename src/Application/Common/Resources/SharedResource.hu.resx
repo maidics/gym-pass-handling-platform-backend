@@ -326,4 +326,10 @@ Ha igen, nyisson egy hibajegyet, és hivatkozzon a következő bizonylatszámra:
   <data name="SuccessfulPurchase" xml:space="preserve">
     <value>Sikeres vásárlás!</value>
   </data>
+  <data name="WelcomeEmailSubject" xml:space="preserve">
+    <value>Üdvözli Önt a {0}!</value>
+  </data>
+  <data name="WelcomeEmailBody" xml:space="preserve">
+    <value>A fiókodat sikeresen létrehoztuk, és készen állsz arra, hogy elkezdd használni a(z) {0} szolgáltatást. A fiókoddal könnyedén felfedezhetsz edzőtermeket, kezelheted tagságaidat és nyomon követheted látogatásaidat. Kérjük, itt aktiváld a fiókodat: {1}</value>
+  </data>
 </root>

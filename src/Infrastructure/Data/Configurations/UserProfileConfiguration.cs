@@ -9,8 +9,6 @@ public class UserProfileConfiguration : IEntityTypeConfiguration<UserProfile>
 {
     public void Configure(EntityTypeBuilder<UserProfile> builder)
     {
-        builder.HasKey(up => up.UserId);
-
         builder
             .HasOne<ApplicationUser>()
             .WithOne()

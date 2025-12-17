@@ -37,7 +37,7 @@ public class UpdateUserProfilePreferredLanguageTests : BaseTestFixture
         
         await SendAsync(command);
 
-        var profile = await FindAsync<UserProfile>(obj.userProfile.UserId);
+        var profile = await FindAsync<UserProfile>(obj.userProfile.Id);
         profile.ShouldNotBeNull();
         profile.PreferredLanguage.ShouldBe(language);
     }

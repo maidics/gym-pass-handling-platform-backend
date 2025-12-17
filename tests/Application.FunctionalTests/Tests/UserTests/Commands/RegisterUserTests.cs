@@ -62,6 +62,8 @@ public class RegisterUserTests : BaseTestFixture
 
         userRoles.Count.ShouldBe(1);
         userRoles.First().ShouldBe(Roles.User);
+
+        EmailFolderShouldContainEmails(1);
     }
     
     public override void AuthorizeAttributeCheck()

@@ -2,10 +2,10 @@
 
 namespace FitPass.Domain.Common;
 
-public abstract class BaseEntity : IHasDomainEvents
+public abstract class BaseEntity
 {
     // This can easily be modified to be BaseEntity<T> and public T Id to support different key types.
-    public string Id { get; set; } = Guid.CreateVersion7().ToString();
+    public string Id { get; set; } = Guid.NewGuid().ToString();
 
     private readonly List<BaseEvent> _domainEvents = new();
 

@@ -322,4 +322,10 @@ We look forward to welcoming you back!</value>
   <data name="SuccessfulPurchase" xml:space="preserve">
     <value>Successful purchase!</value>
   </data>
+  <data name="WelcomeEmailSubject" xml:space="preserve">
+    <value>Welcome To {0}!</value>
+  </data>
+  <data name="WelcomeEmailBody" xml:space="preserve">
+    <value>Your account has been created successfully and you are all set to start using {0}. With your account, you can discover gyms, manage your memberships, and track your visits easily. Please activate your account here: {1}</value>
+  </data>
 </root>

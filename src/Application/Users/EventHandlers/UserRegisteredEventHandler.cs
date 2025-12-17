@@ -1,20 +1,44 @@
+using FitPass.Application.Common.EmailModels.Users;
 using FitPass.Application.Common.Interfaces;
-using FitPass.Domain.Strings;
+using FitPass.Application.Common.Settings;
+using FitPass.Domain.Events.Users;
 
 namespace FitPass.Application.Users.EventHandlers;
 
-/*
 public class UserRegisteredEventHandler : INotificationHandler<UserRegisteredEvent>
 {
-    private readonly ILocalDevEmailService _localDevEmailService;
+    private readonly IIdentityService  _identityService;
+    private readonly ClientAppSettings _clientAppSettings;
+    private readonly ILocalizer _localizer;
+    private readonly IEmailService  _emailService;
 
-    public UserRegisteredEventHandler(ILocalDevEmailService localDevEmailService)
+    public UserRegisteredEventHandler(
+        IIdentityService identityService,
+        ClientAppSettings clientAppSettings,
+        ILocalizer localizer,
+        IEmailService emailService)
     {
-        _localDevEmailService = localDevEmailService;
+        _identityService = identityService;
+        _clientAppSettings = clientAppSettings;
+        _localizer = localizer;
+        _emailService = emailService;
     }
+    
     public async Task Handle(UserRegisteredEvent notification, CancellationToken cancellationToken)
     {
-        await _localDevEmailService.SendEmailAsync(notification.User.Email!, EmailSubjects.Welcome(), EmailBodies.Welcome(notification.User.FirstName));
+        var token = await _identityService.GenerateEmailConfirmationTokenAsync(notification.UserId);
+        
+        Guard.Against.Null(token, nameof(token), $"Token generation failed for '{notification.UserEmail}'.");
+        
+        var url = _clientAppSettings.GetEmailConfirmationUrl(token, notification.UserEmail, notification.ByGymEmployee);
+
+        var model = new WelcomeEmailModel
+        {
+            Language = _localizer.DefaultCulture, 
+            AccountActivationUrl = url,
+            UserFirstName = notification.UserFirstName
+        };
+
+        await _emailService.SendEmailAsync(model, notification.UserEmail);
     }
 }
-*/

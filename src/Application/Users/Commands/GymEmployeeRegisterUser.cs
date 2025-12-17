@@ -5,6 +5,7 @@ using FitPass.Application.Common.Security;
 using FitPass.Application.GymMemberships.DTOs;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
+using FitPass.Domain.Events.Users;
 using FitPass.Domain.Strings;
 using FitPass.Infrastructure.Localization.Resources;
 
@@ -97,6 +98,12 @@ public class GymEmployeeRegisterUserCommandHandler : IRequestHandler<GymEmployee
 
             await _context.UserProfiles.AddAsync(userProfile);
 
+            userProfile.AddDomainEvent(new UserRegisteredEvent(
+                creationResultObj.userId!, 
+                command.Email,
+                command.FirstName, 
+                true));
+
             var gymMembership = new GymMembership
             {
                 UserId = creationResultObj.userId!,
@@ -104,12 +111,10 @@ public class GymEmployeeRegisterUserCommandHandler : IRequestHandler<GymEmployee
             };
 
             await _context.GymMemberships.AddAsync(gymMembership);
+            
             await _context.SaveChangesAsync();
 
             await transaction.CommitAsync();
-
-            //send this with Domain event instead
-            //await _sender.Send(new SendEmailConfirmationEmailCommand(command.Email));
 
             return Result.Success(gymMembership.MapToDto());
         } catch

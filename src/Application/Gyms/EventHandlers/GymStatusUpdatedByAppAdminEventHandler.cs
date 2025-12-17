@@ -1,5 +1,6 @@
 ﻿using FitPass.Application.Common.EmailModels.Gyms;
 using FitPass.Application.Common.Interfaces;
+using FitPass.Application.Common.Models;
 using FitPass.Domain.Events.Gyms;
 
 namespace FitPass.Application.Gyms.EventHandlers;

@@ -19,7 +19,7 @@ public class DeleteMyAccountTests : BaseTestFixture
         var result = await SendAsync(command);
         result.Succeeded.ShouldBeTrue();
 
-        var deletedUserProfile = await FindAsync<UserProfile>(obj.userProfile.UserId);
+        var deletedUserProfile = await FindAsync<UserProfile>(obj.userProfile.Id);
         deletedUserProfile.ShouldBeNull();
     }
 

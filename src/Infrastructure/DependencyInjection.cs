@@ -21,6 +21,7 @@ using Microsoft.IdentityModel.Tokens;
 using Polly;
 using Stripe;
 using FitPass.Application.Common.Interfaces.Payment;
+using FitPass.Application.Common.Settings;
 using FitPass.Infrastructure.Email;
 using FitPass.Infrastructure.Jwt;
 using FitPass.Infrastructure.Stripe.Services.Webhook;
@@ -113,6 +114,8 @@ public static class DependencyInjection
                     RoleClaimType = ClaimTypes.Role
                 };
             });
+        
+        builder.Services.Configure<ClientAppSettings>(builder.Configuration.GetSection(ConfigurationSections.ClientApp));
 
         builder.Services
             .AddStripeServices(builder.Configuration)

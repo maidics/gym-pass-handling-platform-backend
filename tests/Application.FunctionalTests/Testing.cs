@@ -39,7 +39,7 @@ public partial class Testing
             throw new InvalidOperationException("Tests tried to run in non docker environment.");
         }
 
-        EraseEmailPickupFolder();
+        EraseEmailPickupFolder(); //deleting email folder here so they can be viewed once the test ends
     }
 
     [OneTimeTearDown]

@@ -63,5 +63,7 @@ public class RegisterPendingGymManagementTests : BaseTestFixture
         userProfile.ShouldNotBeNull();
         userProfile.FirstName.ShouldBe(firstName);
         userProfile.LastName.ShouldBe(lastName);
+
+        EmailFolderShouldContainEmails(1);
     }
 }

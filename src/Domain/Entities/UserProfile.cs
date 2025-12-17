@@ -1,7 +1,6 @@
-
 namespace FitPass.Domain.Entities;
 
-public class UserProfile
+public class UserProfile : BaseEntity
 {
     public required string UserId { get; set; }
     public required string FirstName { get; set; }

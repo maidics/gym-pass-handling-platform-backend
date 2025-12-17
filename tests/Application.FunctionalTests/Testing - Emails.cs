@@ -7,7 +7,7 @@ namespace FitPass.Application.FunctionalTests;
 
 public partial class Testing
 {
-    public FileInfo[] GetEmailFolderFileInfos()
+    public static FileInfo[] GetEmailFolderFileInfos()
     {
         using var scope = _scopeFactory.CreateScope();
         var environment = scope.ServiceProvider.GetRequiredService<IWebHostEnvironment>();
@@ -22,5 +22,14 @@ public partial class Testing
         
         var dirInfo = new DirectoryInfo(emailFolder);
         return dirInfo.GetFiles();
+    }
+
+    public static FileInfo[] EmailFolderShouldContainEmails(int amount = 1)
+    {
+        var infos = GetEmailFolderFileInfos();
+        
+        infos.Length.ShouldBe(amount);
+
+        return infos;
     }
 }

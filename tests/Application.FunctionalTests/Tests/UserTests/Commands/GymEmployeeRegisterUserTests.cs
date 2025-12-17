@@ -72,5 +72,7 @@ public class GymEmployeeRegisterUserTests : BaseTestFixture
         var gymMembership = await FindByUserIdAsync<GymMembership>(createdUserId);
         gymMembership.ShouldNotBeNull();
         gymMembership.GymId.ShouldBe(gymStaffObj.gym.Id);
+
+        EmailFolderShouldContainEmails(1);
     }
 }

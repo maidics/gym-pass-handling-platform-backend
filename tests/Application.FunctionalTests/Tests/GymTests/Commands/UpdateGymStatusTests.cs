@@ -54,5 +54,8 @@ public class UpdateGymStatusTests : BaseTestFixture
         var updatedGym = await FindAsync<Gym>(command.GymId);
         updatedGym.ShouldNotBeNull();
         updatedGym.Status.ShouldBe(command.NewGymStatus);
+
+        EmailFolderShouldContainEmails(2); //2 because of obj.gymAdmin & obj.gymStaff
+        
     }
 }

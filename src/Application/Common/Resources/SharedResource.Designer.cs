@@ -961,6 +961,24 @@ namespace FitPass.Infrastructure.Localization.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Your account has been created successfully and you are all set to start using {0}. With your account, you can discover gyms, manage your memberships, and track your visits easily. Please activate your account here: {1}.
+        /// </summary>
+        public static string WelcomeEmailBody {
+            get {
+                return ResourceManager.GetString("WelcomeEmailBody", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Welcome To {0}!.
+        /// </summary>
+        public static string WelcomeEmailSubject {
+            get {
+                return ResourceManager.GetString("WelcomeEmailSubject", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Your gym is suspended..
         /// </summary>
         public static string YourGymIsSuspended {
