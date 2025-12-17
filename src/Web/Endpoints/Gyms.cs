@@ -27,9 +27,11 @@ public class Gyms : EndpointGroupBase
         groupBuilder.MapPost(RegisterGymFromRequest, "Register/FromRequest").RequireAuthorization();
 
         //groupBuilder.MapPost(RegisterGym, "Register").RequireAuthorization();
+
+        groupBuilder.MapPut(UpdateMyGymStatus, "My/Status").RequireAuthorization();
     }
 
-    public async Task<IResult> UpdateMyGymProfile(ISender sender, [FromBody] UpdateMyGymProfileCommand command, CancellationToken cancellationToken)
+    public async Task<Results<NoContent, ProblemHttpResult>> UpdateMyGymProfile(ISender sender, [FromBody] UpdateMyGymProfileCommand command, CancellationToken cancellationToken)
     {
         var result = await sender.Send(command, cancellationToken);
 
@@ -43,7 +45,7 @@ public class Gyms : EndpointGroupBase
         return TypedResults.Ok(result);
     }
 
-    public async Task<IResult> GetGymById(ISender sender, string gymId, CancellationToken cancellationToken)
+    public async Task<Results<Ok<GymDto>, ProblemHttpResult>> GetGymById(ISender sender, string gymId, CancellationToken cancellationToken)
     {
         var result = await sender.Send(new GetGymByIdQuery(gymId), cancellationToken);
 
@@ -59,7 +61,7 @@ public class Gyms : EndpointGroupBase
     }
     */
 
-    public async Task<IResult> UpdateGymStatus(ISender sender, string gymId, [FromBody] GymStatus newGymStatus, [FromBody] string rationale, CancellationToken cancellationToken)
+    public async Task<Results<NoContent, ProblemHttpResult>> UpdateGymStatus(ISender sender, string gymId, [FromBody] GymStatus newGymStatus, [FromBody] string rationale, CancellationToken cancellationToken)
     {
         var result = await sender.Send(new UpdateGymStatusCommand(gymId, newGymStatus, rationale), cancellationToken);
 
@@ -73,14 +75,14 @@ public class Gyms : EndpointGroupBase
         return TypedResults.Ok(result);
     }
 
-    public async Task<IResult> UpdateMyGymStatus(ISender sender, [FromBody] UpdateMyGymStatusCommand command, CancellationToken cancellationToken)
+    public async Task<Results<NoContent, ProblemHttpResult>> UpdateMyGymStatus(ISender sender, [FromBody] UpdateMyGymStatusCommand command, CancellationToken cancellationToken)
     {
         var result = await sender.Send(command, cancellationToken);
 
         return result.ToTypedResult();
     }
     
-    public async Task<IResult> RegisterGymFromRequest(ISender sender, string requestId, CancellationToken cancellationToken)
+    public async Task<Results<Ok<GymDto>, ProblemHttpResult>> RegisterGymFromRequest(ISender sender, string requestId, CancellationToken cancellationToken)
     {
         var result = await sender.Send(new RegisterGymFromRequestCommand(requestId));
 

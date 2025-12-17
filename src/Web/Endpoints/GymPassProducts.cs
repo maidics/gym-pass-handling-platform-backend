@@ -1,5 +1,7 @@
 using FitPass.Application.GymPassProducts.Commands;
+using FitPass.Application.GymPassProducts.DTOs;
 using FitPass.Application.GymPassProducts.Queries;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FitPass.Web.Endpoints;
@@ -17,18 +19,25 @@ public class GymPassProducts : EndpointGroupBase
         groupBuilder.MapGet(GetGymPassProductsByGymId, "{gymId}");
     }
 
-    public async Task<IResult> CreateGymPassProduct(ISender sender, [FromBody] CreateGymPassProductCommand command, CancellationToken cancellationToken)
+    public async Task<Results<Ok<GymPassProductDto>, ProblemHttpResult>> CreateGymPassProduct(
+        ISender sender, [FromBody] CreateGymPassProductCommand command, CancellationToken cancellationToken)
     {
         var result = await sender.Send(command);
 
         return result.ToTypedResult();
     }
 
-    public async Task<IResult> UpdateGymPassProduct(ISender sender, string gymPassProductId, [FromBody] UpdateGymPassProductCommand command, CancellationToken cancellationToken)
+    public async Task<Results<Ok<GymPassProductDto>, ProblemHttpResult>> UpdateGymPassProduct(
+        ISender sender, string gymPassProductId, [FromBody] UpdateGymPassProductCommand command, CancellationToken cancellationToken)
     {
         if (gymPassProductId != command.GymPassProductId)
         {
-            return TypedResults.BadRequest();
+            return TypedResults.Problem(
+                new ProblemDetails
+                {
+                    Status = StatusCodes.Status400BadRequest,
+                    Title = "Bad Request"
+                });
         }
 
         var result = await sender.Send(command);
@@ -36,14 +45,14 @@ public class GymPassProducts : EndpointGroupBase
         return result.ToTypedResult();
     }
 
-    public async Task<IResult> UpdateGymPassProductActiveStatus(ISender sender, string gymPassProductId, [FromBody] bool isActive, CancellationToken cancellationToken)
+    public async Task<Results<NoContent, ProblemHttpResult>> UpdateGymPassProductActiveStatus(ISender sender, string gymPassProductId, [FromBody] bool isActive, CancellationToken cancellationToken)
     {
         var result = await sender.Send(new UpdateGymPassProductActiveStatusCommand(gymPassProductId, isActive));
 
         return result.ToTypedResult();
     }
 
-    public async Task<IResult> GetGymPassProductsByGymId(ISender sender, string gymId, CancellationToken cancellationToken)
+    public async Task<Results<Ok<List<GymPassProductDto>>, ProblemHttpResult>> GetGymPassProductsByGymId(ISender sender, string gymId, CancellationToken cancellationToken)
     {
         var result = await sender.Send(new GetGymPassProductsByGymIdQuery(gymId));
 

@@ -1,5 +1,7 @@
 
 using FitPass.Application.GymPassProducts.Commands;
+using FitPass.Application.PaymentIntents.DTOs;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace FitPass.Web.Endpoints;
 
@@ -10,7 +12,8 @@ public class Payments : EndpointGroupBase
         groupBuilder.MapPost(CreateGymPassProductOnetimePaymentIntent, "/GymPassProducts/OneTime/{gymPassProductId}").RequireAuthorization();
     }
 
-    public async Task<IResult> CreateGymPassProductOnetimePaymentIntent(ISender sender, string gymPassProductId, CancellationToken cancellationToken)
+    public async Task<Results<Ok<PaymentIntentDto>, ProblemHttpResult>> CreateGymPassProductOnetimePaymentIntent(
+        ISender sender, string gymPassProductId, CancellationToken cancellationToken)
     {
         var result = await sender.Send(new CreateGymPassProductOneTimePaymentIntentCommand(gymPassProductId));
 

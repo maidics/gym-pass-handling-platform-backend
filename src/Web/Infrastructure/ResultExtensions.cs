@@ -1,11 +1,12 @@
 using FitPass.Application.Common.Models;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FitPass.Web.Infrastructure;
 
 public static class ResultExtensions
 {
-    public static IResult ToTypedResult<T>(this Result<T> result)
+    public static Results<Ok<T>, ProblemHttpResult> ToTypedResult<T>(this Result<T> result)
     {
         if (result.Succeeded)
         {
@@ -15,7 +16,7 @@ public static class ResultExtensions
         return result.MapResultFailure();
     }
 
-    public static IResult ToTypedResult(this Result result)
+    public static Results<NoContent, ProblemHttpResult> ToTypedResult(this Result result)
     {
         if (result.Succeeded)
         {
@@ -25,9 +26,9 @@ public static class ResultExtensions
         return result.MapResultFailure();
     }
 
-    private static IResult MapResultFailure(this Result result)
+    private static ProblemHttpResult MapResultFailure(this Result result)
     {
-        TypedResults.NotFound(CreateProblemDetails(result));
+        //???? : TypedResults.NotFound(CreateProblemDetails(result));
 
         return TypedResults.Problem(CreateProblemDetails(result));
     } 

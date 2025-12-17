@@ -30,7 +30,7 @@ public class GymEmployments : EndpointGroupBase
         return TypedResults.Ok(result);
     }
 
-    public async Task<IResult> GetGymEmploymentsByGymId(ISender sender, [FromQuery] string gymId, CancellationToken cancellationToken)
+    public async Task<Results<Ok<List<GymEmploymentDto>>, ProblemHttpResult>> GetGymEmploymentsByGymId(ISender sender, [FromQuery] string gymId, CancellationToken cancellationToken)
     {
         var result = await sender.Send(new GetGymEmploymentsByGymIdQuery(gymId), cancellationToken);
 

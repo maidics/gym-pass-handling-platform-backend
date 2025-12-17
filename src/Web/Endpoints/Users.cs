@@ -3,6 +3,8 @@ using FitPass.Application.Requests.Commands.Fulfill;
 using FitPass.Application.Users.Commands;
 using FitPass.Application.Users.Commands.Emails;
 using FitPass.Application.Users.Commands.RoleHandling;
+using FitPass.Application.Users.DTOs;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FitPass.Web.Endpoints;
@@ -36,84 +38,93 @@ public class Users : EndpointGroupBase
         groupBuilder.MapPut(PromotePendingGymEmployeeToGymAdminFromRequest, "Promote/GymAdmin/Request").RequireAuthorization();
     }
 
-    public async Task<IResult> RegisterUser(ISender sender, [FromBody] RegisterUserCommand command, CancellationToken cancellationToken)
+    public async Task<Results<Ok<JwtToken>, ProblemHttpResult>> RegisterUser(ISender sender, [FromBody] RegisterUserCommand command, CancellationToken cancellationToken)
     {
         var result = await sender.Send(command, cancellationToken);
 
         return result.ToTypedResult();
     }
 
-    public async Task<IResult> LogInUser(ISender sender, [FromBody] LogInUserCommand command, CancellationToken cancellationToken)
+    public async Task<Results<Ok<JwtToken>, ProblemHttpResult>> LogInUser(
+        ISender sender, [FromBody] LogInUserCommand command, CancellationToken cancellationToken)
     {
         var result = await sender.Send(command, cancellationToken);
 
         return result.ToTypedResult();
     }
 
-    public async Task<IResult> RegisterPendingGymManagement(ISender sender, [FromBody] RegisterPendingGymEmployeeCommand command, CancellationToken cancellationToken)
+    public async Task<Results<Ok<JwtToken>, ProblemHttpResult>> RegisterPendingGymManagement(
+        ISender sender, [FromBody] RegisterPendingGymEmployeeCommand command, CancellationToken cancellationToken)
     {
         var result = await sender.Send(command, cancellationToken);
 
         return result.ToTypedResult();
     }
 
-    public async Task<IResult> PromotePendingGymEmployeeToGymStaffRole(ISender sender, [FromBody] PromotePendingGymEmployeeToGymStaffRoleCommand command, CancellationToken cancellationToken)
+    public async Task<Results<NoContent, ProblemHttpResult>> PromotePendingGymEmployeeToGymStaffRole(
+        ISender sender, [FromBody] PromotePendingGymEmployeeToGymStaffRoleCommand command, CancellationToken cancellationToken)
     {
         var result = await sender.Send(command, cancellationToken);
 
         return result.ToTypedResult();
     }
 
-    public async Task<IResult> DeleteMyAccount(ISender sender)
+    public async Task<Results<NoContent, ProblemHttpResult>> DeleteMyAccount(ISender sender)
     {
         var result = await sender.Send(new DeleteMyAccountCommand());
 
         return result.ToTypedResult();
     }
 
-    public async Task<IResult> RequestPasswordResetEmail(ISender sender, [FromBody] RequestPasswordResetEmailCommand command, CancellationToken cancellationToken)
+    public async Task<Results<NoContent, ProblemHttpResult>> RequestPasswordResetEmail(
+        ISender sender, [FromBody] RequestPasswordResetEmailCommand command, CancellationToken cancellationToken)
     {
         var result = await sender.Send(command);
 
         return result.ToTypedResult();
     }
 
-    public async Task<IResult> ResetPassword(ISender sender, [FromBody] ResetPasswordCommand command)
+    public async Task<Results<NoContent, ProblemHttpResult>> ResetPassword(ISender sender, [FromBody] ResetPasswordCommand command)
     {
         var result = await sender.Send(command);
 
         return result.ToTypedResult();
     }
 
-    public async Task<IResult> DemoteGymStaffToPendingGymEmployee(ISender sender, [FromBody] DemoteGymStaffToPendingGymEmployeeCommand command, CancellationToken cancellationToken)
+    public async Task<Results<NoContent, ProblemHttpResult>> DemoteGymStaffToPendingGymEmployee(
+        ISender sender, [FromBody] DemoteGymStaffToPendingGymEmployeeCommand command, CancellationToken cancellationToken)
     {
         var result = await sender.Send(command);
 
         return result.ToTypedResult();
     }
 
-    public async Task<IResult> SendEmailConfirmationEmail(ISender sender, [FromBody] SendEmailConfirmationEmailCommand command, CancellationToken cancellationToken)
+    public async Task<Results<NoContent, ProblemHttpResult>> SendEmailConfirmationEmail(
+        ISender sender, [FromBody] SendEmailConfirmationEmailCommand command, CancellationToken cancellationToken)
     {
         var result = await sender.Send(command);
 
         return result.ToTypedResult();
     }
 
-    public async Task<IResult> ActivateUserAccount(ISender sender, [FromBody] ActivateUserAccountCommand command, CancellationToken cancellationToken)
+    public async Task<Results<Ok<JwtToken>, ProblemHttpResult>> ActivateUserAccount(
+        ISender sender, [FromBody] ActivateUserAccountCommand command, CancellationToken cancellationToken)
     {
         var result = await sender.Send(command);
 
         return result.ToTypedResult();
     }
 
-    public async Task<IResult> GymEmployeeRegisterUser(ISender sender, [FromBody] GymEmployeeRegisterUserCommand command, CancellationToken cancellationToken)
+    public async Task<Results<Ok<GymMembershipDto>, ProblemHttpResult>> GymEmployeeRegisterUser(
+        ISender sender, [FromBody] GymEmployeeRegisterUserCommand command, CancellationToken cancellationToken)
     {
         var result = await sender.Send(command);
 
         return result.ToTypedResult();
     }
 
-    public async Task<IResult> PromotePendingGymEmployeeToGymAdminFromRequest(ISender sender, [FromBody] PromotePendingGymEmployeeToGymAdminFromRequestCommand command, CancellationToken cancellationToken)
+    public async Task<Results<NoContent, ProblemHttpResult>> PromotePendingGymEmployeeToGymAdminFromRequest(
+        ISender sender, [FromBody] PromotePendingGymEmployeeToGymAdminFromRequestCommand command, CancellationToken cancellationToken)
     {
         var result = await sender.Send(command);
 

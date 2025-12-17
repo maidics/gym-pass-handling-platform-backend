@@ -23,7 +23,7 @@ public class UserProfiles : EndpointGroupBase
         return TypedResults.Ok(result);
     }
 
-    public async Task<IResult> UpdateMyUserProfile(ISender sender, UpdateMyUserProfileCommand command, CancellationToken cancellationToken)
+    public async Task<Results<NoContent, ProblemHttpResult>> UpdateMyUserProfile(ISender sender, UpdateMyUserProfileCommand command, CancellationToken cancellationToken)
     {
         var result = await sender.Send(command);
 

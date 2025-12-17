@@ -21,7 +21,7 @@ public class Requests : EndpointGroupBase
         groupBuilder.MapPut(RejectRequest, "Reject/{requestId}").RequireAuthorization();
     }
 
-    public async Task<IResult> GetRequestById(ISender sender, string requestId, CancellationToken cancellationToken)
+    public async Task<Results<Ok<RequestDto>, ProblemHttpResult>> GetRequestById(ISender sender, string requestId, CancellationToken cancellationToken)
     {
         var result = await sender.Send(new GetRequestByIdQuery(requestId), cancellationToken);
 
@@ -35,21 +35,23 @@ public class Requests : EndpointGroupBase
         return TypedResults.Ok(result);
     }
 
-    public async Task<IResult> CreateGymCreationRequest(ISender sender, [FromBody] CreateGymCreationRequestCommand command)
+    public async Task<Results<Ok<RequestDto>, ProblemHttpResult>> CreateGymCreationRequest(
+        ISender sender, [FromBody] CreateGymCreationRequestCommand command)
     {
         var result = await sender.Send(command);
 
         return result.ToTypedResult();
     }
 
-    public async Task<IResult> CreateGymAdminPromotionRequest(ISender sender, [FromBody] CreateGymAdminPromotionRequestCommand command)
+    public async Task<Results<Ok<RequestDto>, ProblemHttpResult>> CreateGymAdminPromotionRequest(
+        ISender sender, [FromBody] CreateGymAdminPromotionRequestCommand command)
     {
         var result = await sender.Send(command);
 
         return result.ToTypedResult();
     }
 
-    public async Task<IResult> RejectRequest(ISender sender, string requestId, CancellationToken cancellationToken)
+    public async Task<Results<NoContent, ProblemHttpResult>> RejectRequest(ISender sender, string requestId, CancellationToken cancellationToken)
     {
         var result = await sender.Send(new RejectRequestCommand(requestId));
 

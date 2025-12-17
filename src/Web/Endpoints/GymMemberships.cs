@@ -16,7 +16,7 @@ public class GymMemberships : EndpointGroupBase
         groupBuilder.MapGet(GetGymMembershipsQueryToMyGym, "/MyGym").RequireAuthorization();
     }
 
-    public async Task<IResult> UpdateUserMembershipStatus(ISender sender, string gymMembership, [FromBody] GymMembershipStatus newGymMembershipStatus, CancellationToken cancellationToken)
+    public async Task<Results<NoContent, ProblemHttpResult>> UpdateUserMembershipStatus(ISender sender, string gymMembership, [FromBody] GymMembershipStatus newGymMembershipStatus, CancellationToken cancellationToken)
     {
         var result = await sender.Send(new UpdateGymMembershipStatusCommand(gymMembership, newGymMembershipStatus), cancellationToken);
 

@@ -1,6 +1,7 @@
 using FitPass.Application.GymMembershipPasses.Queries;
 using FitPass.Application.GymMembershipPasses.Commands;
 using FitPass.Application.GymMembershipPasses.DTOs;
+using FitPass.Domain.Enums;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
@@ -24,14 +25,14 @@ public class GymMembershipPasses : EndpointGroupBase
         return TypedResults.Ok(result);
     }
 
-    public async Task<IResult> GymEmployeeUseGymMembershipPass(ISender sender, string userId, string gymMembershipPassId, [FromBody] string lockerNumber, CancellationToken cancellationToken)
+    public async Task<Results<Ok<PassUseResult>, ProblemHttpResult>> GymEmployeeUseGymMembershipPass(ISender sender, string userId, string gymMembershipPassId, [FromBody] string lockerNumber, CancellationToken cancellationToken)
     {
         var result = await sender.Send(new GymEmployeeUseGymMembershipPassCommand(gymMembershipPassId, userId, lockerNumber));
 
         return result.ToTypedResult();
     }
 
-    public async Task<IResult> IsGymMembershipPassValid(ISender sender, string gymMembershipPassId, CancellationToken cancellationToken)
+    public async Task<Results<Ok<bool>, ProblemHttpResult>> IsGymMembershipPassValid(ISender sender, string gymMembershipPassId, CancellationToken cancellationToken)
     {
         var result = await sender.Send(new IsGymMembershipPassValidQuery(gymMembershipPassId));
 
