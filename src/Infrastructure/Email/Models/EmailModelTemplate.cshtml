@@ -1,25 +1,27 @@
-﻿@using FitPass.Infrastructure.Localization
-@using FitPass.Application.Common.EmailModels. //SET THIS
-@using FitPass.Application.Common.Resources
-@using FitPass.Domain.Strings;
+﻿@using FitPass.Application.Common.Interfaces
+@using FitPass.Domain.Enums
 
-@model //SET THIS
-
-@inject ILocalizer localizer
-
-@{
-}
+@model 
 
 <!DOCTYPE html>
-<html lang="@Model.Language">
 
+<html lang="@Model.Language">
 <head>
     <meta charset="utf-8" />
-    <title></title>
+    <title>@Model.Subject</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            color: #333;
+        }
+    </style>
 </head>
 <body>
-    <p>@localizer.Get(nameof(SharedResource.EmailGreeting), //SET THIS)</p>
+    <p>@Model.Greeting</p>
 
-    <p>@localizer.Get(nameof(SharedResource.EmailFarewell), @CommonStrings.AppName)</p>
+    <p>@Model.Body</p>
+
+    <p style="white-space: pre-line">@Model.Farewell</p>
 </body>
 </html>

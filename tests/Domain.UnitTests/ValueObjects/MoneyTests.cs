@@ -65,16 +65,6 @@ public class MoneyTests
     }
 
     [Test]
-    public void ShouldCreateZeroAmount()
-    {
-        var money = Money.Zero("usd");
-        money.Amount.ShouldBe(0);
-        money.Currency.ShouldBe("usd");
-        money.Amount.ShouldBe(0);
-        money.IsZero().ShouldBeTrue();
-    }
-
-    [Test]
     public void ShouldCreateUsdMoney()
     {
         var money = Money.Usd(50);

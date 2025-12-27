@@ -17,7 +17,7 @@ public class GymPassProductDto
     public required bool IsActive { get; set; }
 }
 
-public static partial class Mappings
+public static class Mappings
 {
     extension(GymPassProduct gymPassProduct)
     {

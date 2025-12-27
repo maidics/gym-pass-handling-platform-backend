@@ -4,6 +4,7 @@ using FitPass.Application.Users.Commands;
 using FitPass.Application.Users.Commands.Emails;
 using FitPass.Application.Users.Commands.RoleHandling;
 using FitPass.Application.Users.DTOs;
+using FitPass.Application.Users.Queries;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
@@ -36,6 +37,8 @@ public class Users : EndpointGroupBase
         groupBuilder.MapPost(GymEmployeeRegisterUser, "Register/ByGymEmployee").RequireAuthorization();
 
         groupBuilder.MapPut(PromotePendingGymEmployeeToGymAdminFromRequest, "Promote/GymAdmin/Request").RequireAuthorization();
+
+        groupBuilder.MapGet(GetMyUser, "My").RequireAuthorization();
     }
 
     public async Task<Results<Ok<JwtToken>, ProblemHttpResult>> RegisterUser(ISender sender, [FromBody] RegisterUserCommand command, CancellationToken cancellationToken)
@@ -129,5 +132,12 @@ public class Users : EndpointGroupBase
         var result = await sender.Send(command);
 
         return result.ToTypedResult();
+    }
+
+    public async Task<Ok<UserDto>> GetMyUser(ISender sender, CancellationToken cancellationToken)
+    {
+        var result = await sender.Send(new GetMyUserQuery(), cancellationToken);
+        
+        return TypedResults.Ok(result);
     }
 }

@@ -2,7 +2,7 @@ using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Models;
 using FitPass.Application.GymPassProducts.DTOs;
-using FitPass.Infrastructure.Localization.Resources;
+using FitPass.Application.Common.Resources;
 
 namespace FitPass.Application.GymPassProducts.Queries;
 

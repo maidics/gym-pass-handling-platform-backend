@@ -13,7 +13,7 @@ public class StripeConnectedAccountService : IPaymentTenantService
     private readonly AccountService _accountService;
     private readonly AccountLinkService _accountLinkService;
     private readonly AccountLoginLinkService _loginLinkService;
-    private readonly StripeAccountLinkSettings _stripeAccountLinkSettings;
+    private readonly AccountLinks _stripeAccountLinkSettings;
     private readonly TimeProvider _timeProvider;
 
     public StripeConnectedAccountService(

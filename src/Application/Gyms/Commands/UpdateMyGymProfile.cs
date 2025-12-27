@@ -6,7 +6,7 @@ using FitPass.Domain.Enums;
 using FitPass.Domain.Entities;
 using FitPass.Application.Common.Models;
 using FitPass.Domain.ValueObjects;
-using FitPass.Infrastructure.Localization.Resources;
+using FitPass.Application.Common.Resources;
 
 namespace FitPass.Application.Gyms.Commands;
 

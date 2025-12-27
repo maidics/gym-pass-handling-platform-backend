@@ -1,9 +1,9 @@
 ﻿using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Models;
+using FitPass.Application.Common.Resources;
 using FitPass.Application.Common.Security;
 using FitPass.Domain.Constants;
-using FitPass.Infrastructure.Localization.Resources;
 
 namespace FitPass.Application.GymMembershipPasses.Queries;
 

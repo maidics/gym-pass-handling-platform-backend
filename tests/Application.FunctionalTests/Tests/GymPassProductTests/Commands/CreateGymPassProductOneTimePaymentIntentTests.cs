@@ -2,7 +2,6 @@
 using FitPass.Application.FunctionalTests.TestData;
 using FitPass.Application.GymPassProducts.Commands;
 using FitPass.Domain.Constants;
-using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
 using FitPass.Domain.ValueObjects;
 
@@ -33,12 +32,11 @@ public class CreateGymPassProductOneTimePaymentIntentTests : BaseTestFixture
     [Test]
     public async Task ShouldReturnBusinessRuleViolationIfGymPassProductIsNotActive()
     {
-        var obj = await TestEntityBuilder.BuildGymWithTenantPaymentProfileAsync();
-        var product = await TestEntityBuilder.BuildGymPassProduct(obj.gymAdmin, Money.Zero("usd"));
+        var obj = await TestEntityBuilder.BuildGymWithTenantPaymentProfileAsync(gymPassProductActive: false);
         
         await RunAsDefaultUserAsync();
 
-        var command = new CreateGymPassProductOneTimePaymentIntentCommand(product.Id);
+        var command = new CreateGymPassProductOneTimePaymentIntentCommand(obj.gymPassProduct.Id);
         
         var result = await SendAsync(command);
         result.Type.ShouldBe(ResultTypes.BusinessRuleViolation);
@@ -50,11 +48,10 @@ public class CreateGymPassProductOneTimePaymentIntentTests : BaseTestFixture
     public async Task ShouldReturnBusinessRuleViolationIfGymIsNotActive(GymStatus gymStatus)
     {
         var obj = await TestEntityBuilder.BuildGymWithTenantPaymentProfileAsync(gymStatus);
-        var product = await TestEntityBuilder.BuildGymPassProduct(obj.gymAdmin, new Money(100, "usd"));
 
         await RunAsDefaultUserAsync();
         
-        var command = new CreateGymPassProductOneTimePaymentIntentCommand(product.Id);
+        var command = new CreateGymPassProductOneTimePaymentIntentCommand(obj.gymPassProduct.Id);
         
         var result = await SendAsync(command);
         result.Type.ShouldBe(ResultTypes.BusinessRuleViolation);
@@ -67,16 +64,10 @@ public class CreateGymPassProductOneTimePaymentIntentTests : BaseTestFixture
     public async Task ShouldCreatePaymentIntent(PassType passType, int? totalUses, int? daysAfterExpiring)
     {
         var obj = await TestEntityBuilder.BuildGymWithTenantPaymentProfileAsync();
-        var product = await TestEntityBuilder.BuildGymPassProduct(
-            obj.gymAdmin, 
-            Money.Zero("usd"), 
-            type: passType,
-            totalUses: totalUses,
-            daysAfterExpiring: daysAfterExpiring);
 
         await RunAsDefaultUserAsync();
 
-        var command = new CreateGymPassProductOneTimePaymentIntentCommand(product.Id);
+        var command = new CreateGymPassProductOneTimePaymentIntentCommand(obj.gymPassProduct.Id);
         
         var result = await SendAsync(command);
         result.Succeeded.ShouldBeTrue();
@@ -84,6 +75,6 @@ public class CreateGymPassProductOneTimePaymentIntentTests : BaseTestFixture
         
         var paymentIntent = result.Value;
         paymentIntent.ClientSecret.ShouldNotBeNullOrEmpty();
-        paymentIntent.TenantPaymentAccountId.ShouldBe(obj.tenantPaymentProfile.Id);
+        paymentIntent.TenantPaymentAccountId.ShouldBe(obj.tenantPaymentProfile.PaymentAccountId);
     }
 }

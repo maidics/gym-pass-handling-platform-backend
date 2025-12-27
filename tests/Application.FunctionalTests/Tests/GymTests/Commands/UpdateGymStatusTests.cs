@@ -32,7 +32,7 @@ public class UpdateGymStatusTests : BaseTestFixture
     {
         await RunAsAppAdminAsync();
 
-        var command = new UpdateGymStatusCommand("invalidGymId", GymStatus.Suspended, string.Empty);
+        var command = new UpdateGymStatusCommand("invalidGymId", GymStatus.Suspended, "Rationale");
 
         var result = await SendAsync(command);
         result.Type.ShouldBe(ResultTypes.NotFound);

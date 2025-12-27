@@ -34,7 +34,7 @@ public class UpdateMyUserProfileTests : BaseTestFixture
 
         var command = new UpdateMyUserProfileCommand(newFirstName, newLastName);
 
-        await Should.NotThrowAsync(SendAsync(command));
+        await SendAsync(command);
 
         var updatedUserProfile = await FindAsync<UserProfile>(obj.userProfile.Id);
 

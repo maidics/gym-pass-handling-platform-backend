@@ -31,9 +31,8 @@ public class StripeProductService : IPaymentProductService
             {
                 Name = name,
                 Description = description,
-                Shippable = false,
-                TaxCode = type == PassType.SingleUse ? _settings.TaxCodeSettings.SingleUseAccess : _settings.TaxCodeSettings.Membership,
-                Type = "service",
+                //Shippable = false,
+                TaxCode = type == PassType.SingleUse ? _settings.TaxCodes.SingleUseAccess : _settings.TaxCodes.Membership,
                 Active = isActive
             };
 

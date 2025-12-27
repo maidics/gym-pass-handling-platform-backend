@@ -2,7 +2,7 @@
 using FitPass.Application.Common.Models;
 using FitPass.Application.GymMembershipPasses.DTOs;
 using FitPass.Domain.Events.GymPassProducts;
-using FitPass.Infrastructure.Localization.Resources;
+using FitPass.Application.Common.Resources;
 
 namespace FitPass.Application.GymPassProducts.EventHandlers;
 

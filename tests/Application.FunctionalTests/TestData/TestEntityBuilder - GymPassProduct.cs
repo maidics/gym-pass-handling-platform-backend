@@ -24,24 +24,9 @@ public partial class TestEntityBuilder
         
         var command = new CreateGymPassProductCommand(name, description, type, totalUses, daysAfterExpiring, isActive, price);
         
-        string gymPassProductId;
+        var result = await SendAsync(command);
 
-        try
-        {
-            var result = await SendAsync(command);
-            
-            if (!result.Succeeded)
-            {
-                throw new Exception($"Failed to create GymPassProduct: {result.Message}");
-            }
-
-            gymPassProductId = result.Value.Id;
-        } catch (Exception ex)
-        {
-            throw new Exception("Error creating GymPassProduct", ex);
-        }
-
-        var product = await FindAsync<GymPassProduct>(gymPassProductId);
+        var product = await FindAsync<GymPassProduct>(result.Value.Id);
 
         Guard.Against.Null(product);
 

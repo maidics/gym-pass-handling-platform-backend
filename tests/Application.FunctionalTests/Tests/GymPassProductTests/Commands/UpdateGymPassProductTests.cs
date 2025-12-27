@@ -31,7 +31,7 @@ public class UpdateGymPassProductTests : BaseTestFixture
             string.Empty,
             totalUses,
             daysAfterExpiring,
-            Money.Zero("eur"));
+            Money.Usd(10));
 
         await ShouldThrowIfParametersAreInvalidAsync(command);
     }
@@ -48,8 +48,8 @@ public class UpdateGymPassProductTests : BaseTestFixture
             "Updated Name", 
             "Updated Description", 
             1, 
-            null, 
-            Money.Zero("eur"));
+            null,
+            Money.Usd(10));
         
         var result =  await SendAsync(command);
         result.Type.ShouldBe(ResultTypes.BusinessRuleViolation);
@@ -60,24 +60,23 @@ public class UpdateGymPassProductTests : BaseTestFixture
     public async Task ShouldReturnNotFoundIfGymPassProductNotFound()
     {
         var obj = await TestEntityBuilder.BuildGymWithTenantPaymentProfileAsync();
-        var product = await TestEntityBuilder.BuildGymPassProduct(obj.gymAdmin, Money.Zero("usd"));
         
         await RunAsUserAsync(obj.gymAdmin);
         
         var command = new UpdateGymPassProductCommand(
-            product.Id, 
+            "productId",
             "Updated Name", 
             "Updated Description", 
             1, 
-            null, 
-            Money.Zero("eur"));
+            null,
+            Money.Usd(10)); 
         
         var result =  await SendAsync(command);
         result.Type.ShouldBe(ResultTypes.NotFound);
         result.Message.ShouldNotBeEmpty();
     }
     
-    [TestCase(PassType.SingleUse, 1, null, "Updated Name", "Updated Description", 5, null, 49.99, "eur")]
+    [TestCase(PassType.SingleUse, 1, null, "Updated Name", "Updated Description", 1, null, 49.99, "eur")]
     [TestCase(PassType.MultiUse, 10, null, "Updated Name", "Updated Description", 20, null, 79.99, "gbp")]
     [TestCase(PassType.Unlimited, null, 30, "Updated Name", "Updated Description", null, 60, 99.99, "usd")]
     public async Task ShouldUpdateGymPassProduct(
@@ -85,7 +84,12 @@ public class UpdateGymPassProductTests : BaseTestFixture
         string newName, string newDescription, int? newTotalUses, int? newDaysAfterExpiring, decimal newMoneyAmount, string newMoneyCurrency)
     {
         var obj = await TestEntityBuilder.BuildGymWithTenantPaymentProfileAsync();
-        var product = await TestEntityBuilder.BuildGymPassProduct(obj.gymAdmin, Money.Zero("usd"));
+        var product = await TestEntityBuilder.BuildGymPassProduct(
+            obj.gymAdmin, 
+            Money.Usd(10), 
+            type: passType, 
+            totalUses: passTotalUses, 
+            daysAfterExpiring: passDaysAfterExpiring);
         
         var paymentIdentity = await GetFirstAsync<ProductPaymentIdentity>();
         paymentIdentity.ShouldNotBeNull();
@@ -137,7 +141,7 @@ public class UpdateGymPassProductTests : BaseTestFixture
     public async Task ShouldNotUpdateGymPassProductIfParametersAreEqual(
         decimal moneyAmount, string moneyCurrency, string name, string description, PassType passType, int? totalUses, int? daysAfterExpiring)
     {
-        var obj = await TestEntityBuilder.BuildGymAsync();
+        var obj = await TestEntityBuilder.BuildGymWithTenantPaymentProfileAsync();
         var product = await TestEntityBuilder.BuildGymPassProduct(
             obj.gymAdmin,
             new Money(moneyAmount, moneyCurrency),
@@ -165,7 +169,7 @@ public class UpdateGymPassProductTests : BaseTestFixture
         
         productDto.Id.ShouldBe(product.Id);
         productDto.Name.ShouldBe(name);
-        productDto.Description.ShouldBe(name);
+        productDto.Description.ShouldBe(description);
         productDto.TotalUses.ShouldBe(totalUses);
         productDto.DaysAfterExpiring.ShouldBe(daysAfterExpiring);
         productDto.Price.Amount.ShouldBe(moneyAmount);

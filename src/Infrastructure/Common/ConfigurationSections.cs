@@ -1,4 +1,6 @@
-﻿namespace FitPass.Infrastructure.Common;
+﻿using FitPass.Application.Common.Interfaces;
+
+namespace FitPass.Infrastructure.Common;
 
 public abstract class ConfigurationSections
 {

@@ -1,7 +1,5 @@
-using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Domain.Entities.Payment;
-using FitPass.Domain.Strings;
 
 namespace FitPass.Application.Webhooks;
 
@@ -11,8 +9,8 @@ public record UpdateTenantPaymentProfileAccountStatusCommand(
     bool DetailsSubmitted, 
     bool ChargesEnabled, 
     bool PayoutsEnabled, 
-    List<string> RequirementsDue, 
-    List<string> RequirementsEventuallyDue
+    string[] RequirementsDue, 
+    string[] RequirementsEventuallyDue
 ) : IRequest;
 
 public class UpdateTenantPaymentProfileAccountStatusCommandValidator : AbstractValidator<UpdateTenantPaymentProfileAccountStatusCommand>

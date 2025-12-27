@@ -3,7 +3,7 @@ using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Models;
 using FitPass.Application.Users.DTOs;
 using FitPass.Domain.Constants;
-using FitPass.Infrastructure.Localization.Resources;
+using FitPass.Application.Common.Resources;
 
 namespace FitPass.Application.Users.Commands;
 

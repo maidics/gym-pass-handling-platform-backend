@@ -25,7 +25,8 @@ public partial class TestEntityBuilder
         GymMembershipPass singleUsePass,
         GymMembershipPass noUsePass,
         GymPassUsage passUsage,
-        GymMembershipPass unlimitedUsePass)> BuildGymAsync(GymStatus gymStatus = GymStatus.Active)
+        GymMembershipPass unlimitedUsePass,
+        GymPassProduct gymPassProduct)> BuildGymAsync(GymStatus gymStatus = GymStatus.Active, bool gymPassProductActive = true)
     {
         var obj = await BuildGymEmployeeAsync(Roles.GymAdministrator, gymStatus);
 
@@ -97,6 +98,12 @@ public partial class TestEntityBuilder
 
         await AddAsync(unlimitedUsePass);
 
+        var gymPassProduct = GymPassProduct.SingleUse(obj.gym.Id, "Test Product", "Test Description", true, Money.Eur(10));
+
+        gymPassProduct.IsActive = gymPassProductActive;
+
+        await AddAsync(gymPassProduct);
+
         return (
             obj.gym,
             obj.user,
@@ -111,7 +118,8 @@ public partial class TestEntityBuilder
             singleUsePass,
             noUsePass,
             passUsage,
-            unlimitedUsePass);
+            unlimitedUsePass,
+            gymPassProduct);
     }
 
     public static async Task<(
@@ -129,9 +137,10 @@ public partial class TestEntityBuilder
         GymMembershipPass noUsePass,
         GymPassUsage passUsage,
         GymMembershipPass unlimitedUsePass, 
-        TenantPaymentProfile tenantPaymentProfile)> BuildGymWithTenantPaymentProfileAsync(GymStatus gymStatus = GymStatus.Active)
+        TenantPaymentProfile tenantPaymentProfile,
+        GymPassProduct gymPassProduct)> BuildGymWithTenantPaymentProfileAsync(GymStatus gymStatus = GymStatus.Active, bool gymPassProductActive = true)
     {
-        var obj = await BuildGymAsync(gymStatus);
+        var obj = await BuildGymAsync(gymStatus, gymPassProductActive);
 
         await RunAsUserAsync(obj.gymAdmin);
 
@@ -154,6 +163,7 @@ public partial class TestEntityBuilder
             obj.noUsePass,
             obj.passUsage,
             obj.unlimitedUsePass,
-            paymentProfile);
+            paymentProfile,
+            obj.gymPassProduct);
     }
 }

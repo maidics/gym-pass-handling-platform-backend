@@ -1,6 +1,6 @@
 namespace FitPass.Domain.Strings;
 
-public static class CommonStrings
+public class CommonStrings
 {
     public const string AppName = "FitPass";
 }

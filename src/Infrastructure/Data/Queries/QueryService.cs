@@ -3,8 +3,10 @@ using FitPass.Application.GymEmployments.DTOs;
 using FitPass.Application.GymMembershipPasses.DTOs;
 using FitPass.Application.GymMemberships.DTOs;
 using FitPass.Application.UserProfiles.DTOs;
+using FitPass.Application.Users.DTOs;
 using FitPass.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
+using Stripe;
 
 namespace FitPass.Infrastructure.Data.Queries;
 
@@ -26,7 +28,7 @@ public class QueryService : IQueryService
             where ge.GymId == gymId
             select new GymEmploymentDto
             {
-                ApplicationUserId = user.Id,
+                UserId = user.Id,
                 GymId = gymId,
                 EscalationEmail = ge.EscalationEmail,
                 Role = ge.Role,
@@ -37,10 +39,9 @@ public class QueryService : IQueryService
                     up.FirstName,
                     up.LastName,
                     user.Email!,
-                    up.PreferredLanguage,
-                    up.CreatedOn)
-            }
-        ).ToListAsync();
+                    up.PreferredLanguage
+                    )
+            }).ToListAsync();
     }
 
     public async Task<GymEmploymentDto?> GetGymEmploymentWithUserProfileAndEmailByUserId(string applicationUserId)
@@ -52,7 +53,7 @@ public class QueryService : IQueryService
             where user.Id == applicationUserId
             select new GymEmploymentDto
             {
-                ApplicationUserId = user.Id,
+                UserId = user.Id,
                 GymId = ge.GymId,
                 EscalationEmail = ge.EscalationEmail,
                 Role = ge.Role,
@@ -63,8 +64,7 @@ public class QueryService : IQueryService
                     up.FirstName,
                     up.LastName,
                     user.Email!,
-                    up.PreferredLanguage,
-                    up.CreatedOn)
+                    up.PreferredLanguage)
             }
         ).FirstOrDefaultAsync();
     }
@@ -80,8 +80,7 @@ public class QueryService : IQueryService
                 up.FirstName,
                 up.LastName,
                 user.Email!,
-                up.PreferredLanguage,
-                up.CreatedOn)
+                up.PreferredLanguage)
         ).FirstOrDefaultAsync();
     }
 
@@ -95,7 +94,7 @@ public class QueryService : IQueryService
                 select new GymMembershipWithUserProfileAndEmailDto
                 {
                     Id = gm.Id,
-                    ApplicationUserId = user.Id,
+                    UserId = user.Id,
                     GymId = gm.GymId!,
                     Status = gm.Status,
                     UserProfile = new UserProfileWithEmailDto(
@@ -103,8 +102,7 @@ public class QueryService : IQueryService
                         up.FirstName,
                         up.LastName,
                         user.Email!,
-                        up.PreferredLanguage,
-                        up.CreatedOn),
+                        up.PreferredLanguage),
                     Passes = gm.Passes.Select(p => new GymMembershipPassDto
                     {
                         Id = p.Id,
@@ -135,7 +133,7 @@ public class QueryService : IQueryService
             select new GymMembershipWithUserProfileAndEmailDto
             {
                 Id = gm.Id,
-                ApplicationUserId = user.Id,
+                UserId = user.Id,
                 GymId = gm.GymId!,
                 Status = gm.Status,
                 UserProfile = new UserProfileWithEmailDto(
@@ -143,8 +141,7 @@ public class QueryService : IQueryService
                     up.FirstName,
                     up.LastName,
                     user.Email!,
-                    up.PreferredLanguage,
-                    up.CreatedOn),
+                    up.PreferredLanguage),
                 Passes = gm.Passes.Select(p => new GymMembershipPassDto
                 {
                     Id = p.Id,
@@ -165,5 +162,26 @@ public class QueryService : IQueryService
             join users in _context.Users on ge.UserId equals users.Id
             where ge.GymId == gymId
             select users.Email).ToArrayAsync();
+    }
+
+    public async Task<UserDto?> GetUserAsync(string userId)
+    {
+        return await (
+            from user in _context.Users
+            join profile in _context.UserProfiles on user.Id equals profile.UserId
+            where user.Id == userId
+            select new UserDto(
+                Id: user.Id,
+                FirstName: profile.FirstName,
+                LastName: profile.LastName,
+                Email: user.Email,
+                PreferredLanguage: profile.PreferredLanguage,
+                CreatedOn: profile.CreatedOn,
+                Roles: (from ur in _context.UserRoles
+                    join r in _context.Roles on ur.RoleId equals r.Id
+                    where ur.UserId == user.Id
+                    select r.Name).ToArray(),
+                IsEmailConfirmed: user.EmailConfirmed)
+            ).FirstOrDefaultAsync();
     }
 }

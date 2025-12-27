@@ -116,4 +116,12 @@ public partial class Testing
 
         return await query.FirstOrDefaultAsync(lambda);
     }
+
+    public static async Task<int> SaveChangesAsync()
+    {
+        using var scope = _scopeFactory.CreateScope();
+        using var service = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+        return await service.SaveChangesAsync();
+    }
 }

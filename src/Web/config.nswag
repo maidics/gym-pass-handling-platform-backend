@@ -13,7 +13,7 @@
       "msBuildOutputPath": null,
       "verbose": false,
       "workingDirectory": null,
-      "aspNetCoreEnvironment": null,
+      "aspNetCoreEnvironment": "Development",
       "output": "wwwroot/api/specification.json",
       "newLineBehavior": "Auto"
     }
@@ -21,7 +21,7 @@
   "codeGenerators": {
     "openApiToTypeScriptClient": {
       "className": "ApiClient",
-      "moduleName": "apiClient",
+      "moduleName": "",
       "namespace": "",
       "typeScriptVersion": 5.5,
       "template": "Axios",
@@ -52,7 +52,7 @@
       "operationGenerationMode": "MultipleClientsFromOperationId",
       "includedOperationIds": [],
       "excludedOperationIds": [],
-      "markOptionalProperties": true,
+      "markOptionalProperties": false,
       "generateCloneMethod": false,
       "typeStyle": "Class",
       "enumStyle": "StringLiteral",
@@ -78,7 +78,7 @@
       "templateDirectory": null,
       "serviceHost": null,
       "serviceSchemes": null,
-      "output": "../../client_types/nswag_generated.ts",
+      "output": "../../../FitnessPayFac_Frontend/src/api/types.ts",
       "newLineBehavior": "Auto"
     }
   }

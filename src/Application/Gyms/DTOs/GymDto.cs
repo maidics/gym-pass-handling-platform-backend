@@ -16,7 +16,7 @@ public class GymDto
     public List<GymPassProductDto> PassProducts { get; set; } = [];
 }
 
-public static partial class Mappings
+public static class Mappings
 {
     extension(Gym gym)
     {

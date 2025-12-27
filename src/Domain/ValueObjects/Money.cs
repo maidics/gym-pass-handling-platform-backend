@@ -6,10 +6,9 @@ namespace FitPass.Domain.ValueObjects;
 
 public class Money : ValueObject
 {
-    public decimal Amount { get; }
-    public string Currency { get; }
+    public decimal Amount { get; private set; } //private set so ef core does not ignore these properties
+    public string Currency { get; private set; }
 
-    public static Money Zero(string currency) => new(0, currency);
     public static Money Usd(decimal amount) => new(amount, "usd");
     public static Money Eur(decimal amount) => new(amount, "eur");
 

@@ -78,7 +78,17 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GymEmploymentDto"
+                  }
+                }
+              }
+            }
           }
         },
         "security": [
@@ -156,7 +166,14 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PassUseResult"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -185,7 +202,14 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -225,7 +249,7 @@
           "x-position": 2
         },
         "responses": {
-          "200": {
+          "204": {
             "description": ""
           }
         },
@@ -296,7 +320,14 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GymPassProductDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -337,7 +368,14 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GymPassProductDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -377,7 +415,7 @@
           "x-position": 2
         },
         "responses": {
-          "200": {
+          "204": {
             "description": ""
           }
         },
@@ -407,7 +445,17 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GymPassProductDto"
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -458,7 +506,7 @@
           }
         ],
         "responses": {
-          "200": {
+          "204": {
             "description": ""
           }
         },
@@ -499,7 +547,7 @@
           "x-position": 2
         },
         "responses": {
-          "200": {
+          "204": {
             "description": ""
           }
         },
@@ -529,7 +577,7 @@
           "x-position": 1
         },
         "responses": {
-          "200": {
+          "204": {
             "description": ""
           }
         },
@@ -582,7 +630,14 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GymDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -610,11 +665,11 @@
           }
         ],
         "requestBody": {
-          "x-name": "newGymStatus",
+          "x-name": "command",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/GymStatus"
+                "$ref": "#/components/schemas/UpdateGymStatusCommand"
               }
             }
           },
@@ -622,7 +677,7 @@
           "x-position": 2
         },
         "responses": {
-          "200": {
+          "204": {
             "description": ""
           }
         },
@@ -677,6 +732,43 @@
         ],
         "responses": {
           "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GymDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/Gyms/My/Status": {
+      "put": {
+        "tags": [
+          "Gyms"
+        ],
+        "operationId": "UpdateMyGymStatus",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateMyGymStatusCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "204": {
             "description": ""
           }
         },
@@ -706,7 +798,14 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentIntentDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -735,7 +834,14 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RequestDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -805,7 +911,14 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RequestDto"
+                }
+              }
+            }
           }
         }
       }
@@ -830,7 +943,14 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RequestDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -858,7 +978,7 @@
           }
         ],
         "responses": {
-          "200": {
+          "204": {
             "description": ""
           }
         },
@@ -914,7 +1034,14 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValueTupleOfStringAndDateTimeOffset"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -930,7 +1057,14 @@
         "operationId": "GetTenantPaymentProfile",
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantPaymentProfileDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -948,7 +1082,14 @@
         "operationId": "GenerateTenantLoginLink",
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -977,7 +1118,7 @@
           "x-position": 1
         },
         "responses": {
-          "200": {
+          "204": {
             "description": ""
           }
         },
@@ -1032,6 +1173,36 @@
           "x-position": 1
         },
         "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/UserProfiles/My/Update/PreferredLanguage": {
+      "put": {
+        "tags": [
+          "UserProfiles"
+        ],
+        "operationId": "UpdateUserProfilePreferredLanguage",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserProfilePreferredLanguageCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
           "200": {
             "description": ""
           }
@@ -1063,7 +1234,14 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JwtToken"
+                }
+              }
+            }
           }
         }
       }
@@ -1088,7 +1266,14 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JwtToken"
+                }
+              }
+            }
           }
         }
       }
@@ -1113,7 +1298,14 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JwtToken"
+                }
+              }
+            }
           }
         }
       }
@@ -1137,7 +1329,7 @@
           "x-position": 1
         },
         "responses": {
-          "200": {
+          "204": {
             "description": ""
           }
         },
@@ -1167,7 +1359,7 @@
           "x-position": 1
         },
         "responses": {
-          "200": {
+          "204": {
             "description": ""
           }
         },
@@ -1185,7 +1377,7 @@
         ],
         "operationId": "DeleteMyAccount",
         "responses": {
-          "200": {
+          "204": {
             "description": ""
           }
         },
@@ -1215,7 +1407,7 @@
           "x-position": 1
         },
         "responses": {
-          "200": {
+          "204": {
             "description": ""
           }
         }
@@ -1240,7 +1432,7 @@
           "x-position": 1
         },
         "responses": {
-          "200": {
+          "204": {
             "description": ""
           }
         }
@@ -1265,7 +1457,7 @@
           "x-position": 1
         },
         "responses": {
-          "200": {
+          "204": {
             "description": ""
           }
         },
@@ -1296,7 +1488,14 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JwtToken"
+                }
+              }
+            }
           }
         }
       }
@@ -1321,7 +1520,14 @@
         },
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GymMembershipDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -1350,8 +1556,33 @@
           "x-position": 1
         },
         "responses": {
-          "200": {
+          "204": {
             "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/Users/My": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "GetMyUser",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -1381,13 +1612,11 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "applicationUserId": {
-            "type": "string",
-            "nullable": true
+          "userId": {
+            "type": "string"
           },
           "gymId": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "escalationEmail": {
             "type": "string",
@@ -1409,7 +1638,7 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "applicationUserId": {
+          "userId": {
             "type": "string"
           },
           "firstName": {
@@ -1419,6 +1648,9 @@
             "type": "string"
           },
           "email": {
+            "type": "string"
+          },
+          "preferredLanguage": {
             "type": "string"
           }
         }
@@ -1431,8 +1663,7 @@
             "type": "string"
           },
           "gymMembershipId": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           },
           "type": {
             "$ref": "#/components/schemas/PassType"
@@ -1468,6 +1699,18 @@
           "Unlimited"
         ]
       },
+      "PassUseResult": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "Success",
+          "Expired"
+        ],
+        "enum": [
+          "Success",
+          "Expired"
+        ]
+      },
       "GymMembershipStatus": {
         "type": "string",
         "description": "",
@@ -1487,9 +1730,8 @@
           "id": {
             "type": "string"
           },
-          "applicationUserId": {
-            "type": "string",
-            "nullable": true
+          "userId": {
+            "type": "string"
           },
           "gymId": {
             "type": "string"
@@ -1522,10 +1764,16 @@
           }
         }
       },
-      "CreateGymPassProductCommand": {
+      "GymPassProductDto": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
+          "id": {
+            "type": "string"
+          },
+          "gymId": {
+            "type": "string"
+          },
           "name": {
             "type": "string"
           },
@@ -1545,11 +1793,11 @@
             "format": "int32",
             "nullable": true
           },
-          "isActive": {
-            "type": "boolean"
-          },
           "price": {
             "$ref": "#/components/schemas/Money"
+          },
+          "isActive": {
+            "type": "boolean"
           }
         }
       },
@@ -1577,6 +1825,37 @@
         "type": "object",
         "x-abstract": true,
         "additionalProperties": false
+      },
+      "CreateGymPassProductCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "passType": {
+            "$ref": "#/components/schemas/PassType"
+          },
+          "totalUses": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "daysAfterExpires": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "price": {
+            "$ref": "#/components/schemas/Money"
+          }
+        }
       },
       "UpdateGymPassProductCommand": {
         "type": "object",
@@ -1652,29 +1931,17 @@
           }
         }
       },
-      "PassUseResult": {
-        "type": "string",
-        "description": "",
-        "x-enumNames": [
-          "Success",
-          "Expired"
-        ],
-        "enum": [
-          "Success",
-          "Expired"
-        ]
-      },
       "UpdateMyGymProfileCommand": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "gymName": {
+          "newName": {
             "type": "string"
           },
-          "gymAddress": {
+          "newAddress": {
             "$ref": "#/components/schemas/Address"
           },
-          "gymTier": {
+          "newTier": {
             "$ref": "#/components/schemas/GymTier"
           }
         }
@@ -1773,40 +2040,39 @@
           "Suspended"
         ]
       },
-      "GymPassProductDto": {
+      "UpdateGymStatusCommand": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "id": {
-            "type": "string"
-          },
           "gymId": {
             "type": "string"
           },
-          "name": {
+          "newGymStatus": {
+            "$ref": "#/components/schemas/GymStatus"
+          },
+          "rationale": {
+            "type": "string"
+          }
+        }
+      },
+      "UpdateMyGymStatusCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "newGymStatus": {
+            "$ref": "#/components/schemas/GymStatus"
+          }
+        }
+      },
+      "PaymentIntentDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "clientSecret": {
             "type": "string"
           },
-          "description": {
+          "tenantPaymentAccountId": {
             "type": "string"
-          },
-          "type": {
-            "$ref": "#/components/schemas/PassType"
-          },
-          "totalUses": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "daysAfterExpiring": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "price": {
-            "$ref": "#/components/schemas/Money"
-          },
-          "isActive": {
-            "type": "boolean"
           }
         }
       },
@@ -1928,7 +2194,7 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "requestDescription": {
+          "description": {
             "type": "string"
           },
           "priorityLevel": {
@@ -1943,16 +2209,16 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "gymName": {
+          "name": {
             "type": "string"
           },
-          "gymAddress": {
+          "address": {
             "$ref": "#/components/schemas/Address"
           },
-          "gymStatus": {
+          "status": {
             "$ref": "#/components/schemas/GymStatus"
           },
-          "gymTier": {
+          "tier": {
             "$ref": "#/components/schemas/GymTier"
           },
           "escalationEmail": {
@@ -1964,13 +2230,13 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "userIdToPromote": {
+          "userId": {
             "type": "string"
           },
-          "requestDescription": {
+          "description": {
             "type": "string"
           },
-          "requestPriorityLevel": {
+          "priorityLevel": {
             "$ref": "#/components/schemas/PriorityLevel"
           },
           "escalationEmail": {
@@ -2023,21 +2289,29 @@
         "type": "string",
         "description": "",
         "x-enumNames": [
-          "GymMembershipPassPurchaseSuccessful",
           "Default",
           "Error",
           "PaymentFailed",
           "PaymentProviderProductSynced",
-          "PaymentProviderPriceSynced"
+          "PaymentProviderPriceSynced",
+          "GymMembershipStatusChange",
+          "GymPassProductPurchaseFulfillmentFailed",
+          "SuccessfulPurchase"
         ],
         "enum": [
-          "GymMembershipPassPurchaseSuccessful",
           "Default",
           "Error",
           "PaymentFailed",
           "PaymentProviderProductSynced",
-          "PaymentProviderPriceSynced"
+          "PaymentProviderPriceSynced",
+          "GymMembershipStatusChange",
+          "GymPassProductPurchaseFulfillmentFailed",
+          "SuccessfulPurchase"
         ]
+      },
+      "ValueTupleOfStringAndDateTimeOffset": {
+        "type": "object",
+        "additionalProperties": false
       },
       "CreateTenantPaymentProfileCommand": {
         "type": "object",
@@ -2051,14 +2325,71 @@
           }
         }
       },
+      "TenantPaymentProfileDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "gymId": {
+            "type": "string"
+          },
+          "accountStatus": {
+            "$ref": "#/components/schemas/TenantPaymentAccountStatusDto"
+          },
+          "lastUpdatedOnPaymentProvidersSide": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "lastUpdatedByOnPaymentProvidersSide": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastAccountLinkGeneratedOn": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "lastAccountLinkGeneratedBy": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "TenantPaymentAccountStatusDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "chargesEnabled": {
+            "type": "boolean"
+          },
+          "detailsSubmitted": {
+            "type": "boolean"
+          },
+          "payoutsEnabled": {
+            "type": "boolean"
+          },
+          "requirementsDue": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "requirementsEventuallyDue": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
       "UpdateTenantPaymentAccountPayoutScheduleCommand": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "interval": {
+          "timeInterval": {
             "$ref": "#/components/schemas/TimeIntervals"
           },
-          "monhtlyAnchor": {
+          "monthlyAnchor": {
             "type": "integer",
             "format": "int32",
             "nullable": true
@@ -2123,6 +2454,35 @@
           },
           "lastName": {
             "type": "string"
+          }
+        }
+      },
+      "UpdateUserProfilePreferredLanguageCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "language": {
+            "type": "string"
+          }
+        }
+      },
+      "JwtToken": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "accessToken": {
+            "type": "string"
+          },
+          "expiresIn": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "tokenType": {
+            "type": "string"
+          },
+          "refreshToken": {
+            "type": "string",
+            "nullable": true
           }
         }
       },
@@ -2252,6 +2612,39 @@
           }
         }
       },
+      "GymMembershipDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "gymId": {
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/GymMembershipStatus"
+          },
+          "createdOn": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "createdBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "passes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GymMembershipPassDto"
+            }
+          }
+        }
+      },
       "GymEmployeeRegisterUserCommand": {
         "type": "object",
         "additionalProperties": false,
@@ -2273,6 +2666,41 @@
         "properties": {
           "requestId": {
             "type": "string"
+          }
+        }
+      },
+      "UserDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "preferredLanguage": {
+            "type": "string"
+          },
+          "createdOn": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "isEmailConfirmed": {
+            "type": "boolean"
           }
         }
       }

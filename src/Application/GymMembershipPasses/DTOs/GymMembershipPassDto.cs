@@ -6,14 +6,14 @@ namespace FitPass.Application.GymMembershipPasses.DTOs;
 public class GymMembershipPassDto
 {
     public required string Id { get; set; }
-    public required string? GymMembershipId { get; set; }
+    public required string GymMembershipId { get; set; }
     public required PassType Type { get; set; }
     public required int? TotalUses { get; set; }
     public required int? RemainingUses { get; set; }
     public required DateTimeOffset? ExpirationDate { get; set; }
 }
 
-public static partial class Mappings
+public static class Mappings
 {
     extension(GymMembershipPass gymMembershipPass)
     {

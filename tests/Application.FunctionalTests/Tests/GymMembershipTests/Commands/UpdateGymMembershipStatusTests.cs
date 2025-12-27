@@ -57,6 +57,9 @@ public class UpdateGymMembershipStatusTests : BaseTestFixture
     {
         var obj = await TestEntityBuilder.BuildGymAsync();
 
+        var notificationTask = ShouldContainNotificationForUserAsync(obj.gymMember.Id);
+        await Task.Delay(50);
+
         await RunAsUserAsync(obj.gymAdmin);
 
         var command = new UpdateGymMembershipStatusCommand(obj.gymMembership.Id, GymMembershipStatus.Banned);
@@ -69,6 +72,8 @@ public class UpdateGymMembershipStatusTests : BaseTestFixture
         updatedGymMembership.Status.ShouldBe(command.NewStatus);
 
         EmailFolderShouldContainEmails(1);
-        await ShouldContainNotificationForUser(obj.gymMember.Id);
+
+        var notification = await notificationTask;
+        notification.Type.ShouldBe(ClientNotificationType.GymMembershipStatusChange);
     }
 }

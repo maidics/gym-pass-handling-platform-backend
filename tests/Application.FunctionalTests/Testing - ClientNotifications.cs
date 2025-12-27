@@ -14,16 +14,24 @@ public partial class Testing
         return service.StreamUserUpdates(userId, CancellationToken.None);
     }
 
-    public static async Task<ClientNotification> ShouldContainNotificationForUser(string userId)
+    public static Task<ClientNotification> ShouldContainNotificationForUserAsync(string userId)
     {
-        var enumerator = GetClientNotificationStreamerForUser(userId).GetAsyncEnumerator();
-        var hasItem = await enumerator.MoveNextAsync();
+        return Task.Run(async () =>
+        {
+            using var scope = _scopeFactory.CreateScope();
+            var service = scope.ServiceProvider.GetRequiredService<ClientNotificationService>();
 
-        hasItem.ShouldBeTrue();
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
 
-        var current = enumerator.Current;
-        current.ShouldNotBeNull();
+            try
+            {
+                await foreach (var notification in service.StreamUserUpdates(userId, cts.Token))
+                {
+                    return notification;
+                }
+            } catch (OperationCanceledException) { }
 
-        return current;
+            throw new ShouldAssertException("Stream ended without any data.");
+        });
     }
 }

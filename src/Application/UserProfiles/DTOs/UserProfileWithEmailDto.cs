@@ -5,5 +5,4 @@ public record UserProfileWithEmailDto (
     string FirstName,
     string LastName,
     string Email,
-    string PreferredLanguage,
-    DateTimeOffset CreatedOn);
+    string PreferredLanguage);

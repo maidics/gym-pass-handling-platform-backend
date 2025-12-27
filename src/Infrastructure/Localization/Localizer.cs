@@ -1,6 +1,7 @@
 ﻿using System.Globalization;
 using FitPass.Application.Common.Interfaces;
-using FitPass.Infrastructure.Localization.Resources;
+using FitPass.Application.Common.Resources;
+using FitPass.Application.Common.Scopes;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Options;
 
@@ -61,7 +62,7 @@ public class Localizer : ILocalizer
             }
 
             return arg;
-        });
+        }).ToArray();
         
         return CapitalizeFirstLetter(_localizer[key, localizedArgs]);
     }

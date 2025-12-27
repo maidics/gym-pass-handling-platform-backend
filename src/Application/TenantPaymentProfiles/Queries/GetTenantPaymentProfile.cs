@@ -6,7 +6,7 @@ using FitPass.Application.TenantPaymentProfiles.DTOs;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Entities.Payment;
-using FitPass.Infrastructure.Localization.Resources;
+using FitPass.Application.Common.Resources;
 using Microsoft.Extensions.Logging;
 
 namespace FitPass.Application.TenantPaymentProfiles.Queries;

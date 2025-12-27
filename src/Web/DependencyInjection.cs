@@ -55,7 +55,7 @@ public static class DependencyInjection
         {
             options.AddPolicy("AllowFrontent", builder =>
             {
-                builder.WithOrigins("http://localhost:5000")
+                builder.WithOrigins("http://localhost:5173")
                     .AllowAnyHeader()
                     .AllowAnyMethod()
                     .AllowCredentials();

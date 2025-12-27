@@ -1,29 +1,25 @@
-﻿@using FitPass.Infrastructure.Localization
-@using FitPass.Application.Common.EmailModels.Users
-@using FitPass.Application.Common.Resources
+﻿@using FitPass.Application.Common.EmailModels.Users
+@using FitPass.Application.Common.Interfaces
 @using FitPass.Domain.Strings
 
 @model WelcomeEmailModel
 
-@inject ILocalizer localizer
 
 <!DOCTYPE html>
 <html lang="@Model.Language">
 
 <head>
     <meta charset="utf-8" />
-    <title>@localizer.Get(nameof(SharedResource.WelcomeEmailSubject), @FitPass.Domain.Strings.CommonStrings.AppName)</title>
+    <title>@Model.Subject</title>
     <style>
         body { font-family: Arial, sans-serif; font-size: 14px; color: #333; }
-        .welcome-title { font-size: 18px; font-weight: bold; margin-bottom: 10px; }
-        .highlight { font-weight: bold; }
     </style>
 </head>
 <body>
-    <p class="welcome-title">@localizer.Get(nameof(SharedResource.EmailGreeting), @Model.UserFirstName)</p>
+    <p>@Model.Greeting</p>
 
-    <p class="highlight">@localizer.Get(nameof(SharedResource.WelcomeEmailBody), @CommonStrings.AppName, @Model.AccountActivationUrl)</p>
+    <p>@Model.Body</p>
 
-    <p>@localizer.Get(nameof(SharedResource.EmailFarewell), @CommonStrings.AppName)</p>
+    <p style="white-space: pre-line">@Model.Farewell</p>
 </body>
 </html>

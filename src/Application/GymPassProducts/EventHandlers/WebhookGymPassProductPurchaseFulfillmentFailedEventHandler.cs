@@ -3,7 +3,9 @@ using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Models;
 using FitPass.Domain.Events.GymPassProducts;
-using FitPass.Infrastructure.Localization.Resources;
+using FitPass.Application.Common.Resources;
+using FitPass.Application.Common.Scopes;
+using FitPass.Domain.Strings;
 
 namespace FitPass.Application.GymPassProducts.EventHandlers;
 
@@ -49,13 +51,21 @@ public class WebhookGymPassProductPurchaseFulfillmentFailedEventHandler : INotif
             .Select(x => x.Name)
             .FirstOrDefaultAsync();
 
-        var model = new GymPassProductPurchaseFulfillmentFailedEmailModel
+        var language = result?.PreferredLanguage ?? _localizer.DefaultCulture;
+
+        GymPassProductPurchaseFulfillmentFailedEmailModel model;
+
+        using (var scope = new CultureInfoScope(language))
         {
-            Language = result?.PreferredLanguage ?? _localizer.DefaultCulture,
-            UserFirstName = result?.FirstName ?? _localizer.GetForCulture(result?.PreferredLanguage ?? _localizer.DefaultCulture, nameof(SharedResource.User)),
-            ReceiptId = notification.ReceiptId,
-            GymName = gymName ?? _localizer.Get(nameof(SharedResource.Gym))
-        };
+            model = new GymPassProductPurchaseFulfillmentFailedEmailModel
+            {
+                Language = language,
+                Subject = _localizer.Get(nameof(SharedResource.GymPassProductPurchaseFulfillmentFailedEmailSubject)),
+                Greeting = _localizer.Get(nameof(SharedResource.EmailGreeting), result?.FirstName ?? nameof(SharedResource.User)),
+                Body = _localizer.Get(nameof(SharedResource.GymPassProductPurchaseFulfillmentFailedEmailBody), gymName ?? nameof(SharedResource.Gym), notification.ReceiptId),
+                Farewell = _localizer.Get(nameof(SharedResource.EmailFarewell), CommonStrings.AppName)
+            };
+        }
 
         await _emailService.SendEmailAsync(model, email);
 

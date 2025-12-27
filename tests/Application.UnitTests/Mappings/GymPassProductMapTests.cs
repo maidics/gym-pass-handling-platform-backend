@@ -13,7 +13,7 @@ public class GymPassProductMapTests
     [Test]
     public void ShouldMapToDto()
     {
-        var product = GymPassProduct.SingleUse("gymId", "name", "description", true, Money.Zero("usd"));
+        var product = GymPassProduct.SingleUse("gymId", "name", "description", true, Money.Usd(10));
 
         var dto = product.MapToDto();
 
@@ -26,6 +26,6 @@ public class GymPassProductMapTests
             () => dto.TotalUses.ShouldBe(1),
             () => dto.DaysAfterExpiring.ShouldBeNull(),
             () => dto.IsActive.ShouldBeTrue(),
-            () => dto.Price.ShouldBeEquivalentTo(Money.Zero("usd")));
+            () => dto.Price.ShouldBeEquivalentTo(Money.Usd(10)));
     }
 }

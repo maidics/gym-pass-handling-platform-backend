@@ -1,8 +1,13 @@
-﻿namespace FitPass.Application.Common.EmailModels;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace FitPass.Application.Common.EmailModels;
 
 //marker interface
-//inheritor has to be class because of Language property mutability
-public interface IEmailModel
+public interface IEmailModel 
 {
-    string? Language { get; set; } //nullable - if null EmailService uses ILocalizer.DefaultCulture
+    string Language { get; init; }
+    string Subject { get; init; }
+    string Greeting { get; init; }
+    string Body { get; init; }
+    string Farewell { get; init; }
 }

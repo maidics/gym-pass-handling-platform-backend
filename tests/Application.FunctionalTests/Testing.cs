@@ -1,11 +1,11 @@
 ﻿using FitPass.Domain.Constants;
-using FitPass.Infrastructure.Data.Interceptors;
 using FitPass.Infrastructure.Email;
 using FitPass.Infrastructure.Identity;
 using FitPass.Infrastructure.Stripe;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Stripe;
 
 namespace FitPass.Application.FunctionalTests;
@@ -53,7 +53,8 @@ public partial class Testing
     {
         using var scope = _scopeFactory.CreateScope();
         var environment = scope.ServiceProvider.GetRequiredService<IWebHostEnvironment>();
-        var settings = scope.ServiceProvider.GetRequiredService<EmailSettings>();
+        var options = scope.ServiceProvider.GetRequiredService<IOptions<EmailSettings>>();
+        var settings = options.Value;
 
         if (settings.EmailPickupFolderName is null || settings.EmailPickupSubFolderName is null)
         {
@@ -75,7 +76,7 @@ public partial class Testing
         }
         catch (IOException)
         {
-            TestContext.WriteLine($"Failed to delete pickup folder {pickupDirectory}. Files might be in use.");
+            TestContext.Out.WriteLine($"Failed to delete pickup folder {pickupDirectory}. Files might be in use.");
         }
     }
 

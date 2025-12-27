@@ -31,6 +31,7 @@
     <Compile Update="Common\Resources\SharedResource.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
+      <DependentUpon>SharedResource.resx</DependentUpon>
     </Compile>
   </ItemGroup>
 

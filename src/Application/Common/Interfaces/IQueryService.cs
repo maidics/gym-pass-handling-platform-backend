@@ -1,12 +1,14 @@
 using FitPass.Application.GymEmployments.DTOs;
 using FitPass.Application.GymMemberships.DTOs;
 using FitPass.Application.UserProfiles.DTOs;
+using FitPass.Application.Users.DTOs;
 using FitPass.Domain.Enums;
 
 namespace FitPass.Application.Common.Interfaces;
 
 public interface IQueryService
 {
+    Task<UserDto?> GetUserAsync(string userId);
     Task<GymEmploymentDto?> GetGymEmploymentWithUserProfileAndEmailByUserId(string applicationUserId);
     Task<List<GymEmploymentDto>> GetGymEmploymentsWithUserProfileAndEmailByGymId(string gymId);
     Task<UserProfileWithEmailDto?> GetUserProfileWithEmailByApplicationUserId(string applicationUserId);

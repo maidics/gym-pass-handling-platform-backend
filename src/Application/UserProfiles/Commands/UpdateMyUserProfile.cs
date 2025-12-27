@@ -4,7 +4,7 @@ using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Security;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
-using FitPass.Infrastructure.Localization.Resources;
+using FitPass.Application.Common.Resources;
 
 namespace FitPass.Application.UserProfiles.Commands;
 
@@ -43,7 +43,7 @@ public class UpdateMyUserProfileCommandHandler : IRequestHandler<UpdateMyUserPro
     {
         var profile = await _context
             .UserProfiles
-            .FindAsync(_user.Id!);
+            .FirstOrDefaultAsync(x => x.UserId == _user.Id);
 
         Guard.Against.NullParameterRelatedToCurrentUser(profile, nameof(UserProfile), _user.Id);
 

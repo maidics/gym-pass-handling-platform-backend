@@ -87,7 +87,7 @@ public class GymEmployeeUseGymMembershipPassTests : BaseTestFixture
         };
 
         var pass = GymPassProduct
-                        .SingleUse(obj.gym.Id, "name", "description", true, Money.Zero("usd"))
+                        .SingleUse(obj.gym.Id, "name", "description", true, Money.Usd(10))
                         .ToGymMembershipPass(bannedMembership.Id, gymMember.Id, GetUtcNow());
 
         await AddAsync(bannedMembership);
@@ -111,7 +111,7 @@ public class GymEmployeeUseGymMembershipPassTests : BaseTestFixture
 
         var name = "Test Pass";
         var description = "Test Description";
-        var price = Money.Zero("usd");
+        var price = Money.Usd(10);
         var utcNow = GetUtcNow();
 
         GymMembershipPass pass;
@@ -157,7 +157,7 @@ public class GymEmployeeUseGymMembershipPassTests : BaseTestFixture
         var obj = await TestEntityBuilder.BuildGymAsync();
 
         var pass = GymPassProduct
-                        .SingleUse(obj.gym.Id, "name", "description", true, Money.Zero("usd"))
+                        .SingleUse(obj.gym.Id, "name", "description", true, Money.Usd(10))
                         .ToGymMembershipPass(obj.gymMembership.Id, obj.gymMember.Id, GetUtcNow());
 
         await AddAsync(pass);

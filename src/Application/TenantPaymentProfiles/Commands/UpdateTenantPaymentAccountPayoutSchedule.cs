@@ -7,15 +7,14 @@ using FitPass.Application.Common.Security;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
-using FitPass.Infrastructure.Localization.Resources;
-using FitPass.Infrastructure.Localization.Resources;
+using FitPass.Application.Common.Resources;
 
 namespace FitPass.Application.TenantPaymentProfiles.Commands;
 
 [Authorize(Roles = Roles.GymAdministrator)]
 public record UpdateTenantPaymentAccountPayoutScheduleCommand(
     TimeIntervals TimeInterval,
-    int? MonhtlyAnchor = null,
+    int? MonthlyAnchor = null,
     DayOfWeek? WeeklyAnchor = null,
     int? DelayDays = null //only applicable when using daily interval
 ) : IRequest<Result>;
@@ -24,8 +23,8 @@ public class UpdateTenantPaymentAccountPayoutScheduleCommandValidator : Abstract
 {
     public UpdateTenantPaymentAccountPayoutScheduleCommandValidator(ILocalizer localizer)
     {
-        RuleFor(v => v.TimeInterval)
-            .NotEmptyWithMessageLocalized(localizer, nameof(SharedResource.TimeInterval));
+        //RuleFor(v => v.TimeInterval)
+            //.NotEmptyWithMessageLocalized(localizer, nameof(SharedResource.TimeInterval));
 
         When(v => v.TimeInterval == TimeIntervals.Daily, () =>
         {
@@ -43,7 +42,7 @@ public class UpdateTenantPaymentAccountPayoutScheduleCommandValidator : Abstract
 
         When(v => v.TimeInterval == TimeIntervals.Monthly, () =>
         {
-            RuleFor(v => v.MonhtlyAnchor)
+            RuleFor(v => v.MonthlyAnchor)
                 .NotNull()
                 .WithMessage(localizer.Get(nameof(SharedResource.MonthlyAnchorCannotBeEmptyIfTheTimeIntervalIsMonthly)));
         });
@@ -88,7 +87,7 @@ public class UpdateTenantPaymentAccountPayoutScheduleCommandHandler : IRequestHa
         return await _paymentTenantService.UpdateTenantPaymentAccountPayoutIntervalAsync(
             tenantPaymentProfile.PaymentAccountId,
             command.TimeInterval,
-            command.MonhtlyAnchor,
+            command.MonthlyAnchor,
             command.WeeklyAnchor,
             command.DelayDays);
     }

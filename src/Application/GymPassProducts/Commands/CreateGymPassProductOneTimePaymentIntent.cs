@@ -5,10 +5,9 @@ using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Security;
 using FitPass.Application.PaymentIntents.DTOs;
 using FitPass.Domain.Constants;
-using FitPass.Domain.Entities;
 using FitPass.Domain.Entities.Payment;
 using FitPass.Domain.Enums;
-using FitPass.Infrastructure.Localization.Resources;
+using FitPass.Application.Common.Resources;
 
 namespace FitPass.Application.GymPassProducts.Commands;
 
@@ -86,6 +85,6 @@ public class CreateGymPassProductOneTimePaymentIntentCommandHandler : IRequestHa
             return result.ToFailure<PaymentIntentDto>();
         }
 
-        return Result.Success(new PaymentIntentDto { ClientSecret = result.Value, TenantPaymentAccountId = tenantPaymentProfile.PaymentAccountId });
+        return Result.Success(new PaymentIntentDto(result.Value, tenantPaymentProfile.PaymentAccountId));
     }
 }

@@ -3,7 +3,8 @@ using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Security;
 using FitPass.Application.Common.Settings;
-using FitPass.Infrastructure.Localization.Resources;
+using FitPass.Application.Common.Resources;
+using Microsoft.Extensions.Options;
 
 namespace FitPass.Application.Users.Commands.Emails;
 
@@ -21,13 +22,13 @@ public class SendEmailConfirmationEmailCommandHandler : IRequestHandler<SendEmai
     public SendEmailConfirmationEmailCommandHandler(
         IIdentityService identityService,
         IUser user,
-        ClientAppSettings  clientAppSettings,
+        IOptions<ClientAppSettings> options,
         IEmailService emailService,
         ILocalizer localizer)
     {
         _identityService = identityService;
         _user = user;
-        _clientAppSettings = clientAppSettings;
+        _clientAppSettings = options.Value;
         _emailService = emailService;
         _localizer = localizer;
     }

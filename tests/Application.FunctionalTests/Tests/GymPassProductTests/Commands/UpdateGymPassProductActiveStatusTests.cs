@@ -48,7 +48,7 @@ public class UpdateGymPassProductActiveStatusTests : BaseTestFixture
     public async Task ShouldUpdateGymPassProductActiveStatus(bool isActive, bool newStatus)
     {
         var obj = await TestEntityBuilder.BuildGymWithTenantPaymentProfileAsync();
-        var product = await TestEntityBuilder.BuildGymPassProduct(obj.gymAdmin, Money.Zero("usd"), isActive: isActive);
+        var product = await TestEntityBuilder.BuildGymPassProduct(obj.gymAdmin, Money.Usd(10), isActive: isActive);
 
         await RunAsUserAsync(obj.gymAdmin);
 

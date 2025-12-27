@@ -19,7 +19,7 @@ public static class ApplicationEntityAssertions
         gymEmploymentDto.ShouldNotBeNull();
         gymEmploymentDto.Role.ShouldBe(gymEmployment.Role);
         gymEmploymentDto.GymId.ShouldBe(gymEmployment.GymId);
-        gymEmploymentDto.ApplicationUserId.ShouldBe(user.Id);
+        gymEmploymentDto.UserId.ShouldBe(user.Id);
         gymEmploymentDto.EscalationEmail.ShouldBe(gymEmployment.EscalationEmail);
         gymEmploymentDto.UserProfile.Email.ShouldBe(user.Email!);
         gymEmploymentDto.UserProfile.FirstName.ShouldBe(userProfile.FirstName);
@@ -130,7 +130,7 @@ public static class ApplicationEntityAssertions
             () => dto.CreatedBy.ShouldBe(request.CreatedBy));
     }
     
-    public static void AssertTo(this GymPassProductDto ? dto, GymPassProduct gymPassProduct)
+    public static void AssertTo(this GymPassProductDto? dto, GymPassProduct gymPassProduct)
     {
         dto.ShouldNotBeNull();
         dto.Id.ShouldBe(gymPassProduct.Id);
@@ -138,6 +138,7 @@ public static class ApplicationEntityAssertions
         dto.Description.ShouldBe(gymPassProduct.Description);
         dto.Type.ShouldBe(gymPassProduct.Type);
         dto.IsActive.ShouldBe(gymPassProduct.IsActive);
-        dto.Price.ShouldBeEquivalentTo(gymPassProduct.Price);
+        dto.Price.Currency.ShouldBe(gymPassProduct.Price.Currency);
+        dto.Price.Amount.ShouldBe(gymPassProduct.Price.Amount);
     }
 }

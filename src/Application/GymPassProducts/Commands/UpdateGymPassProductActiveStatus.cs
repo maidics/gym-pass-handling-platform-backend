@@ -5,7 +5,7 @@ using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Security;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
-using FitPass.Infrastructure.Localization.Resources;
+using FitPass.Application.Common.Resources;
 
 namespace FitPass.Application.GymPassProducts.Commands;
 
@@ -21,9 +21,6 @@ public class UpdateGymPassProductActiveStatusCommandValidator : AbstractValidato
     {
         RuleFor(v => v.GymPassProductId)
             .PropertyOfEntityNotEmptyWithMessageLocalized(localizer, nameof(SharedResource.Id), nameof(SharedResource.GymPassProduct));
-
-        RuleFor(v => v.IsActive)
-            .NotEmptyWithMessageLocalized(localizer, nameof(SharedResource.IsActive));
     }
 }
 
@@ -89,6 +86,8 @@ public class UpdateGymPassProductActiveStatusCommandHandler : IRequestHandler<Up
         }
 
         product.IsActive = command.IsActive;
+
+        await _context.SaveChangesAsync();
 
         return Result.Success();
     }

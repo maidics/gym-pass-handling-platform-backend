@@ -9,7 +9,7 @@ namespace FitPass.Application.FunctionalTests.Tests.UserTests.Commands;
 
 using static Testing;
 
-public class RegisterPendingGymManagementTests : BaseTestFixture
+public class RegisterPendingGymEmployeeTests : BaseTestFixture
 {
     [Test]
     public override void AuthorizeAttributeCheck()
@@ -59,7 +59,7 @@ public class RegisterPendingGymManagementTests : BaseTestFixture
         userRoles.Count.ShouldBe(1);
         userRoles.First().ShouldBe(Roles.PendingGymEmployee);
 
-        var userProfile = await FindAsync<UserProfile>(userId);
+        var userProfile = await FindByUserIdAsync<UserProfile>(userId);
         userProfile.ShouldNotBeNull();
         userProfile.FirstName.ShouldBe(firstName);
         userProfile.LastName.ShouldBe(lastName);

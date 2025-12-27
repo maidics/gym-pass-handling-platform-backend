@@ -2,7 +2,9 @@
 
 public class WelcomeEmailModel : IEmailModel
 {
-    public required string? Language { get; set; }
-    public required string AccountActivationUrl { get; init; }
-    public required string UserFirstName { get; init; }
+    public required string Language { get; init; }
+    public required string Subject { get; init; }
+    public required string Greeting { get; init; }
+    public required string Body { get; init; }
+    public required string Farewell { get; init; }
 }

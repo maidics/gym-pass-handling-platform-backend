@@ -19,7 +19,7 @@ public class GymPassUsageDto
     public DateTimeOffset? GymSessionEndedAt {  get; set; }
 }
 
-public static partial class Mappings
+public static class Mappings
 {
     extension(GymPassUsage gymPassUsage)
     {

@@ -11,7 +11,7 @@ public class GymPassProductTests
     [Test]
     public void ShouldReturnSingleUsePass()
     {
-        var product = GymPassProduct.SingleUse("gymId", "name", "description", false, Money.Zero("usd"));
+        var product = GymPassProduct.SingleUse("gymId", "name", "description", false, Money.Usd(10));
 
         product.ShouldSatisfyAllConditions(
             () => product.GymId.ShouldBe("gymId"),
@@ -21,13 +21,13 @@ public class GymPassProductTests
             () => product.TotalUses.ShouldBe(1),
             () => product.DaysAfterExpires.ShouldBeNull(),
             () => product.IsActive.ShouldBeFalse(),
-            () => product.Price.ShouldBe(Money.Zero("usd")));
+            () => product.Price.ShouldBe(Money.Usd(10)));
     }
 
     [Test]
     public void ShouldReturnMultiUsePass()
     {
-        var product = GymPassProduct.MultiUse("gymId", "name", "description", 5, true, Money.Zero("usd"));
+        var product = GymPassProduct.MultiUse("gymId", "name", "description", 5, true, Money.Usd(10));
 
         product.ShouldSatisfyAllConditions(
             () => product.GymId.ShouldBe("gymId"),
@@ -37,13 +37,13 @@ public class GymPassProductTests
             () => product.TotalUses.ShouldBe(5),
             () => product.DaysAfterExpires.ShouldBeNull(),
             () => product.IsActive.ShouldBeTrue(),
-            () => product.Price.ShouldBe(Money.Zero("usd")));
+            () => product.Price.ShouldBe(Money.Usd(10)));
     }
 
     [Test]
     public void ShouldReturnUnlimitedUsePass()
     {
-        var product = GymPassProduct.UnlimitedUse("gymId", "name", "description", 5, false, Money.Zero("usd"));
+        var product = GymPassProduct.UnlimitedUse("gymId", "name", "description", 5, false, Money.Usd(10));
 
         product.ShouldSatisfyAllConditions(
             () => product.GymId.ShouldBe("gymId"),
@@ -53,7 +53,7 @@ public class GymPassProductTests
             () => product.TotalUses.ShouldBeNull(),
             () => product.DaysAfterExpires.ShouldBe(5),
             () => product.IsActive.ShouldBeFalse(),
-            () => product.Price.ShouldBe(Money.Zero("usd")));
+            () => product.Price.ShouldBe(Money.Usd(10)));
     }
 
     [Test]
@@ -91,7 +91,7 @@ public class GymPassProductTests
     [Test]
     public void ShouldReturnGymMembershipPass()
     {
-        var product = GymPassProduct.SingleUse("gymId", "name", "description", false, Money.Zero("huf"));
+        var product = GymPassProduct.SingleUse("gymId", "name", "description", false, Money.Usd(10));
 
         var utcNow = DateTimeOffset.UtcNow;
 

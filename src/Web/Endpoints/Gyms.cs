@@ -61,9 +61,14 @@ public class Gyms : EndpointGroupBase
     }
     */
 
-    public async Task<Results<NoContent, ProblemHttpResult>> UpdateGymStatus(ISender sender, string gymId, [FromBody] GymStatus newGymStatus, [FromBody] string rationale, CancellationToken cancellationToken)
+    public async Task<Results<NoContent, ProblemHttpResult>> UpdateGymStatus(ISender sender, string gymId, [FromBody] UpdateGymStatusCommand command, CancellationToken cancellationToken)
     {
-        var result = await sender.Send(new UpdateGymStatusCommand(gymId, newGymStatus, rationale), cancellationToken);
+        if (gymId != command.GymId)
+        {
+            return TypedResults.Problem(new ProblemDetails { Status = StatusCodes.Status400BadRequest });
+        }
+        
+        var result = await sender.Send(command, cancellationToken);
 
         return result.ToTypedResult();
     }

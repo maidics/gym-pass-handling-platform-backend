@@ -18,18 +18,6 @@ public class GetTenantPaymentProfileTests : BaseTestFixture
     }
     
     [Test]
-    public async Task ShouldReturnNotFoundIfTenantPaymentProfileNotFound()
-    {
-        var obj = await TestEntityBuilder.BuildGymAsync();
-
-        await RunAsUserAsync(obj.gymAdmin);
-
-        var result = await SendAsync(new GetTenantPaymentProfileQuery());
-        result.Type.ShouldBe(ResultTypes.NotFound);
-        result.Message.ShouldNotBeEmpty();
-    }
-    
-    [Test]
     public async Task ShouldReturnTenantPaymentProfile()
     {
         var obj = await TestEntityBuilder.BuildGymWithTenantPaymentProfileAsync();

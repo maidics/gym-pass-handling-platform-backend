@@ -8,7 +8,7 @@ public partial class ApplicationDbContextInitialiser
 {
     private async Task SeedUsersAsync()
     {
-        List<(ApplicationUser user, string role, string password)> defaultUsers =
+        List<(ApplicationUser user, string role, string password, UserProfile profile)> defaultUsers =
         [
             (
                 new ApplicationUser {
@@ -17,7 +17,15 @@ public partial class ApplicationDbContextInitialiser
                     UserName = "AppAdmin"
                 },
                 Roles.AppAdministrator,
-                "Password123_"
+                "Password123!",
+                new UserProfile
+                {
+                    FirstName = "App",
+                    LastName = "Admin",
+                    PreferredLanguage =  "en-US",
+                    UserId = "AppAdminLocalhostId",
+                    CreatedOn =  DateTime.UtcNow
+                }
             ),
             (
                 new ApplicationUser
@@ -27,7 +35,15 @@ public partial class ApplicationDbContextInitialiser
                     UserName = "GymAdmin"
                 },
                 Roles.GymAdministrator,
-                "Password123_"
+                "Password123!",
+                new UserProfile
+                {
+                    FirstName = "Gym",
+                    LastName = "Admin",
+                    PreferredLanguage =  "en-US",
+                    UserId = "GymAdminLocalhostId",
+                    CreatedOn =  DateTime.UtcNow
+                }
                 ),
             (
                 new ApplicationUser
@@ -37,37 +53,52 @@ public partial class ApplicationDbContextInitialiser
                     Email = "gymstaff@localhost"
                 },
                 Roles.GymStaff,
-                "Password123_"
+                "Password123!",
+                new UserProfile
+                {
+                    FirstName = "Gym",
+                    LastName = "Staff",
+                    PreferredLanguage =  "en-US",
+                    UserId = "GymStaffLocalhostId",
+                    CreatedOn =  DateTime.UtcNow
+                }
             ),
             (
                 new ApplicationUser
                 {
-                    Id = "User1",
-                    UserName = "User1",
-                    Email = "user1@localhost"
+                    Id = "UserId",
+                    UserName = "User",
+                    Email = "user@localhost"
                 },
-                string.Empty,
-                "Password123_"
+                Roles.User,
+                "Password123!",
+                new UserProfile
+                {
+                    FirstName = "User",
+                    LastName = "Admin",
+                    PreferredLanguage =  "en-US",
+                    UserId = "UserId",
+                    CreatedOn =  DateTime.UtcNow
+                }
             ),
             (
                 new ApplicationUser
                 {
-                    Id = "User2",
-                    UserName = "User2",
-                    Email = "user2@localhost"
-                },
-                string.Empty,
-                "Password123_"
-            ),
-            (
-                new ApplicationUser 
-                {
-                    Id = "PendingGymAdmin",
-                    UserName = "PendingGymAdmin1"
+                    Id = "PendingGymEmployeeId",
+                    UserName = "PendingGymEmployee",
+                    Email = "pendinggymemployee@localhost"
                 },
                 Roles.PendingGymEmployee,
-                "Password123_"
-            )
+                "Password123!",
+                new UserProfile
+                {
+                    FirstName = "Pending",
+                    LastName = "GymEmployee",
+                    PreferredLanguage =  "en-US",
+                    UserId = "PendingGymEmployeeId",
+                    CreatedOn = DateTime.UtcNow
+                }
+            ),
         ];
 
         var existingUsers = _userManager.Users;
@@ -83,7 +114,7 @@ public partial class ApplicationDbContextInitialiser
                     throw new ArgumentException($"Failed to create user: {result.Errors}");
                 }
 
-                if (_roles.All(role => !string.IsNullOrWhiteSpace(role.Name)) && obj.role != string.Empty)
+                if (_roles.All(role => !string.IsNullOrWhiteSpace(role.Name)))
                 {
                     var roleResult = await _userManager.AddToRoleAsync(obj.user, obj.role);
 
@@ -92,8 +123,12 @@ public partial class ApplicationDbContextInitialiser
                         throw new ArgumentException($"Failed to add {obj.user.Id} user to {obj.role} role: {roleResult.Errors}");
                     }
                 }
+                
+                await _context.UserProfiles.AddAsync(obj.profile);
             }
         }
+
+        await _context.SaveChangesAsync();
     }
 
 }

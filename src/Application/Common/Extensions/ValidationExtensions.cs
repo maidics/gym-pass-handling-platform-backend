@@ -1,6 +1,6 @@
 using FitPass.Application.Common.Interfaces;
+using FitPass.Application.Common.Resources;
 using FitPass.Domain.Constants;
-using FitPass.Infrastructure.Localization.Resources;
 
 namespace FitPass.Application.Common.Extensions;
 
@@ -26,9 +26,9 @@ public static class ValidationExtensions
     {
         return rule
             .NotEmpty()
-            .WithMessage(localizer.GetWithParamsLocalized(nameof(SharedResource.PropertyIsRequired), key))
+            .WithMessage(localizer.GetWithParamsLocalized(nameof(SharedResource.PropertyIsRequired), key, maxLength.ToString()))
             .MaximumLength(maxLength)
-            .WithMessage(localizer.GetWithParamsLocalized(nameof(SharedResource.PropertyMaxLength), key));
+            .WithMessage(localizer.GetWithParamsLocalized(nameof(SharedResource.PropertyMaxLength), key, maxLength.ToString()));
     }
 
     public static IRuleBuilderOptions<T, string> NotEmptyWithMinLengthAndMessageLocalized<T>(
@@ -36,9 +36,9 @@ public static class ValidationExtensions
     {
         return rule
             .NotEmpty()
-            .WithMessage(localizer.GetWithParamsLocalized(nameof(SharedResource.PropertyIsRequired), key))
+            .WithMessage(localizer.GetWithParamsLocalized(nameof(SharedResource.PropertyIsRequired), key, minLength.ToString()))
             .MinimumLength(minLength)
-            .WithMessage(localizer.GetWithParamsLocalized(nameof(SharedResource.PropertyMinLength), key));
+            .WithMessage(localizer.GetWithParamsLocalized(nameof(SharedResource.PropertyMinLength), key, minLength.ToString()));
     }
     
     public static IRuleBuilderOptions<T, string> StrongPasswordLocalized<T>(this IRuleBuilder<T, string> rule, ILocalizer localizer)

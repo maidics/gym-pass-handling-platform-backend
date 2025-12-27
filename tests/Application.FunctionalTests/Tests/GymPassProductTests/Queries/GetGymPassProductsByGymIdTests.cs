@@ -1,7 +1,6 @@
 ﻿using FitPass.Application.Common.Models;
 using FitPass.Application.FunctionalTests.TestData;
 using FitPass.Application.GymPassProducts.Queries;
-using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
 using FitPass.Domain.ValueObjects;
 
@@ -14,7 +13,7 @@ public class GetGymPassProductsByGymIdTests : BaseTestFixture
     [Test]
     public override void AuthorizeAttributeCheck()
     {
-        ShouldRequireAuthorization<GetGymPassProductsByGymIdQuery>();
+        ShouldNotRequireAuthorization<GetGymPassProductsByGymIdQuery>();
     }
 
     [Test]
@@ -38,18 +37,18 @@ public class GetGymPassProductsByGymIdTests : BaseTestFixture
     [Test]
     public async Task ShouldReturnGymPassProductsIfGymIsFound()
     {
-        var obj = await TestEntityBuilder.BuildGymAsync();
+        var obj = await TestEntityBuilder.BuildGymWithTenantPaymentProfileAsync();
         
         var product1 = await TestEntityBuilder.BuildGymPassProduct(
             obj.gymAdmin, 
-            Money.Zero("usd"), 
+            Money.Usd(10), 
             type: PassType.MultiUse, 
             totalUses: 5, 
             daysAfterExpiring: null);
         
         var product2 = await TestEntityBuilder.BuildGymPassProduct(
             obj.gymAdmin, 
-            Money.Zero("usd"),
+            Money.Usd(10),
             type: PassType.Unlimited,
             totalUses: null,
             daysAfterExpiring: 10);
@@ -62,7 +61,7 @@ public class GetGymPassProductsByGymIdTests : BaseTestFixture
 
         var dtos = result.Value;
         
-        dtos.Count.ShouldBe(2);
+        dtos.Count.ShouldBe(3);
         
         var product1Dto = dtos.FirstOrDefault(x => x.Id == product1.Id);
         product1Dto.ShouldNotBeNull();
@@ -71,5 +70,9 @@ public class GetGymPassProductsByGymIdTests : BaseTestFixture
         var product2Dto = dtos.FirstOrDefault(x => x.Id == product2.Id);
         product2Dto.ShouldNotBeNull();
         product2Dto.AssertTo(product2);
+
+        var product3Dto = dtos.FirstOrDefault(x => x.Id == obj.gymPassProduct.Id);
+        product3Dto.ShouldNotBeNull();
+        product3Dto.AssertTo(obj.gymPassProduct);
     }
 }

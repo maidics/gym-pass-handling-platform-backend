@@ -7,8 +7,8 @@ public record TenantPaymentAccountStatusDto
     public required bool ChargesEnabled { get; set; }
     public required bool DetailsSubmitted { get; set; }
     public required bool PayoutsEnabled { get; set; }
-    public required IReadOnlyList<string> RequirementsDue { get; set; }
-    public required IReadOnlyList<string> RequirementsEventuallyDue { get; set; }
+    public required string[] RequirementsDue { get; set; }
+    public required string[] RequirementsEventuallyDue { get; set; }
 }
 
 public static partial class Mappings

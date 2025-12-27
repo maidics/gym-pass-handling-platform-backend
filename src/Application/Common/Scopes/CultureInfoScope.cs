@@ -1,6 +1,6 @@
 ﻿using System.Globalization;
 
-namespace FitPass.Infrastructure.Localization;
+namespace FitPass.Application.Common.Scopes;
 
 public sealed class CultureInfoScope : IDisposable //credit: Roland Tóth: https://blog.rolandtoth.hu/cultureinfo-scope/
 {

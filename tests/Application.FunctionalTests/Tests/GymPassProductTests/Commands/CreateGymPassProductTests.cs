@@ -44,7 +44,7 @@ public class CreateGymPassProductTests : BaseTestFixture
             null,
             null,
             true,
-            Money.Zero("usd"));
+            Money.Usd(10));
         
         await ShouldThrowIfParametersAreInvalidAsync(command);
     }

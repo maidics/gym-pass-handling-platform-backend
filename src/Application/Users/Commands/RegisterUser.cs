@@ -5,7 +5,7 @@ using FitPass.Domain.Entities;
 using FitPass.Application.Common.Models;
 using FitPass.Application.Users.DTOs;
 using FitPass.Domain.Events.Users;
-using FitPass.Infrastructure.Localization.Resources;
+using FitPass.Application.Common.Resources;
 
 namespace FitPass.Application.Users.Commands;
 

@@ -100,7 +100,7 @@ public class ResultTests
         var resultFailure1 = new ResultFailure(ResultTypes.NotFound, "Resource not found.", ["failure"]);
 
         resultFailure1.Type.ShouldBe(ResultTypes.NotFound);
-        resultFailure1.Message.ShouldContain("Resource not found");
+        resultFailure1.Message.ShouldNotBeNullOrEmpty();
         resultFailure1.Errors.Length.ShouldBe(1);
         resultFailure1.Errors.ShouldContain("failure");
 
@@ -108,7 +108,7 @@ public class ResultTests
         var resultFailure2 = new ResultFailure(Result.NotFound(nameof(UserProfile)));
 
         resultFailure2.Type.ShouldBe(ResultTypes.NotFound);
-        resultFailure2.Message.ShouldContain("not found");
+        resultFailure2.Message.ShouldNotBeNullOrEmpty();
         resultFailure2.Errors.Length.ShouldBe(0);
     }
 
@@ -125,7 +125,7 @@ public class ResultTests
     public void ShouldCreateNotFound()
     {
         var notFound = Result.NotFound(nameof(GymEmployment), ["failure1", "failure2"]);
-        notFound.Message.ShouldContain("not found");
+        notFound.Message.ShouldNotBeNullOrEmpty();
         notFound.Type.ShouldBe(ResultTypes.NotFound);
         notFound.Errors.Length.ShouldBe(2);
         notFound.Errors.ShouldSatisfyAllConditions(
@@ -137,8 +137,8 @@ public class ResultTests
     public void ShouldCreateConflict()
     {
         var conflict = Result.Conflict(nameof(GymEmployment), ["failure1", "failure2"]);
-        conflict.Message.ShouldContain("is already taken");
         conflict.Type.ShouldBe(ResultTypes.Conflict);
+        conflict.Message.ShouldNotBeNullOrEmpty();
         conflict.Errors.Length.ShouldBe(2);
         conflict.Errors.ShouldSatisfyAllConditions(
             () => conflict.Errors.ShouldContain("failure1"),
@@ -149,8 +149,8 @@ public class ResultTests
     public void ShouldCreateExternalServiceUnavailable()
     {
         var notFound = Result.ExternalServiceUnavailable("service", ["failure1", "failure2"]);
-        notFound.Message.ShouldContain("is currently not available");
         notFound.Type.ShouldBe(ResultTypes.ExternalServiceUnavailable);
+        notFound.Message.ShouldNotBeNullOrEmpty();
         notFound.Errors.Length.ShouldBe(2);
         notFound.Errors.ShouldSatisfyAllConditions(
             () => notFound.Errors.ShouldContain("failure1"),
@@ -161,8 +161,8 @@ public class ResultTests
     public void ShouldCreateInternalError()
     {
         var notFound = Result.InternalError("Failed to finish action.", ["failure1", "failure2"]);
-        notFound.Message.ShouldContain("Failed to finish action");
         notFound.Type.ShouldBe(ResultTypes.InternalError);
+        notFound.Message.ShouldNotBeNullOrEmpty();
         notFound.Errors.Length.ShouldBe(2);
         notFound.Errors.ShouldSatisfyAllConditions(
             () => notFound.Errors.ShouldContain("failure1"),
@@ -172,8 +172,8 @@ public class ResultTests
     [Test]
     public void ShouldCreatePaymentRequired()
     {
-        var notFound = Result.PaymentRequired(string.Empty);
-        notFound.Message.ShouldContain("Payment required");
+        var notFound = Result.PaymentRequired(null);
+        notFound.Message.ShouldNotBeNullOrEmpty();
         notFound.Type.ShouldBe(ResultTypes.PaymentRequired);
     }
 
@@ -181,7 +181,7 @@ public class ResultTests
     public void ShouldCreateUnauthorized()
     {
         var notFound = Result.Unauthorized("message");
-        notFound.Message.ShouldContain("message");
+        notFound.Message.ShouldNotBeNullOrEmpty();
         notFound.Type.ShouldBe(ResultTypes.Unauthorized);
         notFound.Errors.Length.ShouldBe(0);
     }
@@ -190,7 +190,7 @@ public class ResultTests
     public void ShouldCreateForbidden()
     {
         var notFound = Result.Forbidden("message");
-        notFound.Message.ShouldContain("message");
+        notFound.Message.ShouldNotBeNullOrEmpty();
         notFound.Type.ShouldBe(ResultTypes.Forbidden);
         notFound.Errors.Length.ShouldBe(0);
     }

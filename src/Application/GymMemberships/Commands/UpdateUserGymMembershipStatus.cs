@@ -1,12 +1,12 @@
 using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Models;
+using FitPass.Application.Common.Resources;
 using FitPass.Application.Common.Security;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
 using FitPass.Domain.Events.GymMemberships;
-using FitPass.Infrastructure.Localization.Resources;
 
 namespace FitPass.Application.GymMemberships.Commands;
 
@@ -62,13 +62,15 @@ public class UpdateGymMembershipStatusCommandHandler : IRequestHandler<UpdateGym
             return Result.Success();
         }
 
+        membership.Status = command.NewStatus;
+
         membership.AddDomainEvent(new GymMembershipStatusChangedEvent(
             membership.UserId,
             command.NewStatus, 
             membership.GymId
         ));
         
-        await _context.SaveChangesAsync(cancellationToken);
+        await _context.SaveChangesAsync();
         
         return Result.Success();
     }

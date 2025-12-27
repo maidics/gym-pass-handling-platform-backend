@@ -1,10 +1,9 @@
-using System.Globalization;
+using System.Net;
 using System.Net.Mail;
 using System.Text.RegularExpressions;
 using FitPass.Application.Common.EmailModels;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Domain.Strings;
-using FitPass.Infrastructure.Localization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Options;
 using RazorLight;
@@ -49,14 +48,11 @@ public class LocalEmailService : IEmailService
 
     public async Task SendEmailAsync(IEmailModel emailModel, string[] to, string[]? cc = null, string[]? bcc = null)
     {
-        var defaultCulture = _localizer.DefaultCulture;
-        
-        using var scope = new CultureInfoScope(defaultCulture); 
+        //var defaultCulture = _localizer.DefaultCulture;
+        //using var scope = new CultureInfoScope(defaultCulture); 
         //overriding here because multiple people receiving the email, TODO: ensure the languages are the one that each user prefers?
         //using ensures the scope is disposed even if this method throws
         //this culture is tied to the thread of IRazorLightEngine so this have to be forced
-
-        emailModel.Language = defaultCulture;
         
         var mailMessage = await GetMailMessage(emailModel);
 
@@ -72,8 +68,6 @@ public class LocalEmailService : IEmailService
     {
         var language = emailModel.Language ?? _localizer.DefaultCulture;
         
-        using var scope = new CultureInfoScope(language);
-
         var mailMessage = await GetMailMessage(emailModel);
 
         mailMessage.To.Add(to);
@@ -83,15 +77,15 @@ public class LocalEmailService : IEmailService
 
     private async Task<MailMessage> GetMailMessage(IEmailModel model)
     {
-        var (html, subject) = await RenderAsync(model);
+        var email = (Email)await RenderAsync((dynamic)model);
 
         return new MailMessage
         {
-            From = _settings.NoReplyMailAddress, Subject = subject, Body = html, IsBodyHtml = true,
+            From = _settings.NoReplyMailAddress, Subject = email.Subject, Body = email.Html, IsBodyHtml = true,
         };
     } 
 
-    private async Task<(string html, string subject)> RenderAsync<T>(T model) where T : IEmailModel
+    private async Task<Email> RenderAsync<T>(T model) where T : IEmailModel
     {
         var modelNamespace = typeof(T).Namespace;
         
@@ -110,13 +104,15 @@ public class LocalEmailService : IEmailService
 
         if (subjectMatch.Success)
         {
-            subject = subjectMatch.Groups[1].Value;
+            subject = WebUtility.HtmlDecode(subjectMatch.Groups[1].Value); //ensure correct subject encoding so hungarian characters are displayed properly
         }
         else
         {
             subject = CommonStrings.AppName;
         }
 
-        return (html, subject);
+        return new Email(html, subject);
     }
+
+    private record Email(string Html, string Subject);
 }

@@ -52,12 +52,12 @@ public class GetGymEmploymentsByGymIdTests : BaseTestFixture
         gymEmployments.Count.ShouldBe(2);
 
         gymEmployments
-            .FirstOrDefault(ge => ge.ApplicationUserId == obj.gymAdmin.Id)
+            .FirstOrDefault(ge => ge.UserId == obj.gymAdmin.Id)
             .AssertTo(obj.gymAdminGymEmployment, obj.gymAdminUserProfile, obj.gymAdmin);
 
 
         gymEmployments
-            .FirstOrDefault(ge => ge.ApplicationUserId == obj.gymStaff.Id)
+            .FirstOrDefault(ge => ge.UserId == obj.gymStaff.Id)
             .AssertTo(obj.gymStaffGymEmployment, obj.gymStaffUserProfile, obj.gymStaff);
     }
 }

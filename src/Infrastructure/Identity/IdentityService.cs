@@ -2,7 +2,7 @@ using System.Transactions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Models;
 using FitPass.Domain.Strings;
-using FitPass.Infrastructure.Localization.Resources;
+using FitPass.Application.Common.Resources;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;

@@ -23,8 +23,8 @@ public partial class StripeWebhookService
             DetailsSubmitted: account.DetailsSubmitted,
             ChargesEnabled: account.ChargesEnabled,
             PayoutsEnabled: account.PayoutsEnabled,
-            RequirementsDue: account.Requirements?.CurrentlyDue?.ToList() ?? [],
-            RequirementsEventuallyDue: account.Requirements?.EventuallyDue?.ToList() ?? []
+            RequirementsDue: account.Requirements?.CurrentlyDue.ToArray() ?? [],
+            RequirementsEventuallyDue: account.Requirements?.EventuallyDue?.ToArray() ?? []
         ));
 
         var gymAdminIds = await _sender.Send(new GetAllGymAdminIdsByTenantPaymentAccountIdQuery(account.Id));

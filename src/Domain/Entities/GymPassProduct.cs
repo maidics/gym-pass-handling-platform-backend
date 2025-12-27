@@ -27,7 +27,7 @@ public class GymPassProduct : BaseAuditableEntity
         GymId = string.Empty;
         Name = string.Empty;
         Description = string.Empty;
-        Price = Money.Zero("usd");
+        Price = Money.Usd(10);
     }
 
     private GymPassProduct(
@@ -83,7 +83,7 @@ public class GymPassProduct : BaseAuditableEntity
         return new GymPassProduct(gymId, name, description, PassType.Unlimited, null, daysAfterExpiring, isActive, price);
     }
 
-    public GymPassProduct UpdateTotalUsesIfApplicable(int totalUses)
+    public GymPassProduct UpdateTotalUsesIfApplicable(int? totalUses)
     {
         if (Type == PassType.MultiUse)
         {
@@ -93,7 +93,7 @@ public class GymPassProduct : BaseAuditableEntity
         return this;
     }
 
-    public GymPassProduct UpdateDaysAfterExpiringIfApplicable(int daysAfterExpiring)
+    public GymPassProduct UpdateDaysAfterExpiringIfApplicable(int? daysAfterExpiring)
     {
         if (Type == PassType.Unlimited)
         {
