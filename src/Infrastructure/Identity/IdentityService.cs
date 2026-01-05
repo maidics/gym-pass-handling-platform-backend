@@ -3,6 +3,7 @@ using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Models;
 using FitPass.Domain.Strings;
 using FitPass.Application.Common.Resources;
+using FitPass.Domain.ValueObjects;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
@@ -331,5 +332,31 @@ public class IdentityService : IIdentityService
         var user = await _userManager.FindByIdAsync(userId);
 
         return user != null && user.PasswordHash != null;
+    }
+    
+    public async Task<Result> UpdateUserPasswordAsync(string userId, string currentPassword, string newPassword)
+    {
+        var result = await FindByIdAsync(userId);
+
+        if (!result.Succeeded)
+        {
+            return result;
+        }
+        
+        var passwordResult = await _userManager.ChangePasswordAsync(result.Value, currentPassword, newPassword);
+
+        return passwordResult.ToApplicationResult();
+    }
+
+    private async Task<Result<ApplicationUser>> FindByIdAsync(string userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+
+        if (user is null)
+        {
+            return Result.NotFound(_localizer.GetWithParamsLocalized(nameof(SharedResource.NotFound), nameof(SharedResource.User)));
+        }
+        
+        return Result.Success(user);
     }
 }

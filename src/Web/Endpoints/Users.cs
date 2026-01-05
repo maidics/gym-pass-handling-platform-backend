@@ -1,3 +1,4 @@
+using FitPass.Application.Common.Models;
 using FitPass.Application.GymMemberships.DTOs;
 using FitPass.Application.Requests.Commands.Fulfill;
 using FitPass.Application.Users.Commands;
@@ -39,6 +40,8 @@ public class Users : EndpointGroupBase
         groupBuilder.MapPut(PromotePendingGymEmployeeToGymAdminFromRequest, "Promote/GymAdmin/Request").RequireAuthorization();
 
         groupBuilder.MapGet(GetMyUser, "My").RequireAuthorization();
+        
+        groupBuilder.MapPut(UpdateMyPassword, "UpdateMyPassword").RequireAuthorization();
     }
 
     public async Task<Results<Ok<JwtToken>, ProblemHttpResult>> RegisterUser(ISender sender, [FromBody] RegisterUserCommand command, CancellationToken cancellationToken)
@@ -103,9 +106,9 @@ public class Users : EndpointGroupBase
     }
 
     public async Task<Results<NoContent, ProblemHttpResult>> SendEmailConfirmationEmail(
-        ISender sender, [FromBody] SendEmailConfirmationEmailCommand command, CancellationToken cancellationToken)
+        ISender sender, CancellationToken cancellationToken)
     {
-        var result = await sender.Send(command);
+        var result = await sender.Send(new SendEmailConfirmationEmailCommand());
 
         return result.ToTypedResult();
     }
@@ -139,5 +142,13 @@ public class Users : EndpointGroupBase
         var result = await sender.Send(new GetMyUserQuery(), cancellationToken);
         
         return TypedResults.Ok(result);
+    }
+
+    public async Task<Results<NoContent, ProblemHttpResult>> UpdateMyPassword(ISender sender,
+        [FromBody] UpdateMyPasswordCommand command, CancellationToken cancellationToken)
+    {
+        var result = await sender.Send(command);
+        
+        return result.ToTypedResult();
     }
 }

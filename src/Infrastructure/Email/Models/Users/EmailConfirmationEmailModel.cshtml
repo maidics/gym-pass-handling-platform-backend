@@ -1,0 +1,24 @@
+@model FitPass.Application.Common.EmailModels.Users.EmailConfirmationEmailModel
+
+<!DOCTYPE html>
+
+<html lang="@Model.Language">
+<head>
+    <meta charset="utf-8" />
+    <title>@Model.Subject</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+<p>@Model.Greeting</p>
+
+<p>@Model.Body</p>
+
+<p style="white-space: pre-line">@Model.Farewell</p>
+</body>
+</html>

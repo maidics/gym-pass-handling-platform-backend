@@ -9,7 +9,7 @@ using FitPass.Application.Common.Resources;
 namespace FitPass.Application.Requests.Commands;
 
 [Authorize(Roles = Roles.AppAdministrator)]
-public record RejectRequestCommand(string RequestId) : IRequest<Result>;
+public record RejectRequestCommand(string RequestId, string? Rationale) : IRequest<Result>;
 
 public class RejectRequestCommandValidator : AbstractValidator<RejectRequestCommand>
 {
@@ -43,6 +43,7 @@ public class RejectRequestCommandHandler : IRequestHandler<RejectRequestCommand,
         }
 
         request.Status = Domain.Enums.RequestStatus.Rejected;
+        request.HandlerRationale = command.Rationale;
 
         //TODO: send event here: RequestRejectedEvent
 

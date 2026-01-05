@@ -857,18 +857,6 @@
           "Requests"
         ],
         "operationId": "GetRequests",
-        "requestBody": {
-          "x-name": "query",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/GetRequestsQuery"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
         "responses": {
           "200": {
             "description": "",
@@ -977,9 +965,115 @@
             "x-position": 1
           }
         ],
+        "requestBody": {
+          "x-name": "rationale",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 2
+        },
         "responses": {
           "204": {
             "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/Requests/My": {
+      "get": {
+        "tags": [
+          "Requests"
+        ],
+        "operationId": "GetMyRequests",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RequestDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/Requests/My/{requestId}": {
+      "put": {
+        "tags": [
+          "Requests"
+        ],
+        "operationId": "CancelMyRequest",
+        "parameters": [
+          {
+            "name": "requestId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/Requests/PayloadFree": {
+      "post": {
+        "tags": [
+          "Requests"
+        ],
+        "operationId": "CreatePayloadFreeRequest",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePayloadFreeRequestCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RequestDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -1174,36 +1268,6 @@
         },
         "responses": {
           "204": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "JWT": []
-          }
-        ]
-      }
-    },
-    "/api/UserProfiles/My/Update/PreferredLanguage": {
-      "put": {
-        "tags": [
-          "UserProfiles"
-        ],
-        "operationId": "UpdateUserProfilePreferredLanguage",
-        "requestBody": {
-          "x-name": "command",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateUserProfilePreferredLanguageCommand"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
-        "responses": {
-          "200": {
             "description": ""
           }
         },
@@ -1444,18 +1508,6 @@
           "Users"
         ],
         "operationId": "SendEmailConfirmationEmail",
-        "requestBody": {
-          "x-name": "command",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SendEmailConfirmationEmailCommand"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
         "responses": {
           "204": {
             "description": ""
@@ -1583,6 +1635,36 @@
                 }
               }
             }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/Users/UpdateMyPassword": {
+      "put": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "UpdateMyPassword",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateMyPasswordCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "204": {
+            "description": ""
           }
         },
         "security": [
@@ -2018,10 +2100,36 @@
             "type": "string",
             "format": "date-time"
           },
+          "createdBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastModifiedOn": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lastModifiedBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "paymentProfile": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/TenantPaymentProfileDto"
+              }
+            ]
+          },
           "passProducts": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/GymPassProductDto"
+            }
+          },
+          "contactInfos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GymContactInfoDto"
             }
           }
         }
@@ -2039,6 +2147,75 @@
           "Inactive",
           "Suspended"
         ]
+      },
+      "TenantPaymentProfileDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "gymId": {
+            "type": "string"
+          },
+          "accountStatus": {
+            "$ref": "#/components/schemas/TenantPaymentAccountStatusDto"
+          },
+          "lastUpdatedOnPaymentProvidersSide": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "lastUpdatedByOnPaymentProvidersSide": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastAccountLinkGeneratedOn": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "lastAccountLinkGeneratedBy": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "TenantPaymentAccountStatusDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "chargesEnabled": {
+            "type": "boolean"
+          },
+          "detailsSubmitted": {
+            "type": "boolean"
+          },
+          "payoutsEnabled": {
+            "type": "boolean"
+          },
+          "requirementsDue": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "requirementsEventuallyDue": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "GymContactInfoDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "fullName": {
+            "type": "string"
+          },
+          "address": {
+            "$ref": "#/components/schemas/Address"
+          }
+        }
       },
       "UpdateGymStatusCommand": {
         "type": "object",
@@ -2114,6 +2291,14 @@
           "status": {
             "$ref": "#/components/schemas/RequestStatus"
           },
+          "error": {
+            "type": "string",
+            "nullable": true
+          },
+          "handlerRationale": {
+            "type": "string",
+            "nullable": true
+          },
           "payload": {
             "type": "string",
             "nullable": true
@@ -2168,28 +2353,6 @@
           "Error"
         ]
       },
-      "GetRequestsQuery": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "requestType": {
-            "nullable": true,
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/RequestType"
-              }
-            ]
-          },
-          "requestStatus": {
-            "nullable": true,
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/RequestStatus"
-              }
-            ]
-          }
-        }
-      },
       "CreateGymCreationRequestCommand": {
         "type": "object",
         "additionalProperties": false,
@@ -2241,6 +2404,24 @@
           },
           "escalationEmail": {
             "type": "string"
+          }
+        }
+      },
+      "CreatePayloadFreeRequestCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "priorityLevel": {
+            "$ref": "#/components/schemas/PriorityLevel"
+          },
+          "requestType": {
+            "$ref": "#/components/schemas/RequestType"
           }
         }
       },
@@ -2325,63 +2506,6 @@
           }
         }
       },
-      "TenantPaymentProfileDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "gymId": {
-            "type": "string"
-          },
-          "accountStatus": {
-            "$ref": "#/components/schemas/TenantPaymentAccountStatusDto"
-          },
-          "lastUpdatedOnPaymentProvidersSide": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "lastUpdatedByOnPaymentProvidersSide": {
-            "type": "string",
-            "nullable": true
-          },
-          "lastAccountLinkGeneratedOn": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "lastAccountLinkGeneratedBy": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "TenantPaymentAccountStatusDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "chargesEnabled": {
-            "type": "boolean"
-          },
-          "detailsSubmitted": {
-            "type": "boolean"
-          },
-          "payoutsEnabled": {
-            "type": "boolean"
-          },
-          "requirementsDue": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "requirementsEventuallyDue": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          }
-        }
-      },
       "UpdateTenantPaymentAccountPayoutScheduleCommand": {
         "type": "object",
         "additionalProperties": false,
@@ -2454,14 +2578,8 @@
           },
           "lastName": {
             "type": "string"
-          }
-        }
-      },
-      "UpdateUserProfilePreferredLanguageCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "language": {
+          },
+          "preferredLanguage": {
             "type": "string"
           }
         }
@@ -2585,10 +2703,6 @@
           }
         }
       },
-      "SendEmailConfirmationEmailCommand": {
-        "type": "object",
-        "additionalProperties": false
-      },
       "ActivateUserAccountCommand": {
         "type": "object",
         "additionalProperties": false,
@@ -2701,6 +2815,21 @@
           },
           "isEmailConfirmed": {
             "type": "boolean"
+          }
+        }
+      },
+      "UpdateMyPasswordCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "currentPassword": {
+            "type": "string"
+          },
+          "newPassword": {
+            "type": "string"
+          },
+          "newPasswordConfirm": {
+            "type": "string"
           }
         }
       }

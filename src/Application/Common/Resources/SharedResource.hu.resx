@@ -432,4 +432,27 @@ Ha igen, nyisson egy hibajegyet, és hivatkozzon a következő bizonylatszámra:
   <data name="WelcomeEmailBody" xml:space="preserve">
     <value>A fiókodat sikeresen létrehoztuk, és készen állsz arra, hogy elkezdd használni a(z) {0} szolgáltatást. A fiókoddal könnyedén felfedezhetsz edzőtermeket, kezelheted tagságaidat és nyomon követheted látogatásaidat. Kérjük, itt aktiváld a fiókodat: {1}</value>
   </data>
+  <data name="OldPassword" xml:space="preserve">
+    <value>régi jelszó</value>
+  </data>
+  <data name="EmailConfirmationEmailSubject" xml:space="preserve">
+    <value>{0} - Erősítsd meg az email címedet</value>
+  </data>
+  <data name="EmailConfirmationEmailBody" xml:space="preserve">
+    <value>Köszönjük, hogy regisztrált a(z) {0} szolgáltatásra. Kérjük, erősítse meg e-mail-címét az alábbi linkre kattintva:
+
+E-mail-cím megerősítése: {1}</value>
+  </data>
+  <data name="Title" xml:space="preserve">
+    <value>Cím</value>
+  </data>
+  <data name="Priority" xml:space="preserve">
+    <value>Prioritás</value>
+  </data>
+  <data name="Type" xml:space="preserve">
+    <value>Típus</value>
+  </data>
+  <data name="PayloadFreeRequestTypeRules" xml:space="preserve">
+    <value>A payload nélküli kérések típusa nem lehet edzőterem létrehozása vagy edzőterem-adminisztrátorrá történő előléptetés.</value>
+  </data>
 </root>

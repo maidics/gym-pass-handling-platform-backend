@@ -1,9 +1,11 @@
+using FitPass.Application.Common.EmailModels.Users;
 using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Security;
 using FitPass.Application.Common.Settings;
 using FitPass.Application.Common.Resources;
+using FitPass.Domain.Strings;
 using Microsoft.Extensions.Options;
 
 namespace FitPass.Application.Users.Commands.Emails;
@@ -16,6 +18,7 @@ public class SendEmailConfirmationEmailCommandHandler : IRequestHandler<SendEmai
     private readonly IIdentityService _identityService;
     private readonly IUser _user;
     private readonly ClientAppSettings _clientAppSettings;
+    private readonly IApplicationDbContext _context;
     private readonly IEmailService _emailService;
     private readonly ILocalizer _localizer;
 
@@ -23,12 +26,14 @@ public class SendEmailConfirmationEmailCommandHandler : IRequestHandler<SendEmai
         IIdentityService identityService,
         IUser user,
         IOptions<ClientAppSettings> options,
+        IApplicationDbContext context,
         IEmailService emailService,
         ILocalizer localizer)
     {
         _identityService = identityService;
         _user = user;
         _clientAppSettings = options.Value;
+        _context = context;
         _emailService = emailService;
         _localizer = localizer;
     }
@@ -48,9 +53,23 @@ public class SendEmailConfirmationEmailCommandHandler : IRequestHandler<SendEmai
 
         Guard.Against.NullParameterRelatedToCurrentUser(email, "Email", _user.Id);
 
+        var obj = await _context.UserProfiles
+            .Where(x => x.UserId == _user.Id!)
+            .Select(x => new { x.PreferredLanguage, x.FirstName })
+            .FirstOrDefaultAsync();
+
         var url = _clientAppSettings.GetEmailConfirmationUrl(token, email, !await _identityService.DoesUserHavePassword(_user.Id!));
 
-        //TODO: await _emailService.SendEmailAsync(email, EmailSubjects.EmailConfirmation(), EmailBodies.EmailConfirmation(url));
+        var model = new EmailConfirmationEmailModel
+        {
+            Language = obj?.PreferredLanguage ?? _localizer.DefaultCulture,
+            Subject = _localizer.Get(nameof(SharedResource.EmailConfirmationEmailSubject), CommonStrings.AppName),
+            Greeting = _localizer.Get(nameof(SharedResource.EmailGreeting), obj?.FirstName ?? _localizer.Get(nameof(SharedResource.User))),
+            Body = _localizer.Get(nameof(SharedResource.EmailConfirmationEmailBody), CommonStrings.AppName, url),
+            Farewell = _localizer.Get(nameof(SharedResource.EmailFarewell), CommonStrings.AppName)
+        };
+        
+        await _emailService.SendEmailAsync(model, email);
 
         return Result.Success();
     }

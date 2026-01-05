@@ -15,10 +15,12 @@ public class RequestDto
     public required PriorityLevel PriorityLevel { get; set; }
     public required RequestType Type { get; set; }
     public required RequestStatus Status { get; set; }
-    public string? Payload { get; set; }
+    public required string? Error { get; set; }
+    public required string? HandlerRationale { get; set; }
+    public required string? Payload { get; set; }
 }
 
-public static partial class Mappings
+public static class Mappings
 {
     extension(Request request)
     {
@@ -36,7 +38,9 @@ public static partial class Mappings
                 PriorityLevel = request.PriorityLevel,
                 Type = request.Type,
                 Status = request.Status,
-                //Payload = request.Payload
+                Error = request.Error,
+                HandlerRationale = request.HandlerRationale,
+                Payload = request.Payload
             };
         }
     }

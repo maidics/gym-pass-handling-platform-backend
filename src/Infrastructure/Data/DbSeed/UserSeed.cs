@@ -8,7 +8,7 @@ public partial class ApplicationDbContextInitialiser
 {
     private async Task SeedUsersAsync()
     {
-        List<(ApplicationUser user, string role, string password, UserProfile profile)> defaultUsers =
+        List<(ApplicationUser user, string role, string password, UserProfile profile)> users =
         [
             (
                 new ApplicationUser {
@@ -22,7 +22,7 @@ public partial class ApplicationDbContextInitialiser
                 {
                     FirstName = "App",
                     LastName = "Admin",
-                    PreferredLanguage =  "en-US",
+                    PreferredLanguage =  "hu-HU",
                     UserId = "AppAdminLocalhostId",
                     CreatedOn =  DateTime.UtcNow
                 }
@@ -75,7 +75,7 @@ public partial class ApplicationDbContextInitialiser
                 new UserProfile
                 {
                     FirstName = "User",
-                    LastName = "Admin",
+                    LastName = "User",
                     PreferredLanguage =  "en-US",
                     UserId = "UserId",
                     CreatedOn =  DateTime.UtcNow
@@ -103,7 +103,7 @@ public partial class ApplicationDbContextInitialiser
 
         var existingUsers = _userManager.Users;
 
-        foreach (var obj in defaultUsers)
+        foreach (var obj in users)
         {
             if (existingUsers.All(u => u.UserName != obj.user.UserName))
             {

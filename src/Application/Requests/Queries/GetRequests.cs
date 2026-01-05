@@ -8,7 +8,7 @@ using FitPass.Domain.Enums;
 namespace FitPass.Application.Requests.Queries;
 
 [Authorize(Roles = Roles.AppAdministrator)]
-public record GetRequestsQuery(RequestType? RequestType, RequestStatus? RequestStatus) : IRequest<List<RequestDto>>;
+public record GetRequestsQuery : IRequest<List<RequestDto>>;
 
 public class GetRequestsQueryHandler : IRequestHandler<GetRequestsQuery, List<RequestDto>>
 {
@@ -20,19 +20,7 @@ public class GetRequestsQueryHandler : IRequestHandler<GetRequestsQuery, List<Re
     }
     public async Task<List<RequestDto>> Handle(GetRequestsQuery query, CancellationToken cancellationToken)
     {
-        var requestsQuery = _context.Requests.AsNoTracking().AsQueryable();
-
-        if (query.RequestStatus != null)
-        {
-            requestsQuery = requestsQuery.Where(r => r.Status == query.RequestStatus);
-        }
-
-        if (query.RequestType != null)
-        {
-            requestsQuery = requestsQuery.Where(r => r.Type == query.RequestType);
-        }
-
-        var requests =  await requestsQuery.ToListAsync();
+        var requests = await _context.Requests.AsNoTracking().ToListAsync(cancellationToken);
 
         return requests.Select(r => r.MapToDto()).ToList();
     }

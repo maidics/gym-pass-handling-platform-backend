@@ -5,13 +5,15 @@ using FitPass.Application.Common.Security;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Application.Common.Resources;
+using FitPass.Domain.ValueObjects;
 
 namespace FitPass.Application.UserProfiles.Commands;
 
 [Authorize]
 public record UpdateMyUserProfileCommand(
     string FirstName,
-    string LastName
+    string LastName,
+    string PreferredLanguage
 ) : IRequest<Result>;
 
 public class UpdateMyUserProfileCommandValidator : AbstractValidator<UpdateMyUserProfileCommand>
@@ -49,6 +51,7 @@ public class UpdateMyUserProfileCommandHandler : IRequestHandler<UpdateMyUserPro
 
         profile.FirstName = command.FirstName;
         profile.LastName = command.LastName;
+        profile.PreferredLanguage = command.PreferredLanguage;
 
         await _context.SaveChangesAsync();
 
