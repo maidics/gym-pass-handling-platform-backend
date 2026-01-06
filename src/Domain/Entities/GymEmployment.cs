@@ -4,7 +4,7 @@ public class GymEmployment : BaseEntity
 {
     public required string UserId { get; set; }
     public required string GymId { get; set; }
-    public string? EscalationEmail { get; set; }
+    public string? SupervisorEmail { get; set; }
     public required string Role { get; set; }
     public required DateTimeOffset EmploymentStart { get; set; }
     public DateTimeOffset? EmploymentEnd { get; set; } = null;

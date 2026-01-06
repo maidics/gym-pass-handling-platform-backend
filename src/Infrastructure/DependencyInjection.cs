@@ -46,8 +46,9 @@ public static class DependencyInjection
         builder.Services.AddDbContext<ApplicationDbContext>((sp, options) =>
         {
             options.AddInterceptors(sp.GetServices<ISaveChangesInterceptor>());
-            //options.UseInMemoryDatabase("NSwagDb");
-            options.UseSqlServer(connectionString);
+            options.UseInMemoryDatabase("NSwagDb")
+                .ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning)); //stops exceptions from transaction uses for in memory db
+            //options.UseSqlServer(connectionString);
             options.ConfigureWarnings(warnings => warnings.Ignore(RelationalEventId.PendingModelChangesWarning));
         });
 

@@ -30,7 +30,7 @@ public class QueryService : IQueryService
             {
                 UserId = user.Id,
                 GymId = gymId,
-                EscalationEmail = ge.EscalationEmail,
+                SupervisorEmail = ge.SupervisorEmail,
                 Role = ge.Role,
                 EmploymentStart = ge.EmploymentStart,
                 EmploymentEnd = ge.EmploymentEnd,
@@ -55,7 +55,7 @@ public class QueryService : IQueryService
             {
                 UserId = user.Id,
                 GymId = ge.GymId,
-                EscalationEmail = ge.EscalationEmail,
+                SupervisorEmail = ge.SupervisorEmail,
                 Role = ge.Role,
                 EmploymentStart = ge.EmploymentStart,
                 EmploymentEnd = ge.EmploymentEnd,

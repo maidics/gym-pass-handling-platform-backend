@@ -41,17 +41,17 @@ public partial class TestEntityBuilder
             Address = new Address("line1", "line2", "city", null, "postalCode", "HU"),
             Status = GymStatus.Active,
             Tier = GymTier.Local,
-            EscalationEmail = "escalation@email"
+            SupervisorEmail = "escalation@email"
         };
     }
 
-    public static GymAdminPromotionDto CreateGymAdminPromotionDto(string gymId, string userId, string escalationEmail = "escalation@test")
+    public static GymAdminPromotionDto CreateGymAdminPromotionDto(string gymId, string userId, string supervisorEmail = "escalation@test")
     {
         return new GymAdminPromotionDto
         {
             GymId = gymId,
             UserIdToNominate = userId,
-            EscalationEmail = escalationEmail
+            SupervisorEmail = supervisorEmail
         };
     }
 }

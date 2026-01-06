@@ -1,4 +1,5 @@
 using FitPass.Application.GymPassProducts.DTOs;
+using FitPass.Application.TenantPaymentProfiles.DTOs;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
 using FitPass.Domain.ValueObjects;
@@ -13,10 +14,15 @@ public class GymDto
     public required GymStatus Status { get; set; }
     public required GymTier Tier { get; set; }
     public required DateTimeOffset CreatedOn { get; set; }
-    public List<GymPassProductDto> PassProducts { get; set; } = [];
+    public required string? CreatedBy { get; set; }
+    public required DateTimeOffset LastModifiedOn { get; set; }
+    public required string? LastModifiedBy { get; set; }
+    public required TenantPaymentProfileDto? PaymentProfile { get; set; }
+    public required List<GymPassProductDto> PassProducts { get; set; }
+    public required List<GymContactInfoDto> ContactInfos { get; set; }
 }
 
-public static class Mappings
+public static partial class Mappings
 {
     extension(Gym gym)
     {
@@ -30,7 +36,12 @@ public static class Mappings
                 Status = gym.Status,
                 Tier = gym.Tier,
                 CreatedOn = gym.CreatedOn,
-                PassProducts = [.. gym.PassProducts.Select(p => p.MapToDto())]
+                CreatedBy = gym.CreatedBy,
+                LastModifiedOn = gym.LastModifiedOn,
+                LastModifiedBy = gym.LastModifiedBy,
+                PaymentProfile = gym.PaymentProfile?.MapToDto(),
+                PassProducts = [.. gym.PassProducts.Select(p => p.MapToDto())],
+                ContactInfos = [..gym.ContactInfos.Select(x => x.MapToDto())]
             };
         }
     }

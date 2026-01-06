@@ -12,7 +12,7 @@ public class GetGymByIdTests : BaseTestFixture
     [Test]
     public override void AuthorizeAttributeCheck()
     {
-        ShouldRequireAuthorization<GetGymByIdQuery>(Roles.AppAdministrator);
+        ShouldNotRequireAuthorization<GetGymByIdQuery>();
     }
 
     [Test]

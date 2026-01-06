@@ -20,6 +20,6 @@ public class GymEmploymentConfiguration : IEntityTypeConfiguration<GymEmployment
             .WithMany()
             .HasForeignKey(ge => ge.GymId);
 
-        builder.Property(gsa => gsa.EscalationEmail).HasMaxLength(MaxLength.Email);
+        builder.Property(gsa => gsa.SupervisorEmail).HasMaxLength(MaxLength.Email);
     }
 }

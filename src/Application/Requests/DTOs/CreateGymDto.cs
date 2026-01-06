@@ -9,5 +9,5 @@ public class CreateGymDto
     public required Address Address { get; set; }
     public required GymStatus Status { get; set; }
     public required GymTier Tier { get; set; }
-    public required string EscalationEmail { get; set; }
+    public required string SupervisorEmail { get; set; }
 }

@@ -1,8 +1,11 @@
+using FitPass.Application.Common.Interfaces;
 using FitPass.Application.GymPassProducts.Commands;
 using FitPass.Application.GymPassProducts.DTOs;
 using FitPass.Application.GymPassProducts.Queries;
+using FitPass.Domain.Entities;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace FitPass.Web.Endpoints;
 

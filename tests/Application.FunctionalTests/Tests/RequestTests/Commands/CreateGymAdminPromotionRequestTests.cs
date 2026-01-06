@@ -94,6 +94,6 @@ public class CreateGymAdminPromotionRequestTests : BaseTestFixture
         payload.ShouldNotBeNull();
         payload.GymId.ShouldBe(gymAdminObj.gymEmployment.GymId);
         payload.UserIdToNominate.ShouldBe(pendingGymEmployee.Id);
-        payload.EscalationEmail.ShouldBe(command.EscalationEmail);
+        payload.SupervisorEmail.ShouldBe(command.SupervisorEmail);
     }
 }

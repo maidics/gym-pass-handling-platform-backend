@@ -51,6 +51,11 @@ public partial class ApplicationDbContextInitialiser
             await SeedRolesAsync();
             await SeedUsersAsync();
 
+            await SeedRequestsAsync();
+            await SeedGymsAsync();
+            await SeedGymEmploymentsAsync();
+            await SeedGymPassProductsAsync();
+
             await _context.SaveChangesAsync();
 
             _interceptorStateService.IsAuditableEntityDisabled = false;

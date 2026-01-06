@@ -20,7 +20,7 @@ public static class ApplicationEntityAssertions
         gymEmploymentDto.Role.ShouldBe(gymEmployment.Role);
         gymEmploymentDto.GymId.ShouldBe(gymEmployment.GymId);
         gymEmploymentDto.UserId.ShouldBe(user.Id);
-        gymEmploymentDto.EscalationEmail.ShouldBe(gymEmployment.EscalationEmail);
+        gymEmploymentDto.SupervisorEmail.ShouldBe(gymEmployment.SupervisorEmail);
         gymEmploymentDto.UserProfile.Email.ShouldBe(user.Email!);
         gymEmploymentDto.UserProfile.FirstName.ShouldBe(userProfile.FirstName);
         gymEmploymentDto.UserProfile.LastName.ShouldBe(userProfile.LastName);

@@ -28,8 +28,8 @@ public class RegisterGymCommandValidator : AbstractValidator<RegisterGymCommand>
         RuleFor(v => v.CreateGymDto.GymAddress)
             .NotEmptyWithMaxLenghtAndMessage(nameof(RegisterGymCommand.CreateGymDto.GymAddress), MaxStringLengths.Address);
 
-        RuleFor(v => v.CreateGymDto.EscalationEmail)
-            .ValidEmailAddress(nameof(RegisterGymCommand.CreateGymDto.EscalationEmail));
+        RuleFor(v => v.CreateGymDto.SupervisorEmail)
+            .ValidEmailAddress(nameof(RegisterGymCommand.CreateGymDto.SupervisorEmail));
 
         RuleFor(v => v.PendingGymEmployeeToPromoteEmail)
             .ValidEmailAddress(nameof(RegisterGymCommand.PendingGymEmployeeToPromoteEmail));

@@ -29,10 +29,17 @@ public class GetMyGymQueryHandler : IRequestHandler<GetMyGymQuery, GymDto>
 
         Guard.Against.NullParameterRelatedToCurrentUser(gymEmployment, nameof(GymEmployment), _user.Id);
 
-        var gym = await _context
+        var gymQuery = _context
             .Gyms
             .AsNoTracking()
-            .FirstOrDefaultAsync(g => g.Id == gymEmployment.GymId, cancellationToken);
+            .Where(x => x.Id == gymEmployment.GymId);
+
+        if (gymEmployment.Role == Roles.GymAdministrator)
+        {
+            gymQuery.Include((x => x.PaymentProfile));
+        }
+
+        var gym = await gymQuery.FirstOrDefaultAsync(cancellationToken);
 
         Guard.Against.NullParameterRelatedToCurrentUser(gym, "gym employee managed gym", _user.Id);
 

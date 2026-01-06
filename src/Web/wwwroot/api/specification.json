@@ -1347,7 +1347,7 @@
         "tags": [
           "Users"
         ],
-        "operationId": "RegisterPendingGymManagement",
+        "operationId": "RegisterPendingGymEmployee",
         "requestBody": {
           "x-name": "command",
           "content": {
@@ -1700,7 +1700,7 @@
           "gymId": {
             "type": "string"
           },
-          "escalationEmail": {
+          "supervisorEmail": {
             "type": "string",
             "nullable": true
           },
@@ -2384,7 +2384,7 @@
           "tier": {
             "$ref": "#/components/schemas/GymTier"
           },
-          "escalationEmail": {
+          "supervisorEmail": {
             "type": "string"
           }
         }
@@ -2402,7 +2402,7 @@
           "priorityLevel": {
             "$ref": "#/components/schemas/PriorityLevel"
           },
-          "escalationEmail": {
+          "supervisorEmail": {
             "type": "string"
           }
         }

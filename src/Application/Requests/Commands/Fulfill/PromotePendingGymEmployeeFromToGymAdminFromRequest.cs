@@ -124,7 +124,7 @@ public class PromotePendingGymEmployeeToGymAdminFromRequestCommandHandler : IReq
                 UserId = promotionDto.UserIdToNominate,
                 GymId = promotionDto.GymId,
                 Role = Roles.GymAdministrator,
-                EscalationEmail = promotionDto.EscalationEmail,
+                SupervisorEmail = promotionDto.SupervisorEmail,
                 EmploymentStart = _timeProvider.GetUtcNow()
             };
 

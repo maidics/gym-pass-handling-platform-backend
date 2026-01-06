@@ -35,7 +35,7 @@ public class CreateGymCreationRequestCommandValidator : AbstractValidator<Create
             .Must(status => status != GymStatus.Suspended)
             .WithMessage(localizer.GetWithParamsLocalized(nameof(SharedResource.ValueIsInvalid), nameof(SharedResource.GymStatus)));
 
-        RuleFor(v => v.CreateGymDto.EscalationEmail)
+        RuleFor(v => v.CreateGymDto.SupervisorEmail)
             .EmailAddressWithMessageLocalized(localizer);
     }
 }

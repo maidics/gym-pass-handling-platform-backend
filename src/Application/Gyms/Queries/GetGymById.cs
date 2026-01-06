@@ -9,7 +9,6 @@ using FitPass.Application.Common.Resources;
 
 namespace FitPass.Application.Gyms.Queries;
 
-[Authorize(Roles = $"{Roles.AppAdministrator}")]
 public record GetGymByIdQuery(string GymId) : IRequest<Result<GymDto>>;
 
 public class GetGymByIdQueryValidator : AbstractValidator<GetGymByIdQuery>

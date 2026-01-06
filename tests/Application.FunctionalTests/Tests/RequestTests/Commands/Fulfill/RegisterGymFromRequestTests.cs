@@ -235,7 +235,7 @@ public class RegisterGymFromRequestTests : BaseTestFixture
             Address = obj.gym.Address,
             Status = GymStatus.Active,
             Tier = GymTier.Local,
-            EscalationEmail = "test@localhost"
+            SupervisorEmail = "test@localhost"
         };
 
         var request = new Request
@@ -293,6 +293,6 @@ public class RegisterGymFromRequestTests : BaseTestFixture
         createdGymEmployment.UserId.ShouldBe(obj.pendingGymEmployee.Id);
         createdGymEmployment.GymId.ShouldBe(createdGym.Id);
         createdGymEmployment.Role.ShouldBe(Roles.GymAdministrator);
-        createdGymEmployment.EscalationEmail.ShouldBe(obj.createGymDto.EscalationEmail);
+        createdGymEmployment.SupervisorEmail.ShouldBe(obj.createGymDto.SupervisorEmail);
     }
 }

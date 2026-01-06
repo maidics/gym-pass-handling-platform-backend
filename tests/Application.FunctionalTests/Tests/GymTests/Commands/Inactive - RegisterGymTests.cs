@@ -30,7 +30,7 @@ public class RegisterGymTests : BaseTestFixture
                 GymAddress = string.Empty,
                 GymStatus = GymStatus.Suspended,
                 GymTier = GymTier.Local,
-                EscalationEmail = string.Empty
+                SupervisorEmail = string.Empty
             },
             string.Empty);
 

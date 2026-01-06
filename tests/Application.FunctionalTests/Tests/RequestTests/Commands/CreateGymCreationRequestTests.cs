@@ -35,7 +35,7 @@ public class CreateGymCreationRequestTests : BaseTestFixture
                 Address = new Address("line1", "line2", "city", null, "postalCode", "HU"),
                 Status = GymStatus.Suspended,
                 Tier = GymTier.Local,
-                EscalationEmail = string.Empty
+                SupervisorEmail = string.Empty
             });
 
         await ShouldThrowIfParametersAreInvalidAsync(command);

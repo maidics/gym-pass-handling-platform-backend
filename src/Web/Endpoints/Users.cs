@@ -19,7 +19,7 @@ public class Users : EndpointGroupBase
 
         groupBuilder.MapPost(LogInUser, "LogIn");
 
-        groupBuilder.MapPost(RegisterPendingGymManagement, "Register/PendingGymManagement");
+        groupBuilder.MapPost(RegisterPendingGymEmployee, "Register/PendingGymManagement");
 
         groupBuilder.MapPut(PromotePendingGymEmployeeToGymStaffRole, "Promote/GymStaff").RequireAuthorization();
 
@@ -59,7 +59,7 @@ public class Users : EndpointGroupBase
         return result.ToTypedResult();
     }
 
-    public async Task<Results<Ok<JwtToken>, ProblemHttpResult>> RegisterPendingGymManagement(
+    public async Task<Results<Ok<JwtToken>, ProblemHttpResult>> RegisterPendingGymEmployee(
         ISender sender, [FromBody] RegisterPendingGymEmployeeCommand command, CancellationToken cancellationToken)
     {
         var result = await sender.Send(command, cancellationToken);

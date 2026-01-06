@@ -17,7 +17,7 @@ public record CreateGymAdminPromotionRequestCommand
     string UserId,
     string Description,
     PriorityLevel PriorityLevel,
-    string EscalationEmail
+    string SupervisorEmail
 ) : IRequest<Result<RequestDto>>;
 
 public class CreateGymAdminPromotionRequestCommandValidator : AbstractValidator<CreateGymAdminPromotionRequestCommand>
@@ -30,7 +30,7 @@ public class CreateGymAdminPromotionRequestCommandValidator : AbstractValidator<
         RuleFor(v => v.Description!)
             .NotEmptyWithMaxLengthAndMessageLocalized(localizer, nameof(SharedResource.Description), MaxLength.Description);
 
-        RuleFor(v => v.EscalationEmail)
+        RuleFor(v => v.SupervisorEmail)
             .EmailAddressWithMessageLocalized(localizer);
     }
 }
@@ -83,7 +83,7 @@ public class CreateGymAdminPromotionRequestCommandHandler : IRequestHandler<Crea
             {
                 GymId = gymEmployment.GymId!,
                 UserIdToNominate = command.UserId,
-                EscalationEmail = command.EscalationEmail
+                SupervisorEmail = command.SupervisorEmail
             })
         };
 

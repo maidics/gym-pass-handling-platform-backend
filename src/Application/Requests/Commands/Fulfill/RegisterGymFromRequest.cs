@@ -170,7 +170,7 @@ public class RegisterGymFromRequestCommandHandler : IRequestHandler<RegisterGymF
                 UserId = request.CreatedBy,
                 GymId = gym.Id,
                 Role = Roles.GymAdministrator,
-                EscalationEmail = createGymDto.EscalationEmail,
+                SupervisorEmail = createGymDto.SupervisorEmail,
                 EmploymentStart = _timeProvider.GetUtcNow()
             };
 
