@@ -14,7 +14,7 @@ public class TenantPaymentProfileMapTests
 
         var profile = new TenantPaymentProfile
         {
-            GymId = "gymId",
+            GymId = "GymId",
             AccountStatus = TenantPaymentAccountStatus.Default(),
             LastUpdatedByOnPaymentProvidersSide = null,
             LastUpdatedOnPaymentProvidersSide = now,
@@ -26,7 +26,7 @@ public class TenantPaymentProfileMapTests
         var dto = profile.MapToDto();
 
         dto.ShouldSatisfyAllConditions(
-            () => dto.GymId.ShouldBe("gymId"),
+            () => dto.GymId.ShouldBe("GymId"),
             () => dto.AccountStatus.ShouldBeEquivalentTo(profile.AccountStatus.MapToDto()),
             () => dto.LastUpdatedByOnPaymentProvidersSide.ShouldBeNull(),
             () => dto.LastUpdatedOnPaymentProvidersSide.ShouldBe(now),

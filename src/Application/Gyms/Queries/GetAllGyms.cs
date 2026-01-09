@@ -15,7 +15,10 @@ public class GetAllGymsQueryHandler : IRequestHandler<GetAllGymsQuery, List<GymD
 
     public async Task<List<GymDto>> Handle(GetAllGymsQuery request, CancellationToken cancellationToken)
     {
-        var gyms = await _context.Gyms.AsNoTracking().ToListAsync(cancellationToken);
+        var gyms = await _context.Gyms
+            .AsNoTracking()
+            .Include(x => x.PassProducts)
+            .ToListAsync(cancellationToken);
 
         return gyms.Select(g => g.MapToDto()).ToList();
     }

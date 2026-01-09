@@ -42,6 +42,8 @@ public class Users : EndpointGroupBase
         groupBuilder.MapGet(GetMyUser, "My").RequireAuthorization();
         
         groupBuilder.MapPut(UpdateMyPassword, "UpdateMyPassword").RequireAuthorization();
+
+        groupBuilder.MapPost(SendAccountActivationEmail, "AccountActivationEmail");
     }
 
     public async Task<Results<Ok<JwtToken>, ProblemHttpResult>> RegisterUser(ISender sender, [FromBody] RegisterUserCommand command, CancellationToken cancellationToken)
@@ -149,6 +151,14 @@ public class Users : EndpointGroupBase
     {
         var result = await sender.Send(command);
         
+        return result.ToTypedResult();
+    }
+
+    public async Task<Results<NoContent, ProblemHttpResult>> SendAccountActivationEmail(ISender sender,
+        [FromBody] string email, CancellationToken cancellationToken)
+    {
+        var result = await sender.Send(new SendAccountActivationEmailCommand(email));
+
         return result.ToTypedResult();
     }
 }

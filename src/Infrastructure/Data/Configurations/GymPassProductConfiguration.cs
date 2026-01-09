@@ -1,4 +1,5 @@
 using FitPass.Domain.Entities;
+using FitPass.Infrastructure.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -13,6 +14,6 @@ public class GymPassProductConfiguration : IEntityTypeConfiguration<GymPassProdu
             .WithMany(g => g.PassProducts)
             .HasForeignKey(gpp => gpp.GymId);
 
-        builder.OwnsOne(gpp => gpp.Price);
+        builder.OwnsOne(gpp => gpp.Price).ConfigureMoney();
     }
 }

@@ -102,7 +102,7 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, R
 
             await _context.UserProfiles.AddAsync(profile);
 
-            profile.AddDomainEvent(new UserRegisteredEvent(userId, command.Email, command.FirstName, false));
+            profile.AddDomainEvent(new UserRegisteredEvent(userId, command.Email));
 
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();

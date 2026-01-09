@@ -106,9 +106,7 @@ public class RegisterPendingGymEmployeeCommandHandler : IRequestHandler<Register
 
             profile.AddDomainEvent(new UserRegisteredEvent(
                 userId,
-                command.Email,
-                command.FirstName,
-                false));
+                command.Email));
 
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();

@@ -1,76 +1,36 @@
-using FitPass.Application.Common.EmailModels.Users;
 using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Security;
-using FitPass.Application.Common.Settings;
-using FitPass.Application.Common.Resources;
-using FitPass.Domain.Strings;
-using Microsoft.Extensions.Options;
 
 namespace FitPass.Application.Users.Commands.Emails;
 
 [Authorize]
+//for users that are logged in - already have password
 public record SendEmailConfirmationEmailCommand : IRequest<Result>;
 
 public class SendEmailConfirmationEmailCommandHandler : IRequestHandler<SendEmailConfirmationEmailCommand, Result>
 {
-    private readonly IIdentityService _identityService;
+    private readonly ISender _sender;
     private readonly IUser _user;
-    private readonly ClientAppSettings _clientAppSettings;
-    private readonly IApplicationDbContext _context;
-    private readonly IEmailService _emailService;
-    private readonly ILocalizer _localizer;
+    private readonly IIdentityService _identityService;
 
-    public SendEmailConfirmationEmailCommandHandler(
-        IIdentityService identityService,
-        IUser user,
-        IOptions<ClientAppSettings> options,
-        IApplicationDbContext context,
-        IEmailService emailService,
-        ILocalizer localizer)
+    public SendEmailConfirmationEmailCommandHandler(ISender sender, IUser user,  IIdentityService identityService)
     {
-        _identityService = identityService;
+        _sender = sender;
         _user = user;
-        _clientAppSettings = options.Value;
-        _context = context;
-        _emailService = emailService;
-        _localizer = localizer;
+        _identityService = identityService;
     }
-
-    public async Task<Result> Handle(SendEmailConfirmationEmailCommand command, CancellationToken cancellationToken)
+    
+    public async Task<Result> Handle(SendEmailConfirmationEmailCommand request, CancellationToken cancellationToken)
     {
-        if (await _identityService.IsUserEmailConfirmed(_user.Id!))
-        {
-            return Result.BusinessRuleViolation(_localizer.Get(nameof(SharedResource.EmailIsAlreadyConfirmed)));
-        }
-
-        var token = await _identityService.GenerateEmailConfirmationTokenAsync(_user.Id!);
-
-        Guard.Against.Null(token, "Email confirmation token", "Failed to generate email confirmation token.");
-
+       
         var email = await _identityService.GetEmailByIdAsync(_user.Id!);
 
-        Guard.Against.NullParameterRelatedToCurrentUser(email, "Email", _user.Id);
-
-        var obj = await _context.UserProfiles
-            .Where(x => x.UserId == _user.Id!)
-            .Select(x => new { x.PreferredLanguage, x.FirstName })
-            .FirstOrDefaultAsync();
-
-        var url = _clientAppSettings.GetEmailConfirmationUrl(token, email, !await _identityService.DoesUserHavePassword(_user.Id!));
-
-        var model = new EmailConfirmationEmailModel
-        {
-            Language = obj?.PreferredLanguage ?? _localizer.DefaultCulture,
-            Subject = _localizer.Get(nameof(SharedResource.EmailConfirmationEmailSubject), CommonStrings.AppName),
-            Greeting = _localizer.Get(nameof(SharedResource.EmailGreeting), obj?.FirstName ?? _localizer.Get(nameof(SharedResource.User))),
-            Body = _localizer.Get(nameof(SharedResource.EmailConfirmationEmailBody), CommonStrings.AppName, url),
-            Farewell = _localizer.Get(nameof(SharedResource.EmailFarewell), CommonStrings.AppName)
-        };
+        Guard.Against.NullParameterRelatedToCurrentUser(email, "email", _user.Id);
         
-        await _emailService.SendEmailAsync(model, email);
+        var command = new SendAccountActivationEmailCommand(email, _user.Id);
 
-        return Result.Success();
+        return await _sender.Send(command);
     }
 }

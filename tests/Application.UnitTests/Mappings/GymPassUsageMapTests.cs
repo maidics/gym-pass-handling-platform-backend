@@ -17,7 +17,7 @@ public class GymPassUsageMapTests
         var usage = new GymPassUsage
         {
             UserId = "userId",
-            GymId = "gymId",
+            GymId = "GymId",
             PassId = "passId",
             PassType = PassType.MultiUse,
             TotalPassUses = 3,
@@ -33,7 +33,7 @@ public class GymPassUsageMapTests
 
         dto.ShouldSatisfyAllConditions(
             () => dto.UserId.ShouldBe("userId"),
-            () => dto.GymId.ShouldBe("gymId"),
+            () => dto.GymId.ShouldBe("GymId"),
             () => dto.PassType.ShouldBe(PassType.MultiUse),
             () => dto.TotalPassUses.ShouldBe(3),
             () => dto.RemainingPassUses.ShouldBe(2),

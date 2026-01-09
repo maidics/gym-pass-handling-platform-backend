@@ -13,13 +13,13 @@ public class GymPassProductMapTests
     [Test]
     public void ShouldMapToDto()
     {
-        var product = GymPassProduct.SingleUse("gymId", "name", "description", true, Money.Usd(10));
+        var product = GymPassProduct.SingleUse("GymId", "name", "description", true, Money.Usd(10));
 
         var dto = product.MapToDto();
 
         dto.ShouldSatisfyAllConditions(
             () => dto.Id.ShouldBe(product.Id),
-            () => dto.GymId.ShouldBe("gymId"),
+            () => dto.GymId.ShouldBe("GymId"),
             () => dto.Name.ShouldBe("name"),
             () => dto.Description.ShouldBe("description"),
             () => dto.Type.ShouldBe(PassType.SingleUse),

@@ -27,7 +27,7 @@ public class GetGymPassProductsByGymIdTests : BaseTestFixture
     [Test]
     public async Task ShouldReturnNotFoundIfGymIsNotFound()
     {
-        var query = new GetGymPassProductsByGymIdQuery("gymId");
+        var query = new GetGymPassProductsByGymIdQuery("GymId");
 
         var result = await SendAsync(query);
         result.Type.ShouldBe(ResultTypes.NotFound);

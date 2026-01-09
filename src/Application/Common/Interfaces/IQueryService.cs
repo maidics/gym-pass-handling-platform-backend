@@ -13,6 +13,7 @@ public interface IQueryService
     Task<List<GymEmploymentDto>> GetGymEmploymentsWithUserProfileAndEmailByGymId(string gymId);
     Task<UserProfileWithEmailDto?> GetUserProfileWithEmailByApplicationUserId(string applicationUserId);
     Task<List<GymMembershipWithUserProfileAndEmailDto>> GetGymMembershipsWithUserProfilesAndEmailByGymIdAndMembershipStatus(string gymId, GymMembershipStatus? status);
+    Task<GymEmploymentDto?> GetGymEmploymentWithUserProfileAndEmailByIdAsync(string gymEmploymentId, CancellationToken cancellationToken = default);
     Task<GymMembershipWithUserProfileAndEmailDto?> GetGymMembershipWithUserProfileAndEmailByGymIdAndMembershipStatus(string gymMembershipId);
     Task<string[]> GetGymEmployeeEmailsByGymIdAsync(string gymId);
 }

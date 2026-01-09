@@ -100,9 +100,7 @@ public class GymEmployeeRegisterUserCommandHandler : IRequestHandler<GymEmployee
 
             userProfile.AddDomainEvent(new UserRegisteredEvent(
                 creationResultObj.userId!, 
-                command.Email,
-                command.FirstName, 
-                true));
+                command.Email));
 
             var gymMembership = new GymMembership
             {

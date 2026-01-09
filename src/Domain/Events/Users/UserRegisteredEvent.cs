@@ -2,6 +2,4 @@
 
 public record UserRegisteredEvent(
     string UserId,
-    string UserEmail,
-    string UserFirstName,
-    bool ByGymEmployee) : BaseEvent;
+    string UserEmail) : BaseEvent;

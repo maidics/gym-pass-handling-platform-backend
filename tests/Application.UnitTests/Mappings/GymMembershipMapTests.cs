@@ -16,7 +16,7 @@ public class GymMembershipDtoTests
         {
             Id = "id",
             UserId = "userId",
-            GymId = "gymId",
+            GymId = "GymId",
             Status = GymMembershipStatus.Banned,
             Passes = 
             [
@@ -37,7 +37,7 @@ public class GymMembershipDtoTests
         dto.ShouldSatisfyAllConditions(
             () => dto.Id.ShouldBe("id"),
             () => dto.UserId.ShouldBe("userId"),
-            () => dto.GymId.ShouldBe("gymId"),
+            () => dto.GymId.ShouldBe("GymId"),
             () => dto.Status.ShouldBe(GymMembershipStatus.Banned),
             () => dto.Passes.Count.ShouldBe(1),
             () => dto.Passes.First().ShouldBeEquivalentTo(gymMembership.Passes.First().MapToDto()));

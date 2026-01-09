@@ -1,10 +1,13 @@
+using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Gyms.Commands;
 using FitPass.Application.Gyms.DTOs;
 using FitPass.Application.Gyms.Queries;
 using FitPass.Application.Requests.Commands.Fulfill;
+using FitPass.Domain.Entities.ContactInfos;
 using FitPass.Domain.Enums;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace FitPass.Web.Endpoints;
 
@@ -21,14 +24,14 @@ public class Gyms : EndpointGroupBase
         //groupBuilder.MapGet(GetNewGymsThisMonth, "NewThisMonth").RequireAuthorization();
 
         groupBuilder.MapPut(UpdateGymStatus, "{gymId}/Status").RequireAuthorization();
-
-        groupBuilder.MapGet(GetMyGym, "My/Details").RequireAuthorization();
-
+        
         groupBuilder.MapPost(RegisterGymFromRequest, "Register/FromRequest").RequireAuthorization();
 
         //groupBuilder.MapPost(RegisterGym, "Register").RequireAuthorization();
 
         groupBuilder.MapPut(UpdateMyGymStatus, "My/Status").RequireAuthorization();
+
+        groupBuilder.MapGet(TestEndpoint, "Test");
     }
 
     public async Task<Results<NoContent, ProblemHttpResult>> UpdateMyGymProfile(ISender sender, [FromBody] UpdateMyGymProfileCommand command, CancellationToken cancellationToken)
@@ -73,13 +76,6 @@ public class Gyms : EndpointGroupBase
         return result.ToTypedResult();
     }
 
-    public async Task<Ok<GymDto>> GetMyGym(ISender sender, CancellationToken cancellationToken)
-    {
-        var result = await sender.Send(new GetMyGymQuery(), cancellationToken);
-
-        return TypedResults.Ok(result);
-    }
-
     public async Task<Results<NoContent, ProblemHttpResult>> UpdateMyGymStatus(ISender sender, [FromBody] UpdateMyGymStatusCommand command, CancellationToken cancellationToken)
     {
         var result = await sender.Send(command, cancellationToken);
@@ -102,4 +98,12 @@ public class Gyms : EndpointGroupBase
         return TypedResults.Ok(result);
     }
     */
+
+    public async Task<Ok<List<GymContactInfoDto>>> TestEndpoint(IApplicationDbContext context,
+        CancellationToken cancellationToken)
+    {
+        var result = await context.GymContactInfos.ToListAsync(cancellationToken);
+
+        return TypedResults.Ok(result.Select(x => x.MapToDto()).ToList());
+    }
 }

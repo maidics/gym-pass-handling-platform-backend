@@ -59,7 +59,7 @@
         ]
       }
     },
-    "/api/GymEmployments/Gym": {
+    "/api/GymEmployments/Gyms/{gymId}": {
       "get": {
         "tags": [
           "GymEmployments"
@@ -68,7 +68,7 @@
         "parameters": [
           {
             "name": "gymId",
-            "in": "query",
+            "in": "path",
             "required": true,
             "schema": {
               "type": "string"
@@ -86,6 +86,42 @@
                   "items": {
                     "$ref": "#/components/schemas/GymEmploymentDto"
                   }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/GymEmployments/{gymEmploymentId}": {
+      "get": {
+        "tags": [
+          "GymEmployments"
+        ],
+        "operationId": "GetGymEmploymentById",
+        "parameters": [
+          {
+            "name": "gymEmploymentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GymEmploymentDto"
                 }
               }
             }
@@ -688,31 +724,6 @@
         ]
       }
     },
-    "/api/Gyms/My/Details": {
-      "get": {
-        "tags": [
-          "Gyms"
-        ],
-        "operationId": "GetMyGym",
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GymDto"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "JWT": []
-          }
-        ]
-      }
-    },
     "/api/Gyms/Register/FromRequest": {
       "post": {
         "tags": [
@@ -777,6 +788,29 @@
             "JWT": []
           }
         ]
+      }
+    },
+    "/api/Gyms/Test": {
+      "get": {
+        "tags": [
+          "Gyms"
+        ],
+        "operationId": "TestEndpoint",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GymContactInfoDto"
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/Payments/GymPassProducts/OneTime/{gymPassProductId}": {
@@ -1674,6 +1708,31 @@
         ]
       }
     },
+    "/api/Users/AccountActivationEmail": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "operationId": "SendAccountActivationEmail",
+        "requestBody": {
+          "x-name": "email",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        }
+      }
+    },
     "/api/Webhooks/Stripe": {
       "post": {
         "tags": [
@@ -1694,6 +1753,9 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
+          "id": {
+            "type": "string"
+          },
           "userId": {
             "type": "string"
           },
@@ -1710,6 +1772,11 @@
           "employmentStart": {
             "type": "string",
             "format": "date-time"
+          },
+          "employmentEnd": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
           },
           "userProfile": {
             "$ref": "#/components/schemas/UserProfileWithEmailDto"
@@ -2206,16 +2273,91 @@
         }
       },
       "GymContactInfoDto": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ContactInfoBase"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "fullName": {
+                "type": "string"
+              },
+              "address": {
+                "nullable": true,
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/Address"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "ContactInfoBase": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BaseEntity"
+          },
+          {
+            "type": "object",
+            "x-abstract": true,
+            "additionalProperties": false,
+            "properties": {
+              "phoneNumber": {
+                "nullable": true,
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/PhoneNumber"
+                  }
+                ]
+              },
+              "email": {
+                "type": "string",
+                "nullable": true
+              }
+            }
+          }
+        ]
+      },
+      "PhoneNumber": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ValueObject"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "value": {
+                "type": "string"
+              }
+            }
+          }
+        ]
+      },
+      "BaseEntity": {
         "type": "object",
+        "x-abstract": true,
         "additionalProperties": false,
         "properties": {
-          "fullName": {
+          "id": {
             "type": "string"
           },
-          "address": {
-            "$ref": "#/components/schemas/Address"
+          "domainEvents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BaseEvent"
+            }
           }
         }
+      },
+      "BaseEvent": {
+        "type": "object",
+        "x-abstract": true,
+        "additionalProperties": false
       },
       "UpdateGymStatusCommand": {
         "type": "object",
@@ -2815,6 +2957,10 @@
           },
           "isEmailConfirmed": {
             "type": "boolean"
+          },
+          "gymId": {
+            "type": "string",
+            "nullable": true
           }
         }
       },

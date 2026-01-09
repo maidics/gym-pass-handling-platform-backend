@@ -30,7 +30,7 @@ public class GetGymByIdTests : BaseTestFixture
     {
         await RunAsAppAdminAsync();
 
-        var query = new GetGymByIdQuery("gymId");
+        var query = new GetGymByIdQuery("GymId");
 
         var result = await SendAsync(query);
         result.Type.ShouldBe(ResultTypes.NotFound);

@@ -130,7 +130,7 @@ public class PromotePendingGymEmployeeToGymAdminFromRequestTests : BaseTestFixtu
             Title = "title",
             Description = "description",
             PriorityLevel = PriorityLevel.Medium,
-            Payload = JsonSerializer.Serialize(TestEntityBuilder.CreateGymAdminPromotionDto("gymId", "not-existent-user-id"))
+            Payload = JsonSerializer.Serialize(TestEntityBuilder.CreateGymAdminPromotionDto("GymId", "not-existent-user-id"))
         };
 
         await AddAsync(request);
@@ -157,7 +157,7 @@ public class PromotePendingGymEmployeeToGymAdminFromRequestTests : BaseTestFixtu
             Title = "title",
             Description = "description",
             PriorityLevel = PriorityLevel.Medium,
-            Payload = JsonSerializer.Serialize(TestEntityBuilder.CreateGymAdminPromotionDto("gymId", defaultUser.Id))
+            Payload = JsonSerializer.Serialize(TestEntityBuilder.CreateGymAdminPromotionDto("GymId", defaultUser.Id))
         };
 
         await AddAsync(request);

@@ -9,4 +9,5 @@ public record UserDto(
     string PreferredLanguage,
     DateTimeOffset CreatedOn,
     string[] Roles,
-    bool IsEmailConfirmed);
+    bool IsEmailConfirmed,
+    string? GymId);

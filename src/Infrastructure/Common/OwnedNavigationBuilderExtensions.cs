@@ -38,4 +38,16 @@ public static class OwnedNavigationBuilderExtensions
             return navigation;
         }
     }
+
+    extension<TOwnerEntity>(OwnedNavigationBuilder<TOwnerEntity, Money> navigation) where TOwnerEntity : BaseEntity
+    {
+        public OwnedNavigationBuilder<TOwnerEntity, Money> ConfigureMoney()
+        {
+            navigation.Property(x => x.Amount).HasPrecision(18, 2);
+            
+            navigation.Property(x => x.Currency).HasMaxLength(3); //3 letter ISO code
+
+            return navigation;
+        }
+    }
 }

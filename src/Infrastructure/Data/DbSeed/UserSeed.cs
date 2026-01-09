@@ -40,7 +40,7 @@ public partial class ApplicationDbContextInitialiser
                 {
                     FirstName = "Gym",
                     LastName = "Admin",
-                    PreferredLanguage =  "en-US",
+                    PreferredLanguage =  "hu-HU",
                     UserId = "GymAdminLocalhostId",
                     CreatedOn =  DateTime.UtcNow
                 }
@@ -98,7 +98,7 @@ public partial class ApplicationDbContextInitialiser
                     UserId = "PendingGymEmployeeId",
                     CreatedOn = DateTime.UtcNow
                 }
-            ),
+            )
         ];
 
         var existingUsers = _userManager.Users;
