@@ -1,4 +1,3 @@
-using FitPass.Application.Common.Models;
 using FitPass.Application.GymMemberships.DTOs;
 using FitPass.Application.Requests.Commands.Fulfill;
 using FitPass.Application.Users.Commands;
@@ -18,9 +17,7 @@ public class Users : EndpointGroupBase
         groupBuilder.MapPost(RegisterUser, "Register");
 
         groupBuilder.MapPost(LogInUser, "LogIn");
-
-        groupBuilder.MapPost(RegisterPendingGymEmployee, "Register/PendingGymManagement");
-
+        
         groupBuilder.MapPut(PromotePendingGymEmployeeToGymStaffRole, "Promote/GymStaff").RequireAuthorization();
 
         groupBuilder.MapPut(DemoteGymStaffToPendingGymEmployee, "Demote/GymStaff").RequireAuthorization();
@@ -55,14 +52,6 @@ public class Users : EndpointGroupBase
 
     public async Task<Results<Ok<JwtToken>, ProblemHttpResult>> LogInUser(
         ISender sender, [FromBody] LogInUserCommand command, CancellationToken cancellationToken)
-    {
-        var result = await sender.Send(command, cancellationToken);
-
-        return result.ToTypedResult();
-    }
-
-    public async Task<Results<Ok<JwtToken>, ProblemHttpResult>> RegisterPendingGymEmployee(
-        ISender sender, [FromBody] RegisterPendingGymEmployeeCommand command, CancellationToken cancellationToken)
     {
         var result = await sender.Send(command, cancellationToken);
 

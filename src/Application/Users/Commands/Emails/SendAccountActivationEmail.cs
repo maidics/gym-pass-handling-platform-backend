@@ -47,7 +47,7 @@ public class SendAccountActivationEmailCommandHandler : IRequestHandler<SendAcco
     {
         var userId = command.UserId ?? await _identityService.GetUserIdByEmailAsync(command.Email);
 
-        if (userId is null)
+        if (string.IsNullOrEmpty(userId))
         {
             return Result.Success(); //always returning success if the email is valid so we don't leak the email uses
         }

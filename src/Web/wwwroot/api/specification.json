@@ -1312,6 +1312,35 @@
         ]
       }
     },
+    "/api/UserProfiles/My/Update/PreferredLanguage": {
+      "put": {
+        "tags": [
+          "UserProfiles"
+        ],
+        "operationId": "UpdateMyPreferredLanguage",
+        "parameters": [
+          {
+            "name": "newLanguage",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
     "/api/Users/Register": {
       "post": {
         "tags": [
@@ -1356,38 +1385,6 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/LogInUserCommand"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JwtToken"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/Users/Register/PendingGymManagement": {
-      "post": {
-        "tags": [
-          "Users"
-        ],
-        "operationId": "RegisterPendingGymEmployee",
-        "requestBody": {
-          "x-name": "command",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RegisterPendingGymEmployeeCommand"
               }
             }
           },
@@ -2764,6 +2761,12 @@
           },
           "passwordConfirm": {
             "type": "string"
+          },
+          "asPendingGymEmployee": {
+            "type": "boolean"
+          },
+          "preferredLanguage": {
+            "type": "string"
           }
         }
       },
@@ -2775,27 +2778,6 @@
             "type": "string"
           },
           "password": {
-            "type": "string"
-          }
-        }
-      },
-      "RegisterPendingGymEmployeeCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "firstName": {
-            "type": "string"
-          },
-          "lastName": {
-            "type": "string"
-          },
-          "email": {
-            "type": "string"
-          },
-          "password": {
-            "type": "string"
-          },
-          "passwordConfirm": {
             "type": "string"
           }
         }

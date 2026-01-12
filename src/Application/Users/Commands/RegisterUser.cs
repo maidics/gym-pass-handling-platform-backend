@@ -6,6 +6,8 @@ using FitPass.Application.Common.Models;
 using FitPass.Application.Users.DTOs;
 using FitPass.Domain.Events.Users;
 using FitPass.Application.Common.Resources;
+using FitPass.Application.Common.Settings;
+using Microsoft.Extensions.Options;
 
 namespace FitPass.Application.Users.Commands;
 
@@ -14,12 +16,14 @@ public record RegisterUserCommand(
         string LastName,
         string Email,
         string Password,
-        string PasswordConfirm
+        string PasswordConfirm,
+        bool AsPendingGymEmployee,
+        string PreferredLanguage
     ) : IRequest<Result<JwtToken>>;
 
 public class RegisterUserCommandValidator : AbstractValidator<RegisterUserCommand>
 {
-    public RegisterUserCommandValidator(ILocalizer localizer)
+    public RegisterUserCommandValidator(ILocalizer localizer, IOptions<CultureSettings> options)
     {
         RuleFor(v => v.FirstName)
             .NotEmptyWithMaxLengthAndMessageLocalized(localizer, nameof(SharedResource.FirstName), MaxLength.Name);
@@ -34,6 +38,9 @@ public class RegisterUserCommandValidator : AbstractValidator<RegisterUserComman
         RuleFor(v => v.PasswordConfirm)
             .Equal(v => v.PasswordConfirm)
             .WithMessage(localizer.Get(nameof(SharedResource.PasswordsMustMatch)));
+
+        RuleFor(v => v.PreferredLanguage)
+            .SupportedLanguageWithMessageLocalized(localizer, options.Value.SupportedCultures);
     }
 }
 
@@ -82,7 +89,9 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, R
 
             userId = userCreationResultObj.userId!;
 
-            var roleResult = await _identityService.AddToRoleAsync(userCreationResultObj.userId!, Roles.User);
+            var role = command.AsPendingGymEmployee ? Roles.PendingGymEmployee : Roles.User;
+
+            var roleResult = await _identityService.AddToRoleAsync(userCreationResultObj.userId!, role);
 
             if (!roleResult.Succeeded)
             {
@@ -96,7 +105,7 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, R
                 UserId = userId,
                 FirstName = command.FirstName,
                 LastName = command.LastName,
-                PreferredLanguage = _localizer.DefaultCulture,
+                PreferredLanguage = command.PreferredLanguage,
                 CreatedOn = _timeProvider.GetUtcNow()
             };
 

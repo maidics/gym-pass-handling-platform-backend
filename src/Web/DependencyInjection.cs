@@ -29,7 +29,7 @@ public static class DependencyInjection
 
         builder.Services.AddEndpointsApiExplorer();
 
-        //Json - Enum converter: strings only: AbstractValidators do not have to check enums
+        //Json - Enum converter: strings only
         builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options =>
         {
             options.SerializerOptions.Converters.Add(new JsonStringEnumConverter(namingPolicy: null, allowIntegerValues: false));
@@ -53,9 +53,9 @@ public static class DependencyInjection
 
         builder.Services.AddCors(options =>
         {
-            options.AddPolicy("AllowFrontent", builder =>
+            options.AddPolicy("AllowFrontend", corsBuilder =>
             {
-                builder.WithOrigins("http://localhost:5173")
+                corsBuilder.WithOrigins("http://localhost:5173")
                     .AllowAnyHeader()
                     .AllowAnyMethod()
                     .AllowCredentials();

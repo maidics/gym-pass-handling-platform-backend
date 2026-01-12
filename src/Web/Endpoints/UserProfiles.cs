@@ -12,6 +12,8 @@ public class UserProfiles : EndpointGroupBase
         groupBuilder.MapGet(GetMyUserProfile, "My").RequireAuthorization();
 
         groupBuilder.MapPut(UpdateMyUserProfile, "My/Update").RequireAuthorization();
+        
+        groupBuilder.MapPut(UpdateMyPreferredLanguage, "My/Update/PreferredLanguage").RequireAuthorization();
     }
 
     public async Task<Ok<UserProfileWithEmailDto>> GetMyUserProfile(ISender sender, CancellationToken cancellationToken)
@@ -26,5 +28,13 @@ public class UserProfiles : EndpointGroupBase
         var result = await sender.Send(command);
 
         return result.ToTypedResult();
+    }
+
+    public async Task<NoContent> UpdateMyPreferredLanguage(ISender sender, string newLanguage,
+        CancellationToken cancellationToken)
+    {
+        await sender.Send(new UpdateMyPreferredLanguageCommand(newLanguage));
+
+        return TypedResults.NoContent();
     }
 }

@@ -1,8 +1,8 @@
 using FitPass.Application;
+using FitPass.Application.Common.Settings;
 using FitPass.Infrastructure;
 using FitPass.Infrastructure.Common;
 using FitPass.Infrastructure.Data;
-using FitPass.Infrastructure.Localization;
 using FitPass.Web;
 using Microsoft.AspNetCore.Localization;
 
@@ -16,7 +16,7 @@ builder.AddWebServices();
 
 var app = builder.Build();
 
-app.UseCors("AllowFrontent");
+app.UseCors("AllowFrontend");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -51,9 +51,9 @@ app.MapEndpoints();
 var cultureSettings = app.Configuration.GetSection(ConfigurationSections.Cultures).Get<CultureSettings>();
 Guard.Against.Null(cultureSettings);
 var localizationOptions = new RequestLocalizationOptions()
-    .SetDefaultCulture(cultureSettings.Default)
-    .AddSupportedCultures(cultureSettings.Supported)
-    .AddSupportedUICultures(cultureSettings.Supported);
+    .SetDefaultCulture(cultureSettings.DefaultCulture)
+    .AddSupportedCultures(cultureSettings.SupportedCultures)
+    .AddSupportedUICultures(cultureSettings.SupportedCultures);
 
 localizationOptions.RequestCultureProviders = [new AcceptLanguageHeaderRequestCultureProvider()];
 

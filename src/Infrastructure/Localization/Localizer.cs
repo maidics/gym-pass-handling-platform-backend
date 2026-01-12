@@ -2,6 +2,7 @@
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Resources;
 using FitPass.Application.Common.Scopes;
+using FitPass.Application.Common.Settings;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Options;
 
@@ -20,15 +21,15 @@ public class Localizer : ILocalizer
         _cultureSettings = options.Value;
     }
     
-    public string DefaultCulture => _cultureSettings.Default;
+    public string DefaultCulture => _cultureSettings.DefaultCulture;
 
-    public string[] SupportedCultures => _cultureSettings.Supported;
+    public string[] SupportedCultures => _cultureSettings.SupportedCultures;
 
     public bool IsSupported(string culture)
     {
         if (string.IsNullOrEmpty(culture)) return false;
         
-        return _cultureSettings.Supported.Contains(culture, StringComparer.OrdinalIgnoreCase);
+        return _cultureSettings.SupportedCultures.Contains(culture, StringComparer.OrdinalIgnoreCase);
     }
 
     public string GetForCulture(string culture, string key)

@@ -60,4 +60,12 @@ public static class ValidationExtensions
             .EmailAddress()
             .WithMessage(localizer.GetWithParamsLocalized(nameof(SharedResource.ValueIsInvalid), nameof(SharedResource.Email)));
     }
+
+    public static IRuleBuilder<T, string> SupportedLanguageWithMessageLocalized<T>(this IRuleBuilder<T, string> rule,
+        ILocalizer localizer, string[] supportedLanguages)
+    {
+        return rule
+            .Must(lang => supportedLanguages.Contains(lang))
+            .WithMessage(localizer.Get(nameof(SharedResource.LanguageIsNotSupported), string.Join(", ", supportedLanguages)));
+    }
 }
