@@ -111,7 +111,7 @@ public partial class ApplicationDbContextInitialiser
 
                 if (!result.Succeeded)
                 {
-                    throw new ArgumentException($"Failed to create user: {result.Errors}");
+                    throw new InvalidOperationException($"Failed to create user: {result.Errors}");
                 }
 
                 if (_roles.All(role => !string.IsNullOrWhiteSpace(role.Name)))
@@ -120,7 +120,17 @@ public partial class ApplicationDbContextInitialiser
 
                     if (!roleResult.Succeeded)
                     {
-                        throw new ArgumentException($"Failed to add {obj.user.Id} user to {obj.role} role: {roleResult.Errors}");
+                        throw new InvalidOperationException($"Failed to add {obj.user.Id} user to {obj.role} role: {string.Join(", ", roleResult.Errors)}");
+                    }
+
+                    var token = await _userManager.GenerateEmailConfirmationTokenAsync(obj.user);
+                    
+                    var emailResult = await _userManager.ConfirmEmailAsync(obj.user, token);
+
+                    if (!emailResult.Succeeded)
+                    {
+                        throw new InvalidOperationException(
+                            $"Failed to confirm {obj.user.Id} user email: {string.Join(", ", emailResult.Errors)}");
                     }
                 }
                 
