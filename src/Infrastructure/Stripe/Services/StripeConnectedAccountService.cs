@@ -1,5 +1,6 @@
 using FitPass.Application.Common.Interfaces.Payment;
 using FitPass.Application.Common.Models;
+using FitPass.Application.Common.Settings;
 using FitPass.Domain.Enums;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -13,23 +14,26 @@ public class StripeConnectedAccountService : IPaymentTenantService
     private readonly AccountService _accountService;
     private readonly AccountLinkService _accountLinkService;
     private readonly AccountLoginLinkService _loginLinkService;
-    private readonly AccountLinks _stripeAccountLinkSettings;
     private readonly TimeProvider _timeProvider;
+    private readonly StripeSettings _stripeSettings;
+    private readonly ClientAppSettings _clientAppSettings;
 
     public StripeConnectedAccountService(
         ILogger<StripeConnectedAccountService> logger, 
         AccountService accountService, 
         AccountLoginLinkService loginLinkService,
         AccountLinkService accountLinkService,
-        IOptions<StripeSettings> options,
-        TimeProvider timeProvider)
+        IOptions<StripeSettings> stripeOptions,
+        TimeProvider timeProvider,
+        IOptions<ClientAppSettings> clientAppOptions)
     {
         _logger = logger;
         _accountService = accountService;
         _loginLinkService = loginLinkService;
         _accountLinkService = accountLinkService;
-        _stripeAccountLinkSettings = options.Value.AccountLinks;
         _timeProvider = timeProvider;
+        _stripeSettings = stripeOptions.Value;
+        _clientAppSettings = clientAppOptions.Value;
     }
 
     public async Task<Result<string>> CreateTenantAccount(
@@ -44,7 +48,7 @@ public class StripeConnectedAccountService : IPaymentTenantService
             {
                 Type = "express", //which account do I need? standard, express? others?
                 Email = email,
-                BusinessType = "company", //ask for this via parameters too?
+                BusinessType = "company",
                 Company = new AccountCompanyOptions
                 {
                     Name = businessName
@@ -90,19 +94,19 @@ public class StripeConnectedAccountService : IPaymentTenantService
         {
             ex.Log(_logger, nameof(StripeConnectedAccountService), nameof(IsOnboardingCompleteAsync));
 
-            return ex.ToResultFailure("Failed to retrieve wether onboarding is completed or not.");
+            return ex.ToResultFailure("Failed to retrieve whether onboarding is completed or not.");
         }
     }
 
-    public async Task<Result<(string url, DateTimeOffset expiration)>> GenerateAccountLinkAsync(string accountId, bool isOnboarding = false, CancellationToken cancellationToken = default)
+    public async Task<Result<(string url, DateTimeOffset expiration)>> GenerateAccountLinkAsync(string accountId, string gymId, bool isOnboarding = false, CancellationToken cancellationToken = default)
     {
         try
         {
             var accountLinkOptions = new AccountLinkCreateOptions
             {
                 Account = accountId,
-                RefreshUrl = _stripeAccountLinkSettings.RefreshUrl,
-                ReturnUrl = _stripeAccountLinkSettings.ReturnUrl,
+                RefreshUrl = _stripeSettings.GetAccountLinkRefreshPath(_clientAppSettings.BaseUrl, gymId),
+                ReturnUrl = _stripeSettings.GetAccountLinkReturnPath(_clientAppSettings.BaseUrl, gymId),
                 Type = isOnboarding ? "account_onboarding" : "account_update",
                 CollectionOptions = new AccountLinkCollectionOptionsOptions
                 {

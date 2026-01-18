@@ -21,7 +21,8 @@ public class CreateTenantPaymentProfileCommandValidator : AbstractValidator<Crea
     public CreateTenantPaymentProfileCommandValidator(ILocalizer localizer)
     {
         RuleFor(v => v.PaymentAccountHolderEmail)
-            .EmailAddressWithMessageLocalized(localizer);
+            .Matches(@"^[^@\s]+@[^@\s]+\.[^@\s]+$") //matches Stripe's requirements
+            .WithMessage(localizer.Get(nameof(SharedResource.ValueIsInvalid), nameof(SharedResource.Email)));
 
         RuleFor(v => v.BusinessName)
             .NotEmptyWithMaxLengthAndMessageLocalized(localizer, nameof(SharedResource.BusinessName), MaxLength.Name);
@@ -83,6 +84,6 @@ public class CreateTenantPaymentProfileCommandHandler : IRequestHandler<CreateTe
         await _context.TenantPaymentProfiles.AddAsync(paymentProfile);
         await _context.SaveChangesAsync();
 
-        return await _paymentTenantService.GenerateAccountLinkAsync(result.Value, true);
+        return await _paymentTenantService.GenerateAccountLinkAsync(result.Value, gymEmployment.GymId, true);
     }
 }

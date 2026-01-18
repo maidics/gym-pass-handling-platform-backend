@@ -1,6 +1,7 @@
 using FitPass.Application.Requests.DTOs;
 using FitPass.Application.Requests.Queries;
 using FitPass.Application.Requests.Commands;
+using FitPass.Application.Requests.Commands.Fulfill;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
@@ -25,6 +26,10 @@ public class Requests : EndpointGroupBase
         groupBuilder.MapPut(CancelMyRequest, "My/{requestId}").RequireAuthorization();
 
         groupBuilder.MapPost(CreatePayloadFreeRequest, "/PayloadFree").RequireAuthorization();
+
+        groupBuilder.MapPut(FulfillOtherTypeRequest, "/Fulfill/Other/Submitted/{requestId}").RequireAuthorization(); //TODO: move fulfill commands to here in same style
+
+        groupBuilder.MapGet(GetMyRequestById, "/My/{requestId}").RequireAuthorization();
     }
 
     public async Task<Results<Ok<RequestDto>, ProblemHttpResult>> GetRequestById(ISender sender, string requestId, CancellationToken cancellationToken)
@@ -83,6 +88,22 @@ public class Requests : EndpointGroupBase
         [FromBody] CreatePayloadFreeRequestCommand command, CancellationToken cancellationToken)
     {
         var result = await sender.Send(command);
+
+        return result.ToTypedResult();
+    }
+
+    public async Task<Results<NoContent, ProblemHttpResult>> FulfillOtherTypeRequest(ISender sender,
+        string requestId, CancellationToken cancellationToken)
+    {
+        var result = await sender.Send(new FulfillOtherTypeRequestCommand(requestId), cancellationToken);
+
+        return result.ToTypedResult();
+    }
+
+    public async Task<Results<Ok<RequestDto>, ProblemHttpResult>> GetMyRequestById(ISender sender, string requestId,
+        CancellationToken cancellationToken)
+    {
+        var result = await sender.Send(new GetMyRequestByIdQuery(requestId));
 
         return result.ToTypedResult();
     }

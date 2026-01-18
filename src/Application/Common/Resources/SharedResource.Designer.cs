@@ -496,6 +496,15 @@ namespace FitPass.Application.Common.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Invalid request type..
+        /// </summary>
+        public static string InvalidRequestType {
+            get {
+                return ResourceManager.GetString("InvalidRequestType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to active status.
         /// </summary>
         public static string IsActive {

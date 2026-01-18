@@ -455,4 +455,7 @@ E-mail-cím megerősítése: {1}</value>
   <data name="PayloadFreeRequestTypeRules" xml:space="preserve">
     <value>A payload nélküli kérések típusa nem lehet edzőterem létrehozása vagy edzőterem-adminisztrátorrá történő előléptetés.</value>
   </data>
+  <data name="InvalidRequestType" xml:space="preserve">
+    <value>Érvénytelen kérés típus.</value>
+  </data>
 </root>

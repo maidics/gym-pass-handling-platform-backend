@@ -2,9 +2,20 @@
 
 public class StripeSettings
 {
-    public string Key { get; init; } = string.Empty;
+    public required string Key { get; init; }
     public required StripeTaxCodes TaxCodes { get; init; }
-    public required AccountLinks AccountLinks { get; init; }
+    public required AccountLinkPaths AccountLinkPaths { get; init; }
+    public required string ClientName { get; init; }
+
+    public string GetAccountLinkReturnPath(string clientAppBaseUrl, string gymId)
+    {
+        return $"{clientAppBaseUrl}{AccountLinkPaths.Return}/{gymId}";
+    }
+    
+    public string GetAccountLinkRefreshPath(string clientAppBaseUrl, string gymId)
+    {
+        return $"{clientAppBaseUrl}{AccountLinkPaths.Refresh}/{gymId}";
+    }
 }
 
 public class StripeTaxCodes
@@ -13,8 +24,8 @@ public class StripeTaxCodes
     public required string SingleUseAccess { get; init; }
 }
 
-public class AccountLinks
+public class AccountLinkPaths
 {
-    public required string ReturnUrl { get; init; }
-    public required string RefreshUrl { get; init; }
+    public required string Return { get; init; }
+    public required string Refresh { get; init; }
 }

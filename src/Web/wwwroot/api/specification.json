@@ -134,34 +134,6 @@
         ]
       }
     },
-    "/api/GymMembershipPasses/My": {
-      "get": {
-        "tags": [
-          "GymMembershipPasses"
-        ],
-        "operationId": "GetValidGymMembershipPasses",
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/GymMembershipPassDto"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "JWT": []
-          }
-        ]
-      }
-    },
     "/api/GymMembershipPasses/MyGymMember/Use/{userId}/{gymMembershipPassId}": {
       "put": {
         "tags": [
@@ -243,6 +215,34 @@
               "application/json": {
                 "schema": {
                   "type": "boolean"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/GymMembershipPasses/My": {
+      "get": {
+        "tags": [
+          "GymMembershipPasses"
+        ],
+        "operationId": "GetMyGymMembershipPasses",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GymMembershipPassDto"
+                  }
                 }
               }
             }
@@ -1078,6 +1078,40 @@
             "JWT": []
           }
         ]
+      },
+      "get": {
+        "tags": [
+          "Requests"
+        ],
+        "operationId": "GetMyRequestById",
+        "parameters": [
+          {
+            "name": "requestId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RequestDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
       }
     },
     "/api/Requests/PayloadFree": {
@@ -1108,6 +1142,35 @@
                 }
               }
             }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/Requests/Fulfill/Other/Submitted/{requestId}": {
+      "put": {
+        "tags": [
+          "Requests"
+        ],
+        "operationId": "FulfillOtherTypeRequest",
+        "parameters": [
+          {
+            "name": "requestId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
           }
         },
         "security": [
@@ -1801,6 +1864,18 @@
           }
         }
       },
+      "PassUseResult": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "Success",
+          "Expired"
+        ],
+        "enum": [
+          "Success",
+          "Expired"
+        ]
+      },
       "GymMembershipPassDto": {
         "type": "object",
         "additionalProperties": false,
@@ -1843,18 +1918,6 @@
           "SingleUse",
           "MultiUse",
           "Unlimited"
-        ]
-      },
-      "PassUseResult": {
-        "type": "string",
-        "description": "",
-        "x-enumNames": [
-          "Success",
-          "Expired"
-        ],
-        "enum": [
-          "Success",
-          "Expired"
         ]
       },
       "GymMembershipStatus": {
@@ -2479,14 +2542,14 @@
         "description": "",
         "x-enumNames": [
           "Submitted",
-          "Completed",
+          "Approved",
           "Cancelled",
           "Rejected",
           "Error"
         ],
         "enum": [
           "Submitted",
-          "Completed",
+          "Approved",
           "Cancelled",
           "Rejected",
           "Error"

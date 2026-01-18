@@ -52,7 +52,7 @@ public class RegisterGymFromRequestTests : BaseTestFixture
             Description = "Test Description",
             Type = RequestType.GymCreation,
             PriorityLevel = PriorityLevel.Medium,
-            Status = RequestStatus.Completed,
+            Status = RequestStatus.Approved,
             Payload = null
         };
 

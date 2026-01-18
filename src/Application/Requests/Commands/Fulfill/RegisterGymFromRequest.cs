@@ -176,7 +176,7 @@ public class RegisterGymFromRequestCommandHandler : IRequestHandler<RegisterGymF
 
             await _context.GymEmployments.AddAsync(gymEmployment);
 
-            request.Status = RequestStatus.Completed;
+            request.Status = RequestStatus.Approved;
 
             await _context.SaveChangesAsync();
             await transaction.CommitAsync();

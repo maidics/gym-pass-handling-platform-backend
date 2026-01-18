@@ -451,4 +451,7 @@ Confirm my email: {1}</value>
   <data name="PayloadFreeRequestTypeRules" xml:space="preserve">
     <value>Payload free requests cannot have type of gym creation or gym admin promotion.</value>
   </data>
+  <data name="InvalidRequestType" xml:space="preserve">
+    <value>Invalid request type.</value>
+  </data>
 </root>

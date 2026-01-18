@@ -1,4 +1,5 @@
-﻿using FitPass.Application.Common.Interfaces;
+﻿using FitPass.Application.Common.Extensions;
+using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Security;
 using FitPass.Application.Users.DTOs;
 
@@ -20,6 +21,8 @@ public class GetMyUserQueryHandler : IRequestHandler<GetMyUserQuery, UserDto>
     public async Task<UserDto> Handle(GetMyUserQuery request, CancellationToken cancellationToken)
     {
         var user = await _queryService.GetUserAsync(_user.Id!);
+
+        Guard.Against.NullParameterRelatedToCurrentUser(user, nameof(UserDto), _user.Id);
         
         return user!;
     }

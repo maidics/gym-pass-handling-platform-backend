@@ -63,8 +63,8 @@ public static class DependencyInjection
             .AddIdentityCore<ApplicationUser>()
             .AddRoles<IdentityRole>()
             .AddEntityFrameworkStores<ApplicationDbContext>()
-            .AddDefaultTokenProviders()
-            .AddApiEndpoints();
+            .AddDefaultTokenProviders();
+            //.AddApiEndpoints();
 
         builder.Services.AddSingleton(TimeProvider.System);
         builder.Services.AddTransient<IIdentityService, Identity.IdentityService>();
@@ -127,11 +127,12 @@ public static class DependencyInjection
     {
         private IServiceCollection AddStripeServices(IConfiguration configuration)
         {
-            var apiKey = configuration["Stripe:TestKey"];
-            string stripeClientName = "StripeClient";
-    
+            var settings = configuration.GetSection(ConfigurationSections.Stripe).Get<StripeSettings>();
+            
+            Guard.Against.Null(settings, nameof(StripeSettings), $"Configuration section \"{ConfigurationSections.Stripe}\" returned null");
+            
             //Stripe Resilience:
-            services.AddHttpClient(stripeClientName)
+            services.AddHttpClient(settings.ClientName)
                 .AddResilienceHandler("StripeResiliencePolicy", pipelineBuilder =>
                 {
                     pipelineBuilder.AddRetry(new HttpRetryStrategyOptions
@@ -193,13 +194,13 @@ public static class DependencyInjection
             services.AddSingleton<IStripeClient>(provider =>
             {
                 var httpClientFactory = provider.GetRequiredService<IHttpClientFactory>();
-                var resilientHttpClient = httpClientFactory.CreateClient(stripeClientName);
+                var resilientHttpClient = httpClientFactory.CreateClient(settings.ClientName);
     
                 var stripeAdapter = new SystemNetHttpClient(
                     httpClient: resilientHttpClient,
                     maxNetworkRetries: 0);
     
-                return new StripeClient(httpClient: stripeAdapter, apiKey: apiKey);
+                return new StripeClient(httpClient: stripeAdapter, apiKey: settings.Key);
             });
     
             services.AddScoped(provider => new AccountService(provider.GetRequiredService<IStripeClient>()));

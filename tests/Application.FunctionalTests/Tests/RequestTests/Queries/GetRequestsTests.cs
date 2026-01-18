@@ -63,7 +63,7 @@ public class GetRequestsTests : BaseTestFixture
             Description = "Description 1",
             PriorityLevel = PriorityLevel.Medium,
             Type = RequestType.GymCreation,
-            Status = RequestStatus.Completed,
+            Status = RequestStatus.Approved,
             Payload = null
         };
 
@@ -100,7 +100,7 @@ public class GetRequestsTests : BaseTestFixture
             Description = "Description 1",
             PriorityLevel = PriorityLevel.Medium,
             Type = RequestType.GymCreation,
-            Status = RequestStatus.Completed,
+            Status = RequestStatus.Approved,
             Payload = null
         };
 
@@ -135,7 +135,7 @@ public class GetRequestsTests : BaseTestFixture
             Description = "Description 1",
             PriorityLevel = PriorityLevel.Medium,
             Type = RequestType.GymCreation,
-            Status = RequestStatus.Completed,
+            Status = RequestStatus.Approved,
             Payload = null
         };
 
