@@ -12,17 +12,17 @@ public static class OwnedNavigationBuilderExtensions
     {
         public OwnedNavigationBuilder<TOwnerEntity, Address> ConfigureAddress()
         {
-            navigation.Property(x => x.Line1).HasMaxLength(MaxLength.AddressLine1);
+            navigation.Property(x => x.Line1).HasMaxLength(MaxLengths.AddressLine1);
             
-            navigation.Property(x => x.Line2).HasMaxLength(MaxLength.AddressLine2);
+            navigation.Property(x => x.Line2).HasMaxLength(MaxLengths.AddressLine2);
             
-            navigation.Property(x => x.City).HasMaxLength(MaxLength.City);
+            navigation.Property(x => x.City).HasMaxLength(MaxLengths.City);
             
-            navigation.Property(x => x.State).HasMaxLength(MaxLength.State);
+            navigation.Property(x => x.State).HasMaxLength(MaxLengths.State);
             
-            navigation.Property(x => x.PostalCode).HasMaxLength(MaxLength.PostalCode);
+            navigation.Property(x => x.PostalCode).HasMaxLength(MaxLengths.PostalCode);
             
-            navigation.Property(x => x.CountryAlpha2).HasMaxLength(MaxLength.CountryAlpha2);
+            navigation.Property(x => x.CountryAlpha2).HasMaxLength(MaxLengths.CountryAlpha2);
 
             return navigation;
         }
@@ -33,7 +33,7 @@ public static class OwnedNavigationBuilderExtensions
     {
         public OwnedNavigationBuilder<TOwnerEntity, PhoneNumber> ConfigurePhoneNumber()
         {
-            navigation.Property(x => x.Value).HasMaxLength(MaxLength.PhoneNumber);
+            navigation.Property(x => x.Value).HasMaxLength(MaxLengths.PhoneNumber);
 
             return navigation;
         }

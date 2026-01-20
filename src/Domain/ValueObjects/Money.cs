@@ -7,46 +7,15 @@ namespace FitPass.Domain.ValueObjects;
 public class Money : ValueObject
 {
     public decimal Amount { get; private set; } //private set so ef core does not ignore these properties
-    public string Currency { get; private set; }
+    public CurrencyCode Currency { get; private set; }
 
-    public static Money Usd(decimal amount) => new(amount, "usd");
-    public static Money Eur(decimal amount) => new(amount, "eur");
+    private Money() { }
 
-    private Money()
+    public Money(decimal amount, CurrencyCode currency)
     {
-        Currency = string.Empty;
-    }
-
-    public Money(decimal amount, string currency)
-    {
-        currency = currency.Trim().ToLowerInvariant();
-
-        if (string.IsNullOrWhiteSpace(currency) || string.IsNullOrEmpty(currency))
-        {
-            throw new ArgumentException("Currency code is required.", nameof(currency));
-        }
-
-        if (currency.Length != 3)
-        {
-            throw new ArgumentException("Currency code must be a 3-letter ISO code.", nameof(currency));
-        }
-
-        if (!IsValidCurrency(currency))
-        {
-            throw new InvalidCurrencyException($"'{currency}' is not a valid ISO currency code.");
-        }
-
         if (amount < 0)
         {
             throw new ArgumentException("Amount cannot be negative", nameof(amount));
-        }
-
-        if (IsZeroDecimal(currency))
-        {
-            amount = Math.Round(amount, 0, MidpointRounding.AwayFromZero);
-        } else
-        {
-            amount = Math.Round(amount, 2, MidpointRounding.AwayFromZero);
         }
 
         Amount = amount;
@@ -249,57 +218,18 @@ public class Money : ValueObject
     {
         var cultureInfo = GetCultureInfoForCurrency(Currency);
 
-        string format = IsZeroDecimal(Currency) ? "N0" : "N2";
+        //string format = IsZeroDecimal(Currency) ? "N0" : "N2";
 
-        return $"{Amount.ToString(format, cultureInfo)} {Currency.ToUpperInvariant()}";
-    }
-    
-    public string ToStringWithoutSymbol()
-    {
-        return $"{Amount:F2} {Currency}";
+        return $"{Amount.ToString("N", cultureInfo)} {Currency}";
     }
 
-    public void Deconstruct(out decimal amount, out string currency)
+    public void Deconstruct(out decimal amount, out CurrencyCode currency)
     {
         amount = Amount;
         currency = Currency;
     }
 
-    private static bool IsValidCurrency(string code)
-    {
-        return Currencies.Contains(code);
-    }
-
-    public static readonly FrozenSet<string> Currencies = [
-        // North America
-        "usd", "cad", "mxn", 
-
-        // Europe
-        "eur", "gbp", "chf", "sek", "nok", "dkk", "pln", "czk", "huf", "ron", 
-        "bgn", "all", "amd", "bam", "gel", "gip", "mdl", "mkd", "rsd", "uah", 
-
-        // Asia / Pacific
-        "aud", "nzd", "jpy", "cny", "hkd", "sgd", "inr", "idr", "krw", "myr", 
-        "php", "thb", "vnd", "pkr", "bdt", "lkr", "mvr", "npr", "aed", 
-        "ils", "sar", "qar", "lbp", "afn", "azn", 
-        "bnd", "khr", "kgs", "kzt", "lak", "mnt", "mmk", "pgk", "tjs", "top", 
-        "uzs", "vuv", "wst", "yer", 
-
-        // Latin America & Caribbean
-        "brl", "ars", "clp", "cop", "pen", "uyu", "bob", "crc", "dop", "gtq", 
-        "hnl", "nio", "pab", "pyg", "ang", "awg", "bbd", "bmd", "bsd", "bzd", 
-        "fjd", "gyd", "htg", "jmd", "kyd", "srd", "ttd", "xcd", 
-
-        // Africa
-        "zar", "egp", "ngn", "kes", "mad", "tzs", "ugx", "aoa", "bif", "bwp", 
-        "cdf", "cve", "djf", "dzd", "etb", "gmd", "gnf", "lsl", "lrd", "mga", 
-        "mro", "mur", "mwk", "mzn", "nad", "rwf", "scr", "sll", "sos", "std", 
-        "szl", "xaf", "xof", "zmw",
-
-        // Others / Special
-        "try", "rub", "xpf"
-    ];
-
+    /*
     public static bool IsZeroDecimal(string currency)
     {
         return ZeroDecimalCurrencies.Contains(currency.ToLowerInvariant());
@@ -309,17 +239,15 @@ public class Money : ValueObject
         "bif", "clp", "djf", "gnf", "jpy", "krw", 
         "mga", "pyg", "rwf", "ugx", "vnd", "vuv", "xaf", "xof", "xpf" 
     ];
+    */
 
-    private static CultureInfo GetCultureInfoForCurrency(string currency)
+    private static CultureInfo GetCultureInfoForCurrency(CurrencyCode currency)
     {
         return currency switch
         {
-            "usd" => new CultureInfo("en-US"),
-            "eur" => new CultureInfo("de-DE"),
-            "gbp" => new CultureInfo("en-GB"),
-            "jpy" => new CultureInfo("ja-JP"),
-            "cad" => new CultureInfo("en-CA"),
-            "aud" => new CultureInfo("en-AU"),
+            CurrencyCode.USD => new CultureInfo("en-US"),
+            CurrencyCode.EUR => new CultureInfo("de-DE"),
+            CurrencyCode.HUF => new CultureInfo("hu-HU"),
             _ => CultureInfo.InvariantCulture
         };
     }

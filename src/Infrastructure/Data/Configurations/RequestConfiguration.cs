@@ -10,9 +10,9 @@ public class RequestConfiguration : IEntityTypeConfiguration<Request>
 {
     public void Configure(EntityTypeBuilder<Request> builder)
     {
-        builder.Property(r => r.Title).HasMaxLength(MaxLength.Title);
+        builder.Property(r => r.Title).HasMaxLength(MaxLengths.Title);
 
-        builder.Property(r => r.Description).HasMaxLength(MaxLength.Description);
+        builder.Property(r => r.Description).HasMaxLength(MaxLengths.Description);
 
         builder
             .HasOne<ApplicationUser>()

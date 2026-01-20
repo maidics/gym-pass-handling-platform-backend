@@ -3,7 +3,6 @@ using FitPass.Domain.ValueObjects;
 
 namespace FitPass.Domain.Entities;
 
-//TODO: add factory method for this
 public class GymPassProduct : BaseAuditableEntity
 {
     //not implemented Stripe properties
@@ -27,7 +26,7 @@ public class GymPassProduct : BaseAuditableEntity
         GymId = string.Empty;
         Name = string.Empty;
         Description = string.Empty;
-        Price = Money.Usd(10);
+        Price = new Money(10, CurrencyCode.USD);
     }
 
     private GymPassProduct(

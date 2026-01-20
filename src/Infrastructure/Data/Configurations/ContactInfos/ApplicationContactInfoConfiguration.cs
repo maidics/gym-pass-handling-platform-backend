@@ -10,7 +10,7 @@ public class ApplicationContactInfoConfiguration : IEntityTypeConfiguration<Appl
 {
     public void Configure(EntityTypeBuilder<ApplicationContactInfo> builder)
     {
-        builder.Property(x => x.Email).HasMaxLength(MaxLength.Email);
+        builder.Property(x => x.Email).HasMaxLength(MaxLengths.Email);
 
         builder.OwnsOne(x => x.Address).ConfigureAddress();
         

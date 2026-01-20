@@ -12,15 +12,15 @@ using Microsoft.Extensions.Logging;
 namespace FitPass.Application.TenantPaymentProfiles.Queries;
 
 [Authorize(Roles = Roles.GymAdministrator)]
-public record GetTenantPaymentProfileQuery : IRequest<Result<TenantPaymentProfileDto>>;
+public record GetMyTenantPaymentProfileQuery : IRequest<Result<TenantPaymentProfileDto>>;
 
-public class GetTenantPaymentProfileQueryHandler : IRequestHandler<GetTenantPaymentProfileQuery, Result<TenantPaymentProfileDto>>
+public class GetMyTenantPaymentProfileQueryHandler : IRequestHandler<GetMyTenantPaymentProfileQuery, Result<TenantPaymentProfileDto>>
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
     private readonly ILocalizer _localizer;
 
-    public GetTenantPaymentProfileQueryHandler(
+    public GetMyTenantPaymentProfileQueryHandler(
         IApplicationDbContext context,
         IUser user,
         ILocalizer localizer
@@ -31,7 +31,7 @@ public class GetTenantPaymentProfileQueryHandler : IRequestHandler<GetTenantPaym
         _localizer = localizer;
     }
 
-    public async Task<Result<TenantPaymentProfileDto>> Handle(GetTenantPaymentProfileQuery request, CancellationToken cancellationToken)
+    public async Task<Result<TenantPaymentProfileDto>> Handle(GetMyTenantPaymentProfileQuery request, CancellationToken cancellationToken)
     {
         var gymEmployment = await _context
             .GymEmployments

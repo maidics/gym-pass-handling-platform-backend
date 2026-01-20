@@ -7,6 +7,7 @@ using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Entities.Payment;
 using FitPass.Application.Common.Resources;
+using FitPass.Application.TenantPaymentProfiles.DTOs;
 
 namespace FitPass.Application.TenantPaymentProfiles.Commands;
 
@@ -14,22 +15,21 @@ namespace FitPass.Application.TenantPaymentProfiles.Commands;
 public record CreateTenantPaymentProfileCommand(
     string PaymentAccountHolderEmail,
     string BusinessName
-) : IRequest<Result<(string url, DateTimeOffset expiration)>>;
+) : IRequest<Result<PaymentProviderLinkDto>>;
 
 public class CreateTenantPaymentProfileCommandValidator : AbstractValidator<CreateTenantPaymentProfileCommand>
 {
     public CreateTenantPaymentProfileCommandValidator(ILocalizer localizer)
     {
         RuleFor(v => v.PaymentAccountHolderEmail)
-            .Matches(@"^[^@\s]+@[^@\s]+\.[^@\s]+$") //matches Stripe's requirements
-            .WithMessage(localizer.Get(nameof(SharedResource.ValueIsInvalid), nameof(SharedResource.Email)));
+            .EmailAddressWithMessageLocalized(localizer);
 
         RuleFor(v => v.BusinessName)
-            .NotEmptyWithMaxLengthAndMessageLocalized(localizer, nameof(SharedResource.BusinessName), MaxLength.Name);
+            .NotEmptyWithMaxLengthAndMessageLocalized(localizer, nameof(SharedResource.BusinessName), MaxLengths.Name);
     }
 }
 
-public class CreateTenantPaymentProfileCommandHandler : IRequestHandler<CreateTenantPaymentProfileCommand, Result<(string url, DateTimeOffset expiration)>>
+public class CreateTenantPaymentProfileCommandHandler : IRequestHandler<CreateTenantPaymentProfileCommand, Result<PaymentProviderLinkDto>>
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
@@ -48,7 +48,7 @@ public class CreateTenantPaymentProfileCommandHandler : IRequestHandler<CreateTe
         _localizer = localizer;
     }
 
-    public async Task<Result<(string url, DateTimeOffset expiration)>> Handle(CreateTenantPaymentProfileCommand command, CancellationToken cancellationToken)
+    public async Task<Result<PaymentProviderLinkDto>> Handle(CreateTenantPaymentProfileCommand command, CancellationToken cancellationToken)
     {
         var gymEmployment = await _context
             .GymEmployments
@@ -72,7 +72,7 @@ public class CreateTenantPaymentProfileCommandHandler : IRequestHandler<CreateTe
 
         if (!result.Succeeded)
         {
-            return result.ToFailure<(string url, DateTimeOffset expiration)>();
+            return result.ToFailure<PaymentProviderLinkDto>();
         }
 
         paymentProfile = new TenantPaymentProfile

@@ -1,11 +1,8 @@
-using FitPass.Application.Common.Interfaces;
 using FitPass.Application.GymPassProducts.Commands;
 using FitPass.Application.GymPassProducts.DTOs;
 using FitPass.Application.GymPassProducts.Queries;
-using FitPass.Domain.Entities;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace FitPass.Web.Endpoints;
 
@@ -20,6 +17,8 @@ public class GymPassProducts : EndpointGroupBase
         groupBuilder.MapPut(UpdateGymPassProductActiveStatus, "{gymPassProductId}/Status").RequireAuthorization();
 
         groupBuilder.MapGet(GetGymPassProductsByGymId, "{gymId}");
+
+        groupBuilder.MapGet(GetMyGymPassProducts, "My").RequireAuthorization();
     }
 
     public async Task<Results<Ok<GymPassProductDto>, ProblemHttpResult>> CreateGymPassProduct(
@@ -60,5 +59,13 @@ public class GymPassProducts : EndpointGroupBase
         var result = await sender.Send(new GetGymPassProductsByGymIdQuery(gymId));
 
         return result.ToTypedResult();
+    }
+
+    public async Task<Ok<List<GymPassProductDto>>> GetMyGymPassProducts(ISender sender,
+        CancellationToken cancellationToken)
+    {
+        var result = await sender.Send(new GetMyGymPassProductsQuery(), cancellationToken);
+
+        return TypedResults.Ok(result);
     }
 }

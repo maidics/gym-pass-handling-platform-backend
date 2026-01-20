@@ -18,7 +18,7 @@ public class GymConfiguration : IEntityTypeConfiguration<Gym>
 
         builder.HasIndex(g => g.Name).IsUnique();
 
-        builder.Property(g => g.Name).HasMaxLength(MaxLength.Description);
+        builder.Property(g => g.Name).HasMaxLength(MaxLengths.Description);
 
         builder
             .HasOne(g => g.PaymentProfile)

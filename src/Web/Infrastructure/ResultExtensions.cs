@@ -58,7 +58,7 @@ public static class ResultExtensions
             Detail = result.Message
         };
 
-        if (result.Errors is not null && result.Errors.Length != 0)
+        if (result.Errors.Length != 0)
         {
             problemDetails.Extensions["errors"] = result.Errors;
         }

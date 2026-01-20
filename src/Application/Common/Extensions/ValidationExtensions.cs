@@ -1,6 +1,7 @@
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Resources;
 using FitPass.Domain.Constants;
+using FluentValidation.Validators;
 
 namespace FitPass.Application.Common.Extensions;
 
@@ -46,7 +47,7 @@ public static class ValidationExtensions
         return rule
             .NotEmptyWithMessageLocalized(localizer, nameof(SharedResource.Password))
             .MinimumLength(8).WithMessage(localizer.Get(nameof(SharedResource.PasswordMinimumLength), 8))
-            .MaximumLength(MaxLength.Password).WithMessage(localizer.Get(nameof(SharedResource.PasswordMaximumLength), MaxLength.Password))
+            .MaximumLength(MaxLengths.Password).WithMessage(localizer.Get(nameof(SharedResource.PasswordMaximumLength), MaxLengths.Password))
             .Must(p => p.Any(char.IsLower)).WithMessage(localizer.Get(nameof(SharedResource.PasswordAtLeastOneLowerCase)))
             .Must(p => p.Any(char.IsUpper)).WithMessage(localizer.Get(nameof(SharedResource.PasswordAtLeastOneUpperCase)))
             .Must(p => p.Any(char.IsDigit)).WithMessage(localizer.Get(nameof(SharedResource.PasswordAtLeastOneNumber)))
@@ -58,6 +59,7 @@ public static class ValidationExtensions
         return rule
             .NotEmptyWithMessageLocalized(localizer, nameof(SharedResource.Email))
             .EmailAddress()
+            .Matches(@"^[^@\s]+@[^@\s]+\.[^@\s]+$")
             .WithMessage(localizer.GetWithParamsLocalized(nameof(SharedResource.ValueIsInvalid), nameof(SharedResource.Email)));
     }
 

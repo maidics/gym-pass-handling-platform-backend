@@ -3,6 +3,7 @@ using FitPass.Application.TenantPaymentProfiles.Commands;
 using FitPass.Application.TenantPaymentProfiles.DTOs;
 using FitPass.Application.TenantPaymentProfiles.Queries;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 
 namespace FitPass.Web.Endpoints;
 
@@ -12,14 +13,14 @@ public class TenantPaymentProfiles : EndpointGroupBase
     {
         groupBuilder.MapPost(CreateTenantPaymentProfile).RequireAuthorization();
 
-        groupBuilder.MapGet(GenerateTenantLoginLink, "LoginLink").RequireAuthorization();
+        groupBuilder.MapPost(GeneratePaymentProviderLink, "PaymentProviderLink").RequireAuthorization();
 
-        groupBuilder.MapGet(GetTenantPaymentProfile).RequireAuthorization();
+        groupBuilder.MapGet(GetMyTenantPaymentProfile).RequireAuthorization();
 
         groupBuilder.MapPut(UpdateTenantPaymentAccountPayoutSchedule, "PayoutSchedule").RequireAuthorization();
     }
 
-    public async Task<Results<Ok<(string url, DateTimeOffset expiration)>, ProblemHttpResult>> CreateTenantPaymentProfile(
+    public async Task<Results<Ok<PaymentProviderLinkDto>, ProblemHttpResult>> CreateTenantPaymentProfile(
         ISender sender, CreateTenantPaymentProfileCommand command, CancellationToken cancellationToken)
     {
         var result = await sender.Send(command);
@@ -27,21 +28,23 @@ public class TenantPaymentProfiles : EndpointGroupBase
         return result.ToTypedResult();
     }
 
-    public async Task<Results<Ok<string>, ProblemHttpResult>> GenerateTenantLoginLink(ISender sender, CancellationToken cancellationToken)
+    public async Task<Results<Ok<PaymentProviderLinkDto>, ProblemHttpResult>> GeneratePaymentProviderLink(
+        ISender sender, GeneratePaymentProviderLinkCommand command, CancellationToken cancellationToken)
     {
-        var result = await sender.Send(new GenerateTenantLoginLinkCommand(), cancellationToken);
+        var result = await sender.Send(command, cancellationToken);
 
         return result.ToTypedResult();
     }
 
-    public async Task<Results<Ok<TenantPaymentProfileDto>, ProblemHttpResult>> GetTenantPaymentProfile(ISender sender, CancellationToken cancellationToken)
+    public async Task<Results<Ok<TenantPaymentProfileDto>, ProblemHttpResult>> GetMyTenantPaymentProfile(ISender sender, CancellationToken cancellationToken)
     {
-        var result = await sender.Send(new GetTenantPaymentProfileQuery());
+        var result = await sender.Send(new GetMyTenantPaymentProfileQuery(), cancellationToken);
 
         return result.ToTypedResult();
     }
 
-    public async Task<Results<NoContent, ProblemHttpResult>> UpdateTenantPaymentAccountPayoutSchedule(ISender sender, UpdateTenantPaymentAccountPayoutScheduleCommand command, CancellationToken cancellationToken)
+    public async Task<Results<NoContent, ProblemHttpResult>> UpdateTenantPaymentAccountPayoutSchedule(
+        ISender sender, UpdateTenantPaymentAccountPayoutScheduleCommand command, CancellationToken cancellationToken)
     {
         var result = await sender.Send(command);
 

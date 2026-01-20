@@ -1,5 +1,6 @@
 using System.Collections.Frozen;
 using FitPass.Application.Common.Models;
+using FitPass.Domain.Enums;
 using FitPass.Domain.ValueObjects;
 
 namespace FitPass.Infrastructure.Stripe;
@@ -15,15 +16,20 @@ public static class MoneyExtensions
             // Logic: 
             // JPY (Zero decimal): 500 JPY -> 500
             // USD (2 decimal): $10.00 -> 1000
-            return Money.IsZeroDecimal(money.Currency) ? 
+            return money.Currency.IsZeroDecimal() ? 
                 (long)Math.Round(money.Amount, MidpointRounding.AwayFromZero) :
                 (long)Math.Round(money.Amount * 100, MidpointRounding.AwayFromZero);
         }
 
+        public string ToStripeCurrency()
+        {
+            return money.Currency.ToString().ToLowerInvariant();
+        }
+
         public Result ValidateForStripe()
         {
-            var currency = money.Currency.ToLowerInvariant();
-            var stripeAmount = ToStripeAmount(money);
+            var currency = money.Currency.ToString().ToLowerInvariant();
+            var stripeAmount = money.ToStripeAmount();
 
             if (!MinimumAmounts.TryGetValue(currency, out var minimum))
             {
@@ -47,7 +53,9 @@ public static class MoneyExtensions
     {
         decimal amount;
 
-        if (!Money.IsZeroDecimal(currency))
+        Enum.TryParse(currency, out CurrencyCode currencyCode);
+
+        if (!currencyCode.IsZeroDecimal())
         {
             amount = stripeAmount / 100m;
         } else
@@ -55,7 +63,7 @@ public static class MoneyExtensions
             amount = stripeAmount;
         }
 
-        return new Money(amount, currency);
+        return new Money(amount, currencyCode);
     }
 
     private static readonly FrozenDictionary<string, long> MinimumAmounts = new Dictionary<string, long>()

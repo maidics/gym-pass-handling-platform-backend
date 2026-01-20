@@ -26,7 +26,7 @@ public class UpdateGymStatusCommandValidator : AbstractValidator<UpdateGymStatus
             .WithMessage(localizer.Get(nameof(SharedResource.AppAdminAllowedNewGymStatuses)));
 
         RuleFor(v => v.Rationale)
-            .NotEmptyWithMaxLengthAndMessageLocalized(localizer, nameof(SharedResource.Rationale), MaxLength.Description);
+            .NotEmptyWithMaxLengthAndMessageLocalized(localizer, nameof(SharedResource.Rationale), MaxLengths.Description);
     }
 }
 

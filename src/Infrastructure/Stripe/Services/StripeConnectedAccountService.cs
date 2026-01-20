@@ -1,6 +1,7 @@
 using FitPass.Application.Common.Interfaces.Payment;
 using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Settings;
+using FitPass.Application.TenantPaymentProfiles.DTOs;
 using FitPass.Domain.Enums;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -14,7 +15,6 @@ public class StripeConnectedAccountService : IPaymentTenantService
     private readonly AccountService _accountService;
     private readonly AccountLinkService _accountLinkService;
     private readonly AccountLoginLinkService _loginLinkService;
-    private readonly TimeProvider _timeProvider;
     private readonly StripeSettings _stripeSettings;
     private readonly ClientAppSettings _clientAppSettings;
 
@@ -24,14 +24,12 @@ public class StripeConnectedAccountService : IPaymentTenantService
         AccountLoginLinkService loginLinkService,
         AccountLinkService accountLinkService,
         IOptions<StripeSettings> stripeOptions,
-        TimeProvider timeProvider,
         IOptions<ClientAppSettings> clientAppOptions)
     {
         _logger = logger;
         _accountService = accountService;
         _loginLinkService = loginLinkService;
         _accountLinkService = accountLinkService;
-        _timeProvider = timeProvider;
         _stripeSettings = stripeOptions.Value;
         _clientAppSettings = clientAppOptions.Value;
     }
@@ -67,6 +65,10 @@ public class StripeConnectedAccountService : IPaymentTenantService
                 Metadata = new Dictionary<string, string>
                 {
                     { "gym_Id", gymId }
+                },
+                BusinessProfile = new AccountBusinessProfileOptions()
+                {
+                    Mcc = "7997"
                 }
             };
 
@@ -98,7 +100,7 @@ public class StripeConnectedAccountService : IPaymentTenantService
         }
     }
 
-    public async Task<Result<(string url, DateTimeOffset expiration)>> GenerateAccountLinkAsync(string accountId, string gymId, bool isOnboarding = false, CancellationToken cancellationToken = default)
+    public async Task<Result<PaymentProviderLinkDto>> GenerateAccountLinkAsync(string accountId, string gymId, bool isOnboarding = false, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -121,7 +123,7 @@ public class StripeConnectedAccountService : IPaymentTenantService
                 return Result.ExternalServiceUnavailable("Failed to generate account link");
             }
 
-            return Result<(string url, DateTimeOffset expiration)>.Success((accountLink.Url, _timeProvider.GetUtcNow().AddMinutes(5)));
+            return Result.Success(new PaymentProviderLinkDto(accountLink.Url, PaymentProviderLinkType.AccountLink));
         } catch (StripeException ex)
         {
             ex.Log(_logger, nameof(StripeConnectedAccountService), nameof(GenerateAccountLinkAsync));
@@ -176,15 +178,15 @@ public class StripeConnectedAccountService : IPaymentTenantService
         }
     }
 
-    public async Task<Result<string>> GenerateLoginLinkAsync(string accountId, CancellationToken cancellationToken = default)
+    public async Task<Result<PaymentProviderLinkDto>> GenerateLoginLinkAsync(string accountId, CancellationToken cancellationToken = default)
     {
         try
         {
-            var options = new AccountLoginLinkCreateOptions();
+            //var options = new AccountLoginLinkCreateOptions();
 
-            var link = await _loginLinkService.CreateAsync(accountId);
+            var loginLink = await _loginLinkService.CreateAsync(accountId, cancellationToken: cancellationToken);
 
-            return Result.Success(link.Url);
+            return Result.Success(new PaymentProviderLinkDto(loginLink.Url, PaymentProviderLinkType.LoginLink));
         } catch (StripeException ex)
         {
             ex.Log(_logger, nameof(StripeConnectedAccountService), nameof(GenerateLoginLinkAsync));

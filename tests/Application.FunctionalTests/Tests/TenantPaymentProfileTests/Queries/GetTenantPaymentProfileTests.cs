@@ -14,7 +14,7 @@ public class GetTenantPaymentProfileTests : BaseTestFixture
     [Test]
     public override void AuthorizeAttributeCheck()
     {
-        ShouldRequireAuthorization<GetTenantPaymentProfileQuery>(Roles.GymAdministrator);
+        ShouldRequireAuthorization<GetMyTenantPaymentProfileQuery>(Roles.GymAdministrator);
     }
     
     [Test]
@@ -24,7 +24,7 @@ public class GetTenantPaymentProfileTests : BaseTestFixture
 
         await RunAsUserAsync(obj.gymAdmin);
 
-        var result = await SendAsync(new GetTenantPaymentProfileQuery());
+        var result = await SendAsync(new GetMyTenantPaymentProfileQuery());
         result.Succeeded.ShouldBeTrue();
         result.Value.ShouldNotBeNull();
         result.Value.ShouldBeEquivalentTo(obj.tenantPaymentProfile.MapToDto());

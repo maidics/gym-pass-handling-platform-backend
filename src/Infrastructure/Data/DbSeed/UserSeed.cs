@@ -13,7 +13,7 @@ public partial class ApplicationDbContextInitialiser
             (
                 new ApplicationUser {
                     Id = "AppAdminLocalhostId",
-                    Email = "appadmin@localhost",
+                    Email = "appadmin@localhost.com",
                     UserName = "AppAdmin"
                 },
                 Roles.AppAdministrator,
@@ -31,7 +31,7 @@ public partial class ApplicationDbContextInitialiser
                 new ApplicationUser
                 {
                     Id = "GymAdminLocalhostId",
-                    Email = "gymadmin@localhost",
+                    Email = "gymadmin@localhost.com",
                     UserName = "GymAdmin"
                 },
                 Roles.GymAdministrator,
@@ -50,7 +50,7 @@ public partial class ApplicationDbContextInitialiser
                 {
                     Id = "GymStaffLocalhostId",
                     UserName = "GymStaff",
-                    Email = "gymstaff@localhost"
+                    Email = "gymstaff@localhost.com"
                 },
                 Roles.GymStaff,
                 "Password123!",
@@ -68,7 +68,7 @@ public partial class ApplicationDbContextInitialiser
                 {
                     Id = "UserId",
                     UserName = "User",
-                    Email = "user@localhost"
+                    Email = "user@localhost.com"
                 },
                 Roles.User,
                 "Password123!",
@@ -86,7 +86,7 @@ public partial class ApplicationDbContextInitialiser
                 {
                     Id = "PendingGymEmployeeId",
                     UserName = "PendingGymEmployee",
-                    Email = "pendinggymemployee@localhost"
+                    Email = "pendinggymemployee@localhost.com"
                 },
                 Roles.PendingGymEmployee,
                 "Password123!",

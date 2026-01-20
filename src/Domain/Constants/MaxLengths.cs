@@ -1,6 +1,6 @@
 namespace FitPass.Domain.Constants;
 
-public abstract class MaxLength
+public abstract class MaxLengths
 {
     public const int Name = 100;
     public const int FullName = 200;

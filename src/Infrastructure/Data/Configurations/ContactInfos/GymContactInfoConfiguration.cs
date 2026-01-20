@@ -10,7 +10,7 @@ public class GymContactInfoConfiguration : IEntityTypeConfiguration<GymContactIn
 {
     public void Configure(EntityTypeBuilder<GymContactInfo> builder)
     {
-        builder.Property(x => x.FullName).HasMaxLength(MaxLength.FullName);
+        builder.Property(x => x.FullName).HasMaxLength(MaxLengths.FullName);
 
         builder.OwnsOne(x => x.Address).ConfigureAddress();
 

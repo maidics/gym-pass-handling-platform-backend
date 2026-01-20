@@ -1,10 +1,6 @@
 ﻿namespace FitPass.Application.Common.Models;
 
 //Result object to pass around instead of throwing Exceptions
-//used starting from Application Layer 
-//if something fails then that Result will be converted to http error or handled when it comes to that specific case
-//should I differentiate between certain types of Internal Server Errors?
-//logger would already log it so client only needs a user-friendly error message anyway
 public class Result
 {
     protected Result(bool succeeded, string message, IEnumerable<string> errors, ResultTypes type)
@@ -76,16 +72,15 @@ public class Result
 
 public class Result<T> : Result
 {
-    private readonly T _value;
     private Result(bool succeeded, string message, IEnumerable<string> errors, T value, ResultTypes type)
         : base(succeeded, message, errors, type)
     {
-        _value = value;
+        Value = value;
     }
 
     private Result(ResultFailure failure) : base(failure)
     {
-        _value = default!;
+        Value = default!;
     }
 
     public T Value
@@ -97,7 +92,7 @@ public class Result<T> : Result
                 throw new InvalidOperationException("Failed result does not have inner value.");
             }
 
-            return _value;
+            return field;
         }
     }
 
@@ -127,19 +122,6 @@ public class Result<T> : Result
             type: Type
         );
     }
-}
-
-public enum ResultTypes
-{
-    Success, //Ok, NoContent
-    NotFound,
-    Conflict,
-    ExternalServiceUnavailable, //TypedResults.Problem
-    BusinessRuleViolation, //BadRequest
-    InternalError, //internal server error
-    PaymentRequired,
-    Unauthorized,
-    Forbidden
 }
 
 public class ResultFailure
@@ -174,3 +156,36 @@ public class ResultFailure
         }
     }
 }
+
+public enum ResultTypes
+{
+    Success, //Ok, NoContent
+    //Redirect,
+    
+    NotFound,
+    Conflict,
+    ExternalServiceUnavailable, //TypedResults.Problem
+    BusinessRuleViolation, //BadRequest
+    InternalError, //internal server error
+    PaymentRequired,
+    Unauthorized,
+    Forbidden
+}
+
+/*
+public static class ResultTypesExtensions
+{
+    private readonly static HashSet<ResultTypes> _successTypes =
+    [
+        ResultTypes.Success, ResultTypes.Redirect
+    ];
+    
+    extension(ResultTypes type)
+    {
+        public bool IsSuccess()
+        {
+            return _successTypes.Contains(type);
+        }
+    }
+}
+*/

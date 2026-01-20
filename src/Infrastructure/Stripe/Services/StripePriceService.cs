@@ -26,7 +26,7 @@ public class StripePriceService : IPaymentPriceService
             var priceOptions = new PriceCreateOptions
             {
                 Product = productId,
-                Currency = priceMoney.Currency,
+                Currency = priceMoney.ToStripeCurrency(),
                 UnitAmountDecimal = priceMoney.ToStripeAmount(),
                 Active = isActive
             };
@@ -36,7 +36,7 @@ public class StripePriceService : IPaymentPriceService
                 StripeAccount = accountId
             };
 
-            var price = await _priceService.CreateAsync(priceOptions, null);
+            var price = await _priceService.CreateAsync(priceOptions, requestOptions);
 
             return Result.Success(price.Id);
         } catch (StripeException ex)

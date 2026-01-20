@@ -496,6 +496,34 @@
         }
       }
     },
+    "/api/GymPassProducts/My": {
+      "get": {
+        "tags": [
+          "GymPassProducts"
+        ],
+        "operationId": "GetMyGymPassProducts",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GymPassProductDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
     "/api/GymPassUsages/MyGym/Today": {
       "get": {
         "tags": [
@@ -837,6 +865,34 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/PaymentIntentDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/ReferenceData/CurrencyRules": {
+      "get": {
+        "tags": [
+          "ReferenceData"
+        ],
+        "operationId": "GetCurrencyRules",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CurrencyRule"
+                  }
                 }
               }
             }
@@ -1229,7 +1285,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ValueTupleOfStringAndDateTimeOffset"
+                  "$ref": "#/components/schemas/PaymentProviderLinkDto"
                 }
               }
             }
@@ -1245,7 +1301,7 @@
         "tags": [
           "TenantPaymentProfiles"
         ],
-        "operationId": "GetTenantPaymentProfile",
+        "operationId": "GetMyTenantPaymentProfile",
         "responses": {
           "200": {
             "description": "",
@@ -1265,19 +1321,31 @@
         ]
       }
     },
-    "/api/TenantPaymentProfiles/LoginLink": {
-      "get": {
+    "/api/TenantPaymentProfiles/PaymentProviderLink": {
+      "post": {
         "tags": [
           "TenantPaymentProfiles"
         ],
-        "operationId": "GenerateTenantLoginLink",
+        "operationId": "GeneratePaymentProviderLink",
+        "requestBody": {
+          "x-name": "command",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GeneratePaymentProviderLinkCommand"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
         "responses": {
           "200": {
             "description": "",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "string"
+                  "$ref": "#/components/schemas/PaymentProviderLinkDto"
                 }
               }
             }
@@ -2024,10 +2092,24 @@
                 "format": "decimal"
               },
               "currency": {
-                "type": "string"
+                "$ref": "#/components/schemas/CurrencyCode"
               }
             }
           }
+        ]
+      },
+      "CurrencyCode": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "USD",
+          "EUR",
+          "HUF"
+        ],
+        "enum": [
+          "USD",
+          "EUR",
+          "HUF"
         ]
       },
       "ValueObject": {
@@ -2455,6 +2537,23 @@
           }
         }
       },
+      "CurrencyRule": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "currencyCode": {
+            "$ref": "#/components/schemas/CurrencyCode"
+          },
+          "minorUnits": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "minAmount": {
+            "type": "number",
+            "format": "decimal"
+          }
+        }
+      },
       "RequestDto": {
         "type": "object",
         "additionalProperties": false,
@@ -2692,9 +2791,34 @@
           "SuccessfulPurchase"
         ]
       },
-      "ValueTupleOfStringAndDateTimeOffset": {
+      "PaymentProviderLinkDto": {
         "type": "object",
-        "additionalProperties": false
+        "additionalProperties": false,
+        "properties": {
+          "url": {
+            "type": "string"
+          },
+          "type": {
+            "$ref": "#/components/schemas/PaymentProviderLinkType"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        }
+      },
+      "PaymentProviderLinkType": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "LoginLink",
+          "AccountLink"
+        ],
+        "enum": [
+          "LoginLink",
+          "AccountLink"
+        ]
       },
       "CreateTenantPaymentProfileCommand": {
         "type": "object",
@@ -2705,6 +2829,15 @@
           },
           "businessName": {
             "type": "string"
+          }
+        }
+      },
+      "GeneratePaymentProviderLinkCommand": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/PaymentProviderLinkType"
           }
         }
       },

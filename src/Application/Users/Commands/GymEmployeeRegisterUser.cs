@@ -22,10 +22,10 @@ public class GymEmployeeRegisterUserCommandValidator : AbstractValidator<GymEmpl
             .EmailAddressWithMessageLocalized(localizer);
 
         RuleFor(v => v.FirstName)
-            .NotEmptyWithMaxLengthAndMessageLocalized(localizer, nameof(SharedResource.FirstName), MaxLength.Name);
+            .NotEmptyWithMaxLengthAndMessageLocalized(localizer, nameof(SharedResource.FirstName), MaxLengths.Name);
 
         RuleFor(v => v.LastName)
-            .NotEmptyWithMaxLengthAndMessageLocalized(localizer, nameof(SharedResource.LastName), MaxLength.Name);
+            .NotEmptyWithMaxLengthAndMessageLocalized(localizer, nameof(SharedResource.LastName), MaxLengths.Name);
     }
 }
 
