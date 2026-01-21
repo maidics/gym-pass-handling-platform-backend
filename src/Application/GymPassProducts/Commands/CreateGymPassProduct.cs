@@ -113,15 +113,15 @@ public class CreateGymPassProductCommandHandler : IRequestHandler<CreateGymPassP
 
         Guard.Against.NullParameterRelatedToCurrentUser(gymEmployment, nameof(GymEmployment), _user.Id);
 
-        var tenantPaymentProfile = await _context.TenantPaymentProfiles
-            .AsNoTracking()
-            .FirstOrDefaultAsync(x => x.GymId == gymEmployment.GymId);
-
         if (gymEmployment.Gym.Status == GymStatus.Suspended)
         {
             return Result.BusinessRuleViolation(_localizer.Get(
                 nameof(SharedResource.CannotCreateGymPassProductForGymThatIsSuspended)));
         }
+        
+        var tenantPaymentProfile = await _context.TenantPaymentProfiles
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.GymId == gymEmployment.GymId);
         
         if (tenantPaymentProfile is null)
         {

@@ -211,7 +211,8 @@ public class QueryService : IQueryService
                     where ur.UserId == user.Id
                     select r.Name).ToArray(),
                 IsEmailConfirmed: user.EmailConfirmed,
-                GymId: emp == null ? null : emp.GymId)
+                GymId: emp == null ? null : emp.GymId, //no null propagator in expression tree...
+                GymEmploymentId: emp == null ? null : emp.Id)
             ).FirstOrDefaultAsync();
     }
 }

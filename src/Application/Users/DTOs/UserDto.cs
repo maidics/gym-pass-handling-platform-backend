@@ -10,4 +10,5 @@ public record UserDto(
     DateTimeOffset CreatedOn,
     string[] Roles,
     bool IsEmailConfirmed,
-    string? GymId);
+    string? GymId,
+    string? GymEmploymentId);

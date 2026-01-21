@@ -11,21 +11,22 @@ public class GymMemberships : EndpointGroupBase
 {
     public override void Map(RouteGroupBuilder groupBuilder)
     {
-        groupBuilder.MapPut(UpdateUserMembershipStatus, "/{gymMembership}").RequireAuthorization();
+        groupBuilder.MapPut(UpdateGymMembershipStatus, "/{gymMembershipId}").RequireAuthorization();
 
         groupBuilder.MapGet(GetGymMembershipsQueryToMyGym, "/MyGym").RequireAuthorization();
     }
 
-    public async Task<Results<NoContent, ProblemHttpResult>> UpdateUserMembershipStatus(ISender sender, string gymMembership, [FromBody] GymMembershipStatus newGymMembershipStatus, CancellationToken cancellationToken)
+    public async Task<Results<NoContent, ProblemHttpResult>> UpdateGymMembershipStatus(
+        ISender sender, string gymMembershipId, [FromBody] GymMembershipStatus newGymMembershipStatus, CancellationToken cancellationToken)
     {
-        var result = await sender.Send(new UpdateGymMembershipStatusCommand(gymMembership, newGymMembershipStatus), cancellationToken);
+        var result = await sender.Send(new UpdateGymMembershipStatusCommand(gymMembershipId, newGymMembershipStatus), cancellationToken);
 
         return result.ToTypedResult();
     }
 
-    public async Task<Ok<List<GymMembershipWithUserProfileAndEmailDto>>> GetGymMembershipsQueryToMyGym(ISender sender, [FromBody] GetGymMembershipsToMyGymQuery query, CancellationToken cancellationToken)
+    public async Task<Ok<List<GymMembershipWithUserProfileAndEmailDto>>> GetGymMembershipsQueryToMyGym(ISender sender,  CancellationToken cancellationToken)
     {
-        var result = await sender.Send(query, cancellationToken);
+        var result = await sender.Send(new GetGymMembershipsToMyGymQuery(), cancellationToken);
 
         return TypedResults.Ok(result);
     }

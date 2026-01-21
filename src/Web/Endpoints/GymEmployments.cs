@@ -9,10 +9,8 @@ public class GymEmployments : EndpointGroupBase
 {
     public override void Map(RouteGroupBuilder groupBuilder)
     {
-        groupBuilder.MapGet(GetMyGymEmployments, "/MyGym/All").RequireAuthorization();
-
-        groupBuilder.MapGet(GetMyGymEmployment, "My").RequireAuthorization();
-
+        groupBuilder.MapGet(GetMyGymEmployments, "/MyGym").RequireAuthorization();
+        
         groupBuilder.MapGet(GetGymEmploymentsByGymId, "Gyms/{gymId}").RequireAuthorization();
 
         groupBuilder.MapGet(GetGymEmploymentById, "{gymEmploymentId}").RequireAuthorization();
@@ -21,13 +19,6 @@ public class GymEmployments : EndpointGroupBase
     public async Task<Ok<List<GymEmploymentDto>>> GetMyGymEmployments(ISender sender, CancellationToken cancellationToken)
     {
         var result = await sender.Send(new GetMyGymEmploymentsQuery(), cancellationToken);
-
-        return TypedResults.Ok(result);
-    }
-
-    public async Task<Ok<GymEmploymentDto>> GetMyGymEmployment(ISender sender, CancellationToken cancellationToken)
-    {
-        var result = await sender.Send(new GetMyGymEmploymentQuery(), cancellationToken);
 
         return TypedResults.Ok(result);
     }

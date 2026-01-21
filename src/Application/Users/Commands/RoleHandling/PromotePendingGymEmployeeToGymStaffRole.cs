@@ -10,14 +10,14 @@ using FitPass.Application.Common.Resources;
 namespace FitPass.Application.Users.Commands.RoleHandling;
 
 [Authorize(Roles = Roles.GymAdministrator)]
-public record PromotePendingGymEmployeeToGymStaffRoleCommand (string UserId) : IRequest<Result>;
+public record PromotePendingGymEmployeeToGymStaffRoleCommand (string PendingGymEmployeeEmail) : IRequest<Result>;
 
 public class PromotePendingGymEmployeeToGymStaffRoleCommandValidator : AbstractValidator<PromotePendingGymEmployeeToGymStaffRoleCommand>
 {
     public PromotePendingGymEmployeeToGymStaffRoleCommandValidator(ILocalizer localizer)
     {
-        RuleFor(v => v.UserId)
-            .PropertyOfEntityNotEmptyWithMessageLocalized(localizer, nameof(SharedResource.Id), nameof(SharedResource.User));
+        RuleFor(v => v.PendingGymEmployeeEmail)
+            .EmailAddressWithMessageLocalized(localizer);
     }
 }
 
@@ -51,21 +51,18 @@ public class PromotePendingGymEmployeeToGymStaffRoleCommandHandler : IRequestHan
 
         Guard.Against.NullParameterRelatedToCurrentUser(promoterGymEmployment, "Promoter GymEmployment", _user.Id);
 
-        if (!await _identityService.DoesUserExist(command.UserId))
+        var userId = await _identityService.GetUserIdByEmailAsync(command.PendingGymEmployeeEmail);
+
+        if (userId is null || !await _identityService.IsInRoleAsync(userId, Roles.PendingGymEmployee))
         {
             return Result.NotFound(_localizer.GetNotFound(nameof(SharedResource.User)));
         }
 
-        if (!await _identityService.IsInRoleAsync(command.UserId, Roles.PendingGymEmployee))
-        {
-            return Result.Forbidden(_localizer.Get(nameof(SharedResource.Forbidden)));
-        }
-
-        using var transaction = await _context.BeginTransactionAsync();
+        await using var transaction = await _context.BeginTransactionAsync();
         
         try
         {
-            var demotionResult = await _identityService.RemoveFromRoleAsync(command.UserId, Roles.PendingGymEmployee);
+            var demotionResult = await _identityService.RemoveFromRoleAsync(userId, Roles.PendingGymEmployee);
 
             if (!demotionResult.Succeeded)
             {
@@ -74,7 +71,7 @@ public class PromotePendingGymEmployeeToGymStaffRoleCommandHandler : IRequestHan
                 throw new Exception($"Failed to remove user from their role. Result: {demotionResult}.");
             }
 
-            var promotionResult = await _identityService.AddToRoleAsync(command.UserId, Roles.GymStaff);
+            var promotionResult = await _identityService.AddToRoleAsync(userId, Roles.GymStaff);
 
             if (!promotionResult.Succeeded) //cannot be user not found if demotion succeeds
             {
@@ -85,7 +82,7 @@ public class PromotePendingGymEmployeeToGymStaffRoleCommandHandler : IRequestHan
 
             var gymEmployment = new GymEmployment
             {
-                UserId = command.UserId,
+                UserId = userId,
                 GymId = promoterGymEmployment.GymId,
                 Role = Roles.GymStaff,
                 EmploymentStart = _timeProvider.GetUtcNow()

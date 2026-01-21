@@ -1,0 +1,41 @@
+USE FitPassDb;
+BEGIN TRANSACTION;
+
+INSERT INTO dbo.Gyms (Id, Name, Address_Line1, Address_Line2, Address_City, Address_State, Address_PostalCode, Address_CountryAlpha2, Status, Tier, CreatedOn, CreatedBy, LastModifiedOn, LastModifiedBy) VALUES
+(NEWID(), 'Iron Olympus', '100 Broadway', 'Suite 500', 'New York', 'NY', '10005', 'US', 0, 3, SYSDATETIMEOFFSET(), 'Seed_Script', SYSDATETIMEOFFSET(), NULL),
+(NEWID(), 'The Local Pump', '15 Baker Street', NULL, 'London', NULL, 'NW1 6XE', 'GB', 0, 0, SYSDATETIMEOFFSET(), 'Seed_Script', SYSDATETIMEOFFSET(), NULL),
+(NEWID(), 'Maple Leaf Fitness', '450 Yonge St', NULL, 'Toronto', 'ON', 'M4Y 1W9', 'CA', 0, 1, SYSDATETIMEOFFSET(), 'Seed_Script', SYSDATETIMEOFFSET(), NULL),
+(NEWID(), 'Kraftwerk Berlin', 'Alexanderplatz 1', NULL, 'Berlin', NULL, '10178', 'DE', 0, 2, SYSDATETIMEOFFSET(), 'Seed_Script', SYSDATETIMEOFFSET(), NULL),
+(NEWID(), 'Basement Barbell', '88 Industrial Way', NULL, 'Chicago', 'IL', '60601', 'US', 2, 0, SYSDATETIMEOFFSET(), 'Seed_Script', SYSDATETIMEOFFSET(), NULL),
+(NEWID(), 'Le Gym Parisien', '12 Rue de Rivoli', NULL, 'Paris', NULL, '75001', 'FR', 0, 1, SYSDATETIMEOFFSET(), 'Seed_Script', SYSDATETIMEOFFSET(), NULL),
+(NEWID(), 'Gold Coast Athletics', '500 Santa Monica Blvd', NULL, 'Santa Monica', 'CA', '90401', 'US', 0, 3, SYSDATETIMEOFFSET(), 'Seed_Script', SYSDATETIMEOFFSET(), NULL),
+(NEWID(), 'Old School Iron', '22 Rust Bucket Rd', NULL, 'Detroit', 'MI', '48201', 'US', 1, 0, SYSDATETIMEOFFSET(), 'Seed_Script', SYSDATETIMEOFFSET(), NULL),
+(NEWID(), 'Harbour Fit', '200 George St', 'Level 4', 'Sydney', 'NSW', '2000', 'AU', 0, 2, SYSDATETIMEOFFSET(), 'Seed_Script', SYSDATETIMEOFFSET(), NULL),
+(NEWID(), 'Lone Star Lifts', '1200 Congress Ave', NULL, 'Austin', 'TX', '78701', 'US', 0, 1, SYSDATETIMEOFFSET(), 'Seed_Script', SYSDATETIMEOFFSET(), NULL),
+(NEWID(), 'Tokyo Strength Club', '1-1 Chiyoda', NULL, 'Tokyo', NULL, '100-8111', 'JP', 0, 3, SYSDATETIMEOFFSET(), 'Seed_Script', SYSDATETIMEOFFSET(), NULL),
+(NEWID(), 'Clover Crossfit', '5 O''Connell Street', NULL, 'Dublin', NULL, 'D01', 'IE', 0, 0, SYSDATETIMEOFFSET(), 'Seed_Script', SYSDATETIMEOFFSET(), NULL),
+(NEWID(), 'Ocean Drive Wellness', '10 Ocean Dr', NULL, 'Miami Beach', 'FL', '33139', 'US', 0, 2, SYSDATETIMEOFFSET(), 'Seed_Script', SYSDATETIMEOFFSET(), NULL),
+(NEWID(), 'Fraud Fitness', '99 Sketchy Lane', NULL, 'Las Vegas', 'NV', '89109', 'US', 2, 1, SYSDATETIMEOFFSET(), 'Seed_Script', SYSDATETIMEOFFSET(), NULL),
+(NEWID(), 'Colosseum Gym', 'Via del Corso 10', NULL, 'Rome', NULL, '00186', 'IT', 0, 0, SYSDATETIMEOFFSET(), 'Seed_Script', SYSDATETIMEOFFSET(), NULL),
+(NEWID(), 'Burj Fitness', 'Sheikh Zayed Rd', 'Floor 45', 'Dubai', NULL, '00000', 'AE', 0, 3, SYSDATETIMEOFFSET(), 'Seed_Script', SYSDATETIMEOFFSET(), NULL),
+(NEWID(), 'Closed Circuit Gym', '404 Not Found St', NULL, 'San Francisco', 'CA', '94105', 'US', 1, 2, SYSDATETIMEOFFSET(), 'Seed_Script', SYSDATETIMEOFFSET(), NULL),
+(NEWID(), 'Sol y Acero', 'La Rambla 50', NULL, 'Barcelona', NULL, '08002', 'ES', 0, 1, SYSDATETIMEOFFSET(), 'Seed_Script', SYSDATETIMEOFFSET(), NULL),
+(NEWID(), 'Mile High Muscle', '1600 Broadway', NULL, 'Denver', 'CO', '80202', 'US', 0, 0, SYSDATETIMEOFFSET(), 'Seed_Script', SYSDATETIMEOFFSET(), NULL),
+(NEWID(), 'Marina Bay Fitness', '10 Bayfront Ave', NULL, 'Singapore', NULL, '018956', 'SG', 0, 3, SYSDATETIMEOFFSET(), 'Seed_Script', SYSDATETIMEOFFSET(), NULL);
+
+INSERT INTO [Requests] (Id, CreatedOn, CreatedBy, LastModifiedOn, LastModifiedBy, Title, Description, PriorityLevel, Type, Status, HandlerRationale, Error, Payload) VALUES 
+(NEWID(), SYSDATETIMEOFFSET(), 'PendingGymEmployeeId', SYSDATETIMEOFFSET(), 'PendingGymEmployeeId', 'Register Titan Fitness', 'Opening a new flagship location in the business district.', 3, 0, 0, NULL, NULL, '{"Name": "Titan Fitness", "Address": {"Line1": "100 Wall St", "Line2": "Floor 1", "City": "New York", "State": "NY", "PostalCode": "10005", "CountryAlpha2": "US"}, "Status": 0, "Tier": 3, "EscalationEmail": "ceo@titanfit.com"}'),
+(NEWID(), DATEADD(day, -3, SYSDATETIMEOFFSET()), 'PendingGymEmployeeId', DATEADD(day, -1, SYSDATETIMEOFFSET()), 'AppAdminLocalhostId', 'Register Joe''s Garage', 'Small local gym setup.', 2, 0, 3, 'Address validation failed. "Garage" is not a valid commercial zone.', NULL, '{"Name": "Joe''s Garage", "Address": {"Line1": "12 Back Alley", "Line2": null, "City": "Chicago", "State": "IL", "PostalCode": "60601", "CountryAlpha2": "US"}, "Status": 0, "Tier": 0, "EscalationEmail": "joe@garage.com"}'),
+(NEWID(), DATEADD(hour, -5, SYSDATETIMEOFFSET()), 'PendingGymEmployeeId', SYSDATETIMEOFFSET(), 'PendingGymEmployeeId', 'Register SeaSide Wellness', 'Luxury wellness center onboarding.', 3, 0, 4, NULL, 'System.Data.DbUpdateException: Unique constraint violation on Index_GymName.', '{"Name": "SeaSide Wellness", "Address": {"Line1": "1 Ocean Dr", "Line2": null, "City": "Miami", "State": "FL", "PostalCode": "33101", "CountryAlpha2": "US"}, "Status": 0, "Tier": 2, "EscalationEmail": "admin@seaside.com"}'),
+(NEWID(), DATEADD(day, -10, SYSDATETIMEOFFSET()), 'PendingGymEmployeeId', DATEADD(day, -9, SYSDATETIMEOFFSET()), 'AppAdminLocalhostId', 'Register Metro Flex', 'Mid-range city gym.', 2, 0, 1, 'Gym successfully provisioned and admin assigned.', NULL, '{"Name": "Metro Flex", "Address": {"Line1": "55 Main St", "Line2": null, "City": "Seattle", "State": "WA", "PostalCode": "98101", "CountryAlpha2": "US"}, "Status": 0, "Tier": 1, "EscalationEmail": "contact@metroflex.com"}'),
+(NEWID(), SYSDATETIMEOFFSET(), 'GymAdminLocalhostId', SYSDATETIMEOFFSET(), 'GymAdminLocalhostId', 'Promote Sarah Connor', 'Promoting lead trainer to assistant manager role.', 2, 1, 0, NULL, NULL, '{"GymId": "gym-001-guid", "UserIdToNominate": "GymStaffLocalhostId", "EscalationEmail": "sarah.c@gym.com"}'),
+(NEWID(), DATEADD(day, -1, SYSDATETIMEOFFSET()), 'GymAdminLocalhostId', SYSDATETIMEOFFSET(), 'GymAdminLocalhostId', 'Promote John Smith', 'Nomination for admin rights.', 1, 1, 2, 'Employee resigned before promotion could be processed.', NULL, '{"GymId": "gym-001-guid", "UserIdToNominate": "user-guid-temp", "EscalationEmail": "john.s@gym.com"}'),
+(NEWID(), DATEADD(day, -2, SYSDATETIMEOFFSET()), 'GymAdminLocalhostId', DATEADD(day, -1, SYSDATETIMEOFFSET()), 'AppAdminLocalhostId', 'Promote External Contractor', 'Granting admin access to IT contractor.', 3, 1, 3, 'External contractors cannot hold Admin roles per company policy Section 4.2.', NULL, '{"GymId": "gym-002-guid", "UserIdToNominate": "contractor-guid", "EscalationEmail": "it@contractor.com"}'),
+(NEWID(), DATEADD(day, -20, SYSDATETIMEOFFSET()), 'GymAdminLocalhostId', DATEADD(day, -19, SYSDATETIMEOFFSET()), 'AppAdminLocalhostId', 'Promote Shift Lead', 'Night shift lead needs dashboard access.', 1, 1, 1, 'Access granted.', NULL, '{"GymId": "gym-001-guid", "UserIdToNominate": "user-shift-lead", "EscalationEmail": "nightops@gym.com"}'),
+(NEWID(), SYSDATETIMEOFFSET(), 'UserId', SYSDATETIMEOFFSET(), 'UserId', 'App Dark Mode Request', 'Can we please get a dark mode for the mobile app?', 1, 2, 0, NULL, NULL, NULL),
+(NEWID(), DATEADD(day, -4, SYSDATETIMEOFFSET()), 'GymStaffLocalhostId', DATEADD(day, -2, SYSDATETIMEOFFSET()), 'AppAdminLocalhostId', 'Missing Report Data', 'The weekly attendance report for last Tuesday is empty.', 2, 2, 1, 'Data was stuck in cache. Refreshed and report is now available.', NULL, NULL),
+(NEWID(), DATEADD(hour, -2, SYSDATETIMEOFFSET()), 'UserId', SYSDATETIMEOFFSET(), 'UserId', 'Double Charge on Credit Card', 'I was charged twice for my monthly subscription.', 3, 2, 4, NULL, 'PaymentGatewayException: Connection timed out while verifying transaction ID.', NULL),
+(NEWID(), DATEADD(day, -6, SYSDATETIMEOFFSET()), 'UserId', DATEADD(day, -5, SYSDATETIMEOFFSET()), 'AppAdminLocalhostId', 'Free T-Shirt', 'Send me a free t-shirt please.', 1, 2, 3, 'Not a valid support request.', NULL, NULL),
+(NEWID(), SYSDATETIMEOFFSET(), 'GymStaffLocalhostId', SYSDATETIMEOFFSET(), 'GymStaffLocalhostId', 'Suspicious Activity Detected', 'User with ID 5555 tried to scan into the gym 40 times in 1 minute.', 3, 2, 0, NULL, NULL, NULL);
+
+COMMIT;

@@ -6,7 +6,7 @@
     "version": "1.0.0"
   },
   "paths": {
-    "/api/GymEmployments/MyGym/All": {
+    "/api/GymEmployments/MyGym": {
       "get": {
         "tags": [
           "GymEmployments"
@@ -22,31 +22,6 @@
                   "items": {
                     "$ref": "#/components/schemas/GymEmploymentDto"
                   }
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "JWT": []
-          }
-        ]
-      }
-    },
-    "/api/GymEmployments/My": {
-      "get": {
-        "tags": [
-          "GymEmployments"
-        ],
-        "operationId": "GetMyGymEmployment",
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GymEmploymentDto"
                 }
               }
             }
@@ -255,15 +230,15 @@
         ]
       }
     },
-    "/api/GymMemberships/{gymMembership}": {
+    "/api/GymMemberships/{gymMembershipId}": {
       "put": {
         "tags": [
           "GymMemberships"
         ],
-        "operationId": "UpdateUserMembershipStatus",
+        "operationId": "UpdateGymMembershipStatus",
         "parameters": [
           {
-            "name": "gymMembership",
+            "name": "gymMembershipId",
             "in": "path",
             "required": true,
             "schema": {
@@ -302,18 +277,6 @@
           "GymMemberships"
         ],
         "operationId": "GetGymMembershipsQueryToMyGym",
-        "requestBody": {
-          "x-name": "query",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/GetGymMembershipsToMyGymQuery"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
         "responses": {
           "200": {
             "description": "",
@@ -2027,20 +1990,6 @@
           }
         }
       },
-      "GetGymMembershipsToMyGymQuery": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "gymMembershipStatus": {
-            "nullable": true,
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/GymMembershipStatus"
-              }
-            ]
-          }
-        }
-      },
       "GymPassProductDto": {
         "type": "object",
         "additionalProperties": false,
@@ -2415,54 +2364,33 @@
         }
       },
       "GymContactInfoDto": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/ContactInfoBase"
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "fullName": {
+            "type": "string"
           },
-          {
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "fullName": {
-                "type": "string"
-              },
-              "address": {
-                "nullable": true,
-                "oneOf": [
-                  {
-                    "$ref": "#/components/schemas/Address"
-                  }
-                ]
+          "address": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/Address"
               }
-            }
-          }
-        ]
-      },
-      "ContactInfoBase": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/BaseEntity"
+            ]
           },
-          {
-            "type": "object",
-            "x-abstract": true,
-            "additionalProperties": false,
-            "properties": {
-              "phoneNumber": {
-                "nullable": true,
-                "oneOf": [
-                  {
-                    "$ref": "#/components/schemas/PhoneNumber"
-                  }
-                ]
-              },
-              "email": {
-                "type": "string",
-                "nullable": true
+          "phoneNumber": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/PhoneNumber"
               }
-            }
+            ]
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
           }
-        ]
+        }
       },
       "PhoneNumber": {
         "allOf": [
@@ -2479,27 +2407,6 @@
             }
           }
         ]
-      },
-      "BaseEntity": {
-        "type": "object",
-        "x-abstract": true,
-        "additionalProperties": false,
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "domainEvents": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/BaseEvent"
-            }
-          }
-        }
-      },
-      "BaseEvent": {
-        "type": "object",
-        "x-abstract": true,
-        "additionalProperties": false
       },
       "UpdateGymStatusCommand": {
         "type": "object",
@@ -2982,7 +2889,7 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "userId": {
+          "pendingGymEmployeeEmail": {
             "type": "string"
           }
         }
@@ -3137,6 +3044,10 @@
             "type": "boolean"
           },
           "gymId": {
+            "type": "string",
+            "nullable": true
+          },
+          "gymEmploymentId": {
             "type": "string",
             "nullable": true
           }

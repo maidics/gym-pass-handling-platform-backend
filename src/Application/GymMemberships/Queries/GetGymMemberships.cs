@@ -9,7 +9,7 @@ using FitPass.Domain.Enums;
 namespace FitPass.Application.GymMemberships.Queries;
 
 [Authorize(Roles = $"{Roles.GymAdministrator},{Roles.GymStaff}")]
-public record GetGymMembershipsToMyGymQuery(GymMembershipStatus? GymMembershipStatus) 
+public record GetGymMembershipsToMyGymQuery
     : IRequest<List<GymMembershipWithUserProfileAndEmailDto>>;
 
 public class GetGymMembershipsToMyGymQueryHandler : IRequestHandler<GetGymMembershipsToMyGymQuery, List<GymMembershipWithUserProfileAndEmailDto>>
@@ -39,6 +39,6 @@ public class GetGymMembershipsToMyGymQueryHandler : IRequestHandler<GetGymMember
 
         Guard.Against.NullParameterRelatedToCurrentUser(gymEmployment, nameof(GymEmployment), _user.Id);
 
-        return await _queryService.GetGymMembershipsWithUserProfilesAndEmailByGymIdAndMembershipStatus(gymEmployment.GymId!, query.GymMembershipStatus);
+        return await _queryService.GetGymMembershipsWithUserProfilesAndEmailByGymIdAndMembershipStatus(gymEmployment.GymId!, null);
     }
 }

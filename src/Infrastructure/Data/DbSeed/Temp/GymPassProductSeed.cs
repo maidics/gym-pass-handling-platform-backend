@@ -1,0 +1,61 @@
+﻿using FitPass.Domain.Entities;
+using FitPass.Domain.Enums;
+using FitPass.Domain.ValueObjects;
+
+namespace FitPass.Infrastructure.Data.DbSeed;
+
+public partial class ApplicationDbContextInitialiser
+{
+    private async Task SeedGymPassProductsAsync()
+    {
+        var products = new List<GymPassProduct>
+        {
+            GymPassProduct
+                .SingleUse("TestGymId", "Single Use Pass Name", "Single Use Pass Description", true, new Money(5, CurrencyCode.EUR)),
+            
+            GymPassProduct
+                .SingleUse("TestGymId", "Inactive Pass Name", "Inactive Pass Description", false, new Money(5, CurrencyCode.EUR)),
+            
+            GymPassProduct
+                .MultiUse("TestGymId", "Multi Use Pass Name", "Multi Use Pass Description", 10, true, new Money(5, CurrencyCode.EUR)),
+            
+            GymPassProduct
+                .UnlimitedUse("TestGymId", "Unlimited Use Pass Name", "Unlimited Use Pass Description", 30, true, new Money(5, CurrencyCode.EUR)),
+            
+            GymPassProduct
+                .SingleUse("TestGymId", "------------","------------", true, new Money(5, CurrencyCode.EUR)),
+            
+            GymPassProduct
+                .SingleUse("TestGymId", "------------","------------", true, new Money(5, CurrencyCode.EUR)),
+            
+            GymPassProduct
+                .SingleUse("TestGymId", "------------","------------", true, new Money(5, CurrencyCode.EUR)),
+            
+            GymPassProduct
+                .SingleUse("TestGymId", "------------","------------", true, new Money(5, CurrencyCode.EUR)),
+            
+            GymPassProduct
+                .SingleUse("TestGymId", "------------","------------", true, new Money(5, CurrencyCode.EUR)),
+            
+            GymPassProduct
+                .SingleUse("TestGymId", "------------","------------", true, new Money(5, CurrencyCode.EUR)),
+            
+            GymPassProduct
+                .SingleUse("TestGymId", "------------","------------", true, new Money(5, CurrencyCode.EUR)),
+            
+            GymPassProduct
+                .SingleUse("TestGymId", "------------","------------", true, new Money(5, CurrencyCode.EUR)),
+            
+            GymPassProduct
+                .SingleUse("TestGymId", "------------","------------", true, new Money(5, CurrencyCode.EUR)),
+            
+            GymPassProduct
+                .SingleUse("TestGymId", "------------","------------", true, new Money(5, CurrencyCode.EUR)),
+            
+            GymPassProduct
+                .SingleUse("TestGymId", "------------","------------", true, new Money(5, CurrencyCode.EUR)),
+        };
+
+        await _context.GymPassProducts.AddRangeAsync(products);
+    }
+}
