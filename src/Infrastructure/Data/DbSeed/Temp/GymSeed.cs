@@ -70,13 +70,11 @@ public partial class ApplicationDbContextInitialiser
                         )
                     }
                 ],
-                /*
                 PaymentProfile = new TenantPaymentProfile()
                 {
-                    PaymentAccountId = "acct_1SrIJtPSsrSaufPx",
+                    PaymentAccountId = "acct_1SsMj4PEBQsxcoAF",
                     GymId = "TestGymId"
                 }
-                */
             },
 
             // 2. Local Gym in London

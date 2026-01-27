@@ -17,7 +17,7 @@ public class TenantPaymentProfiles : EndpointGroupBase
 
         groupBuilder.MapGet(GetMyTenantPaymentProfile).RequireAuthorization();
 
-        groupBuilder.MapPut(UpdateTenantPaymentAccountPayoutSchedule, "PayoutSchedule").RequireAuthorization();
+        //groupBuilder.MapPut(UpdateTenantPaymentAccountPayoutSchedule, "PayoutSchedule").RequireAuthorization();
     }
 
     public async Task<Results<Ok<PaymentProviderLinkDto>, ProblemHttpResult>> CreateTenantPaymentProfile(
@@ -43,11 +43,11 @@ public class TenantPaymentProfiles : EndpointGroupBase
         return result.ToTypedResult();
     }
 
-    public async Task<Results<NoContent, ProblemHttpResult>> UpdateTenantPaymentAccountPayoutSchedule(
-        ISender sender, UpdateTenantPaymentAccountPayoutScheduleCommand command, CancellationToken cancellationToken)
-    {
-        var result = await sender.Send(command);
-
-        return result.ToTypedResult();
-    }
+    // public async Task<Results<NoContent, ProblemHttpResult>> UpdateTenantPaymentAccountPayoutSchedule(
+    //     ISender sender, UpdateTenantPaymentAccountPayoutScheduleCommand command, CancellationToken cancellationToken)
+    // {
+    //     var result = await sender.Send(command);
+    //
+    //     return result.ToTypedResult();
+    // }
 }

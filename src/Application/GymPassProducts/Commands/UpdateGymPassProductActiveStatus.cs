@@ -69,8 +69,17 @@ public class UpdateGymPassProductActiveStatusCommandHandler : IRequestHandler<Up
             return Result.Success();
         }
 
+        var paymentAccountId = await _context.TenantPaymentProfiles
+            .AsNoTracking()
+            .Where(x => x.GymId == gymEmployment.GymId)
+            .Select(x => x.PaymentAccountId)
+            .FirstOrDefaultAsync();
+
+        Guard.Against.Null(paymentAccountId); //this should exist if the product exists
+
         var productResult = await _paymentProductService.UpdateProductAsync(
-            product.PaymentIdentity.Id,
+            product.PaymentIdentity.ProductId,
+            paymentAccountId,
             isActive: command.IsActive);
 
         if (!productResult.Succeeded)
@@ -78,7 +87,7 @@ public class UpdateGymPassProductActiveStatusCommandHandler : IRequestHandler<Up
             return productResult;
         }
 
-        var priceResult = await _paymentPriceService.UpdateActiveStatusAsync(product.PaymentIdentity.PriceId, command.IsActive);
+        var priceResult = await _paymentPriceService.UpdateActiveStatusAsync(product.PaymentIdentity.PriceId, paymentAccountId, command.IsActive);
 
         if (!priceResult.Succeeded)
         {

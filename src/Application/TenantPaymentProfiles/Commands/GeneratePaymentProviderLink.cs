@@ -15,17 +15,20 @@ public class GeneratePaymentProviderLinkCommandHandler : IRequestHandler<Generat
     private readonly IUser _user;
     private readonly ILocalizer _localizer;
     private readonly IPaymentTenantService _paymentTenantService;
+    private readonly TimeProvider _timeProvider;
 
     public GeneratePaymentProviderLinkCommandHandler(
         IApplicationDbContext context, 
         IUser user,
         ILocalizer localizer,
-        IPaymentTenantService paymentTenantService)
+        IPaymentTenantService paymentTenantService,
+        TimeProvider timeProvider)
     {
         _context = context;
         _user = user;
         _localizer = localizer;
         _paymentTenantService = paymentTenantService;
+        _timeProvider = timeProvider;
     }
     
     public async Task<Result<PaymentProviderLinkDto>> Handle(GeneratePaymentProviderLinkCommand command, CancellationToken cancellationToken)
@@ -39,7 +42,6 @@ public class GeneratePaymentProviderLinkCommandHandler : IRequestHandler<Generat
         Guard.Against.NullParameterRelatedToCurrentUser(gymId, "Employee gym id", _user.Id);
 
         var paymentProfile = await _context.TenantPaymentProfiles
-            .AsNoTracking()
             .FirstOrDefaultAsync(x => x.GymId == gymId);
 
         if (paymentProfile is null)
@@ -47,18 +49,35 @@ public class GeneratePaymentProviderLinkCommandHandler : IRequestHandler<Generat
             return Result.BusinessRuleViolation(_localizer.Get(nameof(SharedResource.RequiresStripeAccount)));
         }
 
-        return command.Type switch
+        Result<PaymentProviderLinkDto>? result;
+
+        if (command.Type == PaymentProviderLinkType.AccountLink)
         {
-            PaymentProviderLinkType.AccountLink =>
-                await _paymentTenantService.GenerateAccountLinkAsync(paymentProfile.PaymentAccountId, gymId,
-                    cancellationToken: cancellationToken),
+            var onboardingResult =
+                await _paymentTenantService.IsOnboardingCompleteAsync(paymentProfile.PaymentAccountId);
 
-            PaymentProviderLinkType.LoginLink =>
-                await _paymentTenantService.GenerateLoginLinkAsync(paymentProfile.PaymentAccountId,
-                    cancellationToken: cancellationToken),
+            if (!onboardingResult.Succeeded)
+            {
+                return onboardingResult.ToFailure<PaymentProviderLinkDto>();
+            }
 
-            _ => throw new InvalidOperationException(
-                $"Invalid/ not implemented {nameof(PaymentProviderLinkType)}: '${command.Type}'")
-        };
+            result = await _paymentTenantService.GenerateAccountLinkAsync(
+                paymentProfile.PaymentAccountId, gymId,!onboardingResult.Value, true);
+        }
+        else
+        {
+            result = await _paymentTenantService.GenerateLoginLinkAsync(paymentProfile.PaymentAccountId,
+                cancellationToken: cancellationToken);
+        }
+
+        if (result.Succeeded)
+        {
+            paymentProfile.LastAccountLinkGeneratedBy = _user.Id;
+            paymentProfile.LastAccountLinkGeneratedOn = _timeProvider.GetUtcNow();
+
+            await _context.SaveChangesAsync();
+        }
+
+        return result;
     }
 }

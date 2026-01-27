@@ -1,3 +1,4 @@
+using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Interfaces.Payment;
 using FitPass.Application.Common.Models;
 using FitPass.Domain.ValueObjects;
@@ -10,16 +11,19 @@ public class StripePriceService : IPaymentPriceService
 {
     private readonly ILogger<StripePriceService> _logger;
     private readonly PriceService _priceService;
+    private readonly ILocalizer _localizer;
 
     public StripePriceService(
         ILogger<StripePriceService> logger, 
-        PriceService priceService)
+        PriceService priceService,
+        ILocalizer localizer)
     {
         _logger = logger;
         _priceService = priceService;
+        _localizer = localizer;
     }
 
-    public async Task<Result<string>> CreatePriceAsync(string productId, Money priceMoney, bool isActive, string accountId)
+    public async Task<Result<string>> CreatePriceAsync(string productId, Money priceMoney, bool isActive, string paymentAccountId)
     {
         try
         {
@@ -33,7 +37,7 @@ public class StripePriceService : IPaymentPriceService
 
             var requestOptions = new RequestOptions
             {
-                StripeAccount = accountId
+                StripeAccount = paymentAccountId
             };
 
             var price = await _priceService.CreateAsync(priceOptions, requestOptions);
@@ -43,11 +47,11 @@ public class StripePriceService : IPaymentPriceService
         {
             ex.Log(_logger, nameof(StripePriceService), nameof(CreatePriceAsync));
 
-            return ex.ToResultFailure("Failed to create price for pass on Stripe.");
+            return ex.ToResultFailure(_localizer.GetExternalServiceNotAvailable("Stripe"));
         }
     }
 
-    public async Task<Result<string>> UpdatePriceAsync(string priceId, string productId, Money newPrice, bool isActive, string accountId)
+    public async Task<Result<string>> UpdatePriceAsync(string priceId, string productId, Money newPrice, bool isActive, string paymentAccountId)
     {
         try
         {
@@ -56,18 +60,19 @@ public class StripePriceService : IPaymentPriceService
                 Active = false
             };
 
-            await _priceService.UpdateAsync(priceId, priceUpdateOptions);
+            await _priceService.UpdateAsync(priceId, priceUpdateOptions); 
+            //because prices cannot be deleted it has to be set to Active = false
 
-            return await CreatePriceAsync(productId, newPrice, isActive, accountId);
+            return await CreatePriceAsync(productId, newPrice, isActive, paymentAccountId);
         } catch (StripeException ex)
         {
             ex.Log(_logger, nameof(StripePriceService), nameof(UpdatePriceAsync));
 
-            return ex.ToResultFailure("Failed to update price on Stripe.");
+            return ex.ToResultFailure(_localizer.GetExternalServiceNotAvailable("Stripe"));
         }
     }
 
-    public async Task<Result> UpdateActiveStatusAsync(string priceId, bool isActive)
+    public async Task<Result> UpdateActiveStatusAsync(string priceId, string paymentAccountId, bool isActive)
     {
         try
         {
@@ -76,14 +81,16 @@ public class StripePriceService : IPaymentPriceService
                 Active = isActive
             };
 
-            await _priceService.UpdateAsync(priceId, priceUpdateOptions);
+            var requestOptions = new RequestOptions() { StripeAccount = paymentAccountId };
+
+            await _priceService.UpdateAsync(priceId, priceUpdateOptions, requestOptions);
 
             return Result.Success();
         } catch (StripeException ex)
         {
             ex.Log(_logger, nameof(StripePriceService), nameof(UpdateActiveStatusAsync));
 
-            return ex.ToResultFailure("Failed to update active flag on Stripe price.");
+            return ex.ToResultFailure(_localizer.GetExternalServiceNotAvailable("Stripe"));
         }
     }
 

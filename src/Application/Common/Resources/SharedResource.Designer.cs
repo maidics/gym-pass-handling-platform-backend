@@ -721,6 +721,15 @@ namespace FitPass.Application.Common.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Stripe Connected account.
+        /// </summary>
+        public static string PaymentProviderConnectedAccount {
+            get {
+                return ResourceManager.GetString("PaymentProviderConnectedAccount", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Payment required..
         /// </summary>
         public static string PaymentRequired {

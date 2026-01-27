@@ -32,8 +32,6 @@ public class QueryService : IQueryService
                 GymId = gymId,
                 SupervisorEmail = ge.SupervisorEmail,
                 Role = ge.Role,
-                EmploymentStart = ge.EmploymentStart,
-                EmploymentEnd = ge.EmploymentEnd,
                 UserProfile = new UserProfileWithEmailDto(
                     user.Id,
                     up.FirstName,
@@ -58,8 +56,6 @@ public class QueryService : IQueryService
                 GymId = ge.GymId,
                 SupervisorEmail = ge.SupervisorEmail,
                 Role = ge.Role,
-                EmploymentStart = ge.EmploymentStart,
-                EmploymentEnd = ge.EmploymentEnd,
                 UserProfile = new UserProfileWithEmailDto(
                     user.Id,
                     up.FirstName,
@@ -104,15 +100,6 @@ public class QueryService : IQueryService
                         up.LastName,
                         user.Email!,
                         up.PreferredLanguage),
-                    Passes = gm.Passes.Select(p => new GymMembershipPassDto
-                    {
-                        Id = p.Id,
-                        GymMembershipId = p.GymMembershipId,
-                        Type = p.Type,
-                        TotalUses = p.TotalUses,
-                        RemainingUses = p.RemainingUses,
-                        ExpirationDate = p.ExpirationDate,
-                    }).ToList()
                 }
             );
 
@@ -138,8 +125,6 @@ public class QueryService : IQueryService
                 GymId = ge.GymId,
                 SupervisorEmail = ge.SupervisorEmail,
                 Role = ge.Role,
-                EmploymentStart = ge.EmploymentStart,
-                EmploymentEnd = ge.EmploymentEnd,
                 UserProfile = new UserProfileWithEmailDto(
                     user.Id,
                     up.FirstName,
@@ -169,15 +154,6 @@ public class QueryService : IQueryService
                     up.LastName,
                     user.Email!,
                     up.PreferredLanguage),
-                Passes = gm.Passes.Select(p => new GymMembershipPassDto
-                {
-                    Id = p.Id,
-                    GymMembershipId = p.GymMembershipId,
-                    Type = p.Type,
-                    TotalUses = p.TotalUses,
-                    RemainingUses = p.RemainingUses,
-                    ExpirationDate = p.ExpirationDate,
-                }).ToList()
             }
         ).FirstOrDefaultAsync();
     }

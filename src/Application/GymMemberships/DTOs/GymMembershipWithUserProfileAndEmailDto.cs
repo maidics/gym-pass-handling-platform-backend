@@ -10,6 +10,5 @@ public class GymMembershipWithUserProfileAndEmailDto
     public required string UserId { get; set; }
     public required string GymId { get; set; }
     public required GymMembershipStatus Status { get; set; }
-    public required List<GymMembershipPassDto> Passes { get; set; }
     public required UserProfileWithEmailDto UserProfile { get; set; }
 }

@@ -30,8 +30,6 @@ public class Gyms : EndpointGroupBase
         //groupBuilder.MapPost(RegisterGym, "Register").RequireAuthorization();
 
         groupBuilder.MapPut(UpdateMyGymStatus, "My/Status").RequireAuthorization();
-
-        groupBuilder.MapGet(TestEndpoint, "Test");
     }
 
     public async Task<Results<NoContent, ProblemHttpResult>> UpdateMyGymProfile(ISender sender, [FromBody] UpdateMyGymProfileCommand command, CancellationToken cancellationToken)
@@ -88,22 +86,5 @@ public class Gyms : EndpointGroupBase
         var result = await sender.Send(new RegisterGymFromRequestCommand(requestId));
 
         return result.ToTypedResult();
-    }
-
-    /*
-    public async Task<Ok<GymDto>> RegisterGym(ISender sender, [FromBody] RegisterGymCommand command, CancellationToken cancellationToken)
-    {
-        var result = await sender.Send(command);
-
-        return TypedResults.Ok(result);
-    }
-    */
-
-    public async Task<Ok<List<GymContactInfoDto>>> TestEndpoint(IApplicationDbContext context,
-        CancellationToken cancellationToken)
-    {
-        var result = await context.GymContactInfos.ToListAsync(cancellationToken);
-
-        return TypedResults.Ok(result.Select(x => x.MapToDto()).ToList());
     }
 }

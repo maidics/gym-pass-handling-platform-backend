@@ -28,20 +28,17 @@ public class RegisterGymFromRequestCommandHandler : IRequestHandler<RegisterGymF
     private readonly IApplicationDbContext _context;
     private readonly IIdentityService _identityService;
     private readonly ISender _sender;
-    private readonly TimeProvider _timeProvider;
     private readonly ILocalizer _localizer;
 
     public RegisterGymFromRequestCommandHandler(
         IApplicationDbContext context,
         IIdentityService identityService,
         ISender sender,
-        TimeProvider timeProvider,
         ILocalizer localizer)
     {
         _context = context;
         _identityService = identityService;
         _sender = sender;
-        _timeProvider = timeProvider;
         _localizer = localizer;
     }
     
@@ -68,33 +65,17 @@ public class RegisterGymFromRequestCommandHandler : IRequestHandler<RegisterGymF
 
         if (request.CreatedBy is null)
         {
-            request.Status = RequestStatus.Error;
-            request.Error = "Request creator is empty.";
-
-            await _context.SaveChangesAsync();
-
             return Result.InternalError(_localizer.Get(nameof(SharedResource.RequestHandlingError)));
-        } else
+        }
+
+        if (!await _identityService.DoesUserExist(request.CreatedBy))
+        { 
+            return Result.NotFound(_localizer.Get(nameof(SharedResource.RequestHandlingError)));
+        }
+
+        if (!await _identityService.IsInRoleAsync(request.CreatedBy, Roles.PendingGymEmployee))
         {
-            if (!await _identityService.DoesUserExist(request.CreatedBy))
-            {
-                request.Status = RequestStatus.Error;
-                request.Error = "Request creator not found.";
-                
-                await _context.SaveChangesAsync();
-                
-                return Result.NotFound(_localizer.Get(nameof(SharedResource.RequestHandlingError)));
-            }
-
-            if (!await _identityService.IsInRoleAsync(request.CreatedBy, Roles.PendingGymEmployee))
-            {
-                request.Status = RequestStatus.Error;
-                request.Error = "Request creator is no longer eligible for request completion.";
-
-                await _context.SaveChangesAsync();
-
-                return Result.BusinessRuleViolation(_localizer.Get(nameof(SharedResource.CannotPerformActionOnRoleType)));
-            }
+            return Result.BusinessRuleViolation(_localizer.Get(nameof(SharedResource.CannotPerformActionOnRoleType)));
         }
 
         var deserializationResult = await _sender.Send(new DeserializeRequestPayloadCommand<CreateGymDto>(request));
@@ -141,13 +122,6 @@ public class RegisterGymFromRequestCommandHandler : IRequestHandler<RegisterGymF
 
             if (!demotionResult.Succeeded)
             {
-                await transaction.RollbackAsync();
-
-                request.Status = RequestStatus.Error;
-                request.Error = $"Failed to remove user from {Roles.PendingGymEmployee} role.";
-
-                await _context.SaveChangesAsync();
-
                 throw new Exception($"Failed to remove user from their role. Result: {demotionResult}.");
             }
 
@@ -155,13 +129,6 @@ public class RegisterGymFromRequestCommandHandler : IRequestHandler<RegisterGymF
 
             if (!promotionResult.Succeeded)
             {
-                await transaction.RollbackAsync();
-
-                request.Status = RequestStatus.Error;
-                request.Error = $"Failed to add user to {Roles.GymAdministrator} role.";
-
-                await _context.SaveChangesAsync();
-
                 throw new Exception($"Failed to add user to role. Result: {promotionResult}");
             }
 
@@ -171,7 +138,6 @@ public class RegisterGymFromRequestCommandHandler : IRequestHandler<RegisterGymF
                 GymId = gym.Id,
                 Role = Roles.GymAdministrator,
                 SupervisorEmail = createGymDto.SupervisorEmail,
-                EmploymentStart = _timeProvider.GetUtcNow()
             };
 
             await _context.GymEmployments.AddAsync(gymEmployment);

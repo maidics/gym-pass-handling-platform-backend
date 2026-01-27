@@ -14,7 +14,7 @@ namespace FitPass.Application.Requests.Commands;
 [Authorize(Roles = Roles.GymAdministrator)]
 public record CreateGymAdminPromotionRequestCommand
 (
-    string UserId,
+    string PendingGymEmployeeEmail,
     string Description,
     PriorityLevel PriorityLevel,
     string SupervisorEmail
@@ -24,8 +24,8 @@ public class CreateGymAdminPromotionRequestCommandValidator : AbstractValidator<
 {
     public CreateGymAdminPromotionRequestCommandValidator(ILocalizer localizer)
     {
-        RuleFor(v => v.UserId)
-            .PropertyOfEntityNotEmptyWithMessageLocalized(localizer, nameof(SharedResource.Id), nameof(SharedResource.User));
+        RuleFor(v => v.PendingGymEmployeeEmail)
+            .EmailAddressWithMessageLocalized(localizer);
 
         RuleFor(v => v.Description!)
             .NotEmptyWithMaxLengthAndMessageLocalized(localizer, nameof(SharedResource.Description), MaxLengths.Description);
@@ -43,7 +43,7 @@ public class CreateGymAdminPromotionRequestCommandHandler : IRequestHandler<Crea
     private readonly ILocalizer _localizer;
 
     public CreateGymAdminPromotionRequestCommandHandler(
-        IApplicationDbContext context, 
+        IApplicationDbContext context,
         IUser user,
         IIdentityService identityService,
         ILocalizer localizer)
@@ -62,14 +62,11 @@ public class CreateGymAdminPromotionRequestCommandHandler : IRequestHandler<Crea
 
         Guard.Against.NullParameterRelatedToCurrentUser(gymEmployment, nameof(GymEmployment), _user.Id);
 
-        if (!await _identityService.DoesUserExist(command.UserId))
+        var pendingGymEmployeeId = await _identityService.GetUserIdByEmailAsync(command.PendingGymEmployeeEmail);
+
+        if (pendingGymEmployeeId is null || !await _identityService.IsInRoleAsync(pendingGymEmployeeId, Roles.PendingGymEmployee))
         {
             return Result.NotFound(_localizer.GetNotFound(nameof(SharedResource.User)));
-        }
-
-        if (!await _identityService.IsInRoleAsync(command.UserId, Roles.PendingGymEmployee))
-        {
-            return Result.BusinessRuleViolation(_localizer.Get(nameof(SharedResource.CannotPerformActionOnRoleType)));
         }
 
         var request = new Request
@@ -82,7 +79,7 @@ public class CreateGymAdminPromotionRequestCommandHandler : IRequestHandler<Crea
             Payload = JsonSerializer.Serialize(new GymAdminPromotionDto
             {
                 GymId = gymEmployment.GymId!,
-                UserIdToNominate = command.UserId,
+                PendingGymEmployeeEmail = pendingGymEmployeeId,
                 SupervisorEmail = command.SupervisorEmail
             })
         };

@@ -781,29 +781,6 @@
         ]
       }
     },
-    "/api/Gyms/Test": {
-      "get": {
-        "tags": [
-          "Gyms"
-        ],
-        "operationId": "TestEndpoint",
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/GymContactInfoDto"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/Payments/GymPassProducts/OneTime/{gymPassProductId}": {
       "post": {
         "tags": [
@@ -1224,6 +1201,24 @@
         ]
       }
     },
+    "/api/ServerSentEvents/Test": {
+      "post": {
+        "tags": [
+          "ServerSentEvents"
+        ],
+        "operationId": "TestSSE",
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
     "/api/TenantPaymentProfiles": {
       "post": {
         "tags": [
@@ -1312,36 +1307,6 @@
                 }
               }
             }
-          }
-        },
-        "security": [
-          {
-            "JWT": []
-          }
-        ]
-      }
-    },
-    "/api/TenantPaymentProfiles/PayoutSchedule": {
-      "put": {
-        "tags": [
-          "TenantPaymentProfiles"
-        ],
-        "operationId": "UpdateTenantPaymentAccountPayoutSchedule",
-        "requestBody": {
-          "x-name": "command",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateTenantPaymentAccountPayoutScheduleCommand"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
-        "responses": {
-          "204": {
-            "description": ""
           }
         },
         "security": [
@@ -1860,15 +1825,6 @@
           "role": {
             "type": "string"
           },
-          "employmentStart": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "employmentEnd": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
           "userProfile": {
             "$ref": "#/components/schemas/UserProfileWithEmailDto"
           }
@@ -1978,12 +1934,6 @@
           },
           "status": {
             "$ref": "#/components/schemas/GymMembershipStatus"
-          },
-          "passes": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/GymMembershipPassDto"
-            }
           },
           "userProfile": {
             "$ref": "#/components/schemas/UserProfileWithEmailDto"
@@ -2313,18 +2263,6 @@
           "gymId": {
             "type": "string"
           },
-          "accountStatus": {
-            "$ref": "#/components/schemas/TenantPaymentAccountStatusDto"
-          },
-          "lastUpdatedOnPaymentProvidersSide": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "lastUpdatedByOnPaymentProvidersSide": {
-            "type": "string",
-            "nullable": true
-          },
           "lastAccountLinkGeneratedOn": {
             "type": "string",
             "format": "date-time",
@@ -2333,33 +2271,6 @@
           "lastAccountLinkGeneratedBy": {
             "type": "string",
             "nullable": true
-          }
-        }
-      },
-      "TenantPaymentAccountStatusDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "chargesEnabled": {
-            "type": "boolean"
-          },
-          "detailsSubmitted": {
-            "type": "boolean"
-          },
-          "payoutsEnabled": {
-            "type": "boolean"
-          },
-          "requirementsDue": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "requirementsEventuallyDue": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
           }
         }
       },
@@ -2601,7 +2512,7 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "userId": {
+          "pendingGymEmployeeEmail": {
             "type": "string"
           },
           "description": {
@@ -2681,8 +2592,6 @@
           "Default",
           "Error",
           "PaymentFailed",
-          "PaymentProviderProductSynced",
-          "PaymentProviderPriceSynced",
           "GymMembershipStatusChange",
           "GymPassProductPurchaseFulfillmentFailed",
           "SuccessfulPurchase"
@@ -2691,8 +2600,6 @@
           "Default",
           "Error",
           "PaymentFailed",
-          "PaymentProviderProductSynced",
-          "PaymentProviderPriceSynced",
           "GymMembershipStatusChange",
           "GymPassProductPurchaseFulfillmentFailed",
           "SuccessfulPurchase"
@@ -2747,69 +2654,6 @@
             "$ref": "#/components/schemas/PaymentProviderLinkType"
           }
         }
-      },
-      "UpdateTenantPaymentAccountPayoutScheduleCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "timeInterval": {
-            "$ref": "#/components/schemas/TimeIntervals"
-          },
-          "monthlyAnchor": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "weeklyAnchor": {
-            "nullable": true,
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/DayOfWeek"
-              }
-            ]
-          },
-          "delayDays": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          }
-        }
-      },
-      "TimeIntervals": {
-        "type": "string",
-        "description": "",
-        "x-enumNames": [
-          "Daily",
-          "Weekly",
-          "Monthly"
-        ],
-        "enum": [
-          "Daily",
-          "Weekly",
-          "Monthly"
-        ]
-      },
-      "DayOfWeek": {
-        "type": "string",
-        "description": "",
-        "x-enumNames": [
-          "Sunday",
-          "Monday",
-          "Tuesday",
-          "Wednesday",
-          "Thursday",
-          "Friday",
-          "Saturday"
-        ],
-        "enum": [
-          "Sunday",
-          "Monday",
-          "Tuesday",
-          "Wednesday",
-          "Thursday",
-          "Friday",
-          "Saturday"
-        ]
       },
       "UpdateMyUserProfileCommand": {
         "type": "object",

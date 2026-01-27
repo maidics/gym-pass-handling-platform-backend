@@ -454,4 +454,7 @@ Confirm my email: {1}</value>
   <data name="InvalidRequestType" xml:space="preserve">
     <value>Invalid request type.</value>
   </data>
+  <data name="PaymentProviderConnectedAccount" xml:space="preserve">
+    <value>Stripe Connected account</value>
+  </data>
 </root>

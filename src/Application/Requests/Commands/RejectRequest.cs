@@ -5,6 +5,7 @@ using FitPass.Application.Common.Security;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Application.Common.Resources;
+using FitPass.Domain.Enums;
 
 namespace FitPass.Application.Requests.Commands;
 
@@ -42,7 +43,12 @@ public class RejectRequestCommandHandler : IRequestHandler<RejectRequestCommand,
             return Result.NotFound(_localizer.GetNotFound(nameof(SharedResource.Request)));
         }
 
-        request.Status = Domain.Enums.RequestStatus.Rejected;
+        if (request.Status != RequestStatus.Submitted)
+        {
+            return Result.BusinessRuleViolation(_localizer.Get(nameof(SharedResource.RequestIsNotOpen)));
+        }
+
+        request.Status = RequestStatus.Rejected;
         request.HandlerRationale = command.Rationale;
 
         //TODO: send event here: RequestRejectedEvent

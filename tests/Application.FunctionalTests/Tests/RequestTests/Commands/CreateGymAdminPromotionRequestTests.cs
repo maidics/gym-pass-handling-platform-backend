@@ -93,7 +93,7 @@ public class CreateGymAdminPromotionRequestTests : BaseTestFixture
         var payload = JsonSerializer.Deserialize<GymAdminPromotionDto>(createdRequest.Payload);
         payload.ShouldNotBeNull();
         payload.GymId.ShouldBe(gymAdminObj.gymEmployment.GymId);
-        payload.UserIdToNominate.ShouldBe(pendingGymEmployee.Id);
+        payload.PendingGymEmployeeEmail.ShouldBe(pendingGymEmployee.Id);
         payload.SupervisorEmail.ShouldBe(command.SupervisorEmail);
     }
 }

@@ -5,8 +5,6 @@ public enum ClientNotificationType
     Default,
     Error,
     PaymentFailed,
-    PaymentProviderProductSynced,
-    PaymentProviderPriceSynced,
     GymMembershipStatusChange,
     GymPassProductPurchaseFulfillmentFailed,
     SuccessfulPurchase

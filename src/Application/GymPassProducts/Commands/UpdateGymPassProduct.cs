@@ -118,7 +118,7 @@ public class UpdateGymPassProductCommandHandler : IRequestHandler<UpdateGymPassP
 
         var product = await _context.GymPassProducts
             .Include(gpp => gpp.PaymentIdentity)
-            .FirstOrDefaultAsync(gpp => gpp.Id == command.GymPassProductId && gpp.GymId == gymEmployment.GymId);
+            .FirstOrDefaultAsync(gpp => gpp.Id == command.GymPassProductId);
 
         if (product is null)
         {
@@ -153,7 +153,8 @@ public class UpdateGymPassProductCommandHandler : IRequestHandler<UpdateGymPassP
         if (product.Name != command.Name || product.Description != command.Description)
         {
             var result = await _paymentProductService.UpdateProductAsync(
-                productId: product.PaymentIdentity.Id, 
+                product.PaymentIdentity.ProductId, 
+                tenantPaymentProfile.PaymentAccountId,
                 name: command.Name, 
                 description: command.Description);
 

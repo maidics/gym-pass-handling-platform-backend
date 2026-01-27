@@ -21,39 +21,6 @@ public partial class ApplicationDbContextInitialiser
             
             GymPassProduct
                 .UnlimitedUse("TestGymId", "Unlimited Use Pass Name", "Unlimited Use Pass Description", 30, true, new Money(5, CurrencyCode.EUR)),
-            
-            GymPassProduct
-                .SingleUse("TestGymId", "------------","------------", true, new Money(5, CurrencyCode.EUR)),
-            
-            GymPassProduct
-                .SingleUse("TestGymId", "------------","------------", true, new Money(5, CurrencyCode.EUR)),
-            
-            GymPassProduct
-                .SingleUse("TestGymId", "------------","------------", true, new Money(5, CurrencyCode.EUR)),
-            
-            GymPassProduct
-                .SingleUse("TestGymId", "------------","------------", true, new Money(5, CurrencyCode.EUR)),
-            
-            GymPassProduct
-                .SingleUse("TestGymId", "------------","------------", true, new Money(5, CurrencyCode.EUR)),
-            
-            GymPassProduct
-                .SingleUse("TestGymId", "------------","------------", true, new Money(5, CurrencyCode.EUR)),
-            
-            GymPassProduct
-                .SingleUse("TestGymId", "------------","------------", true, new Money(5, CurrencyCode.EUR)),
-            
-            GymPassProduct
-                .SingleUse("TestGymId", "------------","------------", true, new Money(5, CurrencyCode.EUR)),
-            
-            GymPassProduct
-                .SingleUse("TestGymId", "------------","------------", true, new Money(5, CurrencyCode.EUR)),
-            
-            GymPassProduct
-                .SingleUse("TestGymId", "------------","------------", true, new Money(5, CurrencyCode.EUR)),
-            
-            GymPassProduct
-                .SingleUse("TestGymId", "------------","------------", true, new Money(5, CurrencyCode.EUR)),
         };
 
         await _context.GymPassProducts.AddRangeAsync(products);

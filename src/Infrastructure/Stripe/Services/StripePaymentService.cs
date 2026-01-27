@@ -1,3 +1,4 @@
+using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Interfaces.Payment;
 using FitPass.Application.Common.Models;
 using FitPass.Domain.ValueObjects;
@@ -10,14 +11,17 @@ public class StripePaymentService : IPaymentService
 {
     private readonly PaymentIntentService _paymentIntentService;
     private readonly ILogger<StripePaymentService> _logger;
+    private readonly ILocalizer _localizer;
 
     public StripePaymentService(
         PaymentIntentService paymentIntentService,
-        ILogger<StripePaymentService> logger
+        ILogger<StripePaymentService> logger,
+        ILocalizer localizer
     )
     {
         _paymentIntentService = paymentIntentService;
         _logger = logger;
+        _localizer = localizer;
     }
 
     public async Task<Result<string>> CreateOneTimePaymentIntent(Money money, string userId, string gymId, string gymPassProductId, string tenantPaymentAccountId)
@@ -52,7 +56,7 @@ public class StripePaymentService : IPaymentService
         {
             ex.Log(_logger, nameof(StripePaymentService), nameof(CreateOneTimePaymentIntent));
 
-            return ex.ToResultFailure("Failed to create payment intent with Stripe.");
+            return ex.ToResultFailure(_localizer.GetExternalServiceNotAvailable("Stripe"));
         }
     }
 }

@@ -28,20 +28,17 @@ public class PromotePendingGymEmployeeToGymAdminFromRequestCommandHandler : IReq
     private readonly IApplicationDbContext _context;
     private readonly ISender _sender;
     private readonly IIdentityService _identityService;
-    private readonly TimeProvider _timeProvider;
     private readonly ILocalizer _localizer;
 
     public PromotePendingGymEmployeeToGymAdminFromRequestCommandHandler(
         IApplicationDbContext context,
         ISender sender,
         IIdentityService identityService,
-        TimeProvider timeProvider,
         ILocalizer localizer)
     {
         _context = context;
         _sender = sender;
         _identityService = identityService;
-        _timeProvider = timeProvider;
         _localizer = localizer;
     }
 
@@ -78,12 +75,14 @@ public class PromotePendingGymEmployeeToGymAdminFromRequestCommandHandler : IReq
 
         var promotionDto = deserializationResult.Value;
 
-        if (!await _identityService.DoesUserExist(promotionDto.UserIdToNominate))
+        var pendingGymEmployeeId = await _identityService.GetUserIdByEmailAsync(promotionDto.PendingGymEmployeeEmail);
+
+        if (pendingGymEmployeeId is null)
         {
             return Result.NotFound(_localizer.GetNotFound(nameof(SharedResource.User)));
         }
 
-        if (!await _identityService.IsInRoleAsync(promotionDto.UserIdToNominate, Roles.PendingGymEmployee))
+        if (!await _identityService.IsInRoleAsync(pendingGymEmployeeId, Roles.PendingGymEmployee))
         {
             return Result.BusinessRuleViolation(_localizer.Get(nameof(SharedResource.CannotPerformActionOnRoleType)));
         }
@@ -94,14 +93,14 @@ public class PromotePendingGymEmployeeToGymAdminFromRequestCommandHandler : IReq
 
         if (gym is null)
         {
-            return Result.NotFound(nameof(Gym));
+            return Result.NotFound(_localizer.GetNotFound(nameof(SharedResource.Gym)));
         }
 
         using var transaction = await _context.BeginTransactionAsync();
 
         try
         {
-            var demotionResult = await _identityService.RemoveFromRoleAsync(promotionDto.UserIdToNominate, Roles.PendingGymEmployee);
+            var demotionResult = await _identityService.RemoveFromRoleAsync(pendingGymEmployeeId, Roles.PendingGymEmployee);
 
             if (!demotionResult.Succeeded)
             {
@@ -110,7 +109,7 @@ public class PromotePendingGymEmployeeToGymAdminFromRequestCommandHandler : IReq
                 throw new Exception($"Failed to demote user from their user role. Result {demotionResult}.");
             }
 
-            var promotionResult = await _identityService.AddToRoleAsync(promotionDto.UserIdToNominate, Roles.GymAdministrator);
+            var promotionResult = await _identityService.AddToRoleAsync(pendingGymEmployeeId, Roles.GymAdministrator);
 
             if (!promotionResult.Succeeded)
             {
@@ -121,11 +120,10 @@ public class PromotePendingGymEmployeeToGymAdminFromRequestCommandHandler : IReq
 
             var gymEmployment = new GymEmployment
             {
-                UserId = promotionDto.UserIdToNominate,
+                UserId = pendingGymEmployeeId,
                 GymId = promotionDto.GymId,
                 Role = Roles.GymAdministrator,
                 SupervisorEmail = promotionDto.SupervisorEmail,
-                EmploymentStart = _timeProvider.GetUtcNow()
             };
 
             await _context.GymEmployments.AddAsync(gymEmployment);

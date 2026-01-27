@@ -91,4 +91,9 @@ public class Localizer : ILocalizer
 
         return char.ToUpper(input[0], CultureInfo.CurrentUICulture) + input.Substring(1);
     }
+
+    public string GetExternalServiceNotAvailable(string serviceName)
+    {
+        return Get(nameof(SharedResource.ExternalServiceUnavailable), serviceName);
+    }
 }

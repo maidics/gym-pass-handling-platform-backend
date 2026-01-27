@@ -1,5 +1,7 @@
+using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Interfaces.Payment;
 using FitPass.Application.Common.Models;
+using FitPass.Application.Common.Resources;
 using FitPass.Application.Common.Settings;
 using FitPass.Application.TenantPaymentProfiles.DTOs;
 using FitPass.Domain.Enums;
@@ -17,6 +19,7 @@ public class StripeConnectedAccountService : IPaymentTenantService
     private readonly AccountLoginLinkService _loginLinkService;
     private readonly StripeSettings _stripeSettings;
     private readonly ClientAppSettings _clientAppSettings;
+    private readonly ILocalizer _localizer;
 
     public StripeConnectedAccountService(
         ILogger<StripeConnectedAccountService> logger, 
@@ -24,7 +27,8 @@ public class StripeConnectedAccountService : IPaymentTenantService
         AccountLoginLinkService loginLinkService,
         AccountLinkService accountLinkService,
         IOptions<StripeSettings> stripeOptions,
-        IOptions<ClientAppSettings> clientAppOptions)
+        IOptions<ClientAppSettings> clientAppOptions,
+        ILocalizer localizer)
     {
         _logger = logger;
         _accountService = accountService;
@@ -32,6 +36,7 @@ public class StripeConnectedAccountService : IPaymentTenantService
         _accountLinkService = accountLinkService;
         _stripeSettings = stripeOptions.Value;
         _clientAppSettings = clientAppOptions.Value;
+        _localizer = localizer;
     }
 
     public async Task<Result<string>> CreateTenantAccount(
@@ -79,7 +84,7 @@ public class StripeConnectedAccountService : IPaymentTenantService
         {
             ex.Log(_logger, nameof(StripeConnectedAccountService), nameof(CreateTenantAccount));
 
-            return ex.ToResultFailure("Failed to create payment account.");
+            return ex.ToResultFailure(_localizer.GetExternalServiceNotAvailable("Stripe"));
         }
     }
 
@@ -89,18 +94,22 @@ public class StripeConnectedAccountService : IPaymentTenantService
         {
             var account = await _accountService.GetAsync(tenantAccountId, cancellationToken: cancellationToken);
 
-            bool isAccountOnboardingCompleted = account.DetailsSubmitted && account.ChargesEnabled && account.PayoutsEnabled;
-
-            return Result<bool>.Success(isAccountOnboardingCompleted);
+            if (account is null)
+            {
+                return Result.NotFound(_localizer.Get(nameof(SharedResource.RequiresStripeAccount)));
+            }
+            
+            return Result.Success(account.DetailsSubmitted);
         } catch (StripeException ex)
         {
             ex.Log(_logger, nameof(StripeConnectedAccountService), nameof(IsOnboardingCompleteAsync));
 
-            return ex.ToResultFailure("Failed to retrieve whether onboarding is completed or not.");
+            return ex.ToResultFailure(_localizer.GetExternalServiceNotAvailable("Stripe"));
         }
     }
 
-    public async Task<Result<PaymentProviderLinkDto>> GenerateAccountLinkAsync(string accountId, string gymId, bool isOnboarding = false, CancellationToken cancellationToken = default)
+    public async Task<Result<PaymentProviderLinkDto>> GenerateAccountLinkAsync(
+        string accountId, string gymId, bool isOnboarding = false, bool fallbackToOnboarding = false, CancellationToken cancellationToken = default)
     {
         try
         {
@@ -120,15 +129,33 @@ public class StripeConnectedAccountService : IPaymentTenantService
 
             if (accountLink is null)
             {
-                return Result.ExternalServiceUnavailable("Failed to generate account link");
+                return Result.ExternalServiceUnavailable(_localizer.GetExternalServiceNotAvailable("Stripe"));
             }
 
             return Result.Success(new PaymentProviderLinkDto(accountLink.Url, PaymentProviderLinkType.AccountLink));
         } catch (StripeException ex)
         {
+            var msg = ex.StripeError?.Message ?? ex.Message;
+
+            if (!isOnboarding &&
+                fallbackToOnboarding &&
+                msg.Contains("Valid types for this account are", StringComparison.OrdinalIgnoreCase) &&
+                msg.Contains("account_onboarding", StringComparison.OrdinalIgnoreCase))
+            {
+                try
+                {
+                    return await GenerateAccountLinkAsync(accountId, gymId, true, false, cancellationToken);
+                }
+                catch (StripeException fallbackEx)
+                {
+                    fallbackEx.Log(_logger, nameof(StripeConnectedAccountService), nameof(GenerateAccountLinkAsync));
+                    return fallbackEx.ToResultFailure(_localizer.GetExternalServiceNotAvailable("Stripe"));
+                }
+            }
+            
             ex.Log(_logger, nameof(StripeConnectedAccountService), nameof(GenerateAccountLinkAsync));
 
-            return ex.ToResultFailure("Failed to generate account link.");
+            return ex.ToResultFailure(_localizer.GetExternalServiceNotAvailable("Stripe"));
         }
     }
 
@@ -167,14 +194,14 @@ public class StripeConnectedAccountService : IPaymentTenantService
                 options.Settings.Payouts.Schedule.MonthlyAnchor = monthlyAnchor;
             }
 
-            var account = await _accountService.UpdateAsync(tenantAccountId, options);
+            await _accountService.UpdateAsync(tenantAccountId, options);
 
             return Result.Success();
         } catch (StripeException ex)
         {
             ex.Log(_logger, nameof(StripeConnectedAccountService), nameof(UpdateTenantPaymentAccountPayoutIntervalAsync));
 
-            return ex.ToResultFailure("Failed to update payment account's payout interval.");
+            return ex.ToResultFailure(_localizer.GetExternalServiceNotAvailable("Stripe"));
         }
     }
 
@@ -191,7 +218,7 @@ public class StripeConnectedAccountService : IPaymentTenantService
         {
             ex.Log(_logger, nameof(StripeConnectedAccountService), nameof(GenerateLoginLinkAsync));
 
-            return ex.ToResultFailure("Failed to generate Stripe login link");
+            return ex.ToResultFailure(_localizer.GetExternalServiceNotAvailable("Stripe"));
         }
     }
 }

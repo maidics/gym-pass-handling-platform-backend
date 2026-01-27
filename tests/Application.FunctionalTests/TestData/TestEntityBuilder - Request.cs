@@ -50,7 +50,7 @@ public partial class TestEntityBuilder
         return new GymAdminPromotionDto
         {
             GymId = gymId,
-            UserIdToNominate = userId,
+            PendingGymEmployeeEmail = userId,
             SupervisorEmail = supervisorEmail
         };
     }

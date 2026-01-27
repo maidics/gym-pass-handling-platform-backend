@@ -17,20 +17,6 @@ public partial class ApplicationDbContextInitialiser
                 CreatedBy = "PendingGymEmployeeId",
                 LastModifiedOn = now,
                 LastModifiedBy = "PendingGymEmployeeId",
-                Title = "LONG TITLE - AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-                Description = "Opening a new flagship location in the business district. AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-                PriorityLevel = PriorityLevel.High,
-                Type = RequestType.GymCreation,
-                Status = RequestStatus.Submitted,
-                Payload = """{"Name": "Titan Fitness", "Address": {"Line1": "100 Wall St", "Line2": "Floor 1", "City": "New York", "State": "NY", "PostalCode": "10005", "CountryAlpha2": "US"}, "Status": 0, "Tier": 3, "SupervisorEmail": "ceo@titanfit.com"}"""
-            },
-            
-            new Request
-            {
-                CreatedOn = now,
-                CreatedBy = "PendingGymEmployeeId",
-                LastModifiedOn = now,
-                LastModifiedBy = "PendingGymEmployeeId",
                 Title = "Register Titan Fitness",
                 Description = "Opening a new flagship location in the business district.",
                 PriorityLevel = PriorityLevel.High,
@@ -97,7 +83,7 @@ public partial class ApplicationDbContextInitialiser
                 PriorityLevel = PriorityLevel.Medium,
                 Type = RequestType.GymAdminPromotion,
                 Status = RequestStatus.Submitted,
-                Payload = """{"GymId": "gym-001-guid", "UserIdToNominate": "GymStaffLocalhostId", "SupervisorEmail": "sarah.c@gym.com"}"""
+                Payload = """{"GymId": "TestGymId", "PendingGymEmployeeEmail": "pendinggymemployee@localhost.com", "SupervisorEmail": "sarah.c@gym.com"}"""
             },
 
             new Request
@@ -110,39 +96,9 @@ public partial class ApplicationDbContextInitialiser
                 Description = "Nomination for admin rights.",
                 PriorityLevel = PriorityLevel.Low,
                 Type = RequestType.GymAdminPromotion,
-                Status = RequestStatus.Cancelled,
-                HandlerRationale = "Employee resigned before promotion could be processed.",
-                Payload = """{"GymId": "gym-001-guid", "UserIdToNominate": "user-guid-temp", "SupervisorEmail": "john.s@gym.com"}"""
-            },
-
-            new Request
-            {
-                CreatedOn = now.AddDays(-2),
-                CreatedBy = "GymAdminLocalhostId",
-                LastModifiedOn = now.AddDays(-1),
-                LastModifiedBy = "AppAdminLocalhostId",
-                Title = "Promote External Contractor",
-                Description = "Granting admin access to IT contractor.",
-                PriorityLevel = PriorityLevel.High,
-                Type = RequestType.GymAdminPromotion,
-                Status = RequestStatus.Rejected,
-                HandlerRationale = "External contractors cannot hold Admin roles per company policy Section 4.2.",
-                Payload = """{"GymId": "gym-002-guid", "UserIdToNominate": "contractor-guid", "SupervisorEmail": "it@contractor.com"}"""
-            },
-
-            new Request
-            {
-                CreatedOn = now.AddDays(-20),
-                CreatedBy = "GymAdminLocalhostId",
-                LastModifiedOn = now.AddDays(-19),
-                LastModifiedBy = "AppAdminLocalhostId",
-                Title = "Promote Shift Lead",
-                Description = "Night shift lead needs dashboard access.",
-                PriorityLevel = PriorityLevel.Low,
-                Type = RequestType.GymAdminPromotion,
-                Status = RequestStatus.Approved,
-                HandlerRationale = "Access granted.",
-                Payload = """{"GymId": "gym-001-guid", "UserIdToNominate": "user-shift-lead", "SupervisorEmail": "nightops@gym.com"}"""
+                Status = RequestStatus.Submitted,
+                HandlerRationale = null,
+                Payload = """{"GymId": "gym-001-guid", "PendingGymEmployeeEmail": "invalid@localhost.com", "SupervisorEmail": "john.s@gym.com"}"""
             },
 
             // OTHER REQUESTS

@@ -458,4 +458,7 @@ E-mail-cím megerősítése: {1}</value>
   <data name="InvalidRequestType" xml:space="preserve">
     <value>Érvénytelen kérés típus.</value>
   </data>
+  <data name="PaymentProviderConnectedAccount" xml:space="preserve">
+    <value>Stripe Connect-fiók</value>
+  </data>
 </root>
