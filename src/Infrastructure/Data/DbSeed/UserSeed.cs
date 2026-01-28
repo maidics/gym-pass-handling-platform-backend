@@ -76,7 +76,7 @@ public partial class ApplicationDbContextInitialiser
                 {
                     FirstName = "User",
                     LastName = "User",
-                    PreferredLanguage =  "en-US",
+                    PreferredLanguage =  "hu-HU",
                     UserId = "UserId",
                     CreatedOn =  DateTime.UtcNow
                 }

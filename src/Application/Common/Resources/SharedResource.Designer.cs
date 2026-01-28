@@ -150,6 +150,33 @@ namespace FitPass.Application.Common.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to contact info.
+        /// </summary>
+        public static string ContactInfo {
+            get {
+                return ResourceManager.GetString("ContactInfo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to contact info(s).
+        /// </summary>
+        public static string ContactInfosPluralOptional {
+            get {
+                return ResourceManager.GetString("ContactInfosPluralOptional", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Minimum amount for {0} currency is: {1}.
+        /// </summary>
+        public static string CurrencyMinimumAmount {
+            get {
+                return ResourceManager.GetString("CurrencyMinimumAmount", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to days after expires.
         /// </summary>
         public static string DaysAfterExpires {
@@ -234,6 +261,15 @@ namespace FitPass.Application.Common.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to email or phonenumber.
+        /// </summary>
+        public static string EmailOrPhoneNumber {
+            get {
+                return ResourceManager.GetString("EmailOrPhoneNumber", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {0} external service is not available..
         /// </summary>
         public static string ExternalServiceUnavailable {
@@ -266,6 +302,15 @@ namespace FitPass.Application.Common.Resources {
         public static string Forbidden {
             get {
                 return ResourceManager.GetString("Forbidden", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to full name.
+        /// </summary>
+        public static string FullName {
+            get {
+                return ResourceManager.GetString("FullName", resourceCulture);
             }
         }
         

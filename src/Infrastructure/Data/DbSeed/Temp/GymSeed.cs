@@ -1,5 +1,4 @@
 ﻿using FitPass.Domain.Entities;
-using FitPass.Domain.Entities.ContactInfos;
 using FitPass.Domain.Entities.Payment;
 using FitPass.Domain.Enums;
 using FitPass.Domain.ValueObjects;
@@ -73,7 +72,8 @@ public partial class ApplicationDbContextInitialiser
                 PaymentProfile = new TenantPaymentProfile()
                 {
                     PaymentAccountId = "acct_1SsMj4PEBQsxcoAF",
-                    GymId = "TestGymId"
+                    GymId = "TestGymId",
+                    CreatedOn = DateTimeOffset.UtcNow
                 }
             },
 

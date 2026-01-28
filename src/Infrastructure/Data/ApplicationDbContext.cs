@@ -1,7 +1,6 @@
 ﻿using System.Reflection;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Domain.Entities;
-using FitPass.Domain.Entities.ContactInfos;
 using FitPass.Domain.Entities.Payment;
 using FitPass.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -29,7 +28,6 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
     public DbSet<PurchaseReceipt> PurchaseReceipts => Set<PurchaseReceipt>();
     public DbSet<ProductPaymentIdentity> ProductPaymentIdentities => Set<ProductPaymentIdentity>();
     
-    public DbSet<ApplicationContactInfo> ApplicationContactInfos => Set<ApplicationContactInfo>();
     public DbSet<GymContactInfo> GymContactInfos => Set<GymContactInfo>();
 
     protected override void OnModelCreating(ModelBuilder builder)

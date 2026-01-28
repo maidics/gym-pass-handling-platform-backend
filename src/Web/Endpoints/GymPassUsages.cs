@@ -15,6 +15,8 @@ public class GymPassUsages : EndpointGroupBase
         groupBuilder.MapPut(GymEmployeeEndUserGymSession, "MyGym/EndGymSession/{gymPassUsageId}").RequireAuthorization();
 
         groupBuilder.MapPut(UpdateGymPassUsageLockerNumberCommand, "MyGym/UpdateLockerNumber/{gymPassUsageId}").RequireAuthorization();
+
+        groupBuilder.MapGet(GetMyGymPassUsages, "My").RequireAuthorization();
     }
 
     public async Task<Ok<List<GymPassUsageDto>>> GetGymPassUsagesForMyGymToday(ISender sender, CancellationToken cancellationToken)
@@ -36,5 +38,12 @@ public class GymPassUsages : EndpointGroupBase
         var result = await sender.Send(new UpdateGymPassUsageLockerNumberCommand(gymPassUsageId, lockerNumber));
 
         return result.ToTypedResult();
+    }
+
+    public async Task<Ok<List<GymPassUsageDto>>> GetMyGymPassUsages(ISender sender, CancellationToken cancellationToken)
+    {
+        var result = await sender.Send(new GetMyGymPassUsagesQuery(), cancellationToken);
+
+        return TypedResults.Ok(result);
     }
 }

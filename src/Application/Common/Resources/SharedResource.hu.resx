@@ -193,7 +193,7 @@
     <value>email cím</value>
   </data>
   <data name="LockerNumber" xml:space="preserve">
-    <value>öltözőszekrény szám</value>
+    <value>öltözőszekrény száma</value>
   </data>
   <data name="Name" xml:space="preserve">
     <value>név</value>
@@ -460,5 +460,20 @@ E-mail-cím megerősítése: {1}</value>
   </data>
   <data name="PaymentProviderConnectedAccount" xml:space="preserve">
     <value>Stripe Connect-fiók</value>
+  </data>
+  <data name="CurrencyMinimumAmount" xml:space="preserve">
+    <value>A(z) {0} pénznem minimális összege: {1}.</value>
+  </data>
+  <data name="EmailOrPhoneNumber" xml:space="preserve">
+    <value>email vagy telefonszám</value>
+  </data>
+  <data name="FullName" xml:space="preserve">
+    <value>teljes név</value>
+  </data>
+  <data name="ContactInfo" xml:space="preserve">
+    <value>elérhetőség</value>
+  </data>
+  <data name="ContactInfosPluralOptional" xml:space="preserve">
+    <value>elérhetőség(ek)</value>
   </data>
 </root>

@@ -1,4 +1,3 @@
-using FitPass.Domain.Entities.ContactInfos;
 using FitPass.Domain.Entities.Payment;
 using FitPass.Domain.ValueObjects;
 

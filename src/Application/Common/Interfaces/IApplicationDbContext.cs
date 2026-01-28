@@ -1,5 +1,4 @@
 ﻿using FitPass.Domain.Entities;
-using FitPass.Domain.Entities.ContactInfos;
 using FitPass.Domain.Entities.Payment;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -21,7 +20,6 @@ public interface IApplicationDbContext
     DbSet<PurchaseReceipt> PurchaseReceipts { get; }
     DbSet<ProductPaymentIdentity> ProductPaymentIdentities { get; }
     
-    DbSet<ApplicationContactInfo> ApplicationContactInfos { get; }
     DbSet<GymContactInfo> GymContactInfos { get; }
 
     Task<int> SaveChangesAsync();

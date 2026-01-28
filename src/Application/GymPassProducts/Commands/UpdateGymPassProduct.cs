@@ -16,11 +16,12 @@ namespace FitPass.Application.GymPassProducts.Commands;
 [Authorize(Roles = Roles.GymAdministrator)]
 public record UpdateGymPassProductCommand(
     string GymPassProductId,
+    PassType Type, //this will not be updated, taking it for validation
     string Name,
     string Description,
+    Money Price,
     int? TotalUses,
-    int? DaysAfterExpiring,
-    Money Price
+    int? DaysAfterExpiring
 ) : IRequest<Result<GymPassProductDto>>;
 
 public class UpdateGymPassProductCommandValidator : AbstractValidator<UpdateGymPassProductCommand>
@@ -32,33 +33,40 @@ public class UpdateGymPassProductCommandValidator : AbstractValidator<UpdateGymP
 
         RuleFor(v => v.Description)
             .NotEmptyWithMaxLengthAndMessageLocalized(localizer, nameof(SharedResource.Description), MaxLengths.Description);
+        
+        RuleFor(v => v.Price).ValidMoneyWithMessageLocalized(localizer);
 
-        When(v => v.TotalUses is not null, () =>
+        //checking here to validate business rule & checking this in handler if it matches the actual type - if not: BadRequest
+        When(v => v.Type == PassType.SingleUse, () => 
         {
             RuleFor(v => v.TotalUses)
                 .NotEmptyWithMessageLocalized(localizer, nameof(SharedResource.TotalUses))
-                .GreaterThan(0)
+                .Must(x => x == 1).WithMessage(localizer.Get(nameof(SharedResource.SingleUsePassCanOnlyHaveOneTotalUse)));
+
+            RuleFor(v => v.DaysAfterExpiring)
+                .Null().WithMessage(localizer.Get(SharedResource.UseBasedPassTypeCannotHaveExpirationTime));
+        });
+
+        When(v => v.Type == PassType.MultiUse, () =>
+        {
+            RuleFor(v => v.TotalUses)
+                .NotEmptyWithMessageLocalized(localizer, nameof(SharedResource.TotalUses))
+                .GreaterThan(1).WithMessage(localizer.Get(nameof(SharedResource.MultiUsePassTypeMustHaveAtLeastTwoUses)))
                 .WithMessage(localizer.Get(nameof(SharedResource.UseBasedPassTypeMustHaveOneUse)));
 
             RuleFor(v => v.DaysAfterExpiring)
-                .Null()
-                .WithMessage(localizer.Get(nameof(SharedResource.UseBasedPassTypeCannotHaveExpirationTime)));
+                .Null().WithMessage(localizer.Get(nameof(SharedResource.UseBasedPassTypeCannotHaveExpirationTime)));
         });
 
-        When(v => v.DaysAfterExpiring is not null, () =>
+        When(v => v.Type == PassType.Unlimited, () =>
         {
            RuleFor(v => v.DaysAfterExpiring)
                 .NotEmptyWithMessageLocalized(localizer, nameof(SharedResource.DaysAfterExpires))
-                .GreaterThan(0)
-                .WithMessage(localizer.Get(nameof(SharedResource.UnlimitedPassDaysAfterExpiresAtLeastOne)));
+                .GreaterThan(0).WithMessage(localizer.Get(nameof(SharedResource.UnlimitedPassDaysAfterExpiresAtLeastOne)));
 
            RuleFor(v => v.TotalUses)
-               .Null()
-               .WithMessage(localizer.Get(nameof(SharedResource.UnlimitedPassTypesCannotHaveUses))); 
+               .Null().WithMessage(localizer.Get(nameof(SharedResource.UnlimitedPassTypesCannotHaveUses))); 
         });
-
-        RuleFor(v => v.Price)
-            .NotEmptyWithMessageLocalized(localizer, nameof(SharedResource.Price));
     }
 }
 
@@ -125,11 +133,16 @@ public class UpdateGymPassProductCommandHandler : IRequestHandler<UpdateGymPassP
             return Result.NotFound(_localizer.GetNotFound(nameof(SharedResource.GymPassProduct)));
         }
 
+        if (product.Type != command.Type)
+        {
+            return Result.BusinessRuleViolation("");
+        }
+
         if (product.Price != command.Price)
         {
             var result = await _paymentPriceService.UpdatePriceAsync( //new price created
                 product.PaymentIdentity.PriceId, 
-                product.PaymentIdentity.Id, 
+                product.PaymentIdentity.ProductId, 
                 command.Price,
                 product.IsActive,
                 tenantPaymentProfile.PaymentAccountId);

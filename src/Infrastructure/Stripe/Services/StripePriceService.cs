@@ -60,7 +60,9 @@ public class StripePriceService : IPaymentPriceService
                 Active = false
             };
 
-            await _priceService.UpdateAsync(priceId, priceUpdateOptions); 
+            var requestOptions = new RequestOptions { StripeAccount = paymentAccountId };
+
+            await _priceService.UpdateAsync(priceId, priceUpdateOptions, requestOptions: requestOptions); 
             //because prices cannot be deleted it has to be set to Active = false
 
             return await CreatePriceAsync(productId, newPrice, isActive, paymentAccountId);

@@ -3,7 +3,6 @@ using FitPass.Application.Gyms.Commands;
 using FitPass.Application.Gyms.DTOs;
 using FitPass.Application.Gyms.Queries;
 using FitPass.Application.Requests.Commands.Fulfill;
-using FitPass.Domain.Entities.ContactInfos;
 using FitPass.Domain.Enums;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;

@@ -17,7 +17,7 @@ public partial class ApplicationDbContextInitialiser
                 {
                     Id = "Passwordless",
                     UserName = "Passwordless",
-                    Email = "passwordless@localhost"
+                    Email = "passwordless@localhost.com"
                 },
                 Roles.User,
                 new UserProfile

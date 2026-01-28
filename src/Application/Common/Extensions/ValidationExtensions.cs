@@ -1,6 +1,7 @@
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Resources;
 using FitPass.Domain.Constants;
+using FitPass.Domain.ValueObjects;
 using FluentValidation.Validators;
 
 namespace FitPass.Application.Common.Extensions;
@@ -10,6 +11,7 @@ public static class ValidationExtensions
     public static IRuleBuilderOptions<T, TProperty> NotEmptyWithMessageLocalized<T, TProperty>(this IRuleBuilder<T, TProperty> rule, ILocalizer localizer, string key)
     {
         return rule
+            .NotNull()
             .NotEmpty()
             .WithMessage(localizer.GetWithParamsLocalized(nameof(SharedResource.PropertyIsRequired), key));
     }
@@ -69,5 +71,17 @@ public static class ValidationExtensions
         return rule
             .Must(lang => supportedLanguages.Contains(lang))
             .WithMessage(localizer.Get(nameof(SharedResource.LanguageIsNotSupported), string.Join(", ", supportedLanguages)));
+    }
+
+    public static IRuleBuilder<T, Money> ValidMoneyWithMessageLocalized<T>(this IRuleBuilder<T, Money> rule, ILocalizer localizer)
+    {
+        return rule
+            .NotEmptyWithMessageLocalized(localizer, nameof(SharedResource.Price))
+            .Must(x => x.Amount >= CurrencyPolicies.GetRule(x.Currency).MinAmount)
+            .WithMessage((_, x) => 
+                localizer.Get(
+                    nameof(SharedResource.CurrencyMinimumAmount), 
+                    x.Currency, 
+                    CurrencyPolicies.GetRule(x.Currency).MinAmount));
     }
 }

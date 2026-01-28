@@ -30,18 +30,34 @@ public class GetGymPassUsagesForMyGymTodayQueryHandler : IRequestHandler<GetGymP
         var gymEmployment = await _context
             .GymEmployments
             .AsNoTracking()
-            .FirstOrDefaultAsync(ge => ge.UserId != null && ge.UserId == _user.Id);
+            .FirstOrDefaultAsync(ge => ge.UserId == _user.Id, cancellationToken);
 
         Guard.Against.NullParameterRelatedToCurrentUser(gymEmployment, nameof(GymEmployment), _user.Id);
 
-        var gymPassUsages =  await _context
-            .GymPassUsages
-            .Where(gpu => gpu.GymId == gymEmployment.GymId)
-            .OrderByDescending(gpu => gpu.CreatedOn)
-            .ToListAsync();
+        var utcNow = _timeProvider.GetUtcNow();
+        var start = utcNow.UtcDateTime.Date;
+        var end = start.AddDays(1);
 
-        gymPassUsages = gymPassUsages.Where(x => x.CreatedOn.IsToday(_timeProvider.GetUtcNow())).ToList();
-
-        return gymPassUsages.Select(gpu => gpu.MapToDto()).ToList();
+        return await (
+            from gpu in _context.GymPassUsages join
+                up in _context.UserProfiles on gpu.UserId equals up.UserId
+            where gpu.GymId == gymEmployment.GymId && //no sql date conversions
+                  gpu.CreatedOn >= start &&
+                  gpu.CreatedOn <= end
+            orderby gpu.CreatedOn descending 
+            select new GymPassUsageDto(
+                gpu.Id,
+                up.FirstName,
+                up.LastName,
+                gpu.GymId,
+                gpu.PassType,
+                gpu.TotalPassUses,
+                gpu.RemainingPassUses,
+                gpu.PassExpirationDate,
+                gpu.PassUseResult,
+                gpu.LockerNumber,
+                gpu.CreatedOn,
+                gpu.GymSessionEndedAt)
+            ).ToListAsync(cancellationToken);
     }
 }

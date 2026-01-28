@@ -1,3 +1,4 @@
+using FitPass.Application.GymContactInfos.DTOs;
 using FitPass.Application.GymPassProducts.DTOs;
 using FitPass.Application.TenantPaymentProfiles.DTOs;
 using FitPass.Domain.Entities;

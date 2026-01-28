@@ -457,4 +457,19 @@ Confirm my email: {1}</value>
   <data name="PaymentProviderConnectedAccount" xml:space="preserve">
     <value>Stripe Connected account</value>
   </data>
+  <data name="CurrencyMinimumAmount" xml:space="preserve">
+    <value>Minimum amount for {0} currency is: {1}</value>
+  </data>
+  <data name="EmailOrPhoneNumber" xml:space="preserve">
+    <value>email or phonenumber</value>
+  </data>
+  <data name="FullName" xml:space="preserve">
+    <value>full name</value>
+  </data>
+  <data name="ContactInfo" xml:space="preserve">
+    <value>contact info</value>
+  </data>
+  <data name="ContactInfosPluralOptional" xml:space="preserve">
+    <value>contact info(s)</value>
+  </data>
 </root>
