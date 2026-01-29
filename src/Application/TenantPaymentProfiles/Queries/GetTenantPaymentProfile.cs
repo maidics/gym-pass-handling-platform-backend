@@ -43,7 +43,13 @@ public class GetMyTenantPaymentProfileQueryHandler : IRequestHandler<GetMyTenant
         var dto = await _context
             .TenantPaymentProfiles
             .AsNoTracking()
-            .Select(x => x.MapToDto())
+            .Select(x => new TenantPaymentProfileDto
+            {
+                GymId = x.GymId,
+                CreatedOn = x.CreatedOn,
+                LastAccountLinkGeneratedBy = x.LastAccountLinkGeneratedBy,
+                LastAccountLinkGeneratedOn = x.LastAccountLinkGeneratedOn
+            })
             .FirstOrDefaultAsync(tpp => tpp.GymId == gymEmployment.GymId, cancellationToken);
 
         if (dto is null)

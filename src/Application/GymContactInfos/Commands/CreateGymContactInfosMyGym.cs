@@ -6,24 +6,14 @@ using FitPass.Application.Common.Security;
 using FitPass.Application.GymContactInfos.DTOs;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
+using FitPass.Domain.ValueObjects;
 
 namespace FitPass.Application.GymContactInfos.Commands;
 
 [Authorize(Roles = Roles.GymAdministrator)]
-public record CreateGymContactInfoCommand(params CreateGymContactDto[] CreationDtos) : IRequest<Result>;
+public record CreateGymContactInfoCommand(string? PhoneNumber, string? Email, string FullName, Address? Address) : IRequest<Result>;
 
-public class CreateGymContactInfoCommandValidator : AbstractValidator<CreateGymContactInfoCommand>
-{
-    public CreateGymContactInfoCommandValidator(ILocalizer localizer)
-    {
-        RuleFor(v => v.CreationDtos)
-            .NotEmptyWithMessageLocalized(localizer, nameof(SharedResource.ContactInfosPluralOptional));
-
-        RuleForEach(v => v.CreationDtos).SetValidator(new CreateGymContactInfoDtoValidator(localizer));
-    }
-}
-
-public class CreateGymContactInfoDtoValidator : AbstractValidator<CreateGymContactDto>
+public class CreateGymContactInfoDtoValidator : AbstractValidator<CreateGymContactInfoCommand>
 {
     public CreateGymContactInfoDtoValidator(ILocalizer localizer)
     {
@@ -80,13 +70,14 @@ public class CreateGymContactInfoCommandHandler : IRequestHandler<CreateGymConta
 
         Guard.Against.NullParameterRelatedToCurrentUser(gym, nameof(Gym), _user.Id);
 
-        foreach (var dto in command.CreationDtos)
+
+        gym.ContactInfos.Add(new GymContactInfo
         {
-            gym.ContactInfos.Add(new GymContactInfo
-            {
-                Address = dto.Address, Email = dto.Email, PhoneNumber = dto.PhoneNumber, FullName = dto.FullName
-            });
-        }
+            Address = command.Address, 
+            Email = command.Email, 
+            PhoneNumber = command.PhoneNumber is null ? null : PhoneNumber.Create(command.PhoneNumber), 
+            FullName = command.FullName
+        });
 
         await _context.SaveChangesAsync(cancellationToken);
 

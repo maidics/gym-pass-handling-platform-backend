@@ -149,6 +149,7 @@ public class StripeConnectedAccountService : IPaymentTenantService
                 catch (StripeException fallbackEx)
                 {
                     fallbackEx.Log(_logger, nameof(StripeConnectedAccountService), nameof(GenerateAccountLinkAsync));
+                    
                     return fallbackEx.ToResultFailure(_localizer.GetExternalServiceNotAvailable("Stripe"));
                 }
             }
