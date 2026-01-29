@@ -44,7 +44,7 @@ public class PromotePendingGymEmployeeToGymAdminFromRequestCommandHandler : IReq
 
     public async Task<Result> Handle(PromotePendingGymEmployeeToGymAdminFromRequestCommand command, CancellationToken cancellationToken)
     {
-        var request = await _context.Requests.FindAsync(command.RequestId);
+        var request = await _context.Requests.FindAsync([command.RequestId], cancellationToken);
 
         if (request is null)
         {
@@ -61,14 +61,14 @@ public class PromotePendingGymEmployeeToGymAdminFromRequestCommandHandler : IReq
             return Result.BusinessRuleViolation(_localizer.Get(nameof(SharedResource.ActionIsApplicableForRequestType)));
         }
 
-        var deserializationResult = await _sender.Send(new DeserializeRequestPayloadCommand<GymAdminPromotionDto>(request));
+        var deserializationResult = await _sender.Send(new DeserializeRequestPayloadCommand<GymAdminPromotionDto>(request), cancellationToken);
 
         if (!deserializationResult.Succeeded)
         {
             request.Status = RequestStatus.Error;
             request.Error = string.Join(", ", deserializationResult.Errors);
 
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(cancellationToken);
 
             return Result.InternalError(_localizer.Get(nameof(SharedResource.RequestHandlingError)));
         }
@@ -89,14 +89,14 @@ public class PromotePendingGymEmployeeToGymAdminFromRequestCommandHandler : IReq
 
         var gym = await _context.Gyms
             .AsNoTracking()
-            .FirstOrDefaultAsync(g => g.Id == promotionDto.GymId);
+            .FirstOrDefaultAsync(g => g.Id == promotionDto.GymId, cancellationToken);
 
         if (gym is null)
         {
             return Result.NotFound(_localizer.GetNotFound(nameof(SharedResource.Gym)));
         }
 
-        using var transaction = await _context.BeginTransactionAsync();
+        await using var transaction = await _context.BeginTransactionAsync(cancellationToken);
 
         try
         {
@@ -104,7 +104,7 @@ public class PromotePendingGymEmployeeToGymAdminFromRequestCommandHandler : IReq
 
             if (!demotionResult.Succeeded)
             {
-                await transaction.RollbackAsync();
+                await transaction.RollbackAsync(cancellationToken);
 
                 throw new Exception($"Failed to demote user from their user role. Result {demotionResult}.");
             }
@@ -113,7 +113,7 @@ public class PromotePendingGymEmployeeToGymAdminFromRequestCommandHandler : IReq
 
             if (!promotionResult.Succeeded)
             {
-                await transaction.RollbackAsync();
+                await transaction.RollbackAsync(cancellationToken);
 
                 throw new Exception($"Failed to promote user to role. Result: {promotionResult}");
             }
@@ -126,17 +126,17 @@ public class PromotePendingGymEmployeeToGymAdminFromRequestCommandHandler : IReq
                 SupervisorEmail = promotionDto.SupervisorEmail,
             };
 
-            await _context.GymEmployments.AddAsync(gymEmployment);
+            await _context.GymEmployments.AddAsync(gymEmployment, cancellationToken);
 
             request.Status = RequestStatus.Approved;
 
-            await _context.SaveChangesAsync();
-            await transaction.CommitAsync();
+            await _context.SaveChangesAsync(cancellationToken);
+            await transaction.CommitAsync(cancellationToken);
 
             return Result.Success();
         } catch
         {
-            await transaction.RollbackAsync();
+            await transaction.RollbackAsync(cancellationToken);
 
             throw;
         }

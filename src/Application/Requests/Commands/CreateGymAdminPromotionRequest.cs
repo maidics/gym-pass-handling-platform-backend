@@ -18,7 +18,7 @@ public record CreateGymAdminPromotionRequestCommand
     string Description,
     PriorityLevel PriorityLevel,
     string SupervisorEmail
-) : IRequest<Result<RequestDto>>;
+) : IRequest<Result>;
 
 public class CreateGymAdminPromotionRequestCommandValidator : AbstractValidator<CreateGymAdminPromotionRequestCommand>
 {
@@ -35,7 +35,7 @@ public class CreateGymAdminPromotionRequestCommandValidator : AbstractValidator<
     }
 }
 
-public class CreateGymAdminPromotionRequestCommandHandler : IRequestHandler<CreateGymAdminPromotionRequestCommand, Result<RequestDto>>
+public class CreateGymAdminPromotionRequestCommandHandler : IRequestHandler<CreateGymAdminPromotionRequestCommand, Result>
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
@@ -53,12 +53,12 @@ public class CreateGymAdminPromotionRequestCommandHandler : IRequestHandler<Crea
         _identityService = identityService;
         _localizer = localizer;
     }
-    public async Task<Result<RequestDto>> Handle(CreateGymAdminPromotionRequestCommand command, CancellationToken cancellationToken)
+    public async Task<Result> Handle(CreateGymAdminPromotionRequestCommand command, CancellationToken cancellationToken)
     {
         var gymEmployment = await _context
             .GymEmployments
             .AsNoTracking()
-            .FirstOrDefaultAsync(ge => ge.UserId == _user.Id);
+            .FirstOrDefaultAsync(ge => ge.UserId == _user.Id, cancellationToken);
 
         Guard.Against.NullParameterRelatedToCurrentUser(gymEmployment, nameof(GymEmployment), _user.Id);
 
@@ -84,9 +84,9 @@ public class CreateGymAdminPromotionRequestCommandHandler : IRequestHandler<Crea
             })
         };
 
-        await _context.Requests.AddAsync(request);
-        await _context.SaveChangesAsync();
+        await _context.Requests.AddAsync(request, cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
 
-        return Result.Success(request.MapToDto());
+        return Result.Success();
     }
 }

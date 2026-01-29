@@ -44,14 +44,16 @@ public class UpdateMyGymProfileCommandHandler : IRequestHandler<UpdateMyGymProfi
     }
     public async Task<Result> Handle(UpdateMyGymProfileCommand command, CancellationToken cancellationToken)
     {
-        var gymEmployment = await _context
+        var gymId = await _context
             .GymEmployments
             .AsNoTracking()
-            .FirstOrDefaultAsync(ge => ge.UserId == _user.Id);
+            .Where(x => x.UserId == _user.Id)
+            .Select(x => x.GymId)
+            .FirstOrDefaultAsync(cancellationToken);
 
-        Guard.Against.NullParameterRelatedToCurrentUser(gymEmployment, nameof(GymEmployment), _user.Id);
+        Guard.Against.NullParameterRelatedToCurrentUser(gymId, $"{nameof(GymEmployment)}.{nameof(GymEmployment.GymId)}", _user.Id);
 
-        var gym = await _context.Gyms.FindAsync(gymEmployment.GymId, cancellationToken);
+        var gym = await _context.Gyms.FindAsync([gymId], cancellationToken);
 
         Guard.Against.Null(gym, nameof(Gym), "Gym not found.");
 

@@ -64,7 +64,7 @@ public class SendAccountActivationEmailCommandHandler : IRequestHandler<SendAcco
         var obj = await _context.UserProfiles
             .Where(x => x.UserId == userId)
             .Select(x => new { x.PreferredLanguage, x.FirstName })
-            .FirstOrDefaultAsync();
+            .FirstOrDefaultAsync(cancellationToken);
 
         var url = _clientAppSettings.GetAccountActivationUrl(token, command.Email, !await _identityService.DoesUserHavePassword(userId));
 
@@ -77,7 +77,7 @@ public class SendAccountActivationEmailCommandHandler : IRequestHandler<SendAcco
             Farewell = _localizer.Get(nameof(SharedResource.EmailFarewell), CommonStrings.AppName)
         };
         
-        await _emailService.SendEmailAsync(model, command.Email);
+        await _emailService.SendEmailAsync(model, command.Email, cancellationToken);
 
         return Result.Success();
     }

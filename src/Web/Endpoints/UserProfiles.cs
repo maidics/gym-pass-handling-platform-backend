@@ -23,17 +23,17 @@ public class UserProfiles : EndpointGroupBase
         return TypedResults.Ok(result);
     }
 
-    public async Task<Results<NoContent, ProblemHttpResult>> UpdateMyUserProfile(ISender sender, UpdateMyUserProfileCommand command, CancellationToken cancellationToken)
+    public async Task<Results<NoContent, ProblemHttpResult>> UpdateMyUserProfile(
+        ISender sender, UpdateMyUserProfileCommand command)
     {
-        var result = await sender.Send(command);
+        var result = await sender.Send(command, CancellationToken.None);
 
         return result.ToTypedResult();
     }
 
-    public async Task<NoContent> UpdateMyPreferredLanguage(ISender sender, string newLanguage,
-        CancellationToken cancellationToken)
+    public async Task<NoContent> UpdateMyPreferredLanguage(ISender sender, string newLanguage)
     {
-        await sender.Send(new UpdateMyPreferredLanguageCommand(newLanguage));
+        await sender.Send(new UpdateMyPreferredLanguageCommand(newLanguage), CancellationToken.None);
 
         return TypedResults.NoContent();
     }

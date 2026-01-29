@@ -95,7 +95,7 @@ public class ActivateUserAccountCommandHandler : IRequestHandler<ActivateUserAcc
             }
         }
 
-        var token = await _jwtTokenService.GenerateTokenAsync(userId, CancellationToken.None);
+        var token = await _jwtTokenService.GenerateTokenAsync(userId, cancellationToken);
 
         return Result.Success(token);
     }

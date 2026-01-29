@@ -32,7 +32,8 @@ public class Requests : EndpointGroupBase
         groupBuilder.MapGet(GetMyRequestById, "/My/{requestId}").RequireAuthorization();
     }
 
-    public async Task<Results<Ok<RequestDto>, ProblemHttpResult>> GetRequestById(ISender sender, string requestId, CancellationToken cancellationToken)
+    public async Task<Results<Ok<RequestDto>, ProblemHttpResult>> GetRequestById(
+        ISender sender, string requestId, CancellationToken cancellationToken)
     {
         var result = await sender.Send(new GetRequestByIdQuery(requestId), cancellationToken);
 
@@ -49,22 +50,23 @@ public class Requests : EndpointGroupBase
     public async Task<Results<Ok<RequestDto>, ProblemHttpResult>> CreateGymCreationRequest(
         ISender sender, [FromBody] CreateGymCreationRequestCommand command)
     {
-        var result = await sender.Send(command);
+        var result = await sender.Send(command, CancellationToken.None);
 
         return result.ToTypedResult();
     }
 
-    public async Task<Results<Ok<RequestDto>, ProblemHttpResult>> CreateGymAdminPromotionRequest(
+    public async Task<Results<NoContent, ProblemHttpResult>> CreateGymAdminPromotionRequest(
         ISender sender, [FromBody] CreateGymAdminPromotionRequestCommand command)
     {
-        var result = await sender.Send(command);
+        var result = await sender.Send(command, CancellationToken.None);
 
         return result.ToTypedResult();
     }
 
-    public async Task<Results<NoContent, ProblemHttpResult>> RejectRequest(ISender sender, string requestId, [FromBody] string rationale, CancellationToken cancellationToken)
+    public async Task<Results<NoContent, ProblemHttpResult>> RejectRequest(
+        ISender sender, string requestId, [FromBody] string rationale)
     {
-        var result = await sender.Send(new RejectRequestCommand(requestId, rationale));
+        var result = await sender.Send(new RejectRequestCommand(requestId, rationale), CancellationToken.None);
 
         return result.ToTypedResult();
     }
@@ -76,26 +78,25 @@ public class Requests : EndpointGroupBase
         return TypedResults.Ok(result);
     }
 
-    public async Task<Results<NoContent, ProblemHttpResult>> CancelMyRequest(ISender sender, string requestId,
-        CancellationToken cancellationToken)
+    public async Task<Results<NoContent, ProblemHttpResult>> CancelMyRequest(ISender sender, string requestId)
     {
-        var result = await sender.Send(new CancelMyRequestCommand(requestId));
+        var result = await sender.Send(new CancelMyRequestCommand(requestId), CancellationToken.None);
 
         return result.ToTypedResult();
     }
 
-    public async Task<Results<Ok<RequestDto>, ProblemHttpResult>> CreatePayloadFreeRequest(ISender sender,
-        [FromBody] CreatePayloadFreeRequestCommand command, CancellationToken cancellationToken)
+    public async Task<Results<NoContent, ProblemHttpResult>> CreatePayloadFreeRequest(ISender sender,
+        [FromBody] CreatePayloadFreeRequestCommand command)
     {
-        var result = await sender.Send(command);
+        var result = await sender.Send(command, CancellationToken.None);
 
         return result.ToTypedResult();
     }
 
     public async Task<Results<NoContent, ProblemHttpResult>> FulfillOtherTypeRequest(ISender sender,
-        string requestId, CancellationToken cancellationToken)
+        string requestId)
     {
-        var result = await sender.Send(new FulfillOtherTypeRequestCommand(requestId), cancellationToken);
+        var result = await sender.Send(new FulfillOtherTypeRequestCommand(requestId), CancellationToken.None);
 
         return result.ToTypedResult();
     }
@@ -103,7 +104,7 @@ public class Requests : EndpointGroupBase
     public async Task<Results<Ok<RequestDto>, ProblemHttpResult>> GetMyRequestById(ISender sender, string requestId,
         CancellationToken cancellationToken)
     {
-        var result = await sender.Send(new GetMyRequestByIdQuery(requestId));
+        var result = await sender.Send(new GetMyRequestByIdQuery(requestId), cancellationToken);
 
         return result.ToTypedResult();
     }

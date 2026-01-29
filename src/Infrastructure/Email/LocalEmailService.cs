@@ -3,6 +3,7 @@ using System.Net.Mail;
 using System.Text.RegularExpressions;
 using FitPass.Application.Common.EmailModels;
 using FitPass.Application.Common.Interfaces;
+using FitPass.Application.Common.Scopes;
 using FitPass.Domain.Strings;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Options;
@@ -46,38 +47,37 @@ public class LocalEmailService : IEmailService
         _localizer = localizer;
     }
 
-    public async Task SendEmailAsync(IEmailModel emailModel, string[] to, string[]? cc = null, string[]? bcc = null)
+    public async Task SendEmailAsync(IEmailModel emailModel, string[] to, string[]? cc = null, string[]? bcc = null, CancellationToken cancellationToken = default)
     {
-        //var defaultCulture = _localizer.DefaultCulture;
-        //using var scope = new CultureInfoScope(defaultCulture); 
-        //overriding here because multiple people receiving the email, TODO: ensure the languages are the one that each user prefers?
+        using var scope = new CultureInfoScope(_localizer.DefaultCulture); 
+        //overriding here because multiple people receiving the email,
         //using ensures the scope is disposed even if this method throws
         //this culture is tied to the thread of IRazorLightEngine so this have to be forced
         
-        var mailMessage = await GetMailMessage(emailModel);
+        var mailMessage = await GetMailMessage(emailModel, cancellationToken);
 
         foreach (string address in to)
         {
             mailMessage.To.Add(address);
         }
 
-        await _smtpClient.SendMailAsync(mailMessage);
+        await _smtpClient.SendMailAsync(mailMessage, cancellationToken);
     }
 
-    public async Task SendEmailAsync(IEmailModel emailModel, string to)
+    public async Task SendEmailAsync(IEmailModel emailModel, string to, CancellationToken cancellationToken = default)
     {
-        var language = emailModel.Language ?? _localizer.DefaultCulture;
-        
-        var mailMessage = await GetMailMessage(emailModel);
+        var mailMessage = await GetMailMessage(emailModel, cancellationToken);
 
         mailMessage.To.Add(to);
         
-        await _smtpClient.SendMailAsync(mailMessage);
+        await _smtpClient.SendMailAsync(mailMessage, cancellationToken);
     }
 
-    private async Task<MailMessage> GetMailMessage(IEmailModel model)
+    private async Task<MailMessage> GetMailMessage(IEmailModel model, CancellationToken cancellationToken)
     {
-        var email = (Email)await RenderAsync((dynamic)model);
+        cancellationToken.ThrowIfCancellationRequested();
+        
+        var email = (Email)await RenderAsync((dynamic)model, cancellationToken);
 
         return new MailMessage
         {
@@ -85,7 +85,7 @@ public class LocalEmailService : IEmailService
         };
     } 
 
-    private async Task<Email> RenderAsync<T>(T model) where T : IEmailModel
+    private async Task<Email> RenderAsync<T>(T model, CancellationToken cancellationToken) where T : IEmailModel
     {
         var modelNamespace = typeof(T).Namespace;
         
@@ -96,6 +96,8 @@ public class LocalEmailService : IEmailService
 
         var templateKey = $"{templateNamespace}.{typeof(T).Name}.cshtml";
 
+        cancellationToken.ThrowIfCancellationRequested();
+        
         var html = await _razorEngine.CompileRenderAsync(templateKey, model);
 
         var subjectMatch = Regex.Match(html, @"<title>(.*?)</title>", RegexOptions.IgnoreCase);

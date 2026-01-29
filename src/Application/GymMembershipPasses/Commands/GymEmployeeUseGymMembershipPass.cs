@@ -52,14 +52,14 @@ public class GymEmployeeUseGymMembershipPassCommandHandler : IRequestHandler<Gym
         var gymEmployment = await _context
             .GymEmployments
             .AsNoTracking()
-            .FirstOrDefaultAsync(ge => ge.UserId == _user.Id);
+            .FirstOrDefaultAsync(ge => ge.UserId == _user.Id, cancellationToken);
 
         Guard.Against.NullParameterRelatedToCurrentUser(gymEmployment, nameof(GymEmployment), _user.Id);
 
         var pass = await _context
             .GymMembershipPasses
             .Include(p => p.GymMembership)
-            .FirstOrDefaultAsync(p => p.Id == command.GymMembershipPassId);
+            .FirstOrDefaultAsync(p => p.Id == command.GymMembershipPassId, cancellationToken);
 
         if (pass is null)
         {
@@ -94,8 +94,8 @@ public class GymEmployeeUseGymMembershipPassCommandHandler : IRequestHandler<Gym
 
         var passUsage = pass.Use(gymEmployment.GymId, command.LockerNumber, utcNow);
 
-        await _context.GymPassUsages.AddAsync(passUsage);
-        await _context.SaveChangesAsync();
+        await _context.GymPassUsages.AddAsync(passUsage, cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
 
         return Result.Success(passUsage.PassUseResult);
     }

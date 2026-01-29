@@ -17,9 +17,9 @@ public class GymMemberships : EndpointGroupBase
     }
 
     public async Task<Results<NoContent, ProblemHttpResult>> UpdateGymMembershipStatus(
-        ISender sender, string gymMembershipId, [FromBody] GymMembershipStatus newGymMembershipStatus, CancellationToken cancellationToken)
+        ISender sender, string gymMembershipId, [FromBody] GymMembershipStatus newGymMembershipStatus)
     {
-        var result = await sender.Send(new UpdateGymMembershipStatusCommand(gymMembershipId, newGymMembershipStatus), cancellationToken);
+        var result = await sender.Send(new UpdateGymMembershipStatusCommand(gymMembershipId, newGymMembershipStatus), CancellationToken.None);
 
         return result.ToTypedResult();
     }

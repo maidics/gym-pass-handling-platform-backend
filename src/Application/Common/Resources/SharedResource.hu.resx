@@ -476,4 +476,10 @@ E-mail-cím megerősítése: {1}</value>
   <data name="ContactInfosPluralOptional" xml:space="preserve">
     <value>elérhetőség(ek)</value>
   </data>
+  <data name="PasswordResetEmailSubject" xml:space="preserve">
+    <value>Jelszó Visszaállítási Kérelem</value>
+  </data>
+  <data name="PasswordResetEmailBody" xml:space="preserve">
+    <value>Jelszó-visszaállítási kérelmet kaptunk a fiókodhoz. Új jelszó beállításához kattints az alábbi linkre: {0}</value>
+  </data>
 </root>

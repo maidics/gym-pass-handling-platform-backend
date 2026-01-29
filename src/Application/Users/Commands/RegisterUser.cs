@@ -74,7 +74,7 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, R
 
         string userId;
 
-        using var transaction = await _context.BeginTransactionAsync();
+        await using var transaction = await _context.BeginTransactionAsync(cancellationToken);
 
         try
         {
@@ -82,7 +82,7 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, R
 
             if (!userCreationResultObj.result.Succeeded)
             {
-                await transaction.RollbackAsync();
+                await transaction.RollbackAsync(cancellationToken);
 
                 return new ResultFailure(userCreationResultObj.result);
             }
@@ -95,7 +95,7 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, R
 
             if (!roleResult.Succeeded)
             {
-                await transaction.RollbackAsync();
+                await transaction.RollbackAsync(cancellationToken);
 
                 throw new Exception($"Failed to add user to role. Result: {roleResult}.");
             }
@@ -109,15 +109,15 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, R
                 CreatedOn = _timeProvider.GetUtcNow()
             };
 
-            await _context.UserProfiles.AddAsync(profile);
+            await _context.UserProfiles.AddAsync(profile, cancellationToken);
 
             profile.AddDomainEvent(new UserRegisteredEvent(userId, command.Email));
 
-            await _context.SaveChangesAsync();
-            await transaction.CommitAsync();
+            await _context.SaveChangesAsync(cancellationToken);
+            await transaction.CommitAsync(cancellationToken);
         } catch
         {
-            await transaction.RollbackAsync();
+            await transaction.RollbackAsync(cancellationToken);
 
             throw;
         }

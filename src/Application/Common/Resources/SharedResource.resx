@@ -472,4 +472,10 @@ Confirm my email: {1}</value>
   <data name="ContactInfosPluralOptional" xml:space="preserve">
     <value>contact info(s)</value>
   </data>
+  <data name="PasswordResetEmailSubject" xml:space="preserve">
+    <value>Password Reset Request</value>
+  </data>
+  <data name="PasswordResetEmailBody" xml:space="preserve">
+    <value>We received a request to reset the password for your account. Click the link below to set a new password: {0}</value>
+  </data>
 </root>

@@ -31,6 +31,6 @@ public class SendEmailConfirmationEmailCommandHandler : IRequestHandler<SendEmai
         
         var command = new SendAccountActivationEmailCommand(email, _user.Id);
 
-        return await _sender.Send(command);
+        return await _sender.Send(command, cancellationToken);
     }
 }

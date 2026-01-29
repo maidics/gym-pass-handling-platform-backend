@@ -18,16 +18,18 @@ public class GymMembershipPasses : EndpointGroupBase
         groupBuilder.MapGet(GetMyGymMembershipPasses, "My").RequireAuthorization();
     }
 
-    public async Task<Results<Ok<PassUseResult>, ProblemHttpResult>> GymEmployeeUseGymMembershipPass(ISender sender, string userId, string gymMembershipPassId, [FromBody] string lockerNumber, CancellationToken cancellationToken)
+    public async Task<Results<Ok<PassUseResult>, ProblemHttpResult>> GymEmployeeUseGymMembershipPass(
+        ISender sender, string userId, string gymMembershipPassId, [FromBody] string lockerNumber)
     {
-        var result = await sender.Send(new GymEmployeeUseGymMembershipPassCommand(gymMembershipPassId, userId, lockerNumber));
+        var result = await sender.Send(new GymEmployeeUseGymMembershipPassCommand(gymMembershipPassId, userId, lockerNumber), CancellationToken.None);
 
         return result.ToTypedResult();
     }
 
-    public async Task<Results<Ok<bool>, ProblemHttpResult>> IsGymMembershipPassValid(ISender sender, string gymMembershipPassId, CancellationToken cancellationToken)
+    public async Task<Results<Ok<bool>, ProblemHttpResult>> IsGymMembershipPassValid(
+        ISender sender, string gymMembershipPassId, CancellationToken cancellationToken)
     {
-        var result = await sender.Send(new IsGymMembershipPassValidQuery(gymMembershipPassId));
+        var result = await sender.Send(new IsGymMembershipPassValidQuery(gymMembershipPassId), cancellationToken);
 
         return result.ToTypedResult();
     }

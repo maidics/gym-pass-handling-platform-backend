@@ -46,7 +46,7 @@ public class RegisterGymFromRequestCommandHandler : IRequestHandler<RegisterGymF
     {
         var request = await _context
             .Requests
-            .FindAsync(command.RequestId);
+            .FindAsync([command.RequestId], cancellationToken);
 
         if (request is null)
         {
@@ -78,14 +78,14 @@ public class RegisterGymFromRequestCommandHandler : IRequestHandler<RegisterGymF
             return Result.BusinessRuleViolation(_localizer.Get(nameof(SharedResource.CannotPerformActionOnRoleType)));
         }
 
-        var deserializationResult = await _sender.Send(new DeserializeRequestPayloadCommand<CreateGymDto>(request));
+        var deserializationResult = await _sender.Send(new DeserializeRequestPayloadCommand<CreateGymDto>(request), cancellationToken);
 
         if (!deserializationResult.Succeeded)
         {
             request.Status = RequestStatus.Error;
             request.Error = "Failed to deserialize payload.";
 
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(cancellationToken);
 
             return Result.InternalError(_localizer.Get(nameof(SharedResource.RequestHandlingError)));
         }
@@ -95,7 +95,7 @@ public class RegisterGymFromRequestCommandHandler : IRequestHandler<RegisterGymF
         var existingGym = await _context
                 .Gyms
                 .AsNoTracking()
-                .FirstOrDefaultAsync(g => g.Name == createGymDto.Name); //TODO: make this more robust
+                .FirstOrDefaultAsync(g => g.Name == createGymDto.Name, cancellationToken);
 
         if (existingGym is not null)
         {
@@ -104,7 +104,7 @@ public class RegisterGymFromRequestCommandHandler : IRequestHandler<RegisterGymF
                     _localizer.GetWithParamsLocalized(nameof(SharedResource.Name), nameof(SharedResource.Gym))));
         }
 
-        using var transaction = await _context.BeginTransactionAsync();
+        await using var transaction = await _context.BeginTransactionAsync(cancellationToken);
 
         try
         {
@@ -116,7 +116,7 @@ public class RegisterGymFromRequestCommandHandler : IRequestHandler<RegisterGymF
                 Tier = createGymDto.Tier,
             };
 
-            await _context.Gyms.AddAsync(gym);
+            await _context.Gyms.AddAsync(gym, cancellationToken);
 
             var demotionResult = await _identityService.RemoveFromRoleAsync(request.CreatedBy, Roles.PendingGymEmployee);
 
@@ -140,17 +140,17 @@ public class RegisterGymFromRequestCommandHandler : IRequestHandler<RegisterGymF
                 SupervisorEmail = createGymDto.SupervisorEmail,
             };
 
-            await _context.GymEmployments.AddAsync(gymEmployment);
+            await _context.GymEmployments.AddAsync(gymEmployment, cancellationToken);
 
             request.Status = RequestStatus.Approved;
 
-            await _context.SaveChangesAsync();
-            await transaction.CommitAsync();
+            await _context.SaveChangesAsync(cancellationToken);
+            await transaction.CommitAsync(cancellationToken);
 
             return Result.Success(gym.MapToDto());
         } catch
         {
-            await transaction.RollbackAsync();
+            await transaction.RollbackAsync(cancellationToken);
 
             throw;
         }

@@ -43,7 +43,7 @@ public class StripeConnectedAccountService : IPaymentTenantService
         string gymId,
         string email, 
         string businessName,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
         try
         {
@@ -88,7 +88,7 @@ public class StripeConnectedAccountService : IPaymentTenantService
         }
     }
 
-    public async Task<Result<bool>> IsOnboardingCompleteAsync(string tenantAccountId, CancellationToken cancellationToken = default)
+    public async Task<Result<bool>> IsOnboardingCompleteAsync(string tenantAccountId, CancellationToken cancellationToken)
     {
         try
         {
@@ -159,53 +159,7 @@ public class StripeConnectedAccountService : IPaymentTenantService
         }
     }
 
-    public async Task<Result> UpdateTenantPaymentAccountPayoutIntervalAsync(string tenantAccountId, TimeIntervals interval, int? monthlyAnchor, DayOfWeek? weeklyAnchor, int? delayDays)
-    {
-        try
-        {
-            var options = new AccountUpdateOptions
-            {
-                Settings = new AccountSettingsOptions
-                {
-                    Payouts = new AccountSettingsPayoutsOptions
-                    {
-                        Schedule = new AccountSettingsPayoutsScheduleOptions
-                        {
-                            Interval = interval.ToString().ToLowerInvariant()
-                        }
-                    }
-                }
-            };
-
-            if (interval == TimeIntervals.Daily)
-            {
-                Guard.Against.Null(delayDays);
-
-                options.Settings.Payouts.Schedule.DelayDays = delayDays;
-            } else if (interval == TimeIntervals.Weekly)
-            {
-                Guard.Against.Null(weeklyAnchor);
-
-                options.Settings.Payouts.Schedule.WeeklyAnchor = weeklyAnchor.ToString()!.ToLowerInvariant();
-            } else if (interval == TimeIntervals.Monthly)
-            {
-                Guard.Against.Null(monthlyAnchor);
-
-                options.Settings.Payouts.Schedule.MonthlyAnchor = monthlyAnchor;
-            }
-
-            await _accountService.UpdateAsync(tenantAccountId, options);
-
-            return Result.Success();
-        } catch (StripeException ex)
-        {
-            ex.Log(_logger, nameof(StripeConnectedAccountService), nameof(UpdateTenantPaymentAccountPayoutIntervalAsync));
-
-            return ex.ToResultFailure(_localizer.GetExternalServiceNotAvailable("Stripe"));
-        }
-    }
-
-    public async Task<Result<PaymentProviderLinkDto>> GenerateLoginLinkAsync(string accountId, CancellationToken cancellationToken = default)
+    public async Task<Result<PaymentProviderLinkDto>> GenerateLoginLinkAsync(string accountId, CancellationToken cancellationToken)
     {
         try
         {

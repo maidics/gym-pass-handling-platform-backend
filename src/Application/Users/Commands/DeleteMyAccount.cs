@@ -26,7 +26,7 @@ public class DeleteMyAccountCommandHandler : IRequestHandler<DeleteMyAccountComm
 
     public async Task<Result> Handle(DeleteMyAccountCommand command, CancellationToken cancellationToken)
     {
-        using var transaction = await _context.BeginTransactionAsync();
+        await using var transaction = await _context.BeginTransactionAsync(cancellationToken);
 
         try
         {
@@ -34,18 +34,18 @@ public class DeleteMyAccountCommandHandler : IRequestHandler<DeleteMyAccountComm
 
             if (!result.Succeeded)
             {
-                await transaction.RollbackAsync();
+                await transaction.RollbackAsync(cancellationToken);
 
                 throw new Exception($"Failed to delete user account.");
             }
 
-            await _context.SaveChangesAsync();
-            await transaction.CommitAsync();
+            await _context.SaveChangesAsync(cancellationToken);
+            await transaction.CommitAsync(cancellationToken);
 
             return Result.Success();
         } catch
         {
-            await transaction.RollbackAsync();
+            await transaction.RollbackAsync(cancellationToken);
 
             throw;
         }

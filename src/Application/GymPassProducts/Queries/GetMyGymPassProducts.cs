@@ -15,16 +15,13 @@ public class GetMyGymPassProductsQueryHandler : IRequestHandler<GetMyGymPassProd
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
-    private readonly ILocalizer _localizer;
 
     public GetMyGymPassProductsQueryHandler(
         IApplicationDbContext context,
-        IUser user,
-        ILocalizer localizer)
+        IUser user)
     {
         _context = context;
         _user = user;
-        _localizer = localizer;
     }
     
     public async Task<List<GymPassProductDto>> Handle(GetMyGymPassProductsQuery request, CancellationToken cancellationToken)
@@ -32,16 +29,16 @@ public class GetMyGymPassProductsQueryHandler : IRequestHandler<GetMyGymPassProd
         var gymId = await _context.GymEmployments
             .AsNoTracking()
             .Where(x => x.UserId == _user.Id)
+            .Include(x => x.Gym)
             .Select(x => x.GymId)
             .FirstOrDefaultAsync(cancellationToken);
 
         Guard.Against.NullParameterRelatedToCurrentUser(gymId, $"{nameof(GymEmployment)}.GymId", _user.Id);
 
-        var passes = await _context.GymPassProducts
+        return await _context.GymPassProducts
             .AsNoTracking()
             .Where(x => x.GymId == gymId)
+            .Select(x => x.MapToDto())
             .ToListAsync(cancellationToken);
-
-        return passes.Select(x => x.MapToDto()).ToList();
     }
 }

@@ -44,7 +44,7 @@ public class PromotePendingGymEmployeeToGymStaffRoleCommandHandler : IRequestHan
         var promoterGymEmployment = await _context
             .GymEmployments
             .AsNoTracking()
-            .FirstOrDefaultAsync(ge => ge.UserId == _user.Id);
+            .FirstOrDefaultAsync(ge => ge.UserId == _user.Id, cancellationToken);
 
         Guard.Against.NullParameterRelatedToCurrentUser(promoterGymEmployment, "Promoter GymEmployment", _user.Id);
 
@@ -55,7 +55,7 @@ public class PromotePendingGymEmployeeToGymStaffRoleCommandHandler : IRequestHan
             return Result.NotFound(_localizer.GetNotFound(nameof(SharedResource.User)));
         }
 
-        await using var transaction = await _context.BeginTransactionAsync();
+        await using var transaction = await _context.BeginTransactionAsync(cancellationToken);
         
         try
         {
@@ -63,7 +63,7 @@ public class PromotePendingGymEmployeeToGymStaffRoleCommandHandler : IRequestHan
 
             if (!demotionResult.Succeeded)
             {
-                await transaction.RollbackAsync();
+                await transaction.RollbackAsync(cancellationToken);
 
                 throw new Exception($"Failed to remove user from their role. Result: {demotionResult}.");
             }
@@ -72,7 +72,7 @@ public class PromotePendingGymEmployeeToGymStaffRoleCommandHandler : IRequestHan
 
             if (!promotionResult.Succeeded) //cannot be user not found if demotion succeeds
             {
-                await transaction.RollbackAsync();
+                await transaction.RollbackAsync(cancellationToken);
 
                 throw new Exception($"Failed to add user to role. Result: {promotionResult}.");
             }
@@ -84,15 +84,15 @@ public class PromotePendingGymEmployeeToGymStaffRoleCommandHandler : IRequestHan
                 Role = Roles.GymStaff
             };
 
-            await _context.GymEmployments.AddAsync(gymEmployment);
+            await _context.GymEmployments.AddAsync(gymEmployment, cancellationToken);
 
-            await _context.SaveChangesAsync();
-            await transaction.CommitAsync();
+            await _context.SaveChangesAsync(cancellationToken);
+            await transaction.CommitAsync(cancellationToken);
 
             return Result.Success();
         } catch
         {
-            await transaction.RollbackAsync();
+            await transaction.RollbackAsync(cancellationToken);
 
             throw;
         }

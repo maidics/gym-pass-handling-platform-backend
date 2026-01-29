@@ -20,8 +20,9 @@ public class GetRequestsQueryHandler : IRequestHandler<GetRequestsQuery, List<Re
     }
     public async Task<List<RequestDto>> Handle(GetRequestsQuery query, CancellationToken cancellationToken)
     {
-        var requests = await _context.Requests.AsNoTracking().ToListAsync(cancellationToken);
-
-        return requests.Select(r => r.MapToDto()).ToList();
+        return await _context.Requests
+            .AsNoTracking()
+            .Select(x => x.MapToDto())
+            .ToListAsync(cancellationToken);
     }
 }

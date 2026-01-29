@@ -36,20 +36,21 @@ public class GetMyTenantPaymentProfileQueryHandler : IRequestHandler<GetMyTenant
         var gymEmployment = await _context
             .GymEmployments
             .AsNoTracking()
-            .FirstOrDefaultAsync(ge => ge.UserId == _user.Id);
+            .FirstOrDefaultAsync(ge => ge.UserId == _user.Id, cancellationToken);
 
         Guard.Against.NullParameterRelatedToCurrentUser(gymEmployment, nameof(GymEmployment), _user.Id);
 
-        var tenantPaymentProfile = await _context
+        var dto = await _context
             .TenantPaymentProfiles
             .AsNoTracking()
-            .FirstOrDefaultAsync(tpp => tpp.GymId == gymEmployment.GymId);
+            .Select(x => x.MapToDto())
+            .FirstOrDefaultAsync(tpp => tpp.GymId == gymEmployment.GymId, cancellationToken);
 
-        if (tenantPaymentProfile is null)
+        if (dto is null)
         {
             return Result.BusinessRuleViolation(_localizer.Get(nameof(SharedResource.RequiresStripeAccount)));
         }
 
-        return Result.Success(tenantPaymentProfile.MapToDto());
+        return Result.Success(dto);
     }
 }

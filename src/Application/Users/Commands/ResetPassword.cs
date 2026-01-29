@@ -1,6 +1,7 @@
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Resources;
+using FitPass.Application.Users.DTOs;
 
 namespace FitPass.Application.Users.Commands;
 
@@ -9,7 +10,7 @@ public record ResetPasswordCommand(
     string EncodedPasswordResetToken,
     string NewPassword,
     string NewPasswordConfirm
-) : IRequest<Result>;
+) : IRequest<Result<JwtToken>>;
 
 public class ResetPasswordCommandValidator : AbstractValidator<ResetPasswordCommand>
 {
@@ -30,16 +31,18 @@ public class ResetPasswordCommandValidator : AbstractValidator<ResetPasswordComm
     }
 }
 
-public class ResetPasswordCommandHandler : IRequestHandler<ResetPasswordCommand, Result>
+public class ResetPasswordCommandHandler : IRequestHandler<ResetPasswordCommand, Result<JwtToken>>
 {
     private readonly IIdentityService _identityService;
+    private readonly IJwtTokenService _jwtTokenService;
 
-    public ResetPasswordCommandHandler(IIdentityService identityService)
+    public ResetPasswordCommandHandler(IIdentityService identityService, IJwtTokenService jwtTokenService)
     {
         _identityService = identityService;
+        _jwtTokenService = jwtTokenService;
     }
 
-    public async Task<Result> Handle(ResetPasswordCommand command, CancellationToken cancellationToken)
+    public async Task<Result<JwtToken>> Handle(ResetPasswordCommand command, CancellationToken cancellationToken)
     {
         var userId = Uri.UnescapeDataString(command.EncodedUserId);
         var passwordResetToken = Uri.UnescapeDataString(command.EncodedPasswordResetToken);
@@ -48,9 +51,11 @@ public class ResetPasswordCommandHandler : IRequestHandler<ResetPasswordCommand,
 
         if (!result.Succeeded)
         {
-            return result;
+            return new ResultFailure(result);
         }
 
-        return Result.Success();
+        var jwt = await _jwtTokenService.GenerateTokenAsync(userId, cancellationToken);
+
+        return Result.Success(jwt);
     }
 }

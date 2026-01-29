@@ -11,26 +11,36 @@ public class GymContactInfos : EndpointGroupBase
         groupBuilder.MapPost(CreateGymContactInfo).RequireAuthorization();
 
         groupBuilder.MapPut(UpdateGymContactInfo, "{gymContactInfoId}").RequireAuthorization();
+
+        groupBuilder.MapDelete(DeleteGymContactInfo, "{gymContactInfoId}").RequireAuthorization();
     }
 
     public async Task<Results<NoContent, ProblemHttpResult>> CreateGymContactInfo(ISender sender,
-        [FromBody] CreateGymContactInfoCommand command, CancellationToken cancellationToken)
+        [FromBody] CreateGymContactInfoCommand command)
     {
-        var result = await sender.Send(command);
+        var result = await sender.Send(command, CancellationToken.None);
 
         return result.ToTypedResult();
     }
 
     public async Task<Results<NoContent, ProblemHttpResult>> UpdateGymContactInfo(ISender sender,
-        string gymContactInfoId, [FromBody] UpdateGymContactInfoCommand command, CancellationToken cancellationToken)
+        string gymContactInfoId, [FromBody] UpdateGymContactInfoCommand command)
     {
         if (command.GymContactInfoId != gymContactInfoId)
         {
             return TypedResults.Problem(statusCode: StatusCodes.Status400BadRequest);
         }
         
-        var result = await sender.Send(command);
+        var result = await sender.Send(command, CancellationToken.None);
         
+        return result.ToTypedResult();
+    }
+
+    public async Task<Results<NoContent, ProblemHttpResult>> DeleteGymContactInfo(ISender sender,
+        string gymContactInfoId)
+    {
+        var result = await sender.Send(new DeleteGymContactInfoCommand(gymContactInfoId), CancellationToken.None);
+
         return result.ToTypedResult();
     }
 }

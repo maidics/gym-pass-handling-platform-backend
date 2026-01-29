@@ -11,7 +11,7 @@ namespace FitPass.Application.Requests.Commands;
 
 [Authorize]
 public record CreatePayloadFreeRequestCommand(
-    string Title, string Description, PriorityLevel PriorityLevel, RequestType RequestType) : IRequest<Result<RequestDto>>;
+    string Title, string Description, PriorityLevel PriorityLevel, RequestType RequestType) : IRequest<Result>;
 
 public class CreatePayloadFreeRequestCommandValidator : AbstractValidator<CreatePayloadFreeRequestCommand>
 {
@@ -33,7 +33,7 @@ public class CreatePayloadFreeRequestCommandValidator : AbstractValidator<Create
     }
 }
 
-public class CreatePayloadFreeRequestCommandHandler : IRequestHandler<CreatePayloadFreeRequestCommand, Result<RequestDto>>
+public class CreatePayloadFreeRequestCommandHandler : IRequestHandler<CreatePayloadFreeRequestCommand, Result>
 {
     private readonly IApplicationDbContext _context;
 
@@ -42,7 +42,7 @@ public class CreatePayloadFreeRequestCommandHandler : IRequestHandler<CreatePayl
         _context = context;
     }
     
-    public async Task<Result<RequestDto>> Handle(CreatePayloadFreeRequestCommand command, CancellationToken cancellationToken)
+    public async Task<Result> Handle(CreatePayloadFreeRequestCommand command, CancellationToken cancellationToken)
     {
         var request = new Request
         {
@@ -53,9 +53,9 @@ public class CreatePayloadFreeRequestCommandHandler : IRequestHandler<CreatePayl
             Payload = null
         };
 
-        await _context.Requests.AddAsync(request);
-        await _context.SaveChangesAsync();
+        await _context.Requests.AddAsync(request, cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
 
-        return Result.Success(request.MapToDto());
+        return Result.Success();
     }
 }

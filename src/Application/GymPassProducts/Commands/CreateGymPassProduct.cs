@@ -109,7 +109,7 @@ public class CreateGymPassProductCommandHandler : IRequestHandler<CreateGymPassP
         var gymEmployment = await _context.GymEmployments
             .AsNoTracking()
             .Include(x => x.Gym)
-            .FirstOrDefaultAsync(ge => ge.UserId == _user.Id);
+            .FirstOrDefaultAsync(ge => ge.UserId == _user.Id, cancellationToken);
 
         Guard.Against.NullParameterRelatedToCurrentUser(gymEmployment, nameof(GymEmployment), _user.Id);
 
@@ -121,7 +121,7 @@ public class CreateGymPassProductCommandHandler : IRequestHandler<CreateGymPassP
         
         var tenantPaymentProfile = await _context.TenantPaymentProfiles
             .AsNoTracking()
-            .FirstOrDefaultAsync(x => x.GymId == gymEmployment.GymId);
+            .FirstOrDefaultAsync(x => x.GymId == gymEmployment.GymId, cancellationToken);
         
         if (tenantPaymentProfile is null)
         {
@@ -186,9 +186,9 @@ public class CreateGymPassProductCommandHandler : IRequestHandler<CreateGymPassP
             PriceId = priceResult.Value,
         };
 
-        await _context.GymPassProducts.AddAsync(product);
-        await _context.ProductPaymentIdentities.AddAsync(paymentIdenity);
-        await _context.SaveChangesAsync();
+        await _context.GymPassProducts.AddAsync(product, cancellationToken);
+        await _context.ProductPaymentIdentities.AddAsync(paymentIdenity, cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
 
         return Result.Success(product.MapToDto());
     }

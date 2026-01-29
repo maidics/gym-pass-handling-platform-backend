@@ -49,7 +49,7 @@ public class UpdateMyUserProfileCommandHandler : IRequestHandler<UpdateMyUserPro
     {
         var profile = await _context
             .UserProfiles
-            .FirstOrDefaultAsync(x => x.UserId == _user.Id);
+            .FirstOrDefaultAsync(x => x.UserId == _user.Id, cancellationToken);
 
         Guard.Against.NullParameterRelatedToCurrentUser(profile, nameof(UserProfile), _user.Id);
 
@@ -57,7 +57,7 @@ public class UpdateMyUserProfileCommandHandler : IRequestHandler<UpdateMyUserPro
         profile.LastName = command.LastName;
         profile.PreferredLanguage = command.PreferredLanguage;
 
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(cancellationToken);
 
         return Result.Success();
     }

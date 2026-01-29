@@ -43,6 +43,16 @@ public class CreateGymContactInfoDtoValidator : AbstractValidator<CreateGymConta
         {
             RuleFor(v => v.Email!).EmailAddressWithMessageLocalized(localizer);
         });
+        
+        When(v => v.PhoneNumber is null, () =>
+        {
+            RuleFor(v => v.Email!).EmailAddressWithMessageLocalized(localizer);
+        });
+
+        When(v => v.Email is not null, () =>
+        {
+            RuleFor(v => v.Email!).EmailAddressWithMessageLocalized(localizer);
+        });
 
         RuleFor(v => v.FullName)
             .NotEmptyWithMaxLengthAndMessageLocalized(localizer, nameof(SharedResource.FullName), MaxLengths.FullName);
@@ -66,7 +76,7 @@ public class CreateGymContactInfoCommandHandler : IRequestHandler<CreateGymConta
             .Where(x => x.UserId == _user.Id)
             .Include(x => x.Gym)
             .Select(x => x.Gym)
-            .FirstOrDefaultAsync();
+            .FirstOrDefaultAsync(cancellationToken);
 
         Guard.Against.NullParameterRelatedToCurrentUser(gym, nameof(Gym), _user.Id);
 
@@ -78,7 +88,7 @@ public class CreateGymContactInfoCommandHandler : IRequestHandler<CreateGymConta
             });
         }
 
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(cancellationToken);
 
         return Result.Success();
     }

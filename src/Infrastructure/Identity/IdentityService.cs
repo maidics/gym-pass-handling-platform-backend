@@ -32,21 +32,21 @@ public class IdentityService : IIdentityService
         _localizer = localizer;
     }
 
-    public async Task<bool> IsInRoleAsync(string userId, string role, CancellationToken cancellationToken = default)
+    public async Task<bool> IsInRoleAsync(string userId, string role)
     {
         var user = await _userManager.FindByIdAsync(userId);
 
         return user != null && await _userManager.IsInRoleAsync(user, role);
     }
 
-    public async Task<List<string>?> GetRolesAsync(string userId, CancellationToken cancellationToken = default)
+    public async Task<List<string>?> GetRolesAsync(string userId)
     {
         var user = await _userManager.FindByIdAsync(userId);
 
         return user == null ? null : [.. await _userManager.GetRolesAsync(user)];
     }
 
-    public async Task<bool> AuthorizeAsync(string userId, string policyName, CancellationToken cancellationToken = default)
+    public async Task<bool> AuthorizeAsync(string userId, string policyName)
     {
         var user = await _userManager.FindByIdAsync(userId);
 
@@ -62,7 +62,7 @@ public class IdentityService : IIdentityService
         return result.Succeeded;
     }
 
-    public async Task<Result> DeleteUserAsync(string userId, CancellationToken cancellationToken = default)
+    public async Task<Result> DeleteUserAsync(string userId)
     {
         var user = await _userManager.FindByIdAsync(userId);
 
@@ -76,10 +76,8 @@ public class IdentityService : IIdentityService
         return result.ToApplicationResult();
     }
 
-    public async Task<(Result result, string? userId)> CreateUserAsync(string email, string password, CancellationToken cancellationToken = default)
+    public async Task<(Result result, string? userId)> CreateUserAsync(string email, string password)
     {
-        cancellationToken.ThrowIfCancellationRequested();
-
         var user = new ApplicationUser
         {
             Email = email,
@@ -91,10 +89,8 @@ public class IdentityService : IIdentityService
         return (result.ToApplicationResult(), result.Succeeded ? user.Id : null);
     }
 
-    public async Task<(Result result, string? userId)> CreateUserAsync(string email, CancellationToken cancellationToken = default)
+    public async Task<(Result result, string? userId)> CreateUserAsync(string email)
     {
-        cancellationToken.ThrowIfCancellationRequested();
-
         var user = new ApplicationUser
         {
             Email = email,
@@ -106,10 +102,8 @@ public class IdentityService : IIdentityService
         return (result.ToApplicationResult(), result.Succeeded ? user.Id : null);
     }
 
-    public async Task<Result> AuthenticateUserAsync(string email, string password, CancellationToken cancellationToken)
+    public async Task<Result> AuthenticateUserAsync(string email, string password)
     {
-        cancellationToken.ThrowIfCancellationRequested();
-
         var user = await _userManager.FindByEmailAsync(email);
 
         if (user == null)
@@ -121,9 +115,7 @@ public class IdentityService : IIdentityService
         {
             return Result.Unauthorized(_localizer.Get(nameof(SharedResource.RequiresAccountActivation)));
         }
-
-        cancellationToken.ThrowIfCancellationRequested();
-
+        
         if (!await _userManager.CheckPasswordAsync(user, password))
         {
             return Result.Unauthorized(_localizer.Get(nameof(SharedResource.InvalidCredentials)));
@@ -132,14 +124,14 @@ public class IdentityService : IIdentityService
         return Result.Success();
     }
 
-    public async Task<string?> GeneratePasswordResetTokenAsync(string userId, CancellationToken cancellationToken = default)
+    public async Task<string?> GeneratePasswordResetTokenAsync(string userId)
     {
         var user = await _userManager.FindByIdAsync(userId);
 
         return user == null ? null : await _userManager.GeneratePasswordResetTokenAsync(user);
     }
 
-    public async Task<Result> ResetPasswordAsync(string userId, string resetToken, string newPassword, CancellationToken cancellationToken = default)
+    public async Task<Result> ResetPasswordAsync(string userId, string resetToken, string newPassword)
     {
         var user = await _userManager.FindByIdAsync(userId);
 
@@ -217,16 +209,14 @@ public class IdentityService : IIdentityService
         return result;
     }
 
-    public async Task<string?> GetUserIdByEmailAsync(string email, CancellationToken cancellationToken = default)
+    public async Task<string?> GetUserIdByEmailAsync(string email)
     {
-        cancellationToken.ThrowIfCancellationRequested();
-
         var user = await _userManager.FindByEmailAsync(email);
 
         return user is null ? null : user.Id;
     }
 
-    public async Task<Result> AddToRoleAsync(string userId, string role, CancellationToken cancellationToken)
+    public async Task<Result> AddToRoleAsync(string userId, string role)
     {
         var user = await _userManager.FindByIdAsync(userId);
 
@@ -240,7 +230,7 @@ public class IdentityService : IIdentityService
         return result.ToApplicationResult(); 
     }
 
-    public async Task<Result> RemoveFromRoleAsync(string userId, string role, CancellationToken cancellationToken)
+    public async Task<Result> RemoveFromRoleAsync(string userId, string role)
     {
         var user = await _userManager.FindByIdAsync(userId);
 
@@ -254,14 +244,14 @@ public class IdentityService : IIdentityService
         return result.ToApplicationResult();
     }
 
-    public async Task<bool> IsEmailInUseAsync(string email, CancellationToken cancellationToken = default)
+    public async Task<bool> IsEmailInUseAsync(string email)
     {
         var user = await _userManager.FindByEmailAsync(email);
 
         return user != null;
     }
 
-    public async Task<bool> DoesUserExist(string userId, CancellationToken cancellationToken = default)
+    public async Task<bool> DoesUserExist(string userId)
     {
         var user = await _userManager.FindByIdAsync(userId);
 

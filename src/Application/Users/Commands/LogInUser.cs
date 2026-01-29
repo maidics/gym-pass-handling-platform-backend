@@ -39,7 +39,7 @@ public class LogInUserCommandHandler : IRequestHandler<LogInUserCommand, Result<
     }
     public async Task<Result<JwtToken>> Handle(LogInUserCommand command, CancellationToken cancellationToken)
     {
-        var result = await _identityService.AuthenticateUserAsync(command.Email, command.Password, cancellationToken);
+        var result = await _identityService.AuthenticateUserAsync(command.Email, command.Password);
 
         if (!result.Succeeded)
         {

@@ -26,7 +26,7 @@ public class GymStatusUpdatedByAppAdminEventHandler : INotificationHandler<GymSt
     public async Task Handle(GymStatusUpdatedByAppAdminEvent notification, CancellationToken cancellationToken)
     {
         //TODO: send to escalation emails and other gym contacts as well?
-        var gymEmployeeEmails = await _queryService.GetGymEmployeeEmailsByGymIdAsync(notification.GymId);
+        var gymEmployeeEmails = await _queryService.GetGymEmployeeEmailsByGymIdAsync(notification.GymId, CancellationToken.None);
 
         var isSuspended = notification.NewStatus == GymStatus.Suspended;
 
@@ -47,6 +47,6 @@ public class GymStatusUpdatedByAppAdminEventHandler : INotificationHandler<GymSt
             Farewell = _localizer.Get(nameof(SharedResource.EmailFarewell), CommonStrings.AppName)
         };
         
-        await _emailService.SendEmailAsync(model,  gymEmployeeEmails);
+        await _emailService.SendEmailAsync(model,  gymEmployeeEmails, cancellationToken: CancellationToken.None);
     }
 }

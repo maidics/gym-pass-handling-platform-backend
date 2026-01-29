@@ -40,7 +40,7 @@ public class IsGymMembershipPassValidQueryHandler : IRequestHandler<IsGymMembers
         var pass = await _context
             .GymMembershipPasses
             .AsNoTracking()
-            .FirstOrDefaultAsync(p => p.Id == query.GymMembershipPassId);
+            .FirstOrDefaultAsync(p => p.Id == query.GymMembershipPassId, cancellationToken);
 
         if (pass is null)
         {

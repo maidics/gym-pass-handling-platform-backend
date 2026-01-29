@@ -50,16 +50,18 @@ public class CreateTenantPaymentProfileCommandHandler : IRequestHandler<CreateTe
 
     public async Task<Result<PaymentProviderLinkDto>> Handle(CreateTenantPaymentProfileCommand command, CancellationToken cancellationToken)
     {
-        var gymEmployment = await _context
+        var gymId = await _context
             .GymEmployments
             .AsNoTracking()
-            .FirstOrDefaultAsync(ge => ge.UserId == _user.Id);
+            .Where(x => x.UserId == _user.Id)
+            .Select(x => x.GymId)
+            .FirstOrDefaultAsync(cancellationToken);
 
-        Guard.Against.NullParameterRelatedToCurrentUser(gymEmployment, nameof(GymEmployment), _user.Id);
+        Guard.Against.NullParameterRelatedToCurrentUser(gymId, $"{nameof(GymEmployment)}.{nameof(GymEmployment.GymId)}", _user.Id);
 
         var paymentProfile = await _context
             .TenantPaymentProfiles
-            .FirstOrDefaultAsync(x => x.GymId == gymEmployment.GymId);
+            .FirstOrDefaultAsync(x => x.GymId == gymId, cancellationToken);
 
         if (paymentProfile is not null)
         {
@@ -68,7 +70,7 @@ public class CreateTenantPaymentProfileCommandHandler : IRequestHandler<CreateTe
         }
 
         var result = await _paymentTenantService
-            .CreateTenantAccount(gymEmployment.GymId, command.PaymentAccountHolderEmail, command.BusinessName);
+            .CreateTenantAccount(gymId, command.PaymentAccountHolderEmail, command.BusinessName, cancellationToken);
 
         if (!result.Succeeded)
         {
@@ -77,13 +79,13 @@ public class CreateTenantPaymentProfileCommandHandler : IRequestHandler<CreateTe
 
         paymentProfile = new TenantPaymentProfile
         {
-            GymId = gymEmployment.GymId,
+            GymId = gymId,
             PaymentAccountId = result.Value
         };
 
-        await _context.TenantPaymentProfiles.AddAsync(paymentProfile);
-        await _context.SaveChangesAsync();
+        await _context.TenantPaymentProfiles.AddAsync(paymentProfile, cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
 
-        return await _paymentTenantService.GenerateAccountLinkAsync(result.Value, gymEmployment.GymId, true);
+        return await _paymentTenantService.GenerateAccountLinkAsync(result.Value, gymId, true, cancellationToken: cancellationToken);
     }
 }

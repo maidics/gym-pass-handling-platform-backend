@@ -1,3 +1,4 @@
+using FitPass.Application.Common.Models;
 using FitPass.Application.GymMemberships.DTOs;
 using FitPass.Application.Requests.Commands.Fulfill;
 using FitPass.Application.Users.Commands;
@@ -24,7 +25,7 @@ public class Users : EndpointGroupBase
 
         groupBuilder.MapDelete(DeleteMyAccount, "My/Delete").RequireAuthorization();
 
-        groupBuilder.MapPost(RequestPasswordResetEmail, "RequestPasswordResetEmail");
+        groupBuilder.MapPost(SendPasswordResetEmail, "RequestPasswordResetEmail");
 
         groupBuilder.MapPost(ResetPassword, "ResetPassword");
 
@@ -43,9 +44,10 @@ public class Users : EndpointGroupBase
         groupBuilder.MapPost(SendAccountActivationEmail, "AccountActivationEmail");
     }
 
-    public async Task<Results<Ok<JwtToken>, ProblemHttpResult>> RegisterUser(ISender sender, [FromBody] RegisterUserCommand command, CancellationToken cancellationToken)
+    public async Task<Results<Ok<JwtToken>, ProblemHttpResult>> RegisterUser(
+        ISender sender, [FromBody] RegisterUserCommand command)
     {
-        var result = await sender.Send(command, cancellationToken);
+        var result = await sender.Send(command, CancellationToken.None);
 
         return result.ToTypedResult();
     }
@@ -59,29 +61,29 @@ public class Users : EndpointGroupBase
     }
 
     public async Task<Results<NoContent, ProblemHttpResult>> PromotePendingGymEmployeeToGymStaffRole(
-        ISender sender, [FromBody] PromotePendingGymEmployeeToGymStaffRoleCommand command, CancellationToken cancellationToken)
+        ISender sender, [FromBody] PromotePendingGymEmployeeToGymStaffRoleCommand command)
     {
-        var result = await sender.Send(command, cancellationToken);
+        var result = await sender.Send(command, CancellationToken.None);
 
         return result.ToTypedResult();
     }
 
     public async Task<Results<NoContent, ProblemHttpResult>> DeleteMyAccount(ISender sender)
     {
-        var result = await sender.Send(new DeleteMyAccountCommand());
+        var result = await sender.Send(new DeleteMyAccountCommand(), CancellationToken.None);
 
         return result.ToTypedResult();
     }
 
-    public async Task<Results<NoContent, ProblemHttpResult>> RequestPasswordResetEmail(
-        ISender sender, [FromBody] RequestPasswordResetEmailCommand command, CancellationToken cancellationToken)
+    public async Task<Results<NoContent, ProblemHttpResult>> SendPasswordResetEmail(
+        ISender sender, [FromBody] string email, CancellationToken cancellationToken)
     {
-        var result = await sender.Send(command);
+        var result = await sender.Send(new SendPasswordResetEmailCommand(email), cancellationToken);
 
         return result.ToTypedResult();
     }
 
-    public async Task<Results<NoContent, ProblemHttpResult>> ResetPassword(ISender sender, [FromBody] ResetPasswordCommand command)
+    public async Task<Results<Ok<JwtToken>, ProblemHttpResult>> ResetPassword(ISender sender, [FromBody] ResetPasswordCommand command)
     {
         var result = await sender.Send(command);
 
@@ -89,9 +91,9 @@ public class Users : EndpointGroupBase
     }
 
     public async Task<Results<NoContent, ProblemHttpResult>> DemoteGymStaffToPendingGymEmployee(
-        ISender sender, [FromBody] DemoteGymStaffToPendingGymEmployeeCommand command, CancellationToken cancellationToken)
+        ISender sender, [FromBody] DemoteGymStaffToPendingGymEmployeeCommand command)
     {
-        var result = await sender.Send(command);
+        var result = await sender.Send(command, CancellationToken.None);
 
         return result.ToTypedResult();
     }
@@ -99,31 +101,31 @@ public class Users : EndpointGroupBase
     public async Task<Results<NoContent, ProblemHttpResult>> SendEmailConfirmationEmail(
         ISender sender, CancellationToken cancellationToken)
     {
-        var result = await sender.Send(new SendEmailConfirmationEmailCommand());
+        var result = await sender.Send(new SendEmailConfirmationEmailCommand(), cancellationToken);
 
         return result.ToTypedResult();
     }
 
     public async Task<Results<Ok<JwtToken>, ProblemHttpResult>> ActivateUserAccount(
-        ISender sender, [FromBody] ActivateUserAccountCommand command, CancellationToken cancellationToken)
+        ISender sender, [FromBody] ActivateUserAccountCommand command)
     {
-        var result = await sender.Send(command);
+        var result = await sender.Send(command, CancellationToken.None);
 
         return result.ToTypedResult();
     }
 
     public async Task<Results<Ok<GymMembershipDto>, ProblemHttpResult>> GymEmployeeRegisterUser(
-        ISender sender, [FromBody] GymEmployeeRegisterUserCommand command, CancellationToken cancellationToken)
+        ISender sender, [FromBody] GymEmployeeRegisterUserCommand command)
     {
-        var result = await sender.Send(command);
+        var result = await sender.Send(command, CancellationToken.None);
 
         return result.ToTypedResult();
     }
 
     public async Task<Results<NoContent, ProblemHttpResult>> PromotePendingGymEmployeeToGymAdminFromRequest(
-        ISender sender, [FromBody] PromotePendingGymEmployeeToGymAdminFromRequestCommand command, CancellationToken cancellationToken)
+        ISender sender, [FromBody] PromotePendingGymEmployeeToGymAdminFromRequestCommand command)
     {
-        var result = await sender.Send(command);
+        var result = await sender.Send(command, CancellationToken.None);
 
         return result.ToTypedResult();
     }
@@ -136,7 +138,7 @@ public class Users : EndpointGroupBase
     }
 
     public async Task<Results<NoContent, ProblemHttpResult>> UpdateMyPassword(ISender sender,
-        [FromBody] UpdateMyPasswordCommand command, CancellationToken cancellationToken)
+        [FromBody] UpdateMyPasswordCommand command)
     {
         var result = await sender.Send(command);
         
@@ -146,7 +148,7 @@ public class Users : EndpointGroupBase
     public async Task<Results<NoContent, ProblemHttpResult>> SendAccountActivationEmail(ISender sender,
         [FromBody] string email, CancellationToken cancellationToken)
     {
-        var result = await sender.Send(new SendAccountActivationEmailCommand(email));
+        var result = await sender.Send(new SendAccountActivationEmailCommand(email), cancellationToken);
 
         return result.ToTypedResult();
     }

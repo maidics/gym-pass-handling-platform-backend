@@ -32,13 +32,14 @@ public class GetGymMembershipsToMyGymQueryHandler : IRequestHandler<GetGymMember
 
     public async Task<List<GymMembershipWithUserProfileAndEmailDto>> Handle(GetGymMembershipsToMyGymQuery query, CancellationToken cancellationToken)
     {
-        var gymEmployment = await _context
-            .GymEmployments
+        var gymId = await _context.GymEmployments
             .AsNoTracking()
-            .FirstOrDefaultAsync(ge => ge.UserId == _user.Id, cancellationToken);
+            .Where(x => x.UserId == _user.Id)
+            .Select(x => x.GymId)
+            .FirstOrDefaultAsync(cancellationToken);
 
-        Guard.Against.NullParameterRelatedToCurrentUser(gymEmployment, nameof(GymEmployment), _user.Id);
+        Guard.Against.NullParameterRelatedToCurrentUser(gymId, $"{nameof(GymEmployment)}.{nameof(GymEmployment.GymId)}", _user.Id);
 
-        return await _queryService.GetGymMembershipsWithUserProfilesAndEmailByGymIdAndMembershipStatus(gymEmployment.GymId!, null);
+        return await _queryService.GetGymMembershipsWithUserProfilesAndEmailByGymIdAndMembershipStatus(gymId, null, cancellationToken);
     }
 }

@@ -68,14 +68,12 @@ public class CreateGymCreationRequestCommandHandler : IRequestHandler<CreateGymC
 
         var ongoingRequests = await _context.Requests
             .Where(r => r.CreatedBy == _user.Id && r.Status == RequestStatus.Submitted && r.Type == RequestType.GymCreation)
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
 
         if (ongoingRequests.Count > 0)
         {
             return Result.BusinessRuleViolation(_localizer.Get(nameof(SharedResource.AlreadyHaveOnGoingRequestOfThisType)));
         }
-
-        //TODO: add validations here
 
         var request = new Request
         {
@@ -87,9 +85,9 @@ public class CreateGymCreationRequestCommandHandler : IRequestHandler<CreateGymC
             Payload = JsonSerializer.Serialize(command.CreateGymDto),
         };
 
-        await _context.Requests.AddAsync(request);
+        await _context.Requests.AddAsync(request, cancellationToken);
 
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(cancellationToken);
 
         return Result.Success(request.MapToDto());
     }

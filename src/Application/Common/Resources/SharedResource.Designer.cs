@@ -748,6 +748,24 @@ namespace FitPass.Application.Common.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to We received a request to reset the password for your account. Click the link below to set a new password: {0}.
+        /// </summary>
+        public static string PasswordResetEmailBody {
+            get {
+                return ResourceManager.GetString("PasswordResetEmailBody", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Password Reset Request.
+        /// </summary>
+        public static string PasswordResetEmailSubject {
+            get {
+                return ResourceManager.GetString("PasswordResetEmailSubject", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Passwords must match..
         /// </summary>
         public static string PasswordsMustMatch {

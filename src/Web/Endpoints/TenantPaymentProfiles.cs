@@ -21,9 +21,9 @@ public class TenantPaymentProfiles : EndpointGroupBase
     }
 
     public async Task<Results<Ok<PaymentProviderLinkDto>, ProblemHttpResult>> CreateTenantPaymentProfile(
-        ISender sender, CreateTenantPaymentProfileCommand command, CancellationToken cancellationToken)
+        ISender sender, CreateTenantPaymentProfileCommand command)
     {
-        var result = await sender.Send(command);
+        var result = await sender.Send(command, CancellationToken.None);
 
         return result.ToTypedResult();
     }

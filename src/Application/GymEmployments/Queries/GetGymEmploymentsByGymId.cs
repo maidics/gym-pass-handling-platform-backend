@@ -32,6 +32,6 @@ public class GetGymEmploymentsByGymIdQueryHandler : IRequestHandler<GetGymEmploy
 
     public async Task<Result<List<GymEmploymentDto>>> Handle(GetGymEmploymentsByGymIdQuery query, CancellationToken cancellationToken)
     {
-        return Result.Success(await _queryService.GetGymEmploymentsWithUserProfileAndEmailByGymId(query.GymId));
+        return Result.Success(await _queryService.GetGymEmploymentsWithUserProfileAndEmailByGymId(query.GymId, cancellationToken));
     }
 }

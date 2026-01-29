@@ -11,13 +11,13 @@ public class RequestPasswordResetEmailTests : BaseTestFixture
     [Test]
     public override void AuthorizeAttributeCheck()
     {
-        ShouldNotRequireAuthorization<RequestPasswordResetEmailCommand>();
+        ShouldNotRequireAuthorization<SendPasswordResetEmailCommand>();
     }
 
     [Test]
     public async Task ShouldDenyInvalidParameters()
     {
-        var command = new RequestPasswordResetEmailCommand("invalidEmail");
+        var command = new SendPasswordResetEmailCommand("invalidEmail");
 
         await Should.ThrowAsync<ValidationException>(SendAsync(command));
     }
@@ -25,7 +25,7 @@ public class RequestPasswordResetEmailTests : BaseTestFixture
     [Test]
     public async Task ShouldReturnSuccessIfUserNotExist()
     {
-        var command = new RequestPasswordResetEmailCommand("userNotExist@localhost");
+        var command = new SendPasswordResetEmailCommand("userNotExist@localhost");
 
         var result = await SendAsync(command);
         result.Succeeded.ShouldBeTrue();
@@ -36,7 +36,7 @@ public class RequestPasswordResetEmailTests : BaseTestFixture
     {
         var user = await CreateUserAsync();
 
-        var command = new RequestPasswordResetEmailCommand(user.Email!);
+        var command = new SendPasswordResetEmailCommand(user.Email!);
 
         var result = await SendAsync(command);
         result.Succeeded.ShouldBeTrue();

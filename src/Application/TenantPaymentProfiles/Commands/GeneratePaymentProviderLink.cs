@@ -42,7 +42,7 @@ public class GeneratePaymentProviderLinkCommandHandler : IRequestHandler<Generat
         Guard.Against.NullParameterRelatedToCurrentUser(gymId, "Employee gym id", _user.Id);
 
         var paymentProfile = await _context.TenantPaymentProfiles
-            .FirstOrDefaultAsync(x => x.GymId == gymId);
+            .FirstOrDefaultAsync(x => x.GymId == gymId, cancellationToken);
 
         if (paymentProfile is null)
         {
@@ -54,7 +54,7 @@ public class GeneratePaymentProviderLinkCommandHandler : IRequestHandler<Generat
         if (command.Type == PaymentProviderLinkType.AccountLink)
         {
             var onboardingResult =
-                await _paymentTenantService.IsOnboardingCompleteAsync(paymentProfile.PaymentAccountId);
+                await _paymentTenantService.IsOnboardingCompleteAsync(paymentProfile.PaymentAccountId, cancellationToken);
 
             if (!onboardingResult.Succeeded)
             {
@@ -62,7 +62,7 @@ public class GeneratePaymentProviderLinkCommandHandler : IRequestHandler<Generat
             }
 
             result = await _paymentTenantService.GenerateAccountLinkAsync(
-                paymentProfile.PaymentAccountId, gymId,!onboardingResult.Value, true);
+                paymentProfile.PaymentAccountId, gymId,!onboardingResult.Value, true, cancellationToken);
         }
         else
         {
@@ -75,7 +75,7 @@ public class GeneratePaymentProviderLinkCommandHandler : IRequestHandler<Generat
             paymentProfile.LastAccountLinkGeneratedBy = _user.Id;
             paymentProfile.LastAccountLinkGeneratedOn = _timeProvider.GetUtcNow();
 
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(cancellationToken);
         }
 
         return result;

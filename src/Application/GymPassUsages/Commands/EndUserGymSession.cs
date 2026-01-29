@@ -37,7 +37,7 @@ public class EndUserGymSessionCommandHandler : IRequestHandler<EndUserGymSession
 
     public async Task<Result> Handle(EndUserGymSessionCommand command, CancellationToken cancellationToken)
     {
-        var gymPassUsage = await _context.GymPassUsages.FindAsync(command.GymPassUsageId);
+        var gymPassUsage = await _context.GymPassUsages.FindAsync([command.GymPassUsageId], cancellationToken);
 
         if (gymPassUsage is null)
         {
@@ -46,7 +46,7 @@ public class EndUserGymSessionCommandHandler : IRequestHandler<EndUserGymSession
 
         gymPassUsage.EndGymSession(_timeProvider.GetUtcNow());
 
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(cancellationToken);
 
         return Result.Success();
     }

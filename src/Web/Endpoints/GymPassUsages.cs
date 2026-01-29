@@ -21,21 +21,22 @@ public class GymPassUsages : EndpointGroupBase
 
     public async Task<Ok<List<GymPassUsageDto>>> GetGymPassUsagesForMyGymToday(ISender sender, CancellationToken cancellationToken)
     {
-        var result = await sender.Send(new GetGymPassUsagesForMyGymTodayQuery());
+        var result = await sender.Send(new GetGymPassUsagesForMyGymTodayQuery(), cancellationToken);
 
         return TypedResults.Ok(result);
     }
 
-    public async Task<Results<NoContent, ProblemHttpResult>> GymEmployeeEndUserGymSession(ISender sender, string gymPassUsageId, CancellationToken cancellationToken)
+    public async Task<Results<NoContent, ProblemHttpResult>> GymEmployeeEndUserGymSession(ISender sender, string gymPassUsageId)
     {
-        var result = await sender.Send(new EndUserGymSessionCommand(gymPassUsageId));
+        var result = await sender.Send(new EndUserGymSessionCommand(gymPassUsageId), CancellationToken.None);
 
         return result.ToTypedResult();
     }
 
-    public async Task<Results<NoContent, ProblemHttpResult>> UpdateGymPassUsageLockerNumberCommand(ISender sender, string gymPassUsageId, [FromBody] string lockerNumber, CancellationToken cancellationToken)
+    public async Task<Results<NoContent, ProblemHttpResult>> UpdateGymPassUsageLockerNumberCommand(
+        ISender sender, string gymPassUsageId, [FromBody] string lockerNumber)
     {
-        var result = await sender.Send(new UpdateGymPassUsageLockerNumberCommand(gymPassUsageId, lockerNumber));
+        var result = await sender.Send(new UpdateGymPassUsageLockerNumberCommand(gymPassUsageId, lockerNumber), CancellationToken.None);
 
         return result.ToTypedResult();
     }

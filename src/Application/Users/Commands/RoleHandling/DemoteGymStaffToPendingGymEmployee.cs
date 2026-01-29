@@ -43,13 +43,13 @@ public class DemoteGymStaffToPendingGymEmployeeCommandHandler : IRequestHandler<
         var demoterGymEmployment = await _context
             .GymEmployments
             .AsNoTracking()
-            .FirstOrDefaultAsync(ge => ge.UserId == _user.Id);
+            .FirstOrDefaultAsync(ge => ge.UserId == _user.Id, cancellationToken);
 
         Guard.Against.NullParameterRelatedToCurrentUser(demoterGymEmployment, nameof(GymEmployment), _user.Id);
 
         var gymStaffGymEmployment = await _context
             .GymEmployments
-            .FirstOrDefaultAsync(ge => ge.UserId == command.UserId);
+            .FirstOrDefaultAsync(ge => ge.UserId == command.UserId, cancellationToken);
 
         if (gymStaffGymEmployment is null)
         {
@@ -61,7 +61,7 @@ public class DemoteGymStaffToPendingGymEmployeeCommandHandler : IRequestHandler<
             return Result.Forbidden(nameof(SharedResource.Forbidden));
         }
 
-        using var transaction = await _context.BeginTransactionAsync();
+        await using var transaction = await _context.BeginTransactionAsync(cancellationToken);
 
         try
         {
@@ -69,7 +69,7 @@ public class DemoteGymStaffToPendingGymEmployeeCommandHandler : IRequestHandler<
 
             if (!demotionResult.Succeeded)
             {
-                await transaction.RollbackAsync();
+                await transaction.RollbackAsync(cancellationToken);
 
                 throw new Exception($"Failed to remove user from their role. Result: {demotionResult}.");
             }
@@ -78,20 +78,20 @@ public class DemoteGymStaffToPendingGymEmployeeCommandHandler : IRequestHandler<
 
             if (!promotionResult.Succeeded) //cannot be user not found if demotion succeeds
             {
-                await transaction.RollbackAsync();
+                await transaction.RollbackAsync(cancellationToken);
 
                 throw new Exception($"Failed to add user to role. Result: {promotionResult}.");
             }
 
             _context.GymEmployments.Remove(gymStaffGymEmployment);
 
-            await _context.SaveChangesAsync();
-            await transaction.CommitAsync();
+            await _context.SaveChangesAsync(cancellationToken);
+            await transaction.CommitAsync(cancellationToken);
 
             return Result.Success();
         } catch
         {
-            await transaction.RollbackAsync();
+            await transaction.RollbackAsync(cancellationToken);
 
             throw;
         }

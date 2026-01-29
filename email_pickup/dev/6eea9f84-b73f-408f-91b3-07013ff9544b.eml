@@ -1,0 +1,21 @@
+X-Sender: no-reply@fitpass
+X-Receiver: user@localhost.com
+MIME-Version: 1.0
+From: no-reply@fitpass
+To: user@localhost.com
+Date: 26 Jan 2026 09:23:36 +0100
+Subject: Your gym membership ban has been lifted from Test Gym
+Content-Type: text/html; charset=us-ascii
+Content-Transfer-Encoding: quoted-printable
+
+=0D=0A=0D=0A<!DOCTYPE html>=0D=0A<html lang=3D"en-US">=0D=0A=0D=0A=
+<head>=0D=0A    <meta charset=3D"utf-8" />=0D=0A    <title>Your g=
+ym membership ban has been lifted from Test Gym</title>=0D=0A    =
+<style>=0D=0A        body { font-family: Arial, sans-serif; font-=
+size: 14px; color: #333; }=0D=0A    </style>=0D=0A</head>=0D=0A<b=
+ody>=0D=0A    <p>Dear User,</p>=0D=0A=0D=0A    <p>Your gym member=
+ship is active again!</p>=0D=0A    <p>From today onwards, you can=
+ once again make full use of the services of the Test Gym gym.&#x=
+D;&#xA;We look forward to welcoming you back!</p>=0D=0A=0D=0A    =
+<p style=3D"white-space: pre-line">Best regards,&#xD;&#xA; FitPas=
+s</p>=0D=0A</body>=0D=0A</html>

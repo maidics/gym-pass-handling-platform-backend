@@ -35,7 +35,7 @@ public class FulfillOtherTypeRequestCommandHandler : IRequestHandler<FulfillOthe
     public async Task<Result> Handle(FulfillOtherTypeRequestCommand command, CancellationToken cancellationToken)
     {
         var request = await _context.Requests
-            .FirstOrDefaultAsync(x => x.Id == command.RequestId, CancellationToken.None);
+            .FirstOrDefaultAsync(x => x.Id == command.RequestId, cancellationToken);
 
         if (request is null)
         {
@@ -54,7 +54,7 @@ public class FulfillOtherTypeRequestCommandHandler : IRequestHandler<FulfillOthe
 
         request.Status = RequestStatus.Approved;
 
-        await _context.SaveChangesAsync(CancellationToken.None);
+        await _context.SaveChangesAsync(cancellationToken);
 
         return Result.Success();
     }

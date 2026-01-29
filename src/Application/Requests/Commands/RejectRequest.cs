@@ -36,7 +36,7 @@ public class RejectRequestCommandHandler : IRequestHandler<RejectRequestCommand,
     {
         var request = await _context
             .Requests
-            .FindAsync(command.RequestId);
+            .FindAsync([command.RequestId], cancellationToken);
 
         if (request is null)
         {
@@ -50,10 +50,8 @@ public class RejectRequestCommandHandler : IRequestHandler<RejectRequestCommand,
 
         request.Status = RequestStatus.Rejected;
         request.HandlerRationale = command.Rationale;
-
-        //TODO: send event here: RequestRejectedEvent
-
-        await _context.SaveChangesAsync();
+        
+        await _context.SaveChangesAsync(cancellationToken);
 
         return Result.Success();
     }

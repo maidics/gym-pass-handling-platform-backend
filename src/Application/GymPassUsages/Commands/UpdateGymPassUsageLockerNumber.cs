@@ -36,7 +36,7 @@ public class UpdateGymPassUsageLockerNumberCommandHandler : IRequestHandler<Upda
     }
     public async Task<Result> Handle(UpdateGymPassUsageLockerNumberCommand command, CancellationToken cancellationToken)
     {
-        var gymPassUsage = await _context.GymPassUsages.FindAsync(command.GymPassUsageId);
+        var gymPassUsage = await _context.GymPassUsages.FindAsync([command.GymPassUsageId], cancellationToken);
 
         if (gymPassUsage is null)
         {
@@ -51,7 +51,7 @@ public class UpdateGymPassUsageLockerNumberCommandHandler : IRequestHandler<Upda
 
         gymPassUsage.LockerNumber = command.LockerNumber;
 
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(cancellationToken);
 
         return Result.Success();
     }

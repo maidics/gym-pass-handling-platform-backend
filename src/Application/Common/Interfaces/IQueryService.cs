@@ -8,12 +8,21 @@ namespace FitPass.Application.Common.Interfaces;
 
 public interface IQueryService
 {
-    Task<UserDto?> GetUserAsync(string userId);
-    Task<GymEmploymentDto?> GetGymEmploymentWithUserProfileAndEmailByUserId(string applicationUserId);
-    Task<List<GymEmploymentDto>> GetGymEmploymentsWithUserProfileAndEmailByGymId(string gymId);
-    Task<UserProfileWithEmailDto?> GetUserProfileWithEmailByApplicationUserId(string applicationUserId);
-    Task<List<GymMembershipWithUserProfileAndEmailDto>> GetGymMembershipsWithUserProfilesAndEmailByGymIdAndMembershipStatus(string gymId, GymMembershipStatus? status);
-    Task<GymEmploymentDto?> GetGymEmploymentWithUserProfileAndEmailByIdAsync(string gymEmploymentId, CancellationToken cancellationToken = default);
-    Task<GymMembershipWithUserProfileAndEmailDto?> GetGymMembershipWithUserProfileAndEmailByGymIdAndMembershipStatus(string gymMembershipId);
-    Task<string[]> GetGymEmployeeEmailsByGymIdAsync(string gymId);
+    Task<UserDto?> GetUserAsync(string userId, CancellationToken cancellationToken);
+    
+    Task<GymEmploymentDto?> GetGymEmploymentWithUserProfileAndEmailByUserId(string applicationUserId, CancellationToken cancellationToken);
+    
+    Task<List<GymEmploymentDto>> GetGymEmploymentsWithUserProfileAndEmailByGymId(string gymId, CancellationToken cancellationToken);
+    
+    Task<UserProfileWithEmailDto?> GetUserProfileWithEmailByApplicationUserId(string applicationUserId, CancellationToken cancellationToken);
+    
+    Task<List<GymMembershipWithUserProfileAndEmailDto>> GetGymMembershipsWithUserProfilesAndEmailByGymIdAndMembershipStatus(
+        string gymId, GymMembershipStatus? status, CancellationToken cancellationToken);
+    
+    Task<GymEmploymentDto?> GetGymEmploymentWithUserProfileAndEmailByIdAsync(string gymEmploymentId, CancellationToken cancellationToken);
+    
+    Task<GymMembershipWithUserProfileAndEmailDto?> GetGymMembershipWithUserProfileAndEmailByGymIdAndMembershipStatus(
+        string gymMembershipId, CancellationToken cancellationToken);
+    
+    Task<string[]> GetGymEmployeeEmailsByGymIdAsync(string gymId, CancellationToken cancellationToken);
 }

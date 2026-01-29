@@ -23,7 +23,7 @@ public class GetMyUserProfileQueryHandler : IRequestHandler<GetMyUserProfileQuer
     }
     public async Task<UserProfileWithEmailDto> Handle(GetMyUserProfileQuery request, CancellationToken cancellationToken)
     {
-        var profile = await _queryService.GetUserProfileWithEmailByApplicationUserId(_user.Id!);
+        var profile = await _queryService.GetUserProfileWithEmailByApplicationUserId(_user.Id!, cancellationToken);
 
         Guard.Against.NullParameterRelatedToCurrentUser(profile, nameof(UserProfile), _user.Id);
 

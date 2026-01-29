@@ -33,12 +33,12 @@ public class UpdateMyPreferredLanguageCommandHandler : IRequestHandler<UpdateMyP
     public async Task Handle(UpdateMyPreferredLanguageCommand command, CancellationToken cancellationToken)
     {
         var profile = await _context.UserProfiles
-            .FirstOrDefaultAsync(x => x.UserId == _user.Id);
+            .FirstOrDefaultAsync(x => x.UserId == _user.Id, cancellationToken);
 
         Guard.Against.NullParameterRelatedToCurrentUser(profile, nameof(UserProfile), _user.Id);
 
         profile.PreferredLanguage = command.NewLanguage;
 
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(cancellationToken);
     }
 }

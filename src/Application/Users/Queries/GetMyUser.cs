@@ -20,10 +20,10 @@ public class GetMyUserQueryHandler : IRequestHandler<GetMyUserQuery, UserDto>
     }
     public async Task<UserDto> Handle(GetMyUserQuery request, CancellationToken cancellationToken)
     {
-        var user = await _queryService.GetUserAsync(_user.Id!);
+        var user = await _queryService.GetUserAsync(_user.Id!, cancellationToken);
 
         Guard.Against.NullParameterRelatedToCurrentUser(user, nameof(UserDto), _user.Id);
         
-        return user!;
+        return user;
     }
 }

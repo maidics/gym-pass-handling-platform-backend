@@ -45,7 +45,7 @@ public class UpdateGymStatusCommandHandler : IRequestHandler<UpdateGymStatusComm
 
     public async Task<Result> Handle(UpdateGymStatusCommand command, CancellationToken cancellationToken)
     {
-        var gym = await _context.Gyms.FindAsync(command.GymId, cancellationToken);
+        var gym = await _context.Gyms.FindAsync([command.GymId], cancellationToken);
 
         if (gym is null)
         {
@@ -54,12 +54,12 @@ public class UpdateGymStatusCommandHandler : IRequestHandler<UpdateGymStatusComm
 
         if (gym.Status == command.NewGymStatus)
         {
-            return Result.Success(); //TODO: call .NoChange here
+            return Result.Success();
         }
 
         gym.Status = command.NewGymStatus;
 
-        //TODO: save Rationale to db in some form
+        //rationale not saved to db here
         gym.AddDomainEvent(new GymStatusUpdatedByAppAdminEvent(
             gym.Id, 
             command.NewGymStatus, 

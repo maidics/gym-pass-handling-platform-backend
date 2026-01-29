@@ -46,14 +46,15 @@ public class GetGymByIdQueryHandler : IRequestHandler<GetGymByIdQuery, Result<Gy
 
         if (_user.Roles.Contains(Roles.GymAdministrator))
         {
-            var employmentGymId = await _context.GymEmployments
+            var obj = await _context.GymEmployments
                 .AsNoTracking()
                 .Where(x => x.UserId == _user.Id)
-                .Select(x => x.GymId)
+                .Select(x => new { x.GymId , x.Role })
                 .FirstOrDefaultAsync(cancellationToken);
 
-            if (employmentGymId == query.GymId)
-            {
+            //only gym admins can see payment profile
+            if (obj is not null && obj.GymId == query.GymId && obj.Role == Roles.GymAdministrator)
+            { 
                 gymQuery = gymQuery.Include(x => x.PaymentProfile);
             }
         }

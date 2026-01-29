@@ -1,0 +1,22 @@
+X-Sender: no-reply@fitpass
+X-Receiver: user@localhost.com
+MIME-Version: 1.0
+From: no-reply@fitpass
+To: user@localhost.com
+Date: 26 Jan 2026 09:23:29 +0100
+Subject: You have been banned from Test Gym
+Content-Type: text/html; charset=us-ascii
+Content-Transfer-Encoding: quoted-printable
+
+=0D=0A=0D=0A<!DOCTYPE html>=0D=0A<html lang=3D"en-US">=0D=0A=0D=0A=
+<head>=0D=0A    <meta charset=3D"utf-8" />=0D=0A    <title>You ha=
+ve been banned from Test Gym</title>=0D=0A    <style>=0D=0A      =
+  body { font-family: Arial, sans-serif; font-size: 14px; color: =
+#333; }=0D=0A    </style>=0D=0A</head>=0D=0A<body>=0D=0A    <p>De=
+ar User,</p>=0D=0A=0D=0A    <p>Your gym membership has been banne=
+d.</p>=0D=0A    <p>From today onwards, you will not be able to us=
+e the services of the Test Gym gym until the issue has been resol=
+ved. If you believe this is a mistake or you need further informa=
+tion, please contact the gym.</p>=0D=0A=0D=0A    <p style=3D"whit=
+e-space: pre-line">Best regards,&#xD;&#xA; FitPass</p>=0D=0A</bod=
+y>=0D=0A</html>

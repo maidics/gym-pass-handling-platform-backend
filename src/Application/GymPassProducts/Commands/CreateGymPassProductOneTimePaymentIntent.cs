@@ -50,7 +50,7 @@ public class CreateGymPassProductOneTimePaymentIntentCommandHandler : IRequestHa
         var product = await _context.GymPassProducts
             .AsNoTracking()
             .Include(p => p.Gym)
-            .FirstOrDefaultAsync(p => p.Id == command.GymPassProductId);
+            .FirstOrDefaultAsync(p => p.Id == command.GymPassProductId, cancellationToken);
 
         if (product is null)
         {
@@ -69,7 +69,7 @@ public class CreateGymPassProductOneTimePaymentIntentCommandHandler : IRequestHa
 
         var tenantPaymentProfile = await _context.TenantPaymentProfiles
             .AsNoTracking()
-            .FirstOrDefaultAsync(tpp => tpp.GymId == product.GymId);
+            .FirstOrDefaultAsync(tpp => tpp.GymId == product.GymId, cancellationToken);
 
         Guard.Against.Null(tenantPaymentProfile, nameof(TenantPaymentProfile));
 

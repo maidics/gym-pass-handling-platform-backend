@@ -54,7 +54,7 @@ public class JwtTokenService : IJwtTokenService
         var token = new JwtSecurityToken(
             issuer: _settings.Issuer,
             audience: _settings.Audience,
-            notBefore: utcNow.UtcDateTime, //TODO: check if this is safe
+            notBefore: utcNow.UtcDateTime,
             expires: expires.UtcDateTime,
             claims: claims,
             signingCredentials: creds

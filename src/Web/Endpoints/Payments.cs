@@ -13,9 +13,9 @@ public class Payments : EndpointGroupBase
     }
 
     public async Task<Results<Ok<PaymentIntentDto>, ProblemHttpResult>> CreateGymPassProductOnetimePaymentIntent(
-        ISender sender, string gymPassProductId, CancellationToken cancellationToken)
+        ISender sender, string gymPassProductId)
     {
-        var result = await sender.Send(new CreateGymPassProductOneTimePaymentIntentCommand(gymPassProductId));
+        var result = await sender.Send(new CreateGymPassProductOneTimePaymentIntentCommand(gymPassProductId), CancellationToken.None);
 
         return result.ToTypedResult();
     }

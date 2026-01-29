@@ -33,13 +33,16 @@ public class GetRequestByIdQueryHandler : IRequestHandler<GetRequestByIdQuery, R
     }
     public async Task<Result<RequestDto>> Handle(GetRequestByIdQuery query, CancellationToken cancellationToken)
     {
-        var request = await _context.Requests.AsNoTracking().FirstOrDefaultAsync(gcr => gcr.Id == query.RequestId, cancellationToken);
+        var dto = await _context.Requests
+            .AsNoTracking()
+            .Select(x => x.MapToDto())
+            .FirstOrDefaultAsync(gcr => gcr.Id == query.RequestId, cancellationToken);
 
-        if (request is null)
+        if (dto is null)
         {
             return Result.NotFound(_localizer.GetNotFound(nameof(SharedResource.Request)));
         }
 
-        return Result.Success(request.MapToDto());
+        return Result.Success(dto);
     }
 }

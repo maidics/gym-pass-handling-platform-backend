@@ -21,11 +21,10 @@ public class GetMyGymMembershipPassesQueryHandler : IRequestHandler<GetMyGymMemb
     
     public async Task<List<GymMembershipPassDto>> Handle(GetMyGymMembershipPassesQuery request, CancellationToken cancellationToken)
     {
-        var passes = await _context.GymMembershipPasses
+        return await _context.GymMembershipPasses
             .AsNoTracking()
             .Where(x => x.UserId == _user.Id)
+            .Select(x => x.MapToDto())
             .ToListAsync(cancellationToken);
-
-        return passes.Select(x => x.MapToDto()).ToList();
     }
 }

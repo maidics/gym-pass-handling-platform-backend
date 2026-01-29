@@ -49,15 +49,17 @@ public class UpdateGymPassProductActiveStatusCommandHandler : IRequestHandler<Up
 
     public async Task<Result> Handle(UpdateGymPassProductActiveStatusCommand command, CancellationToken cancellationToken)
     {
-        var gymEmployment = await _context.GymEmployments
+        var gymId = await _context.GymEmployments
             .AsNoTracking()
-            .FirstOrDefaultAsync(ge => ge.UserId == _user.Id);
+            .Where(x => x.UserId == _user.Id)
+            .Select(x => x.GymId)
+            .FirstOrDefaultAsync(cancellationToken);
 
-        Guard.Against.NullParameterRelatedToCurrentUser(gymEmployment, nameof(GymEmployment), _user.Id);
+        Guard.Against.NullParameterRelatedToCurrentUser(gymId, $"{nameof(GymEmployment)}.{nameof(GymEmployment.GymId)}", _user.Id);
 
         var product = await _context.GymPassProducts
             .Include(gpp => gpp.PaymentIdentity)
-            .FirstOrDefaultAsync(gpp => gpp.Id == command.GymPassProductId && gpp.GymId == gymEmployment.GymId);
+            .FirstOrDefaultAsync(gpp => gpp.Id == command.GymPassProductId && gpp.GymId == gymId, cancellationToken);
 
         if (product is null)
         {
@@ -71,9 +73,9 @@ public class UpdateGymPassProductActiveStatusCommandHandler : IRequestHandler<Up
 
         var paymentAccountId = await _context.TenantPaymentProfiles
             .AsNoTracking()
-            .Where(x => x.GymId == gymEmployment.GymId)
+            .Where(x => x.GymId == gymId)
             .Select(x => x.PaymentAccountId)
-            .FirstOrDefaultAsync();
+            .FirstOrDefaultAsync(cancellationToken);
 
         Guard.Against.Null(paymentAccountId); //this should exist if the product exists
 
@@ -96,7 +98,7 @@ public class UpdateGymPassProductActiveStatusCommandHandler : IRequestHandler<Up
 
         product.IsActive = command.IsActive;
 
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(cancellationToken);
 
         return Result.Success();
     }

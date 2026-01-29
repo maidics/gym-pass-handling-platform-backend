@@ -10,7 +10,7 @@ namespace FitPass.Application.GymContactInfos.Commands;
 
 [Authorize(Roles = Roles.GymAdministrator)]
 public record UpdateGymContactInfoCommand(
-    string GymContactInfoId, string? Email, PhoneNumber? PhoneNumber, string FullName, Address? Address) : IRequest<Result>;
+    string GymContactInfoId, string? Email, string? PhoneNumber, string FullName, Address? Address) : IRequest<Result>;
 
 public class UpdateGymContactInfoCommandValidator : AbstractValidator<UpdateGymContactInfoCommand>
 {
@@ -22,12 +22,28 @@ public class UpdateGymContactInfoCommandValidator : AbstractValidator<UpdateGymC
         
         When(v => v.Email is null, () =>
         {
-            RuleFor(v => v.PhoneNumber!).NotEmptyWithMessageLocalized(localizer, nameof(SharedResource.PhoneNumber));
+            RuleFor(v => v.PhoneNumber!)
+                .NotEmptyWithMessageLocalized(localizer, nameof(SharedResource.PhoneNumber))
+                .Must(PhoneNumber.IsValid).WithMessage(
+                    localizer.Get(nameof(SharedResource.ValueIsInvalid), nameof(SharedResource.PhoneNumber)));
         });
         
         When(v => v.PhoneNumber is null, () =>
         {
             RuleFor(v => v.Email!).EmailAddressWithMessageLocalized(localizer);
+        });
+
+        When(v => v.Email is not null, () =>
+        {
+            RuleFor(v => v.Email!).EmailAddressWithMessageLocalized(localizer);
+        });
+        
+        When(v => v.PhoneNumber is not null, () =>
+        {
+            RuleFor(v => v.PhoneNumber!)
+                .NotEmptyWithMessageLocalized(localizer, nameof(SharedResource.PhoneNumber))
+                .Must(PhoneNumber.IsValid).WithMessage(
+                    localizer.Get(nameof(SharedResource.ValueIsInvalid), nameof(SharedResource.PhoneNumber)));
         });
         
         RuleFor(v => v.FullName)
@@ -59,7 +75,7 @@ public class UpdateGymContactInfoCommandHandler : IRequestHandler<UpdateGymConta
             .Include(x => x.Gym)
             .ThenInclude(x => x.ContactInfos)
             .Select(x => x.Gym.ContactInfos.FirstOrDefault(y => y.Id == command.GymContactInfoId))
-            .FirstOrDefaultAsync();
+            .FirstOrDefaultAsync(cancellationToken);
 
         if (contactInfo is null)
         {
@@ -68,10 +84,10 @@ public class UpdateGymContactInfoCommandHandler : IRequestHandler<UpdateGymConta
 
         contactInfo.FullName = command.FullName;
         contactInfo.Email = command.Email;
-        contactInfo.PhoneNumber = command.PhoneNumber;
+        contactInfo.PhoneNumber = command.PhoneNumber is null ? null : PhoneNumber.Create(command.PhoneNumber);
         contactInfo.Address = command.Address;
 
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(cancellationToken);
 
         return Result.Success();
     }

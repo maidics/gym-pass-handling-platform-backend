@@ -75,6 +75,33 @@
             "JWT": []
           }
         ]
+      },
+      "delete": {
+        "tags": [
+          "GymContactInfos"
+        ],
+        "operationId": "DeleteGymContactInfo",
+        "parameters": [
+          {
+            "name": "gymContactInfoId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
       }
     },
     "/api/GymEmployments/MyGym": {
@@ -1059,15 +1086,8 @@
           "x-position": 1
         },
         "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RequestDto"
-                }
-              }
-            }
+          "204": {
+            "description": ""
           }
         },
         "security": [
@@ -1228,15 +1248,8 @@
           "x-position": 1
         },
         "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RequestDto"
-                }
-              }
-            }
+          "204": {
+            "description": ""
           }
         },
         "security": [
@@ -1646,13 +1659,13 @@
         "tags": [
           "Users"
         ],
-        "operationId": "RequestPasswordResetEmail",
+        "operationId": "SendPasswordResetEmail",
         "requestBody": {
-          "x-name": "command",
+          "x-name": "email",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/RequestPasswordResetEmailCommand"
+                "type": "string"
               }
             }
           },
@@ -1685,8 +1698,15 @@
           "x-position": 1
         },
         "responses": {
-          "204": {
-            "description": ""
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JwtToken"
+                }
+              }
+            }
           }
         }
       }
@@ -2011,12 +2031,8 @@
             "nullable": true
           },
           "phoneNumber": {
-            "nullable": true,
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/PhoneNumber"
-              }
-            ]
+            "type": "string",
+            "nullable": true
           },
           "fullName": {
             "type": "string"
@@ -2933,15 +2949,6 @@
         "additionalProperties": false,
         "properties": {
           "userId": {
-            "type": "string"
-          }
-        }
-      },
-      "RequestPasswordResetEmailCommand": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "email": {
             "type": "string"
           }
         }

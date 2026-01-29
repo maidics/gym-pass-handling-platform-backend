@@ -55,7 +55,7 @@ public class GymEmployeeRegisterUserCommandHandler : IRequestHandler<GymEmployee
         var gymEmployment = await _context
             .GymEmployments
             .AsNoTracking()
-            .FirstOrDefaultAsync(ge => ge.UserId == _user.Id);
+            .FirstOrDefaultAsync(ge => ge.UserId == _user.Id, cancellationToken);
 
         Guard.Against.NullParameterRelatedToCurrentUser(gymEmployment, nameof(GymEmployment), _user.Id);
 
@@ -65,7 +65,7 @@ public class GymEmployeeRegisterUserCommandHandler : IRequestHandler<GymEmployee
                 _localizer.GetWithParamsLocalized(nameof(SharedResource.Conflict), nameof(SharedResource.Email)));
         }
 
-        using var transaction = await _context.BeginTransactionAsync();
+        await using var transaction = await _context.BeginTransactionAsync(cancellationToken);
 
         try
         {
@@ -73,7 +73,7 @@ public class GymEmployeeRegisterUserCommandHandler : IRequestHandler<GymEmployee
 
             if (!creationResultObj.result.Succeeded)
             {
-                await transaction.RollbackAsync();
+                await transaction.RollbackAsync(cancellationToken);
 
                 throw new Exception("Failed to create user.");
             }
@@ -82,7 +82,7 @@ public class GymEmployeeRegisterUserCommandHandler : IRequestHandler<GymEmployee
 
             if (!roleResult.Succeeded)
             {
-                await transaction.RollbackAsync();
+                await transaction.RollbackAsync(cancellationToken);
 
                 throw new Exception($"Failed to add user to role. Result: {roleResult}.");
             }
@@ -96,7 +96,7 @@ public class GymEmployeeRegisterUserCommandHandler : IRequestHandler<GymEmployee
                 CreatedOn = _timeProvider.GetUtcNow()
             };
 
-            await _context.UserProfiles.AddAsync(userProfile);
+            await _context.UserProfiles.AddAsync(userProfile, cancellationToken);
 
             userProfile.AddDomainEvent(new UserRegisteredEvent(
                 creationResultObj.userId!, 
@@ -108,16 +108,16 @@ public class GymEmployeeRegisterUserCommandHandler : IRequestHandler<GymEmployee
                 GymId = gymEmployment.GymId!
             };
 
-            await _context.GymMemberships.AddAsync(gymMembership);
+            await _context.GymMemberships.AddAsync(gymMembership, cancellationToken);
             
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(cancellationToken);
 
-            await transaction.CommitAsync();
+            await transaction.CommitAsync(cancellationToken);
 
             return Result.Success(gymMembership.MapToDto());
         } catch
         {
-            await transaction.RollbackAsync();
+            await transaction.RollbackAsync(cancellationToken);
 
             throw;
         }

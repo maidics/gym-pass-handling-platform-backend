@@ -35,7 +35,8 @@ public class CancelMyRequestCommandHandler : IRequestHandler<CancelMyRequestComm
     
     public async Task<Result> Handle(CancelMyRequestCommand command, CancellationToken cancellationToken)
     {
-        var request = await _context.Requests.FirstOrDefaultAsync(x => x.Id == command.RequestId && x.CreatedBy == _user.Id);
+        var request = await _context.Requests
+            .FirstOrDefaultAsync(x => x.Id == command.RequestId && x.CreatedBy == _user.Id, cancellationToken);
 
         if (request is null)
         {
@@ -44,7 +45,7 @@ public class CancelMyRequestCommandHandler : IRequestHandler<CancelMyRequestComm
 
         request.Status = RequestStatus.Cancelled;
 
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(cancellationToken);
 
         return Result.Success();
     }

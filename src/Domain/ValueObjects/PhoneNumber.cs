@@ -33,9 +33,9 @@ public partial class PhoneNumber : ValueObject
         return new PhoneNumber(normalized);
     }
 
-    public static bool IsValid(string phoneNumber)
+    public static bool IsValid(string? phoneNumber)
     {
-        return E164Regex().IsMatch(phoneNumber);
+        return phoneNumber is not null && E164Regex().IsMatch(phoneNumber);
     }
 
     private static string Normalize(string phoneNumber)
