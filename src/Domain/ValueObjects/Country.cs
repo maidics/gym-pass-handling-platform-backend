@@ -15,16 +15,16 @@ public sealed class Country : ValueObject
         Numeric = numeric;
     }
 
-    public static Country? GetByAlpha2(string alpha2) => _lookup.GetValueOrDefault(alpha2);
+    public static Country? GetByAlpha2(string alpha2) => Lookup.GetValueOrDefault(alpha2);
 
-    public static bool DoesExistByAlpha2(string alpha2) => _lookup.ContainsKey(alpha2);
+    public static bool DoesExistByAlpha2(string alpha2) => Lookup.ContainsKey(alpha2);
 
     protected override IEnumerable<object> GetEqualityComponents()
     {
         yield return Alpha2;
     }
 
-    private static readonly Dictionary<string, Country> _lookup = new Dictionary<string, Country>(StringComparer.OrdinalIgnoreCase)
+    public static readonly Dictionary<string, Country> Lookup = new Dictionary<string, Country>(StringComparer.OrdinalIgnoreCase)
     {
         ["AF"] = new Country("Afghanistan", "AF", "AFG", "004"),
         ["AL"] = new Country("Albania", "AL", "ALB", "008"),

@@ -971,6 +971,34 @@
         ]
       }
     },
+    "/api/ReferenceData/CountryAlpha2Codes": {
+      "get": {
+        "tags": [
+          "ReferenceData"
+        ],
+        "operationId": "GetCountryAlpha2Codes",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
     "/api/Requests/{requestId}": {
       "get": {
         "tags": [

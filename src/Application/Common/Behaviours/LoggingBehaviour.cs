@@ -21,7 +21,7 @@ public class LoggingBehaviour<TRequest> : IRequestPreProcessor<TRequest>
         var requestName = typeof(TRequest).Name;
 
         _logger.LogInformation("FitPass Request: {Name} {@UserId} {@Request}",
-            requestName, _user?.Id, request);
+            requestName, _user?.Id ?? "anonymous", request);
 
         return Task.CompletedTask;
     }

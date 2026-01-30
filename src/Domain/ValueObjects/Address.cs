@@ -21,6 +21,10 @@ public class Address : ValueObject
     {
         if (string.IsNullOrEmpty(line1))
         {
+            throw new NotImplementedException($"{line1}, {line2}, {city}, {state}, {postalCode}, {countryAlpha2}");
+        }
+        if (string.IsNullOrEmpty(line1))
+        {
             throw new ArgumentException("Address line 1 cannot be empty.", nameof(line1));
         }
 

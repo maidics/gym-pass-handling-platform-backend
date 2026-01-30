@@ -54,7 +54,7 @@
       "excludedOperationIds": [],
       "markOptionalProperties": false,
       "generateCloneMethod": false,
-      "typeStyle": "Class",
+      "typeStyle": "Interface",
       "enumStyle": "StringLiteral",
       "useLeafType": false,
       "classTypes": [],
