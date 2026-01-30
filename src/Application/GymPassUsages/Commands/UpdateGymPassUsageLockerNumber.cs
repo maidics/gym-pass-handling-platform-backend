@@ -26,13 +26,16 @@ public class UpdateGymPassUsageLockerNumberCommandHandler : IRequestHandler<Upda
 {
     private readonly IApplicationDbContext _context;
     private readonly ILocalizer _localizer;
+    private readonly IClientNotificationSender _clientNotificationSender;
 
     public UpdateGymPassUsageLockerNumberCommandHandler(
         IApplicationDbContext context,
-        ILocalizer localizer)
+        ILocalizer localizer,
+        IClientNotificationSender clientNotificationSender)
     {
         _context = context;
         _localizer = localizer;
+        _clientNotificationSender = clientNotificationSender;
     }
     public async Task<Result> Handle(UpdateGymPassUsageLockerNumberCommand command, CancellationToken cancellationToken)
     {
@@ -52,6 +55,10 @@ public class UpdateGymPassUsageLockerNumberCommandHandler : IRequestHandler<Upda
         gymPassUsage.LockerNumber = command.LockerNumber;
 
         await _context.SaveChangesAsync(cancellationToken);
+
+        var notification = ClientNotification.Create(
+            _localizer.Get(nameof(SharedResource.GymEmployeeUpdatedGymPassUsageLockerNumber), command.LockerNumber),
+            ClientNotificationType.GymPassUsageLockerUpdated);
 
         return Result.Success();
     }

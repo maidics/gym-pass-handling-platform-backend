@@ -478,4 +478,7 @@ Confirm my email: {1}</value>
   <data name="PasswordResetEmailBody" xml:space="preserve">
     <value>We received a request to reset the password for your account. Click the link below to set a new password: {0}</value>
   </data>
+  <data name="GymEmployeeUpdatedGymPassUsageLockerNumber" xml:space="preserve">
+    <value>You locker number has been updated to {0} by a gym employee.</value>
+  </data>
 </root>

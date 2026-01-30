@@ -333,6 +333,15 @@ namespace FitPass.Application.Common.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to You locker number has been updated to {0} by a gym employee..
+        /// </summary>
+        public static string GymEmployeeUpdatedGymPassUsageLockerNumber {
+            get {
+                return ResourceManager.GetString("GymEmployeeUpdatedGymPassUsageLockerNumber", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to gym employee.
         /// </summary>
         public static string GymEmployment {

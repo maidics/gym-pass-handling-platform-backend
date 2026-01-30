@@ -7,7 +7,9 @@ public enum ClientNotificationType
     PaymentFailed,
     GymMembershipStatusChange,
     GymPassProductPurchaseFulfillmentFailed,
-    SuccessfulPurchase
+    SuccessfulPurchase,
+    GymPassUsageLockerUpdated,
+    GymSessionEnded
 }
 
 public class ClientNotification

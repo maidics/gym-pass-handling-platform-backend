@@ -482,4 +482,7 @@ E-mail-cím megerősítése: {1}</value>
   <data name="PasswordResetEmailBody" xml:space="preserve">
     <value>Jelszó-visszaállítási kérelmet kaptunk a fiókodhoz. Új jelszó beállításához kattints az alábbi linkre: {0}</value>
   </data>
+  <data name="GymEmployeeUpdatedGymPassUsageLockerNumber" xml:space="preserve">
+    <value>Az kiadott öltözőszekrényszám frissítve lett a következőre: {0}.</value>
+  </data>
 </root>
