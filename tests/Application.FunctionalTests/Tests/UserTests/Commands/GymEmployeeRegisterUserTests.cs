@@ -1,5 +1,6 @@
 ﻿using FitPass.Application.Common.Exceptions;
 using FitPass.Application.Common.Models;
+using FitPass.Application.FunctionalTests.Infrastructure.Testing;
 using FitPass.Application.Users.Commands;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
@@ -15,15 +16,22 @@ public class GymEmployeeRegisterUserTests : BaseTestFixture
     [Test]
     public override void AuthorizeAttributeCheck()
     {
-        ShouldRequireAuthorization<GymEmployeeRegisterUserCommand>(Roles.GymAdministrator, Roles.GymStaff);
+        ShouldRequireAuthorization<GymEmployeeRegisterUserCommand>(
+            Roles.GymAdministrator,
+            Roles.GymStaff
+        );
     }
 
     [Test]
-    public async Task ShouldDenyInvalidParameters()
+    public async Task ShouldThrowIfParametersAreInvalid()
     {
         await RunAsGymEmployeeAsync(Roles.GymStaff);
 
-        var command = new GymEmployeeRegisterUserCommand("invalidEmail", string.Empty, string.Empty);
+        var command = new GymEmployeeRegisterUserCommand(
+            "invalidEmail",
+            string.Empty,
+            string.Empty
+        );
 
         await Should.ThrowAsync<ValidationException>(SendAsync(command));
     }

@@ -1,4 +1,5 @@
-﻿using FitPass.Application.Users.Queries;
+﻿using FitPass.Application.FunctionalTests.Infrastructure.Testing;
+using FitPass.Application.Users.Queries;
 using FitPass.Domain.Constants;
 
 namespace FitPass.Application.FunctionalTests.Tests.UserTests.Queries;
@@ -20,7 +21,7 @@ public class GetMyUserTests
 
         var dto = await SendAsync(new GetMyUserQuery());
         dto.ShouldNotBeNull();
-        
+
         dto.Id.ShouldBe(obj.user.Id);
         dto.FirstName.ShouldBe(obj.userProfile.FirstName);
         dto.LastName.ShouldBe(obj.userProfile.LastName);

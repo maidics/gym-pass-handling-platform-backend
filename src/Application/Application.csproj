@@ -1,5 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <RootNamespace>FitPass.Application</RootNamespace>
     <AssemblyName>FitPass.Application</AssemblyName>
@@ -34,5 +33,4 @@
       <DependentUpon>SharedResource.resx</DependentUpon>
     </Compile>
   </ItemGroup>
-
 </Project>

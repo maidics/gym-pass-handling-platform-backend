@@ -1,4 +1,6 @@
 using FitPass.Application.Common.Models;
+using FitPass.Application.FunctionalTests.Common.Extensions;
+using FitPass.Application.FunctionalTests.Infrastructure.Testing;
 using FitPass.Application.FunctionalTests.TestData;
 using FitPass.Application.GymPassUsages.Commands;
 using FitPass.Domain.Constants;
@@ -13,11 +15,14 @@ public class UpdateGymPassUsageLockerNumberTests : BaseTestFixture
     [Test]
     public override void AuthorizeAttributeCheck()
     {
-        ShouldRequireAuthorization<UpdateGymPassUsageLockerNumberCommand>(Roles.GymAdministrator, Roles.GymStaff);
+        ShouldRequireAuthorization<UpdateGymPassUsageLockerNumberCommand>(
+            Roles.GymAdministrator,
+            Roles.GymStaff
+        );
     }
 
     [Test]
-    public async Task ShouldDenyInvalidParameters()
+    public async Task ShouldThrowIfParametersAreInvalid()
     {
         await RunAsGymEmployeeAsync(Roles.GymAdministrator);
 
@@ -31,11 +36,10 @@ public class UpdateGymPassUsageLockerNumberTests : BaseTestFixture
     {
         await RunAsGymEmployeeAsync(Roles.GymStaff);
 
-        var command = new UpdateGymPassUsageLockerNumberCommand("invalidGymPassUsageId", "20");
+        var command = new UpdateGymPassUsageLockerNumberCommand("id", "20");
 
         var result = await SendAsync(command);
-        result.Type.ShouldBe(ResultTypes.NotFound);
-        result.Message.ShouldNotBeEmpty();
+        result.ShouldBeFailed(ResultTypes.NotFound);
     }
 
     [Test]
@@ -53,8 +57,7 @@ public class UpdateGymPassUsageLockerNumberTests : BaseTestFixture
         var command = new UpdateGymPassUsageLockerNumberCommand(usage.Id, "20");
 
         var result = await SendAsync(command);
-        result.Type.ShouldBe(ResultTypes.BusinessRuleViolation);
-        result.Message.ShouldNotBeEmpty();
+        result.ShouldBeFailed(ResultTypes.BusinessRuleViolation);
     }
 
     [Test]
@@ -73,10 +76,12 @@ public class UpdateGymPassUsageLockerNumberTests : BaseTestFixture
         var command = new UpdateGymPassUsageLockerNumberCommand(usage.Id, newLockerNumber);
 
         var result = await SendAsync(command);
-        result.Succeeded.ShouldBeTrue();
+        result.ShouldBeSuccessful();
 
         var updatedGymPassUsage = await FindAsync<GymPassUsage>(usage.Id);
         updatedGymPassUsage.ShouldNotBeNull();
         updatedGymPassUsage.LockerNumber.ShouldBe(newLockerNumber);
+
+        await ShouldContainNotificationForUserAsync(usage.UserId);
     }
 }

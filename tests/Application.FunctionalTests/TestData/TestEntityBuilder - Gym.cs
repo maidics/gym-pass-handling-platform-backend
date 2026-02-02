@@ -1,3 +1,4 @@
+using FitPass.Application.FunctionalTests.Infrastructure.Testing;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Entities.Payment;
@@ -26,7 +27,8 @@ public partial class TestEntityBuilder
         GymMembershipPass noUsePass,
         GymPassUsage passUsage,
         GymMembershipPass unlimitedUsePass,
-        GymPassProduct gymPassProduct)> BuildGymAsync(GymStatus gymStatus = GymStatus.Active, bool gymPassProductActive = true)
+        GymPassProduct gymPassProduct
+    )> BuildGymAsync(GymStatus gymStatus = GymStatus.Active, bool gymPassProductActive = true)
     {
         var obj = await BuildGymEmployeeAsync(Roles.GymAdministrator, gymStatus);
 
@@ -37,7 +39,6 @@ public partial class TestEntityBuilder
             UserId = gymStaff.Id,
             GymId = obj.gym.Id,
             Role = Roles.GymStaff,
-            EmploymentStart = GetUtcNow()
         };
 
         await AddAsync(gymStaffGymEmployment);
@@ -48,7 +49,7 @@ public partial class TestEntityBuilder
             FirstName = "Gym",
             LastName = "Staff",
             PreferredLanguage = GetDefaultCulture(),
-            CreatedOn = GetUtcNow()
+            CreatedOn = GetUtcNow(),
         };
 
         await AddAsync(gymStaffUserProfile);
@@ -61,7 +62,7 @@ public partial class TestEntityBuilder
             FirstName = "Gym",
             LastName = "Member",
             PreferredLanguage = GetDefaultCulture(),
-            CreatedOn = GetUtcNow()
+            CreatedOn = GetUtcNow(),
         };
 
         await AddAsync(gymMemberUserProfile);
@@ -70,19 +71,31 @@ public partial class TestEntityBuilder
         {
             GymId = obj.gym.Id,
             UserId = gymMember.Id,
-            Status = GymMembershipStatus.Active
+            Status = GymMembershipStatus.Active,
         };
 
         await AddAsync(gymMembership);
 
         var singleUsePass = GymPassProduct
-            .SingleUse(obj.gym.Id, "Test Product", "Test Description", true, Money.Eur(10))
+            .SingleUse(
+                obj.gym.Id,
+                "Test Product",
+                "Test Description",
+                true,
+                new Money(10, CurrencyCode.EUR)
+            )
             .ToGymMembershipPass(gymMembership.Id, gymMember.Id, GetUtcNow());
 
         await AddAsync(singleUsePass);
 
         var noUsePass = GymPassProduct
-            .SingleUse(obj.gym.Id, "Test Product", "Test Description", true, Money.Eur(10))
+            .SingleUse(
+                obj.gym.Id,
+                "Test Product",
+                "Test Description",
+                true,
+                new Money(10, CurrencyCode.EUR)
+            )
             .ToGymMembershipPass(gymMembership.Id, gymMember.Id, GetUtcNow());
 
         var passUsage = noUsePass.Use(obj.gym.Id, "Test Locker", GetUtcNow());
@@ -93,12 +106,25 @@ public partial class TestEntityBuilder
         await AddAsync(passUsage);
 
         var unlimitedUsePass = GymPassProduct
-            .UnlimitedUse(obj.gym.Id, "Test Name", "Test Description", 10, true, Money.Eur(10))
+            .UnlimitedUse(
+                obj.gym.Id,
+                "Test Name",
+                "Test Description",
+                10,
+                true,
+                new Money(10, CurrencyCode.EUR)
+            )
             .ToGymMembershipPass(gymMembership.Id, gymMember.Id, GetUtcNow());
 
         await AddAsync(unlimitedUsePass);
 
-        var gymPassProduct = GymPassProduct.SingleUse(obj.gym.Id, "Test Product", "Test Description", true, Money.Eur(10));
+        var gymPassProduct = GymPassProduct.SingleUse(
+            obj.gym.Id,
+            "Test Product",
+            "Test Description",
+            true,
+            new Money(10, CurrencyCode.EUR)
+        );
 
         gymPassProduct.IsActive = gymPassProductActive;
 
@@ -119,7 +145,8 @@ public partial class TestEntityBuilder
             noUsePass,
             passUsage,
             unlimitedUsePass,
-            gymPassProduct);
+            gymPassProduct
+        );
     }
 
     public static async Task<(
@@ -136,9 +163,13 @@ public partial class TestEntityBuilder
         GymMembershipPass singleUsePass,
         GymMembershipPass noUsePass,
         GymPassUsage passUsage,
-        GymMembershipPass unlimitedUsePass, 
+        GymMembershipPass unlimitedUsePass,
         TenantPaymentProfile tenantPaymentProfile,
-        GymPassProduct gymPassProduct)> BuildGymWithTenantPaymentProfileAsync(GymStatus gymStatus = GymStatus.Active, bool gymPassProductActive = true)
+        GymPassProduct gymPassProduct
+    )> BuildGymWithTenantPaymentProfileAsync(
+        GymStatus gymStatus = GymStatus.Active,
+        bool gymPassProductActive = true
+    )
     {
         var obj = await BuildGymAsync(gymStatus, gymPassProductActive);
 
@@ -164,6 +195,7 @@ public partial class TestEntityBuilder
             obj.passUsage,
             obj.unlimitedUsePass,
             paymentProfile,
-            obj.gymPassProduct);
+            obj.gymPassProduct
+        );
     }
 }

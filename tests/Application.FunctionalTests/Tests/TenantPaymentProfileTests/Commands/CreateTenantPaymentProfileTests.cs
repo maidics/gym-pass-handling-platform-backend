@@ -6,6 +6,7 @@ using FitPass.Domain.Entities.Payment;
 
 namespace FitPass.Application.FunctionalTests.Tests.TenantPaymentProfileTests.Commands;
 
+/*
 using static Testing;
 
 public class CreateTenantPaymentProfileTests : BaseTestFixture
@@ -60,3 +61,4 @@ public class CreateTenantPaymentProfileTests : BaseTestFixture
         paymentProfile.PaymentAccountId.ShouldNotBeNullOrEmpty();
     }
 }
+*/

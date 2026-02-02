@@ -481,4 +481,16 @@ Confirm my email: {1}</value>
   <data name="GymEmployeeUpdatedGymPassUsageLockerNumber" xml:space="preserve">
     <value>You locker number has been updated to {0} by a gym employee.</value>
   </data>
+  <data name="GymEmployeeEndedGymSession" xml:space="preserve">
+    <value>Your current gym session has ended.</value>
+  </data>
+  <data name="CurrencyIsNotSupported" xml:space="preserve">
+    <value>{0} currency is not supported</value>
+  </data>
+  <data name="GymSuspendedByAppAdmin" xml:space="preserve">
+    <value>You gym has been suspended by an App Administrator with the following rationale: {0}</value>
+  </data>
+  <data name="GymReactivatedByAppAdmin" xml:space="preserve">
+    <value>Your gym has been reactivated by an App Administrator with the following rationale: {0}</value>
+  </data>
 </root>

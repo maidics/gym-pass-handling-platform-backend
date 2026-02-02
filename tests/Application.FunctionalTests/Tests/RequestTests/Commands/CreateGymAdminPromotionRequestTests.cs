@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using FitPass.Application.Common.Exceptions;
 using FitPass.Application.Common.Models;
+using FitPass.Application.FunctionalTests.Infrastructure.Testing;
 using FitPass.Application.Requests.Commands;
 using FitPass.Application.Requests.DTOs;
 using FitPass.Domain.Constants;
@@ -20,7 +21,7 @@ public class CreateGymAdminPromotionRequestTests : BaseTestFixture
     }
 
     [Test]
-    public async Task ShouldDenyInvalidParameters()
+    public async Task ShouldThrowIfParametersAreInvalid()
     {
         await RunAsGymEmployeeAsync(Roles.GymAdministrator);
 
@@ -28,7 +29,8 @@ public class CreateGymAdminPromotionRequestTests : BaseTestFixture
             string.Empty,
             string.Empty,
             PriorityLevel.High,
-            string.Empty);
+            string.Empty
+        );
 
         await ShouldThrowIfParametersAreInvalidAsync(command);
     }
@@ -39,10 +41,11 @@ public class CreateGymAdminPromotionRequestTests : BaseTestFixture
         await RunAsGymEmployeeAsync(Roles.GymAdministrator);
 
         var command = new CreateGymAdminPromotionRequestCommand(
-            "invalidUserId", 
-            "Description", 
-            PriorityLevel.Medium, 
-            "email@email");
+            "invalidUserId",
+            "Description",
+            PriorityLevel.Medium,
+            "email@email"
+        );
 
         var result = await SendAsync(command);
         result.Type.ShouldBe(ResultTypes.NotFound);
@@ -60,7 +63,8 @@ public class CreateGymAdminPromotionRequestTests : BaseTestFixture
             user.Id,
             "Description",
             PriorityLevel.High,
-            "escalation@email");
+            "escalation@email"
+        );
 
         var result = await SendAsync(command);
         result.Type.ShouldBe(ResultTypes.BusinessRuleViolation);
@@ -78,11 +82,11 @@ public class CreateGymAdminPromotionRequestTests : BaseTestFixture
             pendingGymEmployee.Id,
             "Description",
             PriorityLevel.High,
-            "escalation@email");
+            "escalation@email"
+        );
 
         var result = await SendAsync(command);
         result.Succeeded.ShouldBeTrue();
-        result.Value.ShouldNotBeNull();
 
         var createdRequest = await GetFirstAsync<Request>();
         createdRequest.ShouldNotBeNull();

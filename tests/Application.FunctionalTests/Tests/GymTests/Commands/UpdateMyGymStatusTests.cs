@@ -1,5 +1,7 @@
 ﻿using FitPass.Application.Common.Exceptions;
 using FitPass.Application.Common.Models;
+using FitPass.Application.FunctionalTests.Common.Extensions;
+using FitPass.Application.FunctionalTests.Infrastructure.Testing;
 using FitPass.Application.FunctionalTests.TestData;
 using FitPass.Application.Gyms.Commands;
 using FitPass.Domain.Constants;
@@ -30,37 +32,16 @@ public class UpdateMyGymStatusTests : BaseTestFixture
     }
 
     [Test]
-    public async Task ShouldReturnBusinessRuleViolationIfGymIsSuspended() 
+    public async Task ShouldReturnBusinessRuleViolationIfGymIsSuspended()
     {
-        var gymAdmin = await CreateUserAsync(role: Roles.GymAdministrator);
+        var obj = await TestEntityBuilder.BuildGymAsync(GymStatus.Suspended)
 
-        var gym = new Gym
-        {
-            Name = "Test Gym",
-            Status = GymStatus.Suspended,
-            Address = new Address("lin1", "line2", "city", null, "postalCode", "HU"),
-            Tier = GymTier.Local
-        };
-
-        await AddAsync(gym);
-
-        var gymEmployment = new GymEmployment
-        {
-            UserId = gymAdmin.Id,
-            GymId = gym.Id,
-            Role = Roles.GymAdministrator,
-            EmploymentStart = GetUtcNow()
-        };
-
-        await AddAsync(gymEmployment);
-
-        await RunAsUserAsync(gymAdmin);
+        await RunAsUserAsync(obj.gymAdmin);
 
         var command = new UpdateMyGymStatusCommand(GymStatus.Active);
 
         var result = await SendAsync(command);
-        result.Type.ShouldBe(ResultTypes.BusinessRuleViolation);
-        result.Message.ShouldNotBeEmpty();
+        result.ShouldBeFailed(ResultTypes.BusinessRuleViolation);
     }
 
     [Test]
@@ -73,7 +54,7 @@ public class UpdateMyGymStatusTests : BaseTestFixture
         var command = new UpdateMyGymStatusCommand(GymStatus.Inactive);
 
         var result = await SendAsync(command);
-        result.Succeeded.ShouldBeTrue();
+        result.ShouldBeSuccessful();
 
         var gym = await FindAsync<Gym>(obj.gym.Id);
         gym.ShouldNotBeNull();

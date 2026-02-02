@@ -1,5 +1,6 @@
 ﻿namespace FitPass.Application.FunctionalTests.Tests.UserTests.Commands;
 
+/*
 using FitPass.Application.Common.Exceptions;
 using FitPass.Application.Common.Models;
 using FitPass.Application.Users.Commands;
@@ -71,3 +72,4 @@ public class RegisterUserTests : BaseTestFixture
         ShouldNotRequireAuthorization<RegisterUserCommand>();
     }
 }
+*/

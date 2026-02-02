@@ -1,4 +1,5 @@
 ﻿using FitPass.Application.Common.Models;
+using FitPass.Application.FunctionalTests.Infrastructure.Testing;
 using FitPass.Application.Requests.Queries;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
@@ -17,7 +18,7 @@ public class GetRequestByIdTests : BaseTestFixture
     }
 
     [Test]
-    public async Task ShouldDenyInvalidParameters()
+    public async Task ShouldThrowIfParametersAreInvalid()
     {
         await RunAsAppAdminAsync();
 
@@ -50,7 +51,7 @@ public class GetRequestByIdTests : BaseTestFixture
             Status = RequestStatus.Submitted,
             PriorityLevel = PriorityLevel.Medium,
             Type = RequestType.Other,
-            Payload = null
+            Payload = null,
         };
 
         await AddAsync(request);

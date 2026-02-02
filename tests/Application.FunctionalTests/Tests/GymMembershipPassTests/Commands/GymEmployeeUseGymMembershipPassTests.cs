@@ -1,6 +1,5 @@
-using System;
-using FitPass.Application.Common.Exceptions;
 using FitPass.Application.Common.Models;
+using FitPass.Application.FunctionalTests.Infrastructure.Testing;
 using FitPass.Application.FunctionalTests.TestData;
 using FitPass.Application.GymMembershipPasses.Commands;
 using FitPass.Domain.Constants;
@@ -17,17 +16,24 @@ public class GymEmployeeUseGymMembershipPassTests : BaseTestFixture
     [Test]
     public override void AuthorizeAttributeCheck()
     {
-        ShouldRequireAuthorization<GymEmployeeUseGymMembershipPassCommand>(Roles.GymAdministrator, Roles.GymStaff);
+        ShouldRequireAuthorization<GymEmployeeUseGymMembershipPassCommand>(
+            Roles.GymAdministrator,
+            Roles.GymStaff
+        );
     }
 
     [Test]
-    public async Task ShouldDenyInvalidParameters()
+    public async Task ShouldThrowIfParametersAreInvalid()
     {
         await RunAsGymEmployeeAsync(Roles.GymAdministrator);
 
-        var command = new GymEmployeeUseGymMembershipPassCommand(string.Empty, string.Empty, string.Empty);
+        var command = new GymEmployeeUseGymMembershipPassCommand(
+            string.Empty,
+            string.Empty,
+            string.Empty
+        );
 
-        await Should.ThrowAsync<ValidationException>(SendAsync(command));
+        await ShouldThrowIfParametersAreInvalidAsync(command);
     }
 
     [Test]
@@ -35,41 +41,44 @@ public class GymEmployeeUseGymMembershipPassTests : BaseTestFixture
     {
         await RunAsGymEmployeeAsync(Roles.GymStaff);
 
-        var command = new GymEmployeeUseGymMembershipPassCommand("invalidPassId", "2", "3");
+        var command = new GymEmployeeUseGymMembershipPassCommand("id", "id", "3");
 
         var result = await SendAsync(command);
-        result.Type.ShouldBe(ResultTypes.NotFound);
-        result.Message.ShouldNotBeEmpty();
+        result.ShouldBeFailed(ResultTypes.NotFound);
     }
 
     [Test]
-    public async Task ShouldReturnForbiddenIfPassBelongsToAnotherUser()
+    public async Task ShouldReturnNotFoundIfPassBelongsToAnotherUser()
     {
-        var user = await CreateUserAsync();
         var obj = await TestEntityBuilder.BuildGymAsync();
 
-        await RunAsUserAsync(obj.gymStaff);
+        await RunAsGymEmployeeAsync(Roles.GymAdministrator);
 
-        var command = new GymEmployeeUseGymMembershipPassCommand(obj.singleUsePass.Id, user.Id, "test locker");
+        var command = new GymEmployeeUseGymMembershipPassCommand(
+            obj.singleUsePass.Id,
+            obj.gymMember.Id,
+            "2"
+        );
 
         var result = await SendAsync(command);
-        result.Type.ShouldBe(ResultTypes.Forbidden);
-        result.Message.ShouldNotBeEmpty();
+        result.ShouldBeFailed(ResultTypes.NotFound);
     }
 
     [Test]
     public async Task ShouldReturnForbiddenIfPassBelongsToAnotherGym()
     {
-        var gymObj = await TestEntityBuilder.BuildGymAsync();
-        var anotherGymObj = await TestEntityBuilder.BuildGymAsync();
+        var obj = await TestEntityBuilder.BuildGymAsync();
 
-        await RunAsUserAsync(gymObj.gymStaff);
+        await RunAsGymEmployeeAsync(Roles.GymStaff);
 
-        var command = new GymEmployeeUseGymMembershipPassCommand(anotherGymObj.singleUsePass.Id, anotherGymObj.gymMember.Id, "test locker");
-        
+        var command = new GymEmployeeUseGymMembershipPassCommand(
+            obj.singleUsePass.Id,
+            obj.gymMember.Id,
+            "test locker"
+        );
+
         var result = await SendAsync(command);
-        result.Type.ShouldBe(ResultTypes.Forbidden);
-        result.Message.ShouldNotBeEmpty();
+        result.ShouldBeFailed(ResultTypes.Forbidden);
     }
 
     [Test]
@@ -83,23 +92,26 @@ public class GymEmployeeUseGymMembershipPassTests : BaseTestFixture
         {
             UserId = gymMember.Id,
             GymId = obj.gym.Id,
-            Status = GymMembershipStatus.Banned
+            Status = GymMembershipStatus.Banned,
         };
 
         var pass = GymPassProduct
-                        .SingleUse(obj.gym.Id, "name", "description", true, Money.Usd(10))
-                        .ToGymMembershipPass(bannedMembership.Id, gymMember.Id, GetUtcNow());
+            .SingleUse(obj.gym.Id, "name", "description", true, new Money(10, CurrencyCode.USD))
+            .ToGymMembershipPass(bannedMembership.Id, gymMember.Id, GetUtcNow());
 
         await AddAsync(bannedMembership);
         await AddAsync(pass);
 
         await RunAsUserAsync(obj.gymStaff);
 
-        var command = new GymEmployeeUseGymMembershipPassCommand(pass.Id, gymMember.Id, "test locker");
-        
+        var command = new GymEmployeeUseGymMembershipPassCommand(
+            pass.Id,
+            gymMember.Id,
+            "test locker"
+        );
+
         var result = await SendAsync(command);
-        result.Type.ShouldBe(ResultTypes.BusinessRuleViolation);
-        result.Message.ShouldNotBeEmpty();
+        result.ShouldBeFailed(ResultTypes.BusinessRuleViolation);
     }
 
     [TestCase(PassType.SingleUse)]
@@ -109,9 +121,9 @@ public class GymEmployeeUseGymMembershipPassTests : BaseTestFixture
     {
         var obj = await TestEntityBuilder.BuildGymAsync();
 
-        var name = "Test Pass";
-        var description = "Test Description";
-        var price = Money.Usd(10);
+        const string name = "Test Pass";
+        const string description = "Test Description";
+        var price = new Money(10, CurrencyCode.USD);
         var utcNow = GetUtcNow();
 
         GymMembershipPass pass;
@@ -119,21 +131,24 @@ public class GymEmployeeUseGymMembershipPassTests : BaseTestFixture
         switch (type)
         {
             case PassType.SingleUse:
-                pass = GymPassProduct.SingleUse(obj.gym.Id, name, description, true, price)
+                pass = GymPassProduct
+                    .SingleUse(obj.gym.Id, name, description, true, price)
                     .ToGymMembershipPass(obj.gymMembership.Id, obj.gymMember.Id, utcNow);
 
                 pass.RemainingUses = 0;
                 break;
             case PassType.MultiUse:
-                pass = GymPassProduct.MultiUse(obj.gym.Id, name, description, 10, true, price)
+                pass = GymPassProduct
+                    .MultiUse(obj.gym.Id, name, description, 10, true, price)
                     .ToGymMembershipPass(obj.gymMembership.Id, obj.gymMember.Id, utcNow);
 
                 pass.RemainingUses = 0;
                 break;
             case PassType.Unlimited:
-                pass = GymPassProduct.UnlimitedUse(obj.gym.Id, name, description, 10, true, price)
+                pass = GymPassProduct
+                    .UnlimitedUse(obj.gym.Id, name, description, 10, true, price)
                     .ToGymMembershipPass(obj.gymMembership.Id, obj.gymMember.Id, utcNow);
-            
+
                 pass.ExpirationDate = utcNow.AddYears(-1);
                 break;
             default:
@@ -141,14 +156,17 @@ public class GymEmployeeUseGymMembershipPassTests : BaseTestFixture
         }
 
         await AddAsync(pass);
-        
+
         await RunAsUserAsync(obj.gymStaff);
 
-        var command = new GymEmployeeUseGymMembershipPassCommand(pass.Id, obj.gymMember.Id, "test locker");
+        var command = new GymEmployeeUseGymMembershipPassCommand(
+            pass.Id,
+            obj.gymMember.Id,
+            "test locker"
+        );
 
         var result = await SendAsync(command);
-        result.Type.ShouldBe(ResultTypes.BusinessRuleViolation);
-        result.Message.ShouldNotBeEmpty();
+        result.ShouldBeFailed(ResultTypes.BusinessRuleViolation);
     }
 
     [Test]
@@ -157,19 +175,22 @@ public class GymEmployeeUseGymMembershipPassTests : BaseTestFixture
         var obj = await TestEntityBuilder.BuildGymAsync();
 
         var pass = GymPassProduct
-                        .SingleUse(obj.gym.Id, "name", "description", true, Money.Usd(10))
-                        .ToGymMembershipPass(obj.gymMembership.Id, obj.gymMember.Id, GetUtcNow());
+            .SingleUse(obj.gym.Id, "name", "description", true, new Money(10, CurrencyCode.USD))
+            .ToGymMembershipPass(obj.gymMembership.Id, obj.gymMember.Id, GetUtcNow());
 
         await AddAsync(pass);
 
         await RunAsUserAsync(obj.gymStaff);
 
-        var command = new GymEmployeeUseGymMembershipPassCommand(pass.Id, obj.gymMember.Id, "test locker");
-        
+        var command = new GymEmployeeUseGymMembershipPassCommand(
+            pass.Id,
+            obj.gymMember.Id,
+            "test locker"
+        );
+
         var result = await SendAsync(command);
-        result.Succeeded.ShouldBeTrue();
-        result.Value.ShouldBe(PassUseResult.Success);
-        
+        result.ShouldBeSuccessful();
+
         var usageCount = await CountAsync<GymPassUsage>();
         usageCount.ShouldBe(2);
     }

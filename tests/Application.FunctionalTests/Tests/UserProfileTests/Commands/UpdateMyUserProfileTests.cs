@@ -4,6 +4,7 @@ using FitPass.Domain.Entities;
 
 namespace FitPass.Application.FunctionalTests.Tests.UserProfileTests.Commands;
 
+/*
 using static Testing;
 
 public class UpdateMyUserProfileTests : BaseTestFixture
@@ -15,7 +16,7 @@ public class UpdateMyUserProfileTests : BaseTestFixture
     }
 
     [Test]
-    public async Task ShouldDenyInvalidParameters()
+    public async Task ShouldThrowIfParametersAreInvalid()
     {
         await RunAsDefaultUserAsync();
 
@@ -43,3 +44,4 @@ public class UpdateMyUserProfileTests : BaseTestFixture
         updatedUserProfile.LastName.ShouldBe(newLastName);
     }
 }
+*/

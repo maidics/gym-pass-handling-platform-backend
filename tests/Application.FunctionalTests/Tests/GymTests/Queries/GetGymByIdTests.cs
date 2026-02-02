@@ -1,4 +1,6 @@
 ﻿using FitPass.Application.Common.Models;
+using FitPass.Application.FunctionalTests.Common.Extensions;
+using FitPass.Application.FunctionalTests.Infrastructure.Testing;
 using FitPass.Application.FunctionalTests.TestData;
 using FitPass.Application.Gyms.Queries;
 using FitPass.Domain.Constants;
@@ -16,7 +18,7 @@ public class GetGymByIdTests : BaseTestFixture
     }
 
     [Test]
-    public async Task ShouldDenyInvalidParameters()
+    public async Task ShouldThrowIfParametersAreInvalid()
     {
         await RunAsAppAdminAsync();
 
@@ -26,29 +28,63 @@ public class GetGymByIdTests : BaseTestFixture
     }
 
     [Test]
-    public async Task ShouldReturnNotFoundIfGymNotExists()
+    public async Task ShouldReturnNotFoundIfGymNotFound()
     {
         await RunAsAppAdminAsync();
 
-        var query = new GetGymByIdQuery("GymId");
+        var query = new GetGymByIdQuery("id");
 
         var result = await SendAsync(query);
-        result.Type.ShouldBe(ResultTypes.NotFound);
-        result.Message.ShouldNotBeEmpty();
+        result.ShouldBeFailed(ResultTypes.NotFound);
     }
 
     [Test]
     public async Task ShouldReturnGym()
     {
-        var obj = await TestEntityBuilder.BuildGymAsync();
-
-        await RunAsAppAdminAsync();
+        var obj = await TestEntityBuilder.BuildGymWithTenantPaymentProfileAsync();
 
         var query = new GetGymByIdQuery(obj.gym.Id);
 
         var result = await SendAsync(query);
-        result.Succeeded.ShouldBeTrue();
-        result.Value.ShouldNotBeNull();
-        result.Value.AssertToGym(obj.gym);
+        result.ShouldBeSuccessful();
+
+        var gymDto = result.Value;
+        gymDto.ShouldNotBeNull();
+        gymDto.Id.ShouldBe(obj.gym.Id);
+        gymDto.PaymentProfile.ShouldBeNull();
+    }
+
+    [Test]
+    public async Task ShouldReturnGymWithPaymentProfileForGymAdminIfTheirGym()
+    {
+        var obj = await TestEntityBuilder.BuildGymWithTenantPaymentProfileAsync();
+
+        await RunAsUserAsync(obj.gymAdmin);
+
+        var query = new GetGymByIdQuery(obj.gym.Id);
+
+        var result = await SendAsync(query);
+        result.ShouldBeSuccessful();
+
+        var gymDto = result.Value;
+        gymDto.Id.ShouldBe(obj.gym.Id);
+        gymDto.PaymentProfile.ShouldNotBeNull();
+    }
+
+    [Test]
+    public async Task ShouldReturnGymWithoutPaymentProfileForGymAdminFromAnotherGym()
+    {
+        var obj = await TestEntityBuilder.BuildGymWithTenantPaymentProfileAsync();
+
+        await RunAsGymEmployeeAsync(Roles.GymAdministrator);
+
+        var query = new GetGymByIdQuery(obj.gym.Id);
+
+        var result = await SendAsync(query);
+        result.ShouldBeSuccessful();
+
+        var gymDto = result.Value;
+        gymDto.Id.ShouldBe(obj.gym.Id);
+        gymDto.PaymentProfile.ShouldBeNull();
     }
 }

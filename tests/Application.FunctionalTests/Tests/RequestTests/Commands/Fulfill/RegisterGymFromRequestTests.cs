@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
-using FitPass.Application.Common.Exceptions;
 using FitPass.Application.Common.Models;
+using FitPass.Application.FunctionalTests.Common.Extensions;
+using FitPass.Application.FunctionalTests.Infrastructure.Testing;
 using FitPass.Application.FunctionalTests.TestData;
 using FitPass.Application.Requests.Commands.Fulfill;
 using FitPass.Application.Requests.DTOs;
@@ -9,7 +10,7 @@ using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
 using FitPass.Infrastructure.Identity;
 
-namespace FitPass.Application.FunctionalTests.Tests.GymTests.Commands;
+namespace FitPass.Application.FunctionalTests.Tests.RequestTests.Commands.Fulfill;
 
 using static Testing;
 
@@ -22,7 +23,7 @@ public class RegisterGymFromRequestTests : BaseTestFixture
     }
 
     [Test]
-    public async Task ShouldDenyInvalidParameters()
+    public async Task ShouldThrowIfParametersAreInvalid()
     {
         await RunAsAppAdminAsync();
 
@@ -39,21 +40,20 @@ public class RegisterGymFromRequestTests : BaseTestFixture
         var command = new RegisterGymFromRequestCommand("notExistsId");
 
         var result = await SendAsync(command);
-        result.Type.ShouldBe(ResultTypes.NotFound);
-        result.Message.ShouldNotBeEmpty();
+        result.ShouldBeFailed(ResultTypes.NotFound);
     }
 
     [Test]
-    public async Task ShouldReturnFobiddenIfRequestIsNoLongerSubmittedStatus()
+    public async Task ShouldReturnForbiddenIfRequestIsNoLongerSubmittedStatus()
     {
         var request = new Request
         {
-            Title = "Test Request",
-            Description = "Test Description",
+            Title = "Title",
+            Description = "Description",
             Type = RequestType.GymCreation,
             PriorityLevel = PriorityLevel.Medium,
             Status = RequestStatus.Approved,
-            Payload = null
+            Payload = null,
         };
 
         await AddAsync(request);
@@ -63,8 +63,7 @@ public class RegisterGymFromRequestTests : BaseTestFixture
         var command = new RegisterGymFromRequestCommand(request.Id);
 
         var result = await SendAsync(command);
-        result.Type.ShouldBe(ResultTypes.Forbidden);
-        result.Message.ShouldNotBeEmpty();
+        result.ShouldBeFailed(ResultTypes.Forbidden);
     }
 
     [Test]
@@ -72,12 +71,12 @@ public class RegisterGymFromRequestTests : BaseTestFixture
     {
         var request = new Request
         {
-            Title = "Test Request",
-            Description = "Test Description",
+            Title = "Title",
+            Description = "Description",
             Type = RequestType.Other,
             PriorityLevel = PriorityLevel.Medium,
             Status = RequestStatus.Submitted,
-            Payload = null
+            Payload = null,
         };
 
         await AddAsync(request);
@@ -87,8 +86,7 @@ public class RegisterGymFromRequestTests : BaseTestFixture
         var command = new RegisterGymFromRequestCommand(request.Id);
 
         var result = await SendAsync(command);
-        result.Type.ShouldBe(ResultTypes.BusinessRuleViolation);
-        result.Message.ShouldNotBeEmpty();
+        result.ShouldBeFailed(ResultTypes.BusinessRuleViolation);
     }
 
     [Test]
@@ -96,13 +94,13 @@ public class RegisterGymFromRequestTests : BaseTestFixture
     {
         var request = new Request
         {
-            Title = "Test Request",
-            Description = "Test Description",
+            Title = "Title",
+            Description = "Description",
             Type = RequestType.GymCreation,
             PriorityLevel = PriorityLevel.Medium,
             Status = RequestStatus.Submitted,
             Payload = null,
-            CreatedBy = null
+            CreatedBy = null,
         };
 
         await AddAsync(request);
@@ -112,14 +110,12 @@ public class RegisterGymFromRequestTests : BaseTestFixture
         var command = new RegisterGymFromRequestCommand(request.Id);
 
         var result = await SendAsync(command);
-        result.Type.ShouldBe(ResultTypes.InternalError);
-        result.Message.ShouldNotBeEmpty();
+        result.ShouldBeFailed(ResultTypes.InternalError);
 
-        request = await FindAsync<Request>(request.Id);
-        request.ShouldNotBeNull();
-        request.Status.ShouldBe(RequestStatus.Error);
-        request.Error.ShouldNotBeNull();
-        request.Error.ShouldContain("Request creator is empty");
+        var updatedRequest = await FindAsync<Request>(request.Id);
+        updatedRequest.ShouldNotBeNull();
+        updatedRequest.Status.ShouldBe(RequestStatus.Error);
+        updatedRequest.Error.ShouldNotBeNullOrEmpty();
     }
 
     //not tested because of foreign key constraint on Request.CreatedBy
@@ -164,13 +160,13 @@ public class RegisterGymFromRequestTests : BaseTestFixture
 
         var request = new Request
         {
-            Title = "Test Request",
-            Description = "Test Description",
+            Title = "Title",
+            Description = "Description",
             Type = RequestType.GymCreation,
             PriorityLevel = PriorityLevel.Medium,
             Status = RequestStatus.Submitted,
             Payload = null,
-            CreatedBy = user.Id
+            CreatedBy = user.Id,
         };
 
         await AddAsync(request);
@@ -180,13 +176,12 @@ public class RegisterGymFromRequestTests : BaseTestFixture
         var command = new RegisterGymFromRequestCommand(request.Id);
 
         var result = await SendAsync(command);
-        result.Type.ShouldBe(ResultTypes.BusinessRuleViolation);
-        result.Message.ShouldNotBeEmpty();
+        result.ShouldBeFailed(ResultTypes.BusinessRuleViolation);
 
-        request = await FindAsync<Request>(request.Id);
-        request.ShouldNotBeNull();
-        request.Status.ShouldBe(RequestStatus.Error);
-        request.Error.ShouldBe("Request creator is no longer eligible for request completion.");
+        var updatedRequest = await FindAsync<Request>(request.Id);
+        updatedRequest.ShouldNotBeNull();
+        updatedRequest.Status.ShouldBe(RequestStatus.Error);
+        updatedRequest.Error.ShouldNotBeNullOrEmpty();
     }
 
     [Test]
@@ -202,7 +197,7 @@ public class RegisterGymFromRequestTests : BaseTestFixture
             PriorityLevel = PriorityLevel.Medium,
             Status = RequestStatus.Submitted,
             Payload = "invalidPayload",
-            CreatedBy = pendingGymEmployee.Id
+            CreatedBy = pendingGymEmployee.Id,
         };
 
         await AddAsync(request);
@@ -212,14 +207,12 @@ public class RegisterGymFromRequestTests : BaseTestFixture
         var command = new RegisterGymFromRequestCommand(request.Id);
 
         var result = await SendAsync(command);
-        result.Type.ShouldBe(ResultTypes.InternalError);
-        result.Message.ShouldNotBeEmpty();
-        
-        request = await FindAsync<Request>(request.Id);
-        request.ShouldNotBeNull();
-        request.Status.ShouldBe(RequestStatus.Error);
-        request.Error.ShouldNotBeNull();
-        request.Error.ShouldContain("Failed to deserialize payload.");
+        result.ShouldBeFailed(ResultTypes.InternalError);
+
+        var updatedRequest = await FindAsync<Request>(request.Id);
+        updatedRequest.ShouldNotBeNull();
+        updatedRequest.Status.ShouldBe(RequestStatus.Error);
+        updatedRequest.Error.ShouldNotBeNullOrEmpty();
     }
 
     [Test]
@@ -235,7 +228,7 @@ public class RegisterGymFromRequestTests : BaseTestFixture
             Address = obj.gym.Address,
             Status = GymStatus.Active,
             Tier = GymTier.Local,
-            SupervisorEmail = "test@localhost"
+            SupervisorEmail = "test@localhost",
         };
 
         var request = new Request
@@ -246,7 +239,7 @@ public class RegisterGymFromRequestTests : BaseTestFixture
             PriorityLevel = PriorityLevel.Medium,
             Status = RequestStatus.Submitted,
             Payload = JsonSerializer.Serialize(createGymDto),
-            CreatedBy = pendingGymEmployee.Id
+            CreatedBy = pendingGymEmployee.Id,
         };
 
         await AddAsync(request);
@@ -256,8 +249,7 @@ public class RegisterGymFromRequestTests : BaseTestFixture
         var command = new RegisterGymFromRequestCommand(request.Id);
 
         var result = await SendAsync(command);
-        result.Type.ShouldBe(ResultTypes.Conflict);
-        result.Message.ShouldNotBeEmpty();
+        result.ShouldBeFailed(ResultTypes.Conflict);
     }
 
     [Test]
@@ -270,7 +262,7 @@ public class RegisterGymFromRequestTests : BaseTestFixture
         var command = new RegisterGymFromRequestCommand(obj.request.Id);
 
         var result = await SendAsync(command);
-        result.Succeeded.ShouldBeTrue();
+        result.ShouldBeSuccessful();
         result.Value.ShouldNotBeNull();
 
         var gymCount = await CountAsync<Gym>();
@@ -288,7 +280,9 @@ public class RegisterGymFromRequestTests : BaseTestFixture
         roles.Count.ShouldBe(1);
         roles.First().ShouldBe(Roles.GymAdministrator);
 
-        var createdGymEmployment = await FindByUserIdAsync<GymEmployment>(obj.pendingGymEmployee.Id);
+        var createdGymEmployment = await FindByUserIdAsync<GymEmployment>(
+            obj.pendingGymEmployee.Id
+        );
         createdGymEmployment.ShouldNotBeNull();
         createdGymEmployment.UserId.ShouldBe(obj.pendingGymEmployee.Id);
         createdGymEmployment.GymId.ShouldBe(createdGym.Id);

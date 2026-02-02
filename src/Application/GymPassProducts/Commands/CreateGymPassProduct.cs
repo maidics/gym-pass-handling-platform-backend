@@ -14,68 +14,109 @@ using FitPass.Domain.ValueObjects;
 namespace FitPass.Application.GymPassProducts.Commands;
 
 [Authorize(Roles = Roles.GymAdministrator)]
-public record CreateGymPassProductCommand
-    (
-        string Name,
-        string Description,
-        PassType PassType,
-        int? TotalUses,
-        int? DaysAfterExpires,
-        bool IsActive,
-        Money Price
-    ) : IRequest<Result<GymPassProductDto>>;
+public record CreateGymPassProductCommand(
+    string Name,
+    string Description,
+    PassType PassType,
+    int? TotalUses,
+    int? DaysAfterExpires,
+    bool IsActive,
+    Money Price
+) : IRequest<Result<GymPassProductDto>>;
 
 public class CreateGymPassProductCommandValidator : AbstractValidator<CreateGymPassProductCommand>
 {
-    public CreateGymPassProductCommandValidator(ILocalizer localizer)
+    public CreateGymPassProductCommandValidator(
+        ILocalizer localizer,
+        IPaymentPriceService paymentPriceService
+    )
     {
         RuleFor(v => v.Name)
-            .NotEmptyWithMaxLengthAndMessageLocalized(localizer, nameof(SharedResource.Name), MaxLengths.Name);
+            .NotEmptyWithMaxLengthAndMessageLocalized(
+                localizer,
+                nameof(SharedResource.Name),
+                MaxLengths.Name
+            );
 
         RuleFor(v => v.Description)
-            .NotEmptyWithMaxLengthAndMessageLocalized(localizer, nameof(SharedResource.Description), MaxLengths.Description);
+            .NotEmptyWithMaxLengthAndMessageLocalized(
+                localizer,
+                nameof(SharedResource.Description),
+                MaxLengths.Description
+            );
 
-        When(v => v.PassType == PassType.SingleUse, () =>
-        {
-            RuleFor(v => v.TotalUses)
-                .NotEmptyWithMessageLocalized(localizer, nameof(SharedResource.TotalUses))
-                .Equal(1)
-                .WithMessage(localizer.Get(nameof(SharedResource.SingleUsePassCanOnlyHaveOneTotalUse)));
+        When(
+            v => v.PassType == PassType.SingleUse,
+            () =>
+            {
+                RuleFor(v => v.TotalUses)
+                    .NotEmptyWithMessageLocalized(localizer, nameof(SharedResource.TotalUses))
+                    .Equal(1)
+                    .WithMessage(
+                        localizer.Get(nameof(SharedResource.SingleUsePassCanOnlyHaveOneTotalUse))
+                    );
 
-            RuleFor(v => v.DaysAfterExpires)
-                .Null()
-                .WithMessage(localizer.Get(nameof(SharedResource.UseBasedPassTypeCannotHaveExpirationTime)));
-        });
+                RuleFor(v => v.DaysAfterExpires)
+                    .Null()
+                    .WithMessage(
+                        localizer.Get(
+                            nameof(SharedResource.UseBasedPassTypeCannotHaveExpirationTime)
+                        )
+                    );
+            }
+        );
 
-        When(v => v.PassType == PassType.MultiUse, () =>
-        {
-            RuleFor(v => v.TotalUses)
-                .NotEmptyWithMessageLocalized(localizer, nameof(SharedResource.TotalUses))
-                .GreaterThan(1)
-                .WithMessage(localizer.Get(nameof(SharedResource.MultiUsePassTypeMustHaveAtLeastTwoUses)));
+        When(
+            v => v.PassType == PassType.MultiUse,
+            () =>
+            {
+                RuleFor(v => v.TotalUses)
+                    .NotEmptyWithMessageLocalized(localizer, nameof(SharedResource.TotalUses))
+                    .GreaterThan(1)
+                    .WithMessage(
+                        localizer.Get(nameof(SharedResource.MultiUsePassTypeMustHaveAtLeastTwoUses))
+                    );
 
-            RuleFor(v => v.DaysAfterExpires)
-                .Null()
-                .WithMessage(localizer.Get(nameof(SharedResource.UseBasedPassTypeCannotHaveExpirationTime)));
-        });
+                RuleFor(v => v.DaysAfterExpires)
+                    .Null()
+                    .WithMessage(
+                        localizer.Get(
+                            nameof(SharedResource.UseBasedPassTypeCannotHaveExpirationTime)
+                        )
+                    );
+            }
+        );
 
-        When(v => v.PassType == PassType.Unlimited, () =>
-        {
-            RuleFor(v => v.DaysAfterExpires)
-                .NotEmptyWithMessageLocalized(localizer, nameof(SharedResource.DaysAfterExpires))
-                .GreaterThan(0).WithMessage(localizer.Get(nameof(SharedResource.UnlimitedPassDaysAfterExpiresAtLeastOne)));
+        When(
+            v => v.PassType == PassType.Unlimited,
+            () =>
+            {
+                RuleFor(v => v.DaysAfterExpires)
+                    .NotEmptyWithMessageLocalized(
+                        localizer,
+                        nameof(SharedResource.DaysAfterExpires)
+                    )
+                    .GreaterThan(0)
+                    .WithMessage(
+                        localizer.Get(
+                            nameof(SharedResource.UnlimitedPassDaysAfterExpiresAtLeastOne)
+                        )
+                    );
 
-            RuleFor(v => v.TotalUses)
-                .Null()
-                .WithMessage(localizer.Get(nameof(SharedResource.UnlimitedPassTypesCannotHaveUses)));
-        });
+                RuleFor(v => v.TotalUses)
+                    .Null()
+                    .WithMessage(
+                        localizer.Get(nameof(SharedResource.UnlimitedPassTypesCannotHaveUses))
+                    );
+            }
+        );
 
-        RuleFor(v => v.Price)
-            .NotEmptyWithMessageLocalized(localizer, nameof(SharedResource.Price));
+        RuleFor(v => v.Price).ValidMoneyWithMessageLocalized(localizer);
     }
 }
 
-public class CreateGymPassProductCommandHandler : IRequestHandler<CreateGymPassProductCommand, Result<GymPassProductDto>>
+public class CreateGymPassProductCommandHandler
+    : IRequestHandler<CreateGymPassProductCommand, Result<GymPassProductDto>>
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
@@ -88,7 +129,8 @@ public class CreateGymPassProductCommandHandler : IRequestHandler<CreateGymPassP
         IUser user,
         IPaymentProductService paymentProductService,
         IPaymentPriceService paymentPriceService,
-        ILocalizer localizer)
+        ILocalizer localizer
+    )
     {
         _context = context;
         _user = user;
@@ -97,43 +139,49 @@ public class CreateGymPassProductCommandHandler : IRequestHandler<CreateGymPassP
         _localizer = localizer;
     }
 
-    public async Task<Result<GymPassProductDto>> Handle(CreateGymPassProductCommand command, CancellationToken cancellationToken)
+    public async Task<Result<GymPassProductDto>> Handle(
+        CreateGymPassProductCommand command,
+        CancellationToken cancellationToken
+    )
     {
-        var moneyValidationResult = _paymentPriceService.ValidateMoney(command.Price);
-
-        if (!moneyValidationResult.Succeeded)
-        {
-            return new ResultFailure(moneyValidationResult);
-        }
-        
-        var gymEmployment = await _context.GymEmployments
-            .AsNoTracking()
+        var gymEmployment = await _context
+            .GymEmployments.AsNoTracking()
             .Include(x => x.Gym)
             .FirstOrDefaultAsync(ge => ge.UserId == _user.Id, cancellationToken);
 
-        Guard.Against.NullParameterRelatedToCurrentUser(gymEmployment, nameof(GymEmployment), _user.Id);
+        Guard.Against.NullParameterRelatedToCurrentUser(
+            gymEmployment,
+            nameof(GymEmployment),
+            _user.Id
+        );
 
         if (gymEmployment.Gym.Status == GymStatus.Suspended)
         {
-            return Result.BusinessRuleViolation(_localizer.Get(
-                nameof(SharedResource.CannotCreateGymPassProductForGymThatIsSuspended)));
+            return Result.BusinessRuleViolation(
+                _localizer.Get(
+                    nameof(SharedResource.CannotCreateGymPassProductForGymThatIsSuspended)
+                )
+            );
         }
-        
-        var tenantPaymentProfile = await _context.TenantPaymentProfiles
-            .AsNoTracking()
+
+        var tenantPaymentProfile = await _context
+            .TenantPaymentProfiles.AsNoTracking()
             .FirstOrDefaultAsync(x => x.GymId == gymEmployment.GymId, cancellationToken);
-        
+
         if (tenantPaymentProfile is null)
         {
-            return Result.BusinessRuleViolation(_localizer.Get(nameof(SharedResource.RequiresStripeAccount)));
+            return Result.BusinessRuleViolation(
+                _localizer.Get(nameof(SharedResource.RequiresStripeAccount))
+            );
         }
 
         var productResult = await _paymentProductService.CreateProductAsync(
-            command.Name, 
-            command.Description, 
-            command.PassType, 
+            command.Name,
+            command.Description,
+            command.PassType,
             command.IsActive,
-            tenantPaymentProfile.PaymentAccountId);
+            tenantPaymentProfile.PaymentAccountId
+        );
 
         if (!productResult.Succeeded)
         {
@@ -141,10 +189,11 @@ public class CreateGymPassProductCommandHandler : IRequestHandler<CreateGymPassP
         }
 
         var priceResult = await _paymentPriceService.CreatePriceAsync(
-            productResult.Value, 
-            command.Price, 
-            command.IsActive, 
-            tenantPaymentProfile.PaymentAccountId);
+            productResult.Value,
+            command.Price,
+            command.IsActive,
+            tenantPaymentProfile.PaymentAccountId
+        );
 
         if (!priceResult.Succeeded)
         {
@@ -158,7 +207,8 @@ public class CreateGymPassProductCommandHandler : IRequestHandler<CreateGymPassP
                 command.Name,
                 command.Description,
                 command.IsActive,
-                command.Price),
+                command.Price
+            ),
 
             PassType.MultiUse => GymPassProduct.MultiUse(
                 gymEmployment.GymId,
@@ -166,7 +216,8 @@ public class CreateGymPassProductCommandHandler : IRequestHandler<CreateGymPassP
                 command.Description,
                 (int)command.TotalUses!,
                 command.IsActive,
-                command.Price),
+                command.Price
+            ),
 
             PassType.Unlimited => GymPassProduct.UnlimitedUse(
                 gymEmployment.GymId,
@@ -174,9 +225,10 @@ public class CreateGymPassProductCommandHandler : IRequestHandler<CreateGymPassP
                 command.Description,
                 (int)command.DaysAfterExpires!,
                 command.IsActive,
-                command.Price),
+                command.Price
+            ),
 
-            _ => throw new NotImplementedException()
+            _ => throw new NotImplementedException(),
         };
 
         var paymentIdenity = new ProductPaymentIdentity

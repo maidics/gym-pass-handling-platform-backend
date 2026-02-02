@@ -1,4 +1,5 @@
 using FitPass.Application.Common.Models;
+using FitPass.Application.FunctionalTests.Infrastructure.Testing;
 using FitPass.Application.FunctionalTests.TestData;
 using FitPass.Application.GymMemberships.Commands;
 using FitPass.Domain.Constants;
@@ -14,15 +15,23 @@ public class UpdateGymMembershipStatusTests : BaseTestFixture
     [Test]
     public override void AuthorizeAttributeCheck()
     {
-        ShouldRequireAuthorization<UpdateGymMembershipStatusCommand>(Roles.GymAdministrator, Roles.GymStaff);
+        ShouldRequireAuthorization<UpdateGymMembershipStatusCommand>(
+            Roles.GymAdministrator,
+            Roles.GymStaff
+        );
     }
 
     [Test]
-    public async Task ShouldDenyInvalidParameters()
+    public async Task ShouldThrowIfParametersAreInvalid()
     {
         await RunAsGymEmployeeAsync(Roles.GymAdministrator);
 
-        await ShouldThrowIfParametersAreInvalidAsync(new UpdateGymMembershipStatusCommand(string.Empty, GymMembershipStatus.Banned));
+        var command = new UpdateGymMembershipStatusCommand(
+            string.Empty,
+            GymMembershipStatus.Banned
+        );
+
+        await ShouldThrowIfParametersAreInvalidAsync(command);
     }
 
     [Test]
@@ -30,26 +39,26 @@ public class UpdateGymMembershipStatusTests : BaseTestFixture
     {
         await RunAsGymEmployeeAsync(Roles.GymAdministrator);
 
-        var command = new UpdateGymMembershipStatusCommand("non-existing-id", GymMembershipStatus.Banned);
+        var command = new UpdateGymMembershipStatusCommand("id", GymMembershipStatus.Banned);
 
         var result = await SendAsync(command);
-        result.Type.ShouldBe(ResultTypes.NotFound);
-        result.Message.ShouldNotBeEmpty();
+        result.ShouldBeFailed(ResultTypes.NotFound);
     }
 
     [Test]
-    public async Task ShouldReturnForbiddenIfTheGymMembershipIsInAnotherGym()
+    public async Task ShouldReturnNotFoundIfTheGymMembershipIsInAnotherGym()
     {
-        var obj1 = await TestEntityBuilder.BuildGymAsync();
+        var obj = await TestEntityBuilder.BuildGymAsync();
 
-        var obj2 = await TestEntityBuilder.BuildGymAsync();
+        await RunAsGymEmployeeAsync(Roles.GymAdministrator);
 
-        await RunAsUserAsync(obj1.gymAdmin);
-
-        var command = new UpdateGymMembershipStatusCommand(obj2.gymMembership.Id, GymMembershipStatus.Banned);
+        var command = new UpdateGymMembershipStatusCommand(
+            obj.gymMembership.Id,
+            GymMembershipStatus.Banned
+        );
 
         var result = await SendAsync(command);
-        result.Type.ShouldBe(ResultTypes.Forbidden);
+        result.ShouldBeFailed(ResultTypes.NotFound);
     }
 
     [Test]
@@ -62,10 +71,13 @@ public class UpdateGymMembershipStatusTests : BaseTestFixture
 
         await RunAsUserAsync(obj.gymAdmin);
 
-        var command = new UpdateGymMembershipStatusCommand(obj.gymMembership.Id, GymMembershipStatus.Banned);
+        var command = new UpdateGymMembershipStatusCommand(
+            obj.gymMembership.Id,
+            GymMembershipStatus.Banned
+        );
 
         var result = await SendAsync(command);
-        result.Succeeded.ShouldBeTrue();
+        result.ShouldBeSuccessful();
 
         var updatedGymMembership = await FindAsync<GymMembership>(obj.gymMembership.Id);
         updatedGymMembership.ShouldNotBeNull();

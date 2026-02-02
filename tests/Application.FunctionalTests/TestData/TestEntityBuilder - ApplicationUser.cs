@@ -1,3 +1,4 @@
+using FitPass.Application.FunctionalTests.Infrastructure.Testing;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
@@ -10,7 +11,10 @@ using static Testing;
 
 public static partial class TestEntityBuilder
 {
-    public static async Task<(ApplicationUser user, UserProfile userProfile)> BuildDefaultUserAsync()
+    public static async Task<(
+        ApplicationUser user,
+        UserProfile userProfile
+    )> BuildDefaultUserAsync()
     {
         var user = await CreateUserAsync();
 
@@ -20,7 +24,7 @@ public static partial class TestEntityBuilder
             FirstName = "Default",
             LastName = "User",
             PreferredLanguage = GetDefaultCulture(),
-            CreatedOn = GetUtcNow()
+            CreatedOn = GetUtcNow(),
         };
 
         await AddAsync(userProfile);
@@ -28,9 +32,15 @@ public static partial class TestEntityBuilder
         return (user, userProfile);
     }
 
-    public static async Task<(ApplicationUser user, UserProfile userProfile)> BuildPendingGymEmployeeAsync(bool emailConfirmed = false)
+    public static async Task<(
+        ApplicationUser user,
+        UserProfile userProfile
+    )> BuildPendingGymEmployeeAsync(bool emailConfirmed = false)
     {
-        var user = await CreateUserAsync(role: Roles.PendingGymEmployee, emailConfirmed: emailConfirmed);
+        var user = await CreateUserAsync(
+            role: Roles.PendingGymEmployee,
+            emailConfirmed: emailConfirmed
+        );
 
         var userProfile = new UserProfile
         {
@@ -38,7 +48,7 @@ public static partial class TestEntityBuilder
             FirstName = "Pending",
             LastName = "GymEmployee",
             PreferredLanguage = GetDefaultCulture(),
-            CreatedOn = GetUtcNow()
+            CreatedOn = GetUtcNow(),
         };
 
         await AddAsync(userProfile);
@@ -56,19 +66,24 @@ public static partial class TestEntityBuilder
             FirstName = "App",
             LastName = "Admin",
             PreferredLanguage = GetDefaultCulture(),
-            CreatedOn = GetUtcNow()
+            CreatedOn = GetUtcNow(),
         };
 
         await AddAsync(userProfile);
 
         return (user, userProfile);
     }
-    
+
     public static async Task<(
-        ApplicationUser user, 
-        Gym gym, 
-        GymEmployment gymEmployment, 
-        UserProfile userProfile)> BuildGymEmployeeAsync(string employeeRole, GymStatus gymStatus = GymStatus.Active)
+        ApplicationUser user,
+        Gym gym,
+        GymEmployment gymEmployment,
+        UserProfile userProfile
+    )> BuildGymEmployeeAsync(
+        string employeeRole,
+        GymStatus gymStatus = GymStatus.Active,
+        List<GymContactInfo>? gymContactInfos = null
+    )
     {
         if (employeeRole != Roles.GymAdministrator && employeeRole != Roles.GymStaff)
         {
@@ -83,6 +98,7 @@ public static partial class TestEntityBuilder
             Address = new Address("line1", "line2", "city", null, "postalCode", "HU"),
             Status = gymStatus,
             Tier = GymTier.Local,
+            ContactInfos = gymContactInfos ?? [],
         };
 
         await AddAsync(gym);
@@ -92,7 +108,6 @@ public static partial class TestEntityBuilder
             UserId = user.Id,
             GymId = gym.Id,
             Role = employeeRole,
-            EmploymentStart = DateTime.UtcNow,
         };
 
         await AddAsync(gymEmployment);
@@ -103,7 +118,7 @@ public static partial class TestEntityBuilder
             FirstName = "Gym",
             LastName = "Employee",
             PreferredLanguage = GetDefaultCulture(),
-            CreatedOn = GetUtcNow()
+            CreatedOn = GetUtcNow(),
         };
 
         await AddAsync(userProfile);

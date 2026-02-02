@@ -1,4 +1,7 @@
 ﻿using FitPass.Application.Common.Models;
+using FitPass.Application.FunctionalTests.Common.Constants;
+using FitPass.Application.FunctionalTests.Common.Extensions;
+using FitPass.Application.FunctionalTests.Infrastructure.Testing;
 using FitPass.Application.FunctionalTests.TestData;
 using FitPass.Application.GymPassProducts.Commands;
 using FitPass.Domain.Constants;
@@ -19,33 +22,46 @@ public class CreateGymPassProductTests : BaseTestFixture
         ShouldRequireAuthorization<CreateGymPassProductCommand>(Roles.GymAdministrator);
     }
 
-    [TestCase("", "", PassType.SingleUse, 1, null, false)]
-    [TestCase("Test Product", "Test Description", PassType.SingleUse, null, 10, false)]
-    [TestCase("Test Product", "Test Description", PassType.SingleUse, null, null, false)]
-    [TestCase("Test Product", "Test Description", PassType.SingleUse, 0, null, false)]
-    [TestCase("Test Product", "Test Description", PassType.SingleUse, 2, null, false)]
-    [TestCase("Test Product", "Test Description", PassType.MultiUse, null, null, false)]
-    [TestCase("Test Product", "Test Description", PassType.MultiUse, null, 1, false)]
-    [TestCase("Test Product", "Test Description", PassType.MultiUse, 0, null, false)]
-    [TestCase("Test Product", "Test Description", PassType.MultiUse, 1, null, false)]
-    [TestCase("Test Product", "Test Description", PassType.Unlimited, null, null, false)]
-    [TestCase("Test Product", "Test Description", PassType.Unlimited, 0, null, false)]
-    [TestCase("Test Product", "Test Description", PassType.Unlimited, 1, null, false)]
-    [TestCase("Test Product", "Test Description", PassType.Unlimited, 99, null, false)]
-    public async Task ShouldDenyInvalidParameters(
-        string name, string description, PassType type, int? totalUses, int? daysAfterExpiring, bool isActive)
+    [TestCase(PassType.SingleUse, 1, null, 0, CurrencyCode.HUF)]
+    [TestCase(PassType.SingleUse, 1, null, 125, CurrencyCode.HUF)]
+    [TestCase(PassType.SingleUse, 1, null, 249, CurrencyCode.HUF)]
+    [TestCase(PassType.SingleUse, 1, null, -1, CurrencyCode.HUF)]
+    [TestCase(PassType.SingleUse, 1, null, 0, CurrencyCode.USD)]
+    [TestCase(PassType.SingleUse, 1, null, 0.9, CurrencyCode.USD)]
+    [TestCase(PassType.SingleUse, 1, null, 0, CurrencyCode.EUR)]
+    [TestCase(PassType.SingleUse, 1, null, 0.9, CurrencyCode.EUR)]
+    [TestCase(PassType.SingleUse, null, 10, 250, CurrencyCode.HUF)]
+    [TestCase(PassType.SingleUse, null, null, 250, CurrencyCode.HUF)]
+    [TestCase(PassType.SingleUse, 0, null, 250, CurrencyCode.HUF)]
+    [TestCase(PassType.SingleUse, 2, null, 250, CurrencyCode.HUF)]
+    [TestCase(PassType.MultiUse, null, null, 250, CurrencyCode.HUF)]
+    [TestCase(PassType.MultiUse, null, 1, 250, CurrencyCode.HUF)]
+    [TestCase(PassType.MultiUse, 0, null, 250, CurrencyCode.HUF)]
+    [TestCase(PassType.MultiUse, 1, null, 250, CurrencyCode.HUF)]
+    [TestCase(PassType.Unlimited, null, null, 250, CurrencyCode.HUF)]
+    [TestCase(PassType.Unlimited, 0, null, 250, CurrencyCode.HUF)]
+    [TestCase(PassType.Unlimited, 1, null, 250, CurrencyCode.HUF)]
+    [TestCase(PassType.Unlimited, 99, null, 250, CurrencyCode.HUF)]
+    public async Task ShouldThrowIfParametersAreInvalid(
+        PassType type,
+        int? totalUses,
+        int? daysAfterExpiring,
+        decimal priceAmount,
+        CurrencyCode priceCurrency
+    )
     {
         await RunAsGymEmployeeAsync(Roles.GymAdministrator);
-        
+
         var command = new CreateGymPassProductCommand(
-            string.Empty,
-            string.Empty,
+            "Product Name",
+            "Product Description",
             PassType.SingleUse,
             null,
             null,
             true,
-            Money.Usd(10));
-        
+            new Money(priceAmount, priceCurrency)
+        );
+
         await ShouldThrowIfParametersAreInvalidAsync(command);
     }
 
@@ -55,7 +71,7 @@ public class CreateGymPassProductTests : BaseTestFixture
         var obj = await TestEntityBuilder.BuildGymAsync();
 
         await RunAsUserAsync(obj.gymAdmin);
-        
+
         var command = new CreateGymPassProductCommand(
             "Test Product",
             "Test Description",
@@ -63,20 +79,21 @@ public class CreateGymPassProductTests : BaseTestFixture
             1,
             null,
             true,
-            new Money(1000, "huf"));
-        
+            new Money(1000, CurrencyCode.HUF)
+        );
+
         var result = await SendAsync(command);
-        result.Type.ShouldBe(ResultTypes.BusinessRuleViolation);
-        result.Message.ShouldNotBeEmpty();
+        result.ShouldBeFailed(ResultTypes.BusinessRuleViolation);
     }
 
-    [Test]
-    public async Task ShouldReturnBusinessRuleViolationIfGymPassProductIsNotActive()
+    [TestCase(GymStatus.Suspended)]
+    [TestCase(GymStatus.Inactive)]
+    public async Task ShouldReturnBusinessRuleViolationIfGymStatusIsNotActive(GymStatus gymStatus)
     {
-        var obj = await TestEntityBuilder.BuildGymAsync(GymStatus.Suspended);
+        var obj = await TestEntityBuilder.BuildGymAsync(gymStatus);
 
         await RunAsUserAsync(obj.gymAdmin);
-        
+
         var command = new CreateGymPassProductCommand(
             "Test Product",
             "Test Description",
@@ -84,19 +101,25 @@ public class CreateGymPassProductTests : BaseTestFixture
             1,
             null,
             false,
-            Money.Usd(10m));
+            new Money(10, CurrencyCode.USD)
+        );
 
         var result = await SendAsync(command);
-        result.Type.ShouldBe(ResultTypes.BusinessRuleViolation);
-        result.Message.ShouldNotBeEmpty();
+        result.ShouldBeFailed(ResultTypes.BusinessRuleViolation);
     }
 
-    [TestCase(PassType.SingleUse, 1, null)]
-    [TestCase(PassType.MultiUse, 2, null)]
-    [TestCase(PassType.MultiUse, 20, null)]
-    [TestCase(PassType.Unlimited, null, 1)]
-    [TestCase(PassType.Unlimited, null, 120)]
-    public async Task ShouldCreateGymPassProduct(PassType type, int? totalUses, int? daysAfterExpiring)
+    [TestCase(PassType.SingleUse, 1, null, 2, CurrencyCode.USD)]
+    [TestCase(PassType.MultiUse, 2, null, 800, CurrencyCode.HUF)]
+    [TestCase(PassType.MultiUse, 20, null, 22, CurrencyCode.EUR)]
+    [TestCase(PassType.Unlimited, null, 1, 2, CurrencyCode.USD)]
+    [TestCase(PassType.Unlimited, null, 120, 40000, CurrencyCode.HUF)]
+    public async Task ShouldCreateGymPassProduct(
+        PassType type,
+        int? totalUses,
+        int? daysAfterExpiring,
+        decimal priceAmount,
+        CurrencyCode priceCurrency
+    )
     {
         var obj = await TestEntityBuilder.BuildGymWithTenantPaymentProfileAsync();
 
@@ -109,20 +132,27 @@ public class CreateGymPassProductTests : BaseTestFixture
             totalUses,
             daysAfterExpiring,
             true,
-            new Money(1000, "huf"));
-        
+            new Money(priceAmount, priceCurrency)
+        );
+
         var result = await SendAsync(command);
-        result.Succeeded.ShouldBeTrue();
+        result.ShouldBeSuccessful();
         result.Value.ShouldNotBeNull();
 
         var gymPassProduct = await FindAsync<GymPassProduct>(result.Value.Id);
         gymPassProduct.ShouldNotBeNull();
-        result.Value.AssertTo(gymPassProduct);
+        gymPassProduct.Type.ShouldBe(type);
+        gymPassProduct.TotalUses.ShouldBe(totalUses);
+        gymPassProduct.DaysAfterExpires.ShouldBe(daysAfterExpiring);
+        gymPassProduct.Price.Amount.ShouldBe(priceAmount);
+        gymPassProduct.Price.Currency.ShouldBe(priceCurrency);
 
         var productIdentity = await GetFirstAsync<ProductPaymentIdentity>();
         productIdentity.ShouldNotBeNull();
         productIdentity.GymPassProductId.ShouldBe(gymPassProduct.Id);
         productIdentity.ProductId.ShouldNotBeNullOrEmpty();
+        productIdentity.ProductId.ShouldStartWith(StripePrefixes.ProductId);
         productIdentity.PriceId.ShouldNotBeNullOrEmpty();
+        productIdentity.PriceId.ShouldStartWith(StripePrefixes.PriceId);
     }
 }

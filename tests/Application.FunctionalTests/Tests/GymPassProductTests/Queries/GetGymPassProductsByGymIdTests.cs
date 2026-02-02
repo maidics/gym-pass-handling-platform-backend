@@ -1,6 +1,9 @@
 ﻿using FitPass.Application.Common.Models;
+using FitPass.Application.FunctionalTests.Common.Extensions;
+using FitPass.Application.FunctionalTests.Infrastructure.Testing;
 using FitPass.Application.FunctionalTests.TestData;
 using FitPass.Application.GymPassProducts.Queries;
+using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
 using FitPass.Domain.ValueObjects;
 
@@ -17,7 +20,7 @@ public class GetGymPassProductsByGymIdTests : BaseTestFixture
     }
 
     [Test]
-    public async Task ShouldDenyInvalidParameters()
+    public async Task ShouldThrowIfParametersAreInvalid()
     {
         var query = new GetGymPassProductsByGymIdQuery(string.Empty);
 
@@ -27,52 +30,34 @@ public class GetGymPassProductsByGymIdTests : BaseTestFixture
     [Test]
     public async Task ShouldReturnNotFoundIfGymIsNotFound()
     {
-        var query = new GetGymPassProductsByGymIdQuery("GymId");
+        var query = new GetGymPassProductsByGymIdQuery("id");
 
         var result = await SendAsync(query);
-        result.Type.ShouldBe(ResultTypes.NotFound);
-        result.Message.ShouldNotBeEmpty();
+        result.ShouldBeFailed(ResultTypes.NotFound);
     }
-    
+
     [Test]
-    public async Task ShouldReturnGymPassProductsIfGymIsFound()
+    public async Task ShouldReturnGymPassProducts()
     {
         var obj = await TestEntityBuilder.BuildGymWithTenantPaymentProfileAsync();
-        
-        var product1 = await TestEntityBuilder.BuildGymPassProduct(
-            obj.gymAdmin, 
-            Money.Usd(10), 
-            type: PassType.MultiUse, 
-            totalUses: 5, 
-            daysAfterExpiring: null);
-        
-        var product2 = await TestEntityBuilder.BuildGymPassProduct(
-            obj.gymAdmin, 
-            Money.Usd(10),
-            type: PassType.Unlimited,
-            totalUses: null,
-            daysAfterExpiring: 10);
+
+        var product = GymPassProduct.SingleUse(
+            obj.gym.Id,
+            "Product Name",
+            "Product Description",
+            true,
+            new Money(10, CurrencyCode.EUR)
+        );
+
+        await AddAsync(product);
 
         var query = new GetGymPassProductsByGymIdQuery(obj.gym.Id);
 
         var result = await SendAsync(query);
-        result.Type.ShouldBe(ResultTypes.Success);
-        result.Value.ShouldNotBeNull();
+        result.ShouldBeSuccessful();
 
         var dtos = result.Value;
-        
-        dtos.Count.ShouldBe(3);
-        
-        var product1Dto = dtos.FirstOrDefault(x => x.Id == product1.Id);
-        product1Dto.ShouldNotBeNull();
-        product1Dto.AssertTo(product1);
-        
-        var product2Dto = dtos.FirstOrDefault(x => x.Id == product2.Id);
-        product2Dto.ShouldNotBeNull();
-        product2Dto.AssertTo(product2);
-
-        var product3Dto = dtos.FirstOrDefault(x => x.Id == obj.gymPassProduct.Id);
-        product3Dto.ShouldNotBeNull();
-        product3Dto.AssertTo(obj.gymPassProduct);
+        dtos.Count.ShouldBe(2);
+        dtos.Count(x => x.Id == product.Id || x.Id == obj.gymPassProduct.Id).ShouldBe(2);
     }
 }

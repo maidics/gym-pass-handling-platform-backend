@@ -1,4 +1,5 @@
 using System.Text.Json;
+using FitPass.Application.FunctionalTests.Infrastructure.Testing;
 using FitPass.Application.Requests.DTOs;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
@@ -11,7 +12,12 @@ using static Testing;
 
 public partial class TestEntityBuilder
 {
-    public static async Task<(Request request, ApplicationUser pendingGymEmployee, UserProfile userProfile, CreateGymDto createGymDto)> BuildGymCreationRequest()
+    public static async Task<(
+        Request request,
+        ApplicationUser pendingGymEmployee,
+        UserProfile userProfile,
+        CreateGymDto createGymDto
+    )> BuildGymCreationRequest()
     {
         var obj = await BuildPendingGymEmployeeAsync();
 
@@ -25,7 +31,7 @@ public partial class TestEntityBuilder
             Status = RequestStatus.Submitted,
             Payload = JsonSerializer.Serialize(createGymDto),
             CreatedBy = obj.user.Id,
-            PriorityLevel = PriorityLevel.High
+            PriorityLevel = PriorityLevel.High,
         };
 
         await AddAsync(request);
@@ -41,17 +47,21 @@ public partial class TestEntityBuilder
             Address = new Address("line1", "line2", "city", null, "postalCode", "HU"),
             Status = GymStatus.Active,
             Tier = GymTier.Local,
-            SupervisorEmail = "escalation@email"
+            SupervisorEmail = "escalation@email",
         };
     }
 
-    public static GymAdminPromotionDto CreateGymAdminPromotionDto(string gymId, string userId, string supervisorEmail = "escalation@test")
+    public static GymAdminPromotionDto CreateGymAdminPromotionDto(
+        string gymId,
+        string userId,
+        string supervisorEmail = "escalation@test"
+    )
     {
         return new GymAdminPromotionDto
         {
             GymId = gymId,
             PendingGymEmployeeEmail = userId,
-            SupervisorEmail = supervisorEmail
+            SupervisorEmail = supervisorEmail,
         };
     }
 }

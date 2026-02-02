@@ -1,3 +1,5 @@
+using FitPass.Application.FunctionalTests.Common.Extensions;
+using FitPass.Application.FunctionalTests.Infrastructure.Testing;
 using FitPass.Application.FunctionalTests.TestData;
 using FitPass.Application.Gyms.Commands;
 using FitPass.Domain.Constants;
@@ -18,16 +20,17 @@ public class UpdateMyGymProfileTests : BaseTestFixture
     }
 
     [Test]
-    public async Task ShouldDenyInvalidParameters()
+    public async Task ShouldThrowIfParametersAreInvalid()
     {
         var obj = await TestEntityBuilder.BuildGymAsync();
 
         await RunAsUserAsync(obj.gymAdmin);
 
         var command = new UpdateMyGymProfileCommand(
-            string.Empty, 
-            new Address("line1", "line2", "city", null, "postalCode", "HU"), 
-            GymTier.Local);
+            string.Empty,
+            new Address("line1", null, "city", null, "postalCode", "HU"),
+            GymTier.Local
+        );
 
         await ShouldThrowIfParametersAreInvalidAsync(command);
     }
@@ -42,10 +45,11 @@ public class UpdateMyGymProfileTests : BaseTestFixture
         var command = new UpdateMyGymProfileCommand(
             "New Test Gym Name",
             new Address("line1", "line2", "city", null, "postalCode", "HU"),
-            GymTier.Local);
+            GymTier.Local
+        );
 
         var result = await SendAsync(command);
-        result.Succeeded.ShouldBeTrue();
+        result.ShouldBeSuccessful();
 
         var updatedGym = await FindAsync<Gym>(obj.gym.Id);
         updatedGym.ShouldNotBeNull();

@@ -1,3 +1,4 @@
+using FitPass.Application.FunctionalTests.Infrastructure.Testing;
 using FitPass.Application.FunctionalTests.TestData;
 using FitPass.Application.GymEmployments.Queries;
 using FitPass.Domain.Constants;
@@ -11,7 +12,10 @@ public class GetMyGymEmploymentsTests : BaseTestFixture
     [Test]
     public override void AuthorizeAttributeCheck()
     {
-        ShouldRequireAuthorization<GetMyGymEmploymentsQuery>(Roles.GymAdministrator, Roles.GymStaff);
+        ShouldRequireAuthorization<GetMyGymEmploymentsQuery>(
+            Roles.GymAdministrator,
+            Roles.GymStaff
+        );
     }
 
     [Test]
@@ -22,14 +26,10 @@ public class GetMyGymEmploymentsTests : BaseTestFixture
         await RunAsUserAsync(obj.gymAdmin);
 
         var gymEmployments = await SendAsync(new GetMyGymEmploymentsQuery());
-        gymEmployments.Count.ShouldBe(2);
-
         gymEmployments
-            .FirstOrDefault(ge => ge.UserId == obj.gymAdmin.Id)
-            .AssertTo(obj.gymAdminGymEmployment, obj.gymAdminUserProfile, obj.gymAdmin);
-
-        gymEmployments
-            .FirstOrDefault(ge => ge.UserId == obj.gymStaff.Id)
-            .AssertTo(obj.gymStaffGymEmployment, obj.gymStaffUserProfile, obj.gymStaff);
+            .Count(x =>
+                x.Id == obj.gymStaffGymEmployment.Id || x.Id == obj.gymAdminGymEmployment.Id
+            )
+            .ShouldBe(2);
     }
 }

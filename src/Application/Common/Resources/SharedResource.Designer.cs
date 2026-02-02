@@ -168,6 +168,15 @@ namespace FitPass.Application.Common.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {0} currency is not supported.
+        /// </summary>
+        public static string CurrencyIsNotSupported {
+            get {
+                return ResourceManager.GetString("CurrencyIsNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Minimum amount for {0} currency is: {1}.
         /// </summary>
         public static string CurrencyMinimumAmount {
@@ -333,6 +342,15 @@ namespace FitPass.Application.Common.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Your current gym session has ended..
+        /// </summary>
+        public static string GymEmployeeEndedGymSession {
+            get {
+                return ResourceManager.GetString("GymEmployeeEndedGymSession", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to You locker number has been updated to {0} by a gym employee..
         /// </summary>
         public static string GymEmployeeUpdatedGymPassUsageLockerNumber {
@@ -478,6 +496,15 @@ namespace FitPass.Application.Common.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Your gym has been reactivated by an App Administrator with the following rationale: {0}.
+        /// </summary>
+        public static string GymReactivatedByAppAdmin {
+            get {
+                return ResourceManager.GetString("GymReactivatedByAppAdmin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Your gym has been reactivated by an application administrator. To avoid potential misunderstandings going forward, we kindly ask that you review our guidelines. Please note that the following rationale was previously given with the suspension: {0}.
         /// </summary>
         public static string GymReactivatedByAppAdminEmailBody {
@@ -501,6 +528,15 @@ namespace FitPass.Application.Common.Resources {
         public static string GymStatus {
             get {
                 return ResourceManager.GetString("GymStatus", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You gym has been suspended by an App Administrator with the following rationale: {0}.
+        /// </summary>
+        public static string GymSuspendedByAppAdmin {
+            get {
+                return ResourceManager.GetString("GymSuspendedByAppAdmin", resourceCulture);
             }
         }
         

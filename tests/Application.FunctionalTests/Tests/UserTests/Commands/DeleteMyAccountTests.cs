@@ -1,4 +1,5 @@
 ﻿using FitPass.Application.Common.Exceptions;
+using FitPass.Application.FunctionalTests.Infrastructure.Testing;
 using FitPass.Application.Users.Commands;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
@@ -27,9 +28,10 @@ public class DeleteMyAccountTests : BaseTestFixture
     public override void AuthorizeAttributeCheck()
     {
         ShouldRequireAuthorization<DeleteMyAccountCommand>(
-            Roles.User, 
-            Roles.PendingGymEmployee, 
-            Roles.GymAdministrator, 
-            Roles.GymStaff);
+            Roles.User,
+            Roles.PendingGymEmployee,
+            Roles.GymAdministrator,
+            Roles.GymStaff
+        );
     }
 }

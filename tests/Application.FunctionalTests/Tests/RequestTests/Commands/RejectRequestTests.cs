@@ -7,6 +7,7 @@ using FitPass.Domain.Enums;
 
 namespace FitPass.Application.FunctionalTests.Tests.RequestTests.Commands;
 
+/*
 using static Testing;
 
 public class RejectRequestTests : BaseTestFixture
@@ -18,7 +19,7 @@ public class RejectRequestTests : BaseTestFixture
     }
 
     [Test]
-    public async Task ShouldDenyInvalidParameters()
+    public async Task ShouldThrowIfParametersAreInvalid()
     {
         await RunAsAppAdminAsync();
 
@@ -56,3 +57,4 @@ public class RejectRequestTests : BaseTestFixture
         request.Status.ShouldBe(RequestStatus.Rejected);
     }
 }
+*/

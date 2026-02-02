@@ -1,4 +1,5 @@
 using FitPass.Application.Common.Models;
+using FitPass.Application.FunctionalTests.Infrastructure.Testing;
 using FitPass.Application.FunctionalTests.TestData;
 using FitPass.Application.GymMembershipPasses.Queries;
 using FitPass.Domain.Constants;
@@ -12,11 +13,14 @@ public class IsGymMembershipPassValidTests : BaseTestFixture
     [Test]
     public override void AuthorizeAttributeCheck()
     {
-        ShouldRequireAuthorization<IsGymMembershipPassValidQuery>(Roles.GymAdministrator, Roles.GymStaff);
+        ShouldRequireAuthorization<IsGymMembershipPassValidQuery>(
+            Roles.GymAdministrator,
+            Roles.GymStaff
+        );
     }
 
     [Test]
-    public async Task ShouldDenyInvalidParameters()
+    public async Task ShouldThrowIfParametersAreInvalid()
     {
         await RunAsGymEmployeeAsync(Roles.GymAdministrator);
 
@@ -33,7 +37,7 @@ public class IsGymMembershipPassValidTests : BaseTestFixture
         var command = new IsGymMembershipPassValidQuery("invalidPassId");
 
         var result = await SendAsync(command);
-        result.Type.ShouldBe(ResultTypes.NotFound);
+        result.ShouldBeFailed(ResultTypes.NotFound);
     }
 
     [Test]
@@ -60,7 +64,7 @@ public class IsGymMembershipPassValidTests : BaseTestFixture
         var command = new IsGymMembershipPassValidQuery(obj.noUsePass.Id);
 
         var result = await SendAsync(command);
-        result.Succeeded.ShouldBeTrue();
+        result.ShouldBeSuccessful();
         result.Value.ShouldBeFalse();
     }
 }

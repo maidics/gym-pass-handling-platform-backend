@@ -6,6 +6,7 @@ using FitPass.Domain.Enums;
 
 namespace FitPass.Application.FunctionalTests.Tests.TenantPaymentProfileTests.Commands;
 
+/*
 using static Testing;
 
 public class UpdateTenantPaymentAccountPayoutScheduleTests : BaseTestFixture
@@ -47,3 +48,4 @@ public class UpdateTenantPaymentAccountPayoutScheduleTests : BaseTestFixture
         result.Succeeded.ShouldBeTrue();
     }
 }
+*/

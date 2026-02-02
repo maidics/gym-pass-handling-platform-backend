@@ -1,5 +1,6 @@
 ﻿using FitPass.Application.Common.Exceptions;
 using FitPass.Application.Common.Models;
+using FitPass.Application.FunctionalTests.Infrastructure.Testing;
 using FitPass.Application.FunctionalTests.TestData;
 using FitPass.Application.Users.Commands.RoleHandling;
 using FitPass.Domain.Constants;
@@ -12,7 +13,7 @@ using static Testing;
 public class DemoteGymStaffToPendingGymEmployeeTests : BaseTestFixture
 {
     [Test]
-    public async Task ShouldDenyInvalidUserId() 
+    public async Task ShouldDenyInvalidUserId()
     {
         var gymAdmin = await RunAsGymEmployeeAsync(Roles.GymAdministrator);
 
@@ -56,13 +57,14 @@ public class DemoteGymStaffToPendingGymEmployeeTests : BaseTestFixture
 
         var gymAdmin2 = await CreateUserAsync(role: Roles.GymAdministrator);
 
-        await AddAsync(new GymEmployment
-        {
-            UserId = gymAdmin2.Id,
-            GymId = obj.gym.Id,
-            Role = Roles.GymAdministrator,
-            EmploymentStart = GetUtcNow()
-        });
+        await AddAsync(
+            new GymEmployment
+            {
+                UserId = gymAdmin2.Id,
+                GymId = obj.gym.Id,
+                Role = Roles.GymAdministrator,
+            }
+        );
 
         await RunAsUserAsync(obj.gymAdmin);
 
@@ -96,6 +98,8 @@ public class DemoteGymStaffToPendingGymEmployeeTests : BaseTestFixture
     [Test]
     public override void AuthorizeAttributeCheck()
     {
-        ShouldRequireAuthorization<DemoteGymStaffToPendingGymEmployeeCommand>(Roles.GymAdministrator);
+        ShouldRequireAuthorization<DemoteGymStaffToPendingGymEmployeeCommand>(
+            Roles.GymAdministrator
+        );
     }
 }

@@ -1,3 +1,4 @@
+using FitPass.Application.FunctionalTests.Infrastructure.Testing;
 using FitPass.Application.UserProfiles.Queries;
 
 namespace FitPass.Application.FunctionalTests.Tests.UserProfileTests.Queries;

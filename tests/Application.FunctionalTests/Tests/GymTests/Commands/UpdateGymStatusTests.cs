@@ -1,4 +1,6 @@
 using FitPass.Application.Common.Models;
+using FitPass.Application.FunctionalTests.Common.Extensions;
+using FitPass.Application.FunctionalTests.Infrastructure.Testing;
 using FitPass.Application.FunctionalTests.TestData;
 using FitPass.Application.Gyms.Commands;
 using FitPass.Domain.Constants;
@@ -18,7 +20,7 @@ public class UpdateGymStatusTests : BaseTestFixture
     }
 
     [Test]
-    public async Task ShouldDenyInvalidParameters()
+    public async Task ShouldThrowIfParametersAreInvalid()
     {
         await RunAsAppAdminAsync();
 
@@ -32,11 +34,10 @@ public class UpdateGymStatusTests : BaseTestFixture
     {
         await RunAsAppAdminAsync();
 
-        var command = new UpdateGymStatusCommand("invalidGymId", GymStatus.Suspended, "Rationale");
+        var command = new UpdateGymStatusCommand("id", GymStatus.Suspended, "rationale");
 
         var result = await SendAsync(command);
-        result.Type.ShouldBe(ResultTypes.NotFound);
-        result.Message.ShouldNotBeEmpty();
+        result.ShouldBeFailed(ResultTypes.NotFound);
     }
 
     [Test]
@@ -55,7 +56,9 @@ public class UpdateGymStatusTests : BaseTestFixture
         updatedGym.ShouldNotBeNull();
         updatedGym.Status.ShouldBe(command.NewGymStatus);
 
-        EmailFolderShouldContainEmails(2); //2 because of obj.gymAdmin & obj.gymStaff
-        
+        EmailFolderShouldContainEmails(2);
+
+        await ShouldContainNotificationForUserAsync(obj.gymAdmin.Id);
+        await ShouldContainNotificationForUserAsync(obj.gymStaff.Id);
     }
 }

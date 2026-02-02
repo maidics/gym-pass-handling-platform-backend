@@ -1,4 +1,5 @@
-﻿using FitPass.Application.GymPassProducts.Commands;
+﻿using FitPass.Application.FunctionalTests.Infrastructure.Testing;
+using FitPass.Application.GymPassProducts.Commands;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
 using FitPass.Domain.ValueObjects;
@@ -18,12 +19,21 @@ public partial class TestEntityBuilder
         PassType type = PassType.SingleUse,
         int? totalUses = 1,
         int? daysAfterExpiring = null,
-        bool isActive = true)
+        bool isActive = true
+    )
     {
         await RunAsUserAsync(gymAdmin);
-        
-        var command = new CreateGymPassProductCommand(name, description, type, totalUses, daysAfterExpiring, isActive, price);
-        
+
+        var command = new CreateGymPassProductCommand(
+            name,
+            description,
+            type,
+            totalUses,
+            daysAfterExpiring,
+            isActive,
+            price
+        );
+
         var result = await SendAsync(command);
 
         var product = await FindAsync<GymPassProduct>(result.Value.Id);

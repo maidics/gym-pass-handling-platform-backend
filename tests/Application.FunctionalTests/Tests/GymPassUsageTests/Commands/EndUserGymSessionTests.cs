@@ -1,4 +1,6 @@
 using FitPass.Application.Common.Models;
+using FitPass.Application.FunctionalTests.Common.Extensions;
+using FitPass.Application.FunctionalTests.Infrastructure.Testing;
 using FitPass.Application.FunctionalTests.TestData;
 using FitPass.Application.GymPassUsages.Commands;
 using FitPass.Domain.Constants;
@@ -14,11 +16,14 @@ public class EndUserGymSessionTests : BaseTestFixture
     [Test]
     public override void AuthorizeAttributeCheck()
     {
-        ShouldRequireAuthorization<EndUserGymSessionCommand>(Roles.GymAdministrator, Roles.GymStaff);
+        ShouldRequireAuthorization<EndUserGymSessionCommand>(
+            Roles.GymAdministrator,
+            Roles.GymStaff
+        );
     }
 
     [Test]
-    public async Task ShouldDenyInvalidParameters()
+    public async Task ShouldThrowIfParametersAreInvalid()
     {
         await RunAsGymEmployeeAsync(Roles.GymAdministrator);
 
@@ -30,11 +35,10 @@ public class EndUserGymSessionTests : BaseTestFixture
     {
         await RunAsGymEmployeeAsync(Roles.GymAdministrator);
 
-        var command = new EndUserGymSessionCommand("invalidGymPassUsageId");
+        var command = new EndUserGymSessionCommand("id");
 
         var result = await SendAsync(command);
-        result.Type.ShouldBe(ResultTypes.NotFound);
-        result.Message.ShouldNotBeEmpty();
+        result.ShouldBeFailed(ResultTypes.NotFound);
     }
 
     [Test]
@@ -53,7 +57,7 @@ public class EndUserGymSessionTests : BaseTestFixture
             PassType = obj.singleUsePass.Type,
             PassExpirationDate = obj.singleUsePass.ExpirationDate,
             PassUseResult = PassUseResult.Success,
-            LockerNumber = "test locker"
+            LockerNumber = "2",
         };
 
         await AddAsync(usage);
@@ -63,11 +67,13 @@ public class EndUserGymSessionTests : BaseTestFixture
         var command = new EndUserGymSessionCommand(usage.Id);
 
         var result = await SendAsync(command);
-        result.Succeeded.ShouldBeTrue();
+        result.ShouldBeSuccessful();
 
         var updatedGymPassUsage = await FindAsync<GymPassUsage>(usage.Id);
         updatedGymPassUsage.ShouldNotBeNull();
         updatedGymPassUsage.Id.ShouldBe(usage.Id);
         updatedGymPassUsage.GymSessionEndedAt.ShouldNotBeNull();
+
+        await ShouldContainNotificationForUserAsync(usage.UserId);
     }
 }

@@ -1,5 +1,7 @@
 ﻿using System.Text.Json;
 using FitPass.Application.Common.Models;
+using FitPass.Application.FunctionalTests.Common.Extensions;
+using FitPass.Application.FunctionalTests.Infrastructure.Testing;
 using FitPass.Application.FunctionalTests.TestData;
 using FitPass.Application.Requests.Commands.Fulfill;
 using FitPass.Domain.Constants;
@@ -7,7 +9,7 @@ using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
 using FitPass.Infrastructure.Identity;
 
-namespace FitPass.Application.FunctionalTests.Tests.UserTests.Commands.RoleHandling;
+namespace FitPass.Application.FunctionalTests.Tests.RequestTests.Commands.Fulfill;
 
 using static Testing;
 
@@ -16,17 +18,19 @@ public class PromotePendingGymEmployeeToGymAdminFromRequestTests : BaseTestFixtu
     [Test]
     public override void AuthorizeAttributeCheck()
     {
-        ShouldRequireAuthorization<PromotePendingGymEmployeeToGymAdminFromRequestCommand>(Roles.AppAdministrator);
+        ShouldRequireAuthorization<PromotePendingGymEmployeeToGymAdminFromRequestCommand>(
+            Roles.AppAdministrator
+        );
     }
 
     [Test]
-    public async Task ShouldDenyInvalidParameters()
+    public async Task ShouldThrowIfParametersAreInvalid()
     {
         await RunAsAppAdminAsync();
 
         var command = new PromotePendingGymEmployeeToGymAdminFromRequestCommand(string.Empty);
 
-        await Should.ThrowAsync<Common.Exceptions.ValidationException>(SendAsync(command));
+        await ShouldThrowIfParametersAreInvalidAsync(command);
     }
 
     [Test]
@@ -34,11 +38,10 @@ public class PromotePendingGymEmployeeToGymAdminFromRequestTests : BaseTestFixtu
     {
         await RunAsAppAdminAsync();
 
-        var command = new PromotePendingGymEmployeeToGymAdminFromRequestCommand("non-existent-request-id");
+        var command = new PromotePendingGymEmployeeToGymAdminFromRequestCommand("id");
 
         var result = await SendAsync(command);
-        result.Type.ShouldBe(ResultTypes.NotFound);
-        result.Message.ShouldNotBeEmpty();
+        result.ShouldBeFailed(ResultTypes.NotFound);
     }
 
     [Test]
@@ -46,13 +49,12 @@ public class PromotePendingGymEmployeeToGymAdminFromRequestTests : BaseTestFixtu
     {
         var request = new Request
         {
-            Id = "request-id",
             Type = RequestType.GymAdminPromotion,
             Status = RequestStatus.Cancelled,
-            Title = "title",
-            Description = "description",
+            Title = "Title",
+            Description = "Description",
             PriorityLevel = PriorityLevel.Medium,
-            Payload = null
+            Payload = null,
         };
 
         await AddAsync(request);
@@ -62,7 +64,7 @@ public class PromotePendingGymEmployeeToGymAdminFromRequestTests : BaseTestFixtu
         var command = new PromotePendingGymEmployeeToGymAdminFromRequestCommand(request.Id);
 
         var result = await SendAsync(command);
-        result.Type.ShouldBe(ResultTypes.Forbidden);
+        result.ShouldBeFailed(ResultTypes.Forbidden);
     }
 
     [Test]
@@ -70,13 +72,12 @@ public class PromotePendingGymEmployeeToGymAdminFromRequestTests : BaseTestFixtu
     {
         var request = new Request
         {
-            Id = "request-id",
             Type = RequestType.Other,
             Status = RequestStatus.Submitted,
-            Title = "title",
-            Description = "description",
+            Title = "Title",
+            Description = "Description",
             PriorityLevel = PriorityLevel.Medium,
-            Payload = null
+            Payload = null,
         };
         await AddAsync(request);
 
@@ -94,13 +95,12 @@ public class PromotePendingGymEmployeeToGymAdminFromRequestTests : BaseTestFixtu
     {
         var request = new Request
         {
-            Id = "request-id",
             Type = RequestType.GymAdminPromotion,
             Status = RequestStatus.Submitted,
-            Title = "title",
-            Description = "description",
+            Title = "Title",
+            Description = "Description",
             PriorityLevel = PriorityLevel.Medium,
-            Payload = "invalid-payload"
+            Payload = "payload",
         };
 
         await AddAsync(request);
@@ -110,27 +110,27 @@ public class PromotePendingGymEmployeeToGymAdminFromRequestTests : BaseTestFixtu
         var command = new PromotePendingGymEmployeeToGymAdminFromRequestCommand(request.Id);
 
         var result = await SendAsync(command);
-        result.Type.ShouldBe(ResultTypes.InternalError);
-        result.Message.ShouldNotBeEmpty();
+        result.ShouldBeFailed(ResultTypes.InternalError);
 
-        request = await FindAsync<Request>(request.Id);
-        request.ShouldNotBeNull();
-        request.Status.ShouldBe(RequestStatus.Error);
-        request.Error.ShouldNotBeNull();
+        var updatedRequest = await FindAsync<Request>(request.Id);
+        updatedRequest.ShouldNotBeNull();
+        updatedRequest.Status.ShouldBe(RequestStatus.Error);
+        updatedRequest.Error.ShouldNotBeNullOrEmpty();
     }
 
     [Test]
-    public async Task ShouldReturNotFoundWhenUserToNominateNotFound()
+    public async Task ShouldReturnNotFoundIfUserToNominateNotFound()
     {
         var request = new Request
         {
-            Id = "request-id",
             Type = RequestType.GymAdminPromotion,
             Status = RequestStatus.Submitted,
-            Title = "title",
-            Description = "description",
+            Title = "Title",
+            Description = "Description",
             PriorityLevel = PriorityLevel.Medium,
-            Payload = JsonSerializer.Serialize(TestEntityBuilder.CreateGymAdminPromotionDto("GymId", "not-existent-user-id"))
+            Payload = JsonSerializer.Serialize(
+                TestEntityBuilder.CreateGymAdminPromotionDto("GymId", "id")
+            ),
         };
 
         await AddAsync(request);
@@ -140,24 +140,24 @@ public class PromotePendingGymEmployeeToGymAdminFromRequestTests : BaseTestFixtu
         var command = new PromotePendingGymEmployeeToGymAdminFromRequestCommand(request.Id);
 
         var result = await SendAsync(command);
-        result.Type.ShouldBe(ResultTypes.NotFound);
-        result.Message.ShouldNotBeEmpty();
+        result.ShouldBeFailed(ResultTypes.NotFound);
     }
 
     [Test]
     public async Task ShouldReturnBusinessRuleViolationIfUserToPromoteIsNotPendingGymEmployee()
     {
-        var defaultUser = await CreateUserAsync();
+        var user = await CreateUserAsync();
 
         var request = new Request
         {
-            Id = "request-id",
             Type = RequestType.GymAdminPromotion,
             Status = RequestStatus.Submitted,
             Title = "title",
             Description = "description",
             PriorityLevel = PriorityLevel.Medium,
-            Payload = JsonSerializer.Serialize(TestEntityBuilder.CreateGymAdminPromotionDto("GymId", defaultUser.Id))
+            Payload = JsonSerializer.Serialize(
+                TestEntityBuilder.CreateGymAdminPromotionDto("GymId", user.Id)
+            ),
         };
 
         await AddAsync(request);
@@ -167,8 +167,7 @@ public class PromotePendingGymEmployeeToGymAdminFromRequestTests : BaseTestFixtu
         var command = new PromotePendingGymEmployeeToGymAdminFromRequestCommand(request.Id);
 
         var result = await SendAsync(command);
-        result.Type.ShouldBe(ResultTypes.BusinessRuleViolation);
-        result.Message.ShouldNotBeEmpty();
+        result.ShouldBeFailed(ResultTypes.BusinessRuleViolation);
     }
 
     [Test]
@@ -178,13 +177,17 @@ public class PromotePendingGymEmployeeToGymAdminFromRequestTests : BaseTestFixtu
 
         var request = new Request
         {
-            Id = "request-id",
             Type = RequestType.GymAdminPromotion,
             Status = RequestStatus.Submitted,
             Title = "title",
             Description = "description",
             PriorityLevel = PriorityLevel.Medium,
-            Payload = JsonSerializer.Serialize(TestEntityBuilder.CreateGymAdminPromotionDto("non-existent-gym-id", pendingGymEmployee.Id))
+            Payload = JsonSerializer.Serialize(
+                TestEntityBuilder.CreateGymAdminPromotionDto(
+                    "non-existent-gym-id",
+                    pendingGymEmployee.Id
+                )
+            ),
         };
 
         await AddAsync(request);
@@ -194,8 +197,7 @@ public class PromotePendingGymEmployeeToGymAdminFromRequestTests : BaseTestFixtu
         var command = new PromotePendingGymEmployeeToGymAdminFromRequestCommand(request.Id);
 
         var result = await SendAsync(command);
-        result.Type.ShouldBe(ResultTypes.NotFound);
-        result.Message.ShouldNotBeEmpty();
+        result.ShouldBeFailed(ResultTypes.NotFound);
     }
 
     [Test]
@@ -207,13 +209,14 @@ public class PromotePendingGymEmployeeToGymAdminFromRequestTests : BaseTestFixtu
 
         var request = new Request
         {
-            Id = "request-id",
             Type = RequestType.GymAdminPromotion,
             Status = RequestStatus.Submitted,
             Title = "title",
             Description = "description",
             PriorityLevel = PriorityLevel.Medium,
-            Payload = JsonSerializer.Serialize(TestEntityBuilder.CreateGymAdminPromotionDto(obj.gym.Id, pendingGymEmployee.Id))
+            Payload = JsonSerializer.Serialize(
+                TestEntityBuilder.CreateGymAdminPromotionDto(obj.gym.Id, pendingGymEmployee.Id)
+            ),
         };
 
         await AddAsync(request);
@@ -223,7 +226,7 @@ public class PromotePendingGymEmployeeToGymAdminFromRequestTests : BaseTestFixtu
         var command = new PromotePendingGymEmployeeToGymAdminFromRequestCommand(request.Id);
 
         var result = await SendAsync(command);
-        result.Succeeded.ShouldBeTrue();
+        result.ShouldBeSuccessful();
 
         var gymAdmin = await FindAsync<ApplicationUser>(pendingGymEmployee.Id);
         gymAdmin.ShouldNotBeNull();

@@ -1,4 +1,7 @@
 ﻿using FitPass.Application.Common.Models;
+using FitPass.Application.FunctionalTests.Common.Constants;
+using FitPass.Application.FunctionalTests.Common.Extensions;
+using FitPass.Application.FunctionalTests.Infrastructure.Testing;
 using FitPass.Application.FunctionalTests.TestData;
 using FitPass.Application.GymPassProducts.Commands;
 using FitPass.Domain.Constants;
@@ -6,6 +9,7 @@ using FitPass.Domain.Entities;
 using FitPass.Domain.Entities.Payment;
 using FitPass.Domain.Enums;
 using FitPass.Domain.ValueObjects;
+using FitPass.Infrastructure.Identity;
 
 namespace FitPass.Application.FunctionalTests.Tests.GymPassProductTests.Commands;
 
@@ -19,19 +23,110 @@ public class UpdateGymPassProductTests : BaseTestFixture
         ShouldRequireAuthorization<UpdateGymPassProductCommand>(Roles.GymAdministrator);
     }
 
-    [TestCase(null, null)]
-    [TestCase(1, 2)]
-    public async Task ShouldDenyInvalidParameters(int? totalUses, int? daysAfterExpiring)
+    [TestCase(
+        "",
+        PassType.SingleUse,
+        "Product Name",
+        "Product Description",
+        10,
+        CurrencyCode.USD,
+        1,
+        null
+    )]
+    [TestCase("id", PassType.SingleUse, "", "Product Description", 10, CurrencyCode.USD, 1, null)]
+    [TestCase("id", PassType.SingleUse, "Product Name", "", 10, CurrencyCode.USD, 1, null)]
+    [TestCase(
+        "id",
+        PassType.SingleUse,
+        "Product Name",
+        "Product Description",
+        10,
+        CurrencyCode.HUF,
+        1,
+        null
+    )]
+    [TestCase(
+        "id",
+        PassType.SingleUse,
+        "Product Name",
+        "Product Description",
+        10,
+        CurrencyCode.EUR,
+        2,
+        null
+    )]
+    [TestCase(
+        "id",
+        PassType.SingleUse,
+        "Product Name",
+        "Product Description",
+        10,
+        CurrencyCode.EUR,
+        1,
+        10
+    )]
+    [TestCase(
+        "id",
+        PassType.MultiUse,
+        "Product Name",
+        "Product Description",
+        10,
+        CurrencyCode.EUR,
+        1,
+        null
+    )]
+    [TestCase(
+        "id",
+        PassType.MultiUse,
+        "Product Name",
+        "Product Description",
+        10,
+        CurrencyCode.EUR,
+        1,
+        10
+    )]
+    [TestCase(
+        "id",
+        PassType.Unlimited,
+        "Product Name",
+        "Product Description",
+        10,
+        CurrencyCode.EUR,
+        1,
+        null
+    )]
+    [TestCase(
+        "id",
+        PassType.Unlimited,
+        "Product Name",
+        "Product Description",
+        10,
+        CurrencyCode.EUR,
+        null,
+        null
+    )]
+    public async Task ShouldThrowIfParametersAreInvalid(
+        string gymPassProductId,
+        PassType type,
+        string name,
+        string description,
+        decimal priceAmount,
+        CurrencyCode priceCurrency,
+        int? totalUses,
+        int? daysAfterExpiring
+    )
     {
         await RunAsGymEmployeeAsync(Roles.GymAdministrator);
 
         var command = new UpdateGymPassProductCommand(
-            string.Empty,
-            string.Empty,
-            string.Empty,
+            gymPassProductId,
+            type,
+            name,
+            description,
+            new Money(priceAmount, priceCurrency),
             totalUses,
-            daysAfterExpiring,
-            Money.Usd(10));
+            daysAfterExpiring
+        );
 
         await ShouldThrowIfParametersAreInvalidAsync(command);
     }
@@ -42,137 +137,202 @@ public class UpdateGymPassProductTests : BaseTestFixture
         var obj = await TestEntityBuilder.BuildGymAsync(GymStatus.Suspended);
 
         await RunAsUserAsync(obj.gymAdmin);
-        
+
         var command = new UpdateGymPassProductCommand(
-            "gymPassProductId", 
-            "Updated Name", 
-            "Updated Description", 
-            1, 
-            null,
-            Money.Usd(10));
-        
-        var result =  await SendAsync(command);
-        result.Type.ShouldBe(ResultTypes.BusinessRuleViolation);
-        result.Message.ShouldNotBeEmpty();
+            "gymPassProductId",
+            PassType.SingleUse,
+            "Updated Name",
+            "Updated Description",
+            new Money(10, CurrencyCode.USD),
+            1,
+            null
+        );
+
+        var result = await SendAsync(command);
+        result.ShouldBeFailed(ResultTypes.BusinessRuleViolation);
+    }
+
+    [Test]
+    public async Task ShouldReturnBusinessRuleViolationIfGymHasNoPaymentProfile()
+    {
+        var obj = await TestEntityBuilder.BuildGymAsync();
+
+        await RunAsUserAsync(obj.gymAdmin);
+
+        var command = new UpdateGymPassProductCommand(
+            obj.singleUsePass.Id,
+            PassType.SingleUse,
+            "Updated Name",
+            "Updated Description",
+            new Money(10, CurrencyCode.USD),
+            1,
+            null
+        );
+
+        var result = await SendAsync(command);
+        result.ShouldBeFailed(ResultTypes.BusinessRuleViolation);
     }
 
     [Test]
     public async Task ShouldReturnNotFoundIfGymPassProductNotFound()
     {
         var obj = await TestEntityBuilder.BuildGymWithTenantPaymentProfileAsync();
-        
+
         await RunAsUserAsync(obj.gymAdmin);
-        
+
         var command = new UpdateGymPassProductCommand(
-            "productId",
-            "Updated Name", 
-            "Updated Description", 
-            1, 
-            null,
-            Money.Usd(10)); 
-        
-        var result =  await SendAsync(command);
-        result.Type.ShouldBe(ResultTypes.NotFound);
-        result.Message.ShouldNotBeEmpty();
+            "id",
+            PassType.SingleUse,
+            "Updated Name",
+            "Updated Description",
+            new Money(10, CurrencyCode.USD),
+            1,
+            null
+        );
+
+        var result = await SendAsync(command);
+        result.ShouldBeFailed(ResultTypes.NotFound);
     }
-    
-    [TestCase(PassType.SingleUse, 1, null, "Updated Name", "Updated Description", 1, null, 49.99, "eur")]
-    [TestCase(PassType.MultiUse, 10, null, "Updated Name", "Updated Description", 20, null, 79.99, "gbp")]
-    [TestCase(PassType.Unlimited, null, 30, "Updated Name", "Updated Description", null, 60, 99.99, "usd")]
+
+    [TestCase(
+        PassType.SingleUse,
+        1,
+        null,
+        "Updated Name",
+        "Updated Description",
+        1,
+        null,
+        49.99,
+        CurrencyCode.EUR
+    )]
+    [TestCase(
+        PassType.MultiUse,
+        10,
+        null,
+        "Updated Name",
+        "Updated Description",
+        20,
+        null,
+        79.99,
+        CurrencyCode.EUR
+    )]
+    [TestCase(
+        PassType.Unlimited,
+        null,
+        30,
+        "Updated Name",
+        "Updated Description",
+        null,
+        60,
+        99.99,
+        CurrencyCode.USD
+    )]
     public async Task ShouldUpdateGymPassProduct(
-        PassType passType, int? passTotalUses, int? passDaysAfterExpiring,
-        string newName, string newDescription, int? newTotalUses, int? newDaysAfterExpiring, decimal newMoneyAmount, string newMoneyCurrency)
-    {
-        var obj = await TestEntityBuilder.BuildGymWithTenantPaymentProfileAsync();
-        var product = await TestEntityBuilder.BuildGymPassProduct(
-            obj.gymAdmin, 
-            Money.Usd(10), 
-            type: passType, 
-            totalUses: passTotalUses, 
-            daysAfterExpiring: passDaysAfterExpiring);
-        
-        var paymentIdentity = await GetFirstAsync<ProductPaymentIdentity>();
-        paymentIdentity.ShouldNotBeNull();
-        paymentIdentity.PriceId.ShouldNotBeNullOrEmpty();
-        paymentIdentity.ProductId.ShouldNotBeNullOrEmpty();
-        
-        string oldProductId = paymentIdentity.ProductId;
-        string oldPriceId = paymentIdentity.PriceId;
-        
-        await RunAsUserAsync(obj.gymAdmin);
-        
-        var command = new UpdateGymPassProductCommand(
-            product.Id, 
-            newName, 
-            newDescription, 
-            newTotalUses, 
-            newDaysAfterExpiring, 
-            new Money(newMoneyAmount, newMoneyCurrency));
-        
-        var result =  await SendAsync(command);
-        result.Succeeded.ShouldBeTrue();
-        result.Value.ShouldNotBeNull();
-
-        var productDto = result.Value;
-        productDto.Id.ShouldBe(product.Id);
-        productDto.Name.ShouldBe(newName);
-        productDto.Description.ShouldBe(newDescription);
-        productDto.TotalUses.ShouldBe(newTotalUses);
-        productDto.DaysAfterExpiring.ShouldBe(newDaysAfterExpiring);
-        productDto.Price.Amount.ShouldBe(newMoneyAmount);
-        productDto.Price.Currency.ShouldBe(newMoneyCurrency);
-        
-        product = await FindAsync<GymPassProduct>(product.Id);
-        product.ShouldNotBeNull();
-        product.Name.ShouldBe(newName);
-        product.Description.ShouldBe(newDescription);
-        product.TotalUses.ShouldBe(newTotalUses);
-        product.DaysAfterExpires.ShouldBe(newDaysAfterExpiring);
-        product.Price.Amount.ShouldBe(newMoneyAmount);
-        product.Price.Currency.ShouldBe(newMoneyCurrency);
-
-        paymentIdentity = await GetFirstAsync<ProductPaymentIdentity>();
-        paymentIdentity.ShouldNotBeNull();
-        paymentIdentity.PriceId.ShouldNotBe(oldPriceId);
-        paymentIdentity.ProductId.ShouldBe(oldProductId);
-    }
-
-    [TestCase(100, "usd", "Test Product", "Test Description", PassType.SingleUse, 1, null)]
-    public async Task ShouldNotUpdateGymPassProductIfParametersAreEqual(
-        decimal moneyAmount, string moneyCurrency, string name, string description, PassType passType, int? totalUses, int? daysAfterExpiring)
+        PassType passType,
+        int? passTotalUses,
+        int? passDaysAfterExpiring,
+        string newName,
+        string newDescription,
+        int? newTotalUses,
+        int? newDaysAfterExpiring,
+        decimal newMoneyAmount,
+        CurrencyCode newMoneyCurrency
+    )
     {
         var obj = await TestEntityBuilder.BuildGymWithTenantPaymentProfileAsync();
         var product = await TestEntityBuilder.BuildGymPassProduct(
             obj.gymAdmin,
-            new Money(moneyAmount, moneyCurrency),
-            name,
-            description,
-            passType,
-            totalUses,
-            daysAfterExpiring);
+            new Money(10, CurrencyCode.USD),
+            type: passType,
+            totalUses: passTotalUses,
+            daysAfterExpiring: passDaysAfterExpiring
+        );
+
+        var paymentIdentity = product.PaymentIdentity;
+
+        string oldProductId = paymentIdentity.ProductId;
+        string oldPriceId = paymentIdentity.PriceId;
 
         await RunAsUserAsync(obj.gymAdmin);
-        
+
         var command = new UpdateGymPassProductCommand(
             product.Id,
-            name,
-            description,
-            totalUses,
-            daysAfterExpiring,
-            new Money(moneyAmount, moneyCurrency));
-        
-        var result =  await SendAsync(command);
-        result.Succeeded.ShouldBeTrue();
-        result.Value.ShouldNotBeNull();
+            passType,
+            newName,
+            newDescription,
+            new Money(newMoneyAmount, newMoneyCurrency),
+            newTotalUses,
+            newDaysAfterExpiring
+        );
+
+        var result = await SendAsync(command);
+        result.ShouldBeSuccessful();
 
         var productDto = result.Value;
-        
+        productDto.ShouldNotBeNull();
         productDto.Id.ShouldBe(product.Id);
-        productDto.Name.ShouldBe(name);
-        productDto.Description.ShouldBe(description);
-        productDto.TotalUses.ShouldBe(totalUses);
-        productDto.DaysAfterExpiring.ShouldBe(daysAfterExpiring);
-        productDto.Price.Amount.ShouldBe(moneyAmount);
-        productDto.Price.Currency.ShouldBe(moneyCurrency);
+
+        var updatedProduct = await FindAsync<GymPassProduct>(product.Id);
+        updatedProduct.ShouldNotBeNull();
+        updatedProduct.Name.ShouldBe(newName);
+        updatedProduct.Description.ShouldBe(newDescription);
+        updatedProduct.TotalUses.ShouldBe(newTotalUses);
+        updatedProduct.DaysAfterExpires.ShouldBe(newDaysAfterExpiring);
+        updatedProduct.Price.Amount.ShouldBe(newMoneyAmount);
+        updatedProduct.Price.Currency.ShouldBe(newMoneyCurrency);
+
+        var updatedPaymentIdentity = await GetFirstAsync<ProductPaymentIdentity>();
+        updatedPaymentIdentity.ShouldNotBeNull();
+        updatedPaymentIdentity.PriceId.ShouldNotBe(oldPriceId);
+        updatedPaymentIdentity.PriceId.ShouldStartWith(StripePrefixes.PriceId);
+        updatedPaymentIdentity.ProductId.ShouldBe(oldProductId);
+        updatedPaymentIdentity.ProductId.ShouldStartWith(StripePrefixes.ProductId);
+    }
+
+    [Test]
+    public async Task ShouldNotUpdatePriceIfTheSame()
+    {
+        var obj = await TestEntityBuilder.BuildGymWithTenantPaymentProfileAsync();
+
+        var product = await TestEntityBuilder.BuildGymPassProduct(
+            obj.gymAdmin,
+            new Money(10, CurrencyCode.USD)
+        );
+
+        var paymentIdentity = product.PaymentIdentity;
+
+        await RunAsUserAsync(obj.gymAdmin);
+
+        var command = new UpdateGymPassProductCommand(
+            product.Id,
+            product.Type,
+            product.Name,
+            product.Description,
+            product.Price,
+            product.TotalUses,
+            product.DaysAfterExpires
+        );
+
+        var result = await SendAsync(command);
+        result.Succeeded.ShouldBeTrue();
+
+        var productDto = result.Value;
+        productDto.ShouldNotBeNull();
+
+        var notUpdatedProduct = await FindAsync<GymPassProduct>(
+            [productDto.Id],
+            x => x.PaymentIdentity
+        );
+
+        notUpdatedProduct.ShouldNotBeNull();
+
+        var notUpdatedPaymentIdentity = notUpdatedProduct.PaymentIdentity;
+        notUpdatedPaymentIdentity.ShouldNotBeNull();
+        notUpdatedPaymentIdentity.PriceId.ShouldBe(paymentIdentity.PriceId);
+        notUpdatedPaymentIdentity.ProductId.ShouldBe(paymentIdentity.ProductId);
+
+        productDto.Id.ShouldBe(product.Id);
+        productDto.Price.Amount.ShouldBe(product.Price.Amount);
+        productDto.Price.Currency.ShouldBe(product.Price.Currency);
     }
 }

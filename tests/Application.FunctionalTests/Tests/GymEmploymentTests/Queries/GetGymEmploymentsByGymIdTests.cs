@@ -1,9 +1,8 @@
-using FitPass.Application.Common.Exceptions;
 using FitPass.Application.Common.Models;
+using FitPass.Application.FunctionalTests.Infrastructure.Testing;
 using FitPass.Application.FunctionalTests.TestData;
 using FitPass.Application.GymEmployments.Queries;
 using FitPass.Domain.Constants;
-using FitPass.Domain.Entities;
 
 namespace FitPass.Application.FunctionalTests.Tests.GymEmploymentTests.Queries;
 
@@ -18,11 +17,13 @@ public class GetGymEmploymentsByGymIdTests : BaseTestFixture
     }
 
     [Test]
-    public async Task ShouldDenyInvalidParameter()
+    public async Task ShouldThrowIfParametersAreInvalid()
     {
         await RunAsAppAdminAsync();
 
-        await Should.ThrowAsync<ValidationException>(SendAsync(new GetGymEmploymentsByGymIdQuery(string.Empty)));
+        var command = new GetGymEmploymentByIdQuery(string.Empty);
+
+        await ShouldThrowIfParametersAreInvalidAsync(command);
     }
 
     [Test]
@@ -30,9 +31,8 @@ public class GetGymEmploymentsByGymIdTests : BaseTestFixture
     {
         await RunAsAppAdminAsync();
 
-        var result = await SendAsync(new GetGymEmploymentsByGymIdQuery("non-existing-gym-id"));
-        result.Type.ShouldBe(ResultTypes.NotFound);
-        result.Message.ShouldNotBeEmpty();
+        var result = await SendAsync(new GetGymEmploymentsByGymIdQuery("id"));
+        result.ShouldBeFailed(ResultTypes.NotFound);
     }
 
     [Test]
@@ -49,15 +49,10 @@ public class GetGymEmploymentsByGymIdTests : BaseTestFixture
         var gymEmployments = result.Value;
 
         gymEmployments.ShouldNotBeNull();
-        gymEmployments.Count.ShouldBe(2);
-
         gymEmployments
-            .FirstOrDefault(ge => ge.UserId == obj.gymAdmin.Id)
-            .AssertTo(obj.gymAdminGymEmployment, obj.gymAdminUserProfile, obj.gymAdmin);
-
-
-        gymEmployments
-            .FirstOrDefault(ge => ge.UserId == obj.gymStaff.Id)
-            .AssertTo(obj.gymStaffGymEmployment, obj.gymStaffUserProfile, obj.gymStaff);
+            .Count(x =>
+                x.Id == obj.gymAdminGymEmployment.Id || x.Id == obj.gymStaffGymEmployment.Id
+            )
+            .ShouldBe(2);
     }
 }

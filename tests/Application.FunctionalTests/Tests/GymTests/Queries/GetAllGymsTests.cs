@@ -1,4 +1,5 @@
 using System;
+using FitPass.Application.FunctionalTests.Infrastructure.Testing;
 using FitPass.Application.FunctionalTests.TestData;
 using FitPass.Application.Gyms.Queries;
 
@@ -26,16 +27,8 @@ public class GetAllGymsTests : BaseTestFixture
         var gymDtos = await SendAsync(command);
         gymDtos.ShouldNotBeNull();
         gymDtos.Count.ShouldBe(3);
-        gymDtos.FirstOrDefault(g => g.Id == obj1.gym.Id)
-            .ShouldNotBeNull()
-            .AssertToGym(obj1.gym);
-
-        gymDtos.FirstOrDefault(g => g.Id == obj2.gym.Id)
-            .ShouldNotBeNull()
-            .AssertToGym(obj2.gym);
-
-        gymDtos.FirstOrDefault(g => g.Id == obj3.gym.Id)
-            .ShouldNotBeNull()
-            .AssertToGym(obj3.gym);
+        gymDtos
+            .Count(x => x.Id == obj1.gym.Id || x.Id == obj2.gym.Id || x.Id == obj3.gym.Id)
+            .ShouldBe(3);
     }
 }

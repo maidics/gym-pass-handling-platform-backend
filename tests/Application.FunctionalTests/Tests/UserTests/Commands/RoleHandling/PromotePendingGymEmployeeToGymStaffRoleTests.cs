@@ -1,5 +1,6 @@
 ﻿using FitPass.Application.Common.Exceptions;
 using FitPass.Application.Common.Models;
+using FitPass.Application.FunctionalTests.Infrastructure.Testing;
 using FitPass.Application.Users.Commands.RoleHandling;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
@@ -10,11 +11,12 @@ using static Testing;
 
 public class PromotePendingGymEmployeeToGymStaffRoleTests : BaseTestFixture
 {
-
     [Test]
     public override void AuthorizeAttributeCheck()
     {
-        ShouldRequireAuthorization<PromotePendingGymEmployeeToGymStaffRoleCommand>(Roles.GymAdministrator);
+        ShouldRequireAuthorization<PromotePendingGymEmployeeToGymStaffRoleCommand>(
+            Roles.GymAdministrator
+        );
     }
 
     [Test]

@@ -24,7 +24,13 @@ public class StripePaymentService : IPaymentService
         _localizer = localizer;
     }
 
-    public async Task<Result<string>> CreateOneTimePaymentIntent(Money money, string userId, string gymId, string gymPassProductId, string tenantPaymentAccountId)
+    public async Task<Result<string>> CreateOneTimePaymentIntent(
+        Money money,
+        string userId,
+        string gymId,
+        string gymPassProductId,
+        string tenantPaymentAccountId
+    )
     {
         try
         {
@@ -34,25 +40,23 @@ public class StripePaymentService : IPaymentService
                 Currency = money.ToStripeCurrency(),
                 AutomaticPaymentMethods = new PaymentIntentAutomaticPaymentMethodsOptions
                 {
-                    Enabled = true
+                    Enabled = true,
                 },
                 Metadata = new Dictionary<string, string>()
                 {
                     { "UserId", userId },
                     { "GymId", gymId },
-                    { "GymPassProductId", gymPassProductId }
+                    { "GymPassProductId", gymPassProductId },
                 },
             };
 
-            var requestOptions = new RequestOptions
-            {
-                StripeAccount = tenantPaymentAccountId
-            };
+            var requestOptions = new RequestOptions { StripeAccount = tenantPaymentAccountId };
 
             var intent = await _paymentIntentService.CreateAsync(options, requestOptions);
 
             return Result.Success(intent.ClientSecret);
-        } catch (StripeException ex)
+        }
+        catch (StripeException ex)
         {
             ex.Log(_logger, nameof(StripePaymentService), nameof(CreateOneTimePaymentIntent));
 

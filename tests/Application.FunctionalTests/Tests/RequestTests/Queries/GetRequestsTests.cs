@@ -1,4 +1,5 @@
-﻿using FitPass.Application.Requests.Queries;
+﻿using FitPass.Application.FunctionalTests.Infrastructure.Testing;
+using FitPass.Application.Requests.Queries;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
@@ -27,7 +28,7 @@ public class GetRequestsTests : BaseTestFixture
             PriorityLevel = PriorityLevel.Medium,
             Type = RequestType.GymCreation,
             Status = RequestStatus.Submitted,
-            Payload = null
+            Payload = null,
         };
 
         await AddAsync(requestNotOther);
@@ -39,12 +40,12 @@ public class GetRequestsTests : BaseTestFixture
             PriorityLevel = PriorityLevel.Medium,
             Type = RequestType.Other,
             Status = RequestStatus.Submitted,
-            Payload = null
+            Payload = null,
         };
 
         await AddAsync(requestOther);
 
-        var query = new GetRequestsQuery(RequestType.Other, null);
+        var query = new GetRequestsQuery();
 
         var result = await SendAsync(query);
         result.ShouldNotBeNull();
@@ -64,7 +65,7 @@ public class GetRequestsTests : BaseTestFixture
             PriorityLevel = PriorityLevel.Medium,
             Type = RequestType.GymCreation,
             Status = RequestStatus.Approved,
-            Payload = null
+            Payload = null,
         };
 
         await AddAsync(requestNotSubmitted);
@@ -76,12 +77,12 @@ public class GetRequestsTests : BaseTestFixture
             PriorityLevel = PriorityLevel.Medium,
             Type = RequestType.Other,
             Status = RequestStatus.Submitted,
-            Payload = null
+            Payload = null,
         };
 
         await AddAsync(requestSubmitted);
 
-        var query = new GetRequestsQuery(null, RequestStatus.Submitted);
+        var query = new GetRequestsQuery();
 
         var result = await SendAsync(query);
         result.ShouldNotBeNull();
@@ -89,7 +90,7 @@ public class GetRequestsTests : BaseTestFixture
         result[0].Status.ShouldBe(RequestStatus.Submitted);
     }
 
-    [Test] 
+    [Test]
     public async Task ShouldReturnAllRequests()
     {
         await RunAsAppAdminAsync();
@@ -101,7 +102,7 @@ public class GetRequestsTests : BaseTestFixture
             PriorityLevel = PriorityLevel.Medium,
             Type = RequestType.GymCreation,
             Status = RequestStatus.Approved,
-            Payload = null
+            Payload = null,
         };
 
         await AddAsync(requestNotSubmitted);
@@ -113,12 +114,12 @@ public class GetRequestsTests : BaseTestFixture
             PriorityLevel = PriorityLevel.Medium,
             Type = RequestType.Other,
             Status = RequestStatus.Submitted,
-            Payload = null
+            Payload = null,
         };
 
         await AddAsync(requestSubmitted);
 
-        var query = new GetRequestsQuery(null, null);
+        var query = new GetRequestsQuery();
 
         var result = await SendAsync(query);
         result.ShouldNotBeNull();
@@ -136,7 +137,7 @@ public class GetRequestsTests : BaseTestFixture
             PriorityLevel = PriorityLevel.Medium,
             Type = RequestType.GymCreation,
             Status = RequestStatus.Approved,
-            Payload = null
+            Payload = null,
         };
 
         await AddAsync(request1);
@@ -148,7 +149,7 @@ public class GetRequestsTests : BaseTestFixture
             PriorityLevel = PriorityLevel.Medium,
             Type = RequestType.GymCreation,
             Status = RequestStatus.Submitted,
-            Payload = null
+            Payload = null,
         };
 
         await AddAsync(request2);
@@ -160,12 +161,12 @@ public class GetRequestsTests : BaseTestFixture
             PriorityLevel = PriorityLevel.Medium,
             Type = RequestType.Other,
             Status = RequestStatus.Submitted,
-            Payload = null
+            Payload = null,
         };
 
         await AddAsync(request3);
 
-        var query = new GetRequestsQuery(RequestType.GymCreation, RequestStatus.Submitted);
+        var query = new GetRequestsQuery();
         var result = await SendAsync(query);
         result.ShouldNotBeNull();
         result.Count.ShouldBe(1);

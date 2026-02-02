@@ -1,13 +1,13 @@
 ﻿using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Models;
+using FitPass.Application.Common.Resources;
 using FitPass.Application.Common.Security;
 using FitPass.Domain.Constants;
-using FitPass.Application.Common.Resources;
 
 namespace FitPass.Application.GymPassUsages.Commands;
 
-[Authorize (Roles = $"{Roles.GymAdministrator},{Roles.GymStaff}")]
+[Authorize(Roles = $"{Roles.GymAdministrator},{Roles.GymStaff}")]
 public record EndUserGymSessionCommand(string GymPassUsageId) : IRequest<Result>;
 
 public class EndUserGymSessionCommandValidator : AbstractValidator<EndUserGymSessionCommand>
@@ -15,7 +15,11 @@ public class EndUserGymSessionCommandValidator : AbstractValidator<EndUserGymSes
     public EndUserGymSessionCommandValidator(ILocalizer localizer)
     {
         RuleFor(v => v.GymPassUsageId)
-            .PropertyOfEntityNotEmptyWithMessageLocalized(localizer, nameof(SharedResource.Id), nameof(SharedResource.GymPassUsage));
+            .PropertyOfEntityNotEmptyWithMessageLocalized(
+                localizer,
+                nameof(SharedResource.Id),
+                nameof(SharedResource.GymPassUsage)
+            );
     }
 }
 
@@ -24,20 +28,30 @@ public class EndUserGymSessionCommandHandler : IRequestHandler<EndUserGymSession
     private readonly IApplicationDbContext _context;
     private readonly TimeProvider _timeProvider;
     private readonly ILocalizer _localizer;
+    private readonly IClientNotificationSender _clientNotificationSender;
 
     public EndUserGymSessionCommandHandler(
         IApplicationDbContext context,
         TimeProvider timeProvider,
-        ILocalizer localizer)
+        ILocalizer localizer,
+        IClientNotificationSender clientNotificationSender
+    )
     {
         _context = context;
         _timeProvider = timeProvider;
         _localizer = localizer;
+        _clientNotificationSender = clientNotificationSender;
     }
 
-    public async Task<Result> Handle(EndUserGymSessionCommand command, CancellationToken cancellationToken)
+    public async Task<Result> Handle(
+        EndUserGymSessionCommand command,
+        CancellationToken cancellationToken
+    )
     {
-        var gymPassUsage = await _context.GymPassUsages.FindAsync([command.GymPassUsageId], cancellationToken);
+        var gymPassUsage = await _context.GymPassUsages.FindAsync(
+            [command.GymPassUsageId],
+            cancellationToken
+        );
 
         if (gymPassUsage is null)
         {
@@ -47,6 +61,13 @@ public class EndUserGymSessionCommandHandler : IRequestHandler<EndUserGymSession
         gymPassUsage.EndGymSession(_timeProvider.GetUtcNow());
 
         await _context.SaveChangesAsync(cancellationToken);
+
+        var notification = ClientNotification.Create(
+            _localizer.Get(nameof(SharedResource.GymEmployeeEndedGymSession)),
+            ClientNotificationType.GymSessionEnded
+        );
+
+        await _clientNotificationSender.SendAsync(gymPassUsage.UserId, notification);
 
         return Result.Success();
     }

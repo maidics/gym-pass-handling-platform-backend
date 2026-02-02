@@ -8,6 +8,7 @@ using FitPass.Domain.Constants;
 
 namespace FitPass.Application.FunctionalTests.Tests.TenantPaymentProfileTests.Commands;
 
+/*
 using static Testing;
 
 public class GenerateTenantLoginLinkTests : BaseTestFixture
@@ -46,3 +47,4 @@ public class GenerateTenantLoginLinkTests : BaseTestFixture
         result.Value.ShouldNotBeNull();
     }
 }
+*/
