@@ -22,19 +22,19 @@ public class UpdateMyGymStatusTests : BaseTestFixture
     }
 
     [Test]
-    public async Task ShouldThrowIfNewGymStatusIsSuspended()
+    public async Task ShouldThrowIfParametersAreInvalid()
     {
         await RunAsGymEmployeeAsync(Roles.GymAdministrator);
 
         var command = new UpdateMyGymStatusCommand(GymStatus.Suspended);
 
-        await Should.ThrowAsync<ValidationException>(() => SendAsync(command));
+        await ShouldThrowIfParametersAreInvalidAsync(command);
     }
 
     [Test]
     public async Task ShouldReturnBusinessRuleViolationIfGymIsSuspended()
     {
-        var obj = await TestEntityBuilder.BuildGymAsync(GymStatus.Suspended)
+        var obj = await TestEntityBuilder.BuildGymAsync(GymStatus.Suspended);
 
         await RunAsUserAsync(obj.gymAdmin);
 

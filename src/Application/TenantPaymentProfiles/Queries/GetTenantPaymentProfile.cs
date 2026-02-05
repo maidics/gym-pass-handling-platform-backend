@@ -1,20 +1,19 @@
 using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Models;
+using FitPass.Application.Common.Resources;
 using FitPass.Application.Common.Security;
 using FitPass.Application.TenantPaymentProfiles.DTOs;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
-using FitPass.Domain.Entities.Payment;
-using FitPass.Application.Common.Resources;
-using Microsoft.Extensions.Logging;
 
 namespace FitPass.Application.TenantPaymentProfiles.Queries;
 
 [Authorize(Roles = Roles.GymAdministrator)]
 public record GetMyTenantPaymentProfileQuery : IRequest<Result<TenantPaymentProfileDto>>;
 
-public class GetMyTenantPaymentProfileQueryHandler : IRequestHandler<GetMyTenantPaymentProfileQuery, Result<TenantPaymentProfileDto>>
+public class GetMyTenantPaymentProfileQueryHandler
+    : IRequestHandler<GetMyTenantPaymentProfileQuery, Result<TenantPaymentProfileDto>>
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
@@ -31,30 +30,37 @@ public class GetMyTenantPaymentProfileQueryHandler : IRequestHandler<GetMyTenant
         _localizer = localizer;
     }
 
-    public async Task<Result<TenantPaymentProfileDto>> Handle(GetMyTenantPaymentProfileQuery request, CancellationToken cancellationToken)
+    public async Task<Result<TenantPaymentProfileDto>> Handle(
+        GetMyTenantPaymentProfileQuery request,
+        CancellationToken cancellationToken
+    )
     {
         var gymEmployment = await _context
-            .GymEmployments
-            .AsNoTracking()
+            .GymEmployments.AsNoTracking()
             .FirstOrDefaultAsync(ge => ge.UserId == _user.Id, cancellationToken);
 
-        Guard.Against.NullParameterRelatedToCurrentUser(gymEmployment, nameof(GymEmployment), _user.Id);
+        Guard.Against.NullParameterRelatedToCurrentUser(
+            gymEmployment,
+            nameof(GymEmployment),
+            _user.Id
+        );
 
         var dto = await _context
-            .TenantPaymentProfiles
-            .AsNoTracking()
+            .TenantPaymentProfiles.AsNoTracking()
             .Select(x => new TenantPaymentProfileDto
             {
                 GymId = x.GymId,
                 CreatedOn = x.CreatedOn,
                 LastAccountLinkGeneratedBy = x.LastAccountLinkGeneratedBy,
-                LastAccountLinkGeneratedOn = x.LastAccountLinkGeneratedOn
+                LastAccountLinkGeneratedOn = x.LastAccountLinkGeneratedOn,
             })
             .FirstOrDefaultAsync(tpp => tpp.GymId == gymEmployment.GymId, cancellationToken);
 
         if (dto is null)
         {
-            return Result.BusinessRuleViolation(_localizer.Get(nameof(SharedResource.RequiresStripeAccount)));
+            return Result.BusinessRuleViolation(
+                _localizer.Get(nameof(SharedResource.RequiresStripeAccount))
+            );
         }
 
         return Result.Success(dto);

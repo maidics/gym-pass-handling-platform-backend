@@ -18,10 +18,14 @@ public class Users : EndpointGroupBase
         groupBuilder.MapPost(RegisterUser, "Register");
 
         groupBuilder.MapPost(LogInUser, "LogIn");
-        
-        groupBuilder.MapPut(PromotePendingGymEmployeeToGymStaffRole, "Promote/GymStaff").RequireAuthorization();
 
-        groupBuilder.MapPut(DemoteGymStaffToPendingGymEmployee, "Demote/GymStaff").RequireAuthorization();
+        groupBuilder
+            .MapPut(PromotePendingGymEmployeeToGymStaffRole, "Promote/GymStaff")
+            .RequireAuthorization();
+
+        groupBuilder
+            .MapPut(DemoteGymStaffToPendingGymEmployee, "Demote/GymStaff")
+            .RequireAuthorization();
 
         groupBuilder.MapDelete(DeleteMyAccount, "My/Delete").RequireAuthorization();
 
@@ -29,23 +33,31 @@ public class Users : EndpointGroupBase
 
         groupBuilder.MapPost(ResetPassword, "ResetPassword");
 
-        groupBuilder.MapPut(SendEmailConfirmationEmail, "EmailConfirmationEmail").RequireAuthorization();
+        groupBuilder
+            .MapPut(SendEmailConfirmationEmail, "EmailConfirmationEmail")
+            .RequireAuthorization();
 
         groupBuilder.MapPut(ActivateUserAccount, "ActivateAccount");
 
-        groupBuilder.MapPost(GymEmployeeRegisterUser, "Register/ByGymEmployee").RequireAuthorization();
+        groupBuilder
+            .MapPost(GymEmployeeRegisterUser, "Register/ByGymEmployee")
+            .RequireAuthorization();
 
-        groupBuilder.MapPut(PromotePendingGymEmployeeToGymAdminFromRequest, "Promote/GymAdmin/Request").RequireAuthorization();
+        groupBuilder
+            .MapPut(PromotePendingGymEmployeeToGymAdminFromRequest, "Promote/GymAdmin/Request")
+            .RequireAuthorization();
 
         groupBuilder.MapGet(GetMyUser, "My").RequireAuthorization();
-        
+
         groupBuilder.MapPut(UpdateMyPassword, "UpdateMyPassword").RequireAuthorization();
 
         groupBuilder.MapPost(SendAccountActivationEmail, "AccountActivationEmail");
     }
 
     public async Task<Results<Ok<JwtToken>, ProblemHttpResult>> RegisterUser(
-        ISender sender, [FromBody] RegisterUserCommand command)
+        ISender sender,
+        [FromBody] RegisterUserCommand command
+    )
     {
         var result = await sender.Send(command, CancellationToken.None);
 
@@ -53,15 +65,22 @@ public class Users : EndpointGroupBase
     }
 
     public async Task<Results<Ok<JwtToken>, ProblemHttpResult>> LogInUser(
-        ISender sender, [FromBody] LogInUserCommand command, CancellationToken cancellationToken)
+        ISender sender,
+        [FromBody] LogInUserCommand command,
+        CancellationToken cancellationToken
+    )
     {
         var result = await sender.Send(command, cancellationToken);
 
         return result.ToTypedResult();
     }
 
-    public async Task<Results<NoContent, ProblemHttpResult>> PromotePendingGymEmployeeToGymStaffRole(
-        ISender sender, [FromBody] PromotePendingGymEmployeeToGymStaffRoleCommand command)
+    public async Task<
+        Results<NoContent, ProblemHttpResult>
+    > PromotePendingGymEmployeeToGymStaffRole(
+        ISender sender,
+        [FromBody] PromotePendingGymEmployeeToGymStaffRoleCommand command
+    )
     {
         var result = await sender.Send(command, CancellationToken.None);
 
@@ -76,14 +95,20 @@ public class Users : EndpointGroupBase
     }
 
     public async Task<Results<NoContent, ProblemHttpResult>> SendPasswordResetEmail(
-        ISender sender, [FromBody] string email, CancellationToken cancellationToken)
+        ISender sender,
+        [FromBody] string email,
+        CancellationToken cancellationToken
+    )
     {
         var result = await sender.Send(new SendPasswordResetEmailCommand(email), cancellationToken);
 
         return result.ToTypedResult();
     }
 
-    public async Task<Results<Ok<JwtToken>, ProblemHttpResult>> ResetPassword(ISender sender, [FromBody] ResetPasswordCommand command)
+    public async Task<Results<Ok<JwtToken>, ProblemHttpResult>> ResetPassword(
+        ISender sender,
+        [FromBody] ResetPasswordCommand command
+    )
     {
         var result = await sender.Send(command);
 
@@ -91,7 +116,9 @@ public class Users : EndpointGroupBase
     }
 
     public async Task<Results<NoContent, ProblemHttpResult>> DemoteGymStaffToPendingGymEmployee(
-        ISender sender, [FromBody] DemoteGymStaffToPendingGymEmployeeCommand command)
+        ISender sender,
+        [FromBody] DemoteGymStaffToPendingGymEmployeeCommand command
+    )
     {
         var result = await sender.Send(command, CancellationToken.None);
 
@@ -99,7 +126,9 @@ public class Users : EndpointGroupBase
     }
 
     public async Task<Results<NoContent, ProblemHttpResult>> SendEmailConfirmationEmail(
-        ISender sender, CancellationToken cancellationToken)
+        ISender sender,
+        CancellationToken cancellationToken
+    )
     {
         var result = await sender.Send(new SendEmailConfirmationEmailCommand(), cancellationToken);
 
@@ -107,7 +136,9 @@ public class Users : EndpointGroupBase
     }
 
     public async Task<Results<Ok<JwtToken>, ProblemHttpResult>> ActivateUserAccount(
-        ISender sender, [FromBody] ActivateUserAccountCommand command)
+        ISender sender,
+        [FromBody] ActivateUserAccountCommand command
+    )
     {
         var result = await sender.Send(command, CancellationToken.None);
 
@@ -115,15 +146,21 @@ public class Users : EndpointGroupBase
     }
 
     public async Task<Results<Ok<GymMembershipDto>, ProblemHttpResult>> GymEmployeeRegisterUser(
-        ISender sender, [FromBody] GymEmployeeRegisterUserCommand command)
+        ISender sender,
+        [FromBody] GymEmployeeRegisterUserCommand command
+    )
     {
         var result = await sender.Send(command, CancellationToken.None);
 
         return result.ToTypedResult();
     }
 
-    public async Task<Results<NoContent, ProblemHttpResult>> PromotePendingGymEmployeeToGymAdminFromRequest(
-        ISender sender, [FromBody] PromotePendingGymEmployeeToGymAdminFromRequestCommand command)
+    public async Task<
+        Results<NoContent, ProblemHttpResult>
+    > PromotePendingGymEmployeeToGymAdminFromRequest(
+        ISender sender,
+        [FromBody] PromotePendingGymEmployeeToGymAdminFromRequestCommand command
+    )
     {
         var result = await sender.Send(command, CancellationToken.None);
 
@@ -133,22 +170,30 @@ public class Users : EndpointGroupBase
     public async Task<Ok<UserDto>> GetMyUser(ISender sender, CancellationToken cancellationToken)
     {
         var result = await sender.Send(new GetMyUserQuery(), cancellationToken);
-        
+
         return TypedResults.Ok(result);
     }
 
-    public async Task<Results<NoContent, ProblemHttpResult>> UpdateMyPassword(ISender sender,
-        [FromBody] UpdateMyPasswordCommand command)
+    public async Task<Results<NoContent, ProblemHttpResult>> UpdateMyPassword(
+        ISender sender,
+        [FromBody] UpdateMyPasswordCommand command
+    )
     {
         var result = await sender.Send(command);
-        
+
         return result.ToTypedResult();
     }
 
-    public async Task<Results<NoContent, ProblemHttpResult>> SendAccountActivationEmail(ISender sender,
-        [FromBody] string email, CancellationToken cancellationToken)
+    public async Task<Results<NoContent, ProblemHttpResult>> SendAccountActivationEmail(
+        ISender sender,
+        [FromBody] string email,
+        CancellationToken cancellationToken
+    )
     {
-        var result = await sender.Send(new SendAccountActivationEmailCommand(email), cancellationToken);
+        var result = await sender.Send(
+            new SendAccountActivationEmailCommand(email),
+            cancellationToken
+        );
 
         return result.ToTypedResult();
     }

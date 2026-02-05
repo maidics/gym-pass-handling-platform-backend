@@ -31,7 +31,7 @@ public class StripeResilienceTests
 
         var result = await service.CreateTenantAccount(
             "test_gymId",
-            "test@localhost",
+            "test@localhost.com",
             "Test Business");
         
         result.Type.ShouldBe(GetResult(resultType).Type);

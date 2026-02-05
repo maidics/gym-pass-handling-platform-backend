@@ -81,13 +81,14 @@ public class UpdateGymPassUsageLockerNumberCommandHandler
 
         using var scope = new CultureInfoScope(lang ?? _localizer.DefaultCulture);
 
-        var notification = ClientNotification.Create(
-            _localizer.Get(
+        var notification = new ClientNotification
+        {
+            Message = _localizer.Get(
                 nameof(SharedResource.GymEmployeeUpdatedGymPassUsageLockerNumber),
                 command.LockerNumber
             ),
-            ClientNotificationType.GymPassUsageLockerUpdated
-        );
+            Type = ClientNotificationType.GymPassUsageLockerUpdated,
+        };
 
         await _clientNotificationSender.SendAsync(gymPassUsage.UserId, notification);
 

@@ -1,5 +1,6 @@
 ﻿using FitPass.Application.Common.Exceptions;
 using FitPass.Application.Common.Models;
+using FitPass.Application.FunctionalTests.Common.Extensions;
 using FitPass.Application.FunctionalTests.Infrastructure.Testing;
 using FitPass.Application.Users.Commands;
 using FitPass.Domain.Constants;
@@ -22,18 +23,21 @@ public class GymEmployeeRegisterUserTests : BaseTestFixture
         );
     }
 
-    [Test]
-    public async Task ShouldThrowIfParametersAreInvalid()
+    [TestCase("", "First", "Last")]
+    [TestCase("invalid@email", "First", "Last")]
+    [TestCase("email@test.com", "", "Last")]
+    [TestCase("email@test.com", "First", "")]
+    public async Task ShouldThrowIfParametersAreInvalid(
+        string email,
+        string firstName,
+        string lastName
+    )
     {
         await RunAsGymEmployeeAsync(Roles.GymStaff);
 
-        var command = new GymEmployeeRegisterUserCommand(
-            "invalidEmail",
-            string.Empty,
-            string.Empty
-        );
+        var command = new GymEmployeeRegisterUserCommand(email, firstName, lastName);
 
-        await Should.ThrowAsync<ValidationException>(SendAsync(command));
+        await ShouldThrowIfParametersAreInvalidAsync(command);
     }
 
     [Test]
@@ -41,12 +45,12 @@ public class GymEmployeeRegisterUserTests : BaseTestFixture
     {
         var user = await CreateUserAsync();
 
-        var gymStaffObj = await RunAsGymEmployeeAsync(Roles.GymStaff);
+        await RunAsGymEmployeeAsync(Roles.GymStaff);
 
         var command = new GymEmployeeRegisterUserCommand(user.Email!, "First", "Last");
 
         var result = await SendAsync(command);
-        result.Type.ShouldBe(ResultTypes.Conflict);
+        result.ShouldBeFailed(ResultTypes.Conflict);
     }
 
     [Test]
@@ -54,33 +58,34 @@ public class GymEmployeeRegisterUserTests : BaseTestFixture
     {
         var gymStaffObj = await RunAsGymEmployeeAsync(Roles.GymStaff);
 
-        string email = "valid@email";
-        string firstName = "First";
-        string lastName = "Last";
-
-        var command = new GymEmployeeRegisterUserCommand(email, firstName, lastName);
+        var command = new GymEmployeeRegisterUserCommand("email@test.com", "First", "Last");
 
         var result = await SendAsync(command);
-        result.Succeeded.ShouldBeTrue();
-        result.Value.ShouldNotBeNull();
+        result.ShouldBeSuccessful();
 
-        var createdUserId = await GetUserIdByEmailAsync(email);
+        var dto = result.Value;
 
-        var createdUser = await FindAsync<ApplicationUser>(createdUserId);
-        createdUser.ShouldNotBeNull();
-        var userRoles = await GetUserRolesAsync(createdUserId);
+        var user = await FindAsync<ApplicationUser>(dto.UserId);
+        user.ShouldNotBeNull();
+        user.Email.ShouldNotBeNull();
+        user.Email.ShouldBe(command.Email);
+        user.PasswordHash.ShouldBeNull();
+        user.EmailConfirmed.ShouldBeFalse();
+
+        var profile = await FindByUserIdAsync<UserProfile>(dto.UserId);
+        profile.ShouldNotBeNull();
+        profile.FirstName.ShouldBe(command.FirstName);
+        profile.LastName.ShouldBe(command.LastName);
+
+        var userRoles = await GetUserRolesAsync(dto.UserId);
         userRoles.Count.ShouldBe(1);
         userRoles.First().ShouldBe(Roles.User);
-        createdUser.PasswordHash.ShouldBeNull();
-        createdUser.EmailConfirmed.ShouldBeFalse();
 
-        var userProfile = await FindByUserIdAsync<UserProfile>(createdUserId);
-        userProfile.ShouldNotBeNull();
-
-        var gymMembership = await FindByUserIdAsync<GymMembership>(createdUserId);
+        var gymMembership = await FindAsync<GymMembership>(dto.Id);
         gymMembership.ShouldNotBeNull();
         gymMembership.GymId.ShouldBe(gymStaffObj.gym.Id);
+        gymMembership.UserId.ShouldBe(dto.UserId);
 
-        EmailFolderShouldContainEmails(1);
+        EmailFolderShouldContainEmails();
     }
 }

@@ -8,47 +8,49 @@ namespace FitPass.Application.FunctionalTests.Tests.RequestTests.Queries;
 
 using static Testing;
 
-public class GetRequestsTests : BaseTestFixture
+public class GetMyRequestsTests : BaseTestFixture
 {
     [Test]
     public override void AuthorizeAttributeCheck()
     {
-        ShouldRequireAuthorization<GetRequestsQuery>(Roles.AppAdministrator);
+        ShouldRequireAuthorization<GetMyRequestByIdQuery>(
+            Roles.User,
+            Roles.PendingGymEmployee,
+            Roles.GymStaff,
+            Roles.GymAdministrator
+        );
     }
 
     [Test]
     public async Task ShouldReturnRequests()
     {
-        await RunAsAppAdminAsync();
+        var obj = await RunAsDefaultUserAsync();
 
-        var request1 = new Request
+        var request1 = new Request()
         {
+            CreatedBy = obj.user.Id, //TODO: test if this works
             Title = "Title",
             Description = "Description",
-            PriorityLevel = PriorityLevel.Medium,
-            Type = RequestType.GymCreation,
-            Status = RequestStatus.Approved,
-            Payload = null,
-        };
-
-        await AddAsync(request1);
-
-        var request2 = new Request
-        {
-            Title = "Title",
-            Description = "Description",
-            PriorityLevel = PriorityLevel.Medium,
+            PriorityLevel = PriorityLevel.High,
+            Status = RequestStatus.Rejected,
             Type = RequestType.Other,
-            Status = RequestStatus.Submitted,
             Payload = null,
         };
 
-        await AddAsync(request2);
+        var request2 = new Request()
+        {
+            CreatedBy = obj.user.Id, //TODO: test if this works
+            Title = "Title",
+            Description = "Description",
+            PriorityLevel = PriorityLevel.High,
+            Status = RequestStatus.Rejected,
+            Type = RequestType.Other,
+            Payload = null,
+        };
 
-        var query = new GetRequestsQuery();
+        var query = new GetMyRequestsQuery();
 
         var result = await SendAsync(query);
-        result.ShouldNotBeNull();
         result.Count.ShouldBe(2);
         result.Count(x => x.Id == request1.Id || x.Id == request2.Id).ShouldBe(2);
     }

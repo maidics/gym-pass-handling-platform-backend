@@ -493,4 +493,7 @@ Confirm my email: {1}</value>
   <data name="GymReactivatedByAppAdmin" xml:space="preserve">
     <value>Your gym has been reactivated by an App Administrator with the following rationale: {0}</value>
   </data>
+  <data name="NewPasswordCannotBeSameAsOld" xml:space="preserve">
+    <value>New password cannot be the same as old.</value>
+  </data>
 </root>

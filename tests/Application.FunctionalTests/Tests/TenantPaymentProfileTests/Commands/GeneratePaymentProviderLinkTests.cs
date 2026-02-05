@@ -2,21 +2,20 @@
 using FitPass.Application.FunctionalTests.Common.Extensions;
 using FitPass.Application.FunctionalTests.Infrastructure.Testing;
 using FitPass.Application.FunctionalTests.TestData;
+using FitPass.Application.TenantPaymentProfiles.Commands;
 using FitPass.Application.TenantPaymentProfiles.DTOs;
-using FitPass.Application.TenantPaymentProfiles.Queries;
 using FitPass.Domain.Constants;
-using FitPass.Domain.Entities.Payment;
 
-namespace FitPass.Application.FunctionalTests.Tests.TenantPaymentProfileTests.Queries;
+namespace FitPass.Application.FunctionalTests.Tests.TenantPaymentProfileTests.Commands;
 
 using static Testing;
 
-public class GetTenantPaymentProfileTests : BaseTestFixture
+public class GeneratePaymentProviderLinkTests : BaseTestFixture
 {
     [Test]
     public override void AuthorizeAttributeCheck()
     {
-        ShouldRequireAuthorization<GetMyTenantPaymentProfileQuery>(Roles.GymAdministrator);
+        ShouldRequireAuthorization<GeneratePaymentProviderLinkCommand>(Roles.GymAdministrator);
     }
 
     [Test]
@@ -26,23 +25,27 @@ public class GetTenantPaymentProfileTests : BaseTestFixture
 
         await RunAsUserAsync(obj.gymAdmin);
 
-        var query = new GetMyTenantPaymentProfileQuery();
+        var command = new GeneratePaymentProviderLinkCommand(PaymentProviderLinkType.AccountLink);
 
-        var result = await SendAsync(query);
+        var result = await SendAsync(command);
         result.ShouldBeFailed(ResultTypes.BusinessRuleViolation);
     }
 
-    [Test]
-    public async Task ShouldReturnTenantPaymentProfile()
+    [TestCase(PaymentProviderLinkType.AccountLink)]
+    [TestCase(PaymentProviderLinkType.LoginLink)]
+    public async Task ShouldReturnPaymentProviderLoginLink(PaymentProviderLinkType linkType)
     {
         var obj = await TestEntityBuilder.BuildGymWithTenantPaymentProfileAsync();
 
         await RunAsUserAsync(obj.gymAdmin);
 
-        var result = await SendAsync(new GetMyTenantPaymentProfileQuery());
+        var command = new GeneratePaymentProviderLinkCommand(linkType);
+
+        var result = await SendAsync(command);
         result.ShouldBeSuccessful();
 
         var dto = result.Value;
-        dto.GymId.ShouldBe(obj.gym.Id);
+        dto.Type.ShouldBe(linkType);
+        dto.Url.ShouldNotBeNullOrEmpty();
     }
 }

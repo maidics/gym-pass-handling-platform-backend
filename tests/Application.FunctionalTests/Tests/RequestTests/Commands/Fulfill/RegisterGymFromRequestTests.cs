@@ -228,7 +228,7 @@ public class RegisterGymFromRequestTests : BaseTestFixture
             Address = obj.gym.Address,
             Status = GymStatus.Active,
             Tier = GymTier.Local,
-            SupervisorEmail = "test@localhost",
+            SupervisorEmail = "test@localhost.com",
         };
 
         var request = new Request

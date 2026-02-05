@@ -265,7 +265,7 @@
     <value>{0} {1}</value>
   </data>
   <data name="ValueIsInvalid" xml:space="preserve">
-    <value>{0} nem érvényes</value>
+    <value>érvénytelen {0}</value>
   </data>
   <data name="Id" xml:space="preserve">
     <value>azonosító</value>
@@ -496,5 +496,8 @@ E-mail-cím megerősítése: {1}</value>
   </data>
   <data name="GymReactivatedByAppAdmin" xml:space="preserve">
     <value>Az edzőtermedet egy alkalmazásadminisztrátor újraaktiválta az alábbi indoklással: {0}</value>
+  </data>
+  <data name="NewPasswordCannotBeSameAsOld" xml:space="preserve">
+    <value>Az új jelszó nem lehet ugyanaz, mint a régi.</value>
   </data>
 </root>

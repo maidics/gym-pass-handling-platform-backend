@@ -1,4 +1,6 @@
 using FitPass.Application.Common.Models;
+using FitPass.Application.FunctionalTests.Common.Extensions;
+using FitPass.Application.FunctionalTests.Infrastructure.Testing;
 using FitPass.Application.FunctionalTests.TestData;
 using FitPass.Application.Requests.Commands;
 using FitPass.Domain.Constants;
@@ -7,7 +9,6 @@ using FitPass.Domain.Enums;
 
 namespace FitPass.Application.FunctionalTests.Tests.RequestTests.Commands;
 
-/*
 using static Testing;
 
 public class RejectRequestTests : BaseTestFixture
@@ -23,7 +24,7 @@ public class RejectRequestTests : BaseTestFixture
     {
         await RunAsAppAdminAsync();
 
-        var command = new RejectRequestCommand(string.Empty);
+        var command = new RejectRequestCommand(string.Empty, null);
 
         await ShouldThrowIfParametersAreInvalidAsync(command);
     }
@@ -33,11 +34,10 @@ public class RejectRequestTests : BaseTestFixture
     {
         await RunAsAppAdminAsync();
 
-        var command = new RejectRequestCommand("invalidRequestId");
+        var command = new RejectRequestCommand("id", null);
 
         var result = await SendAsync(command);
-        result.Type.ShouldBe(ResultTypes.NotFound);
-        result.Message.ShouldNotBeEmpty();
+        result.ShouldBeFailed(ResultTypes.NotFound);
     }
 
     [Test]
@@ -47,14 +47,14 @@ public class RejectRequestTests : BaseTestFixture
 
         await RunAsAppAdminAsync();
 
-        var command = new RejectRequestCommand(obj.request.Id);
+        var command = new RejectRequestCommand(obj.request.Id, "Rationale");
 
         var result = await SendAsync(command);
-        result.Succeeded.ShouldBeTrue();
+        result.ShouldBeSuccessful();
 
         var request = await FindAsync<Request>(obj.request.Id);
         request.ShouldNotBeNull();
         request.Status.ShouldBe(RequestStatus.Rejected);
+        request.HandlerRationale.ShouldBe(command.Rationale);
     }
 }
-*/

@@ -1,4 +1,5 @@
 ﻿using FitPass.Application.Common.Models;
+using FitPass.Application.FunctionalTests.Common.Extensions;
 using FitPass.Application.FunctionalTests.Infrastructure.Testing;
 using FitPass.Application.FunctionalTests.TestData;
 using FitPass.Application.GymEmployments.Queries;
@@ -14,7 +15,6 @@ public class GetGymEmploymentByIdTests : BaseTestFixture
     public override void AuthorizeAttributeCheck()
     {
         ShouldRequireAuthorization<GetGymEmploymentByIdQuery>(
-            Roles.AppAdministrator,
             Roles.GymAdministrator,
             Roles.GymStaff
         );

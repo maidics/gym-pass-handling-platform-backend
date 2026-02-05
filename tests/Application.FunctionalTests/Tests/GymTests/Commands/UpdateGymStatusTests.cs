@@ -40,8 +40,10 @@ public class UpdateGymStatusTests : BaseTestFixture
         result.ShouldBeFailed(ResultTypes.NotFound);
     }
 
-    [Test]
-    public async Task ShouldUpdateGymStatus()
+    [TestCase(GymStatus.Active)]
+    [TestCase(GymStatus.Inactive)]
+    [TestCase(GymStatus.Suspended)]
+    public async Task ShouldUpdateGymStatus(GymStatus newStatus)
     {
         var obj = await TestEntityBuilder.BuildGymAsync();
 

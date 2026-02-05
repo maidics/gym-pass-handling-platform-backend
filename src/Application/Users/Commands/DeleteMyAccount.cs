@@ -1,11 +1,15 @@
+using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Security;
 using FitPass.Domain.Constants;
+using FitPass.Domain.Entities;
 
 namespace FitPass.Application.Users.Commands;
 
-[Authorize(Roles = $"{Roles.User},{Roles.PendingGymEmployee},{Roles.GymStaff},{Roles.GymAdministrator}")]
+[Authorize(
+    Roles = $"{Roles.User},{Roles.PendingGymEmployee},{Roles.GymStaff},{Roles.GymAdministrator}"
+)]
 public record DeleteMyAccountCommand : IRequest<Result>;
 
 public class DeleteMyAccountCommandHandler : IRequestHandler<DeleteMyAccountCommand, Result>
@@ -17,14 +21,18 @@ public class DeleteMyAccountCommandHandler : IRequestHandler<DeleteMyAccountComm
     public DeleteMyAccountCommandHandler(
         IIdentityService identityService,
         IUser user,
-        IApplicationDbContext context)
+        IApplicationDbContext context
+    )
     {
         _identityService = identityService;
         _user = user;
         _context = context;
     }
 
-    public async Task<Result> Handle(DeleteMyAccountCommand command, CancellationToken cancellationToken)
+    public async Task<Result> Handle(
+        DeleteMyAccountCommand command,
+        CancellationToken cancellationToken
+    )
     {
         await using var transaction = await _context.BeginTransactionAsync(cancellationToken);
 
@@ -39,11 +47,21 @@ public class DeleteMyAccountCommandHandler : IRequestHandler<DeleteMyAccountComm
                 throw new Exception($"Failed to delete user account.");
             }
 
+            var profile = await _context.UserProfiles.FirstOrDefaultAsync(
+                x => x.UserId == _user.Id,
+                cancellationToken
+            );
+
+            Guard.Against.NullParameterRelatedToCurrentUser(profile, nameof(UserProfile), _user.Id);
+
+            _context.UserProfiles.Remove(profile);
+
             await _context.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
 
             return Result.Success();
-        } catch
+        }
+        catch
         {
             await transaction.RollbackAsync(cancellationToken);
 

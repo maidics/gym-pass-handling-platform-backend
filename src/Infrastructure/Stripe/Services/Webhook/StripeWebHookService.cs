@@ -143,10 +143,11 @@ public class StripeWebhookService : IPaymentWebhookService
             return result;
         }
 
-        var notification = ClientNotification.Create(
-            "Payment was canceled.",
-            ClientNotificationType.Default
-        );
+        var notification = new ClientNotification
+        {
+            Message = "Payment was canceled.",
+            Type = ClientNotificationType.Default,
+        };
 
         await _notificationSender.SendAsync(result.Value.userId, notification);
 
@@ -162,10 +163,11 @@ public class StripeWebhookService : IPaymentWebhookService
             return result;
         }
 
-        var notification = ClientNotification.Create(
-            "Payment has failed. Not enough funds or card was declined",
-            ClientNotificationType.PaymentFailed
-        );
+        var notification = new ClientNotification
+        {
+            Message = "Payment has failed. Not enough funds or card was declined",
+            Type = ClientNotificationType.PaymentFailed,
+        };
 
         await _notificationSender.SendAsync(result.Value.userId, notification);
 
@@ -181,10 +183,11 @@ public class StripeWebhookService : IPaymentWebhookService
             return result;
         }
 
-        var notification = ClientNotification.Create(
-            "Payment requires action. Please check your banking application.",
-            ClientNotificationType.Default
-        );
+        var notification = new ClientNotification
+        {
+            Message = "Payment requires action. Please check your banking application.",
+            Type = ClientNotificationType.Default,
+        };
 
         await _notificationSender.SendAsync(result.Value.userId, notification);
 
@@ -200,10 +203,11 @@ public class StripeWebhookService : IPaymentWebhookService
             return result;
         }
 
-        var notification = ClientNotification.Create(
-            "Processing your payment...",
-            ClientNotificationType.Default
-        );
+        var notification = new ClientNotification
+        {
+            Message = "Processing your payment...",
+            Type = ClientNotificationType.Default,
+        };
 
         await _notificationSender.SendAsync(result.Value.userId, notification);
 

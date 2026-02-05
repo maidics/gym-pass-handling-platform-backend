@@ -11,8 +11,6 @@ public class GymEmployments : EndpointGroupBase
     {
         groupBuilder.MapGet(GetMyGymEmployments, "/MyGym").RequireAuthorization();
         
-        groupBuilder.MapGet(GetGymEmploymentsByGymId, "Gyms/{gymId}").RequireAuthorization();
-
         groupBuilder.MapGet(GetGymEmploymentById, "{gymEmploymentId}").RequireAuthorization();
     }
 
@@ -21,14 +19,6 @@ public class GymEmployments : EndpointGroupBase
         var result = await sender.Send(new GetMyGymEmploymentsQuery(), cancellationToken);
 
         return TypedResults.Ok(result);
-    }
-
-    public async Task<Results<Ok<List<GymEmploymentDto>>, ProblemHttpResult>> GetGymEmploymentsByGymId(
-        ISender sender, string gymId, CancellationToken cancellationToken)
-    {
-        var result = await sender.Send(new GetGymEmploymentsByGymIdQuery(gymId), cancellationToken);
-
-        return result.ToTypedResult();
     }
 
     public async Task<Results<Ok<GymEmploymentDto>, ProblemHttpResult>> GetGymEmploymentById(ISender sender,

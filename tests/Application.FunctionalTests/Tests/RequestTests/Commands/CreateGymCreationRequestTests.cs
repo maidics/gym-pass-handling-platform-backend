@@ -1,6 +1,7 @@
 using System.Text.Json;
 using FitPass.Application.Common.Exceptions;
 using FitPass.Application.Common.Models;
+using FitPass.Application.FunctionalTests.Common.Extensions;
 using FitPass.Application.FunctionalTests.Infrastructure.Testing;
 using FitPass.Application.FunctionalTests.TestData;
 using FitPass.Application.Requests.Commands;
@@ -29,6 +30,7 @@ public class CreateGymCreationRequestTests : BaseTestFixture
 
         var command = new CreateGymCreationRequestCommand(
             string.Empty,
+            string.Empty,
             PriorityLevel.Medium,
             new CreateGymDto
             {
@@ -49,14 +51,14 @@ public class CreateGymCreationRequestTests : BaseTestFixture
         await RunAsPendingGymEmployeeAsync();
 
         var command = new CreateGymCreationRequestCommand(
+            "Title",
             "Description",
             PriorityLevel.High,
             TestEntityBuilder.BuildCreateGymDto()
         );
 
         var result = await SendAsync(command);
-        result.Type.ShouldBe(ResultTypes.BusinessRuleViolation);
-        result.Message.ShouldNotBeEmpty();
+        result.ShouldBeFailed(ResultTypes.BusinessRuleViolation);
     }
 
     [Test]
@@ -78,14 +80,14 @@ public class CreateGymCreationRequestTests : BaseTestFixture
         await AddAsync(request);
 
         var command = new CreateGymCreationRequestCommand(
+            "Title",
             "Description",
             PriorityLevel.High,
             TestEntityBuilder.BuildCreateGymDto()
         );
 
         var result = await SendAsync(command);
-        result.Type.ShouldBe(ResultTypes.BusinessRuleViolation);
-        result.Message.ShouldNotBeEmpty();
+        result.ShouldBeFailed(ResultTypes.BusinessRuleViolation);
     }
 
     [Test]
@@ -101,19 +103,23 @@ public class CreateGymCreationRequestTests : BaseTestFixture
         var createGymDto = TestEntityBuilder.BuildCreateGymDto();
 
         var command = new CreateGymCreationRequestCommand(
+            "Title",
             "Description",
             PriorityLevel.High,
             createGymDto
         );
 
         var result = await SendAsync(command);
-        result.Succeeded.ShouldBeTrue();
-        result.Value.ShouldNotBeNull();
+        result.ShouldBeSuccessful();
+
+        var dto = result.Value;
 
         var request = await GetFirstAsync<Request>();
         request.ShouldNotBeNull();
-        request.Description.ShouldBe("Description");
-        request.PriorityLevel.ShouldBe(PriorityLevel.High);
+        request.Id.ShouldBe(dto.Id);
+        request.Title.ShouldBe(command.Title);
+        request.Description.ShouldBe(command.Description);
+        request.PriorityLevel.ShouldBe(command.PriorityLevel);
         request.Status.ShouldBe(RequestStatus.Submitted);
         request.Payload.ShouldNotBeNull();
         request.Payload.ShouldBe(JsonSerializer.Serialize(createGymDto));

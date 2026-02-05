@@ -1,5 +1,6 @@
 ﻿using FitPass.Application.Common.Exceptions;
 using FitPass.Application.Common.Models;
+using FitPass.Application.FunctionalTests.Common.Extensions;
 using FitPass.Application.FunctionalTests.Infrastructure.Testing;
 using FitPass.Application.Users.Commands.RoleHandling;
 using FitPass.Domain.Constants;
@@ -19,14 +20,15 @@ public class PromotePendingGymEmployeeToGymStaffRoleTests : BaseTestFixture
         );
     }
 
-    [Test]
-    public async Task ShouldDenyInvalidUserId()
+    [TestCase("")]
+    [TestCase("invalid@email")]
+    public async Task ShouldThrowIfParametersAreInvalid(string pendingGymEmployeeEmail)
     {
         await RunAsGymEmployeeAsync(Roles.GymAdministrator);
 
-        var command = new PromotePendingGymEmployeeToGymStaffRoleCommand(string.Empty);
+        var command = new PromotePendingGymEmployeeToGymStaffRoleCommand(pendingGymEmployeeEmail);
 
-        await Should.ThrowAsync<ValidationException>(() => SendAsync(command));
+        await ShouldThrowIfParametersAreInvalidAsync(command);
     }
 
     [Test]
@@ -37,8 +39,7 @@ public class PromotePendingGymEmployeeToGymStaffRoleTests : BaseTestFixture
         var command = new PromotePendingGymEmployeeToGymStaffRoleCommand("non-existing-user-id");
 
         var result = await SendAsync(command);
-        result.Type.ShouldBe(ResultTypes.NotFound);
-        result.Message.ShouldNotBeEmpty();
+        result.ShouldBeFailed(ResultTypes.NotFound);
     }
 
     [Test]
@@ -51,7 +52,7 @@ public class PromotePendingGymEmployeeToGymStaffRoleTests : BaseTestFixture
         var command = new PromotePendingGymEmployeeToGymStaffRoleCommand(user.Id);
 
         var result = await SendAsync(command);
-        result.Type.ShouldBe(ResultTypes.Forbidden);
+        result.ShouldBeFailed(ResultTypes.Forbidden);
     }
 
     [Test]
@@ -64,7 +65,7 @@ public class PromotePendingGymEmployeeToGymStaffRoleTests : BaseTestFixture
         var command = new PromotePendingGymEmployeeToGymStaffRoleCommand(pendingGymEmployee.Id);
 
         var result = await SendAsync(command);
-        result.Succeeded.ShouldBeTrue();
+        result.ShouldBeSuccessful();
 
         var rolesAfterPromotion = await GetUserRolesAsync(pendingGymEmployee.Id);
 

@@ -8,7 +8,7 @@ namespace FitPass.Application.FunctionalTests.Infrastructure.Testing;
 public partial class Testing
 {
     public static async Task<ApplicationUser> CreateUserAsync(
-        string? email = default,
+        string? email = null,
         string? password = "Password123!",
         string role = Roles.User,
         bool emailConfirmed = false

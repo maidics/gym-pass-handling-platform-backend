@@ -1,10 +1,11 @@
-﻿using FitPass.Application.FunctionalTests.Infrastructure.Testing;
+﻿using FitPass.Application.Common.Exceptions;
+using FitPass.Application.Common.Models;
+using FitPass.Application.FunctionalTests.Common.Extensions;
+using FitPass.Application.FunctionalTests.Infrastructure.Testing;
+using FitPass.Application.Users.Commands;
 
 namespace FitPass.Application.FunctionalTests.Tests.UserTests.Commands;
 
-using FitPass.Application.Common.Exceptions;
-using FitPass.Application.Common.Models;
-using FitPass.Application.Users.Commands;
 using static Testing;
 
 public class ResetPasswordTests : BaseTestFixture
@@ -15,51 +16,59 @@ public class ResetPasswordTests : BaseTestFixture
         ShouldNotRequireAuthorization<ResetPasswordCommand>();
     }
 
-    [Test]
-    public async Task ShouldThrowIfParametersAreInvalid()
+    [TestCase("", "token", "Password123!", "Password123!")]
+    [TestCase("id", "", "Password123!", "Password123!")]
+    [TestCase("id", "token", "", "Password123!")]
+    [TestCase("id", "token", "password", "Password123!")]
+    [TestCase("id", "token", "Password123_", "Password123!")]
+    [TestCase("id", "token", "Password123!", "")]
+    public async Task ShouldThrowIfParametersAreInvalid(
+        string encodedUserId,
+        string encodedPasswordResetToken,
+        string newPassword,
+        string newPasswordConfirm
+    )
     {
-        var command = new ResetPasswordCommand(string.Empty, string.Empty, string.Empty, "a");
+        var command = new ResetPasswordCommand(
+            encodedUserId,
+            encodedPasswordResetToken,
+            newPassword,
+            newPasswordConfirm
+        );
 
-        await Should.ThrowAsync<ValidationException>(SendAsync(command));
+        await ShouldThrowIfParametersAreInvalidAsync(command);
     }
 
     [Test]
     public async Task ShouldReturnNotFoundIfUserNotExists()
     {
-        var command = new ResetPasswordCommand(
-            Uri.EscapeDataString("notExists"),
-            "token",
-            "Password123_",
-            "Password123_"
-        );
+        var command = new ResetPasswordCommand("id", "token", "Password123_", "Password123_");
 
         var result = await SendAsync(command);
-        result.Type.ShouldBe(ResultTypes.NotFound);
-        result.Message.ShouldNotBeEmpty();
+        result.ShouldBeFailed(ResultTypes.NotFound);
     }
 
     [Test]
     public async Task ShouldResetPasswordForUserWithNoPassword()
     {
         var user = await CreateUserAsync(password: null);
-
         var token = await GeneratePasswordResetTokenAsync(user.Id);
 
         var command = new ResetPasswordCommand(
             Uri.EscapeDataString(user.Id),
             Uri.EscapeDataString(token),
-            "Password123_",
-            "Password123_"
+            "Password123!",
+            "Password123!"
         );
 
-        await Should.NotThrowAsync(SendAsync(command));
+        var result = await SendAsync(command);
+        result.ShouldBeSuccessful();
     }
 
     [Test]
     public async Task ShouldResetPasswordForUserThatHasPassword()
     {
         var user = await CreateUserAsync();
-
         var token = await GeneratePasswordResetTokenAsync(user.Id);
 
         var command = new ResetPasswordCommand(
@@ -69,6 +78,24 @@ public class ResetPasswordTests : BaseTestFixture
             "Password123_"
         );
 
-        await Should.NotThrowAsync(SendAsync(command));
+        var result = await SendAsync(command);
+        result.ShouldBeSuccessful();
+    }
+
+    [Test]
+    public async Task ShouldReturnFailureIfPasswordToResetToIsTheSameAsCurrentPassword()
+    {
+        var user = await CreateUserAsync();
+        var token = await GeneratePasswordResetTokenAsync(user.Id);
+
+        var command = new ResetPasswordCommand(
+            Uri.EscapeDataString(user.Id),
+            Uri.EscapeDataString(token),
+            "Password123!",
+            "Password123!"
+        );
+
+        var result = await SendAsync(command);
+        result.ShouldBeFailed(ResultTypes.Conflict);
     }
 }

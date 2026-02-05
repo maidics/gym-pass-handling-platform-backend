@@ -1,5 +1,6 @@
 ﻿using FitPass.Application.Common.Exceptions;
 using FitPass.Application.Common.Models;
+using FitPass.Application.FunctionalTests.Common.Extensions;
 using FitPass.Application.FunctionalTests.Infrastructure.Testing;
 using FitPass.Application.Users.Commands.Emails;
 
@@ -7,7 +8,7 @@ namespace FitPass.Application.FunctionalTests.Tests.UserTests.Commands.Emails;
 
 using static Testing;
 
-public class RequestPasswordResetEmailTests : BaseTestFixture
+public class SendPasswordResetEmailTests : BaseTestFixture
 {
     [Test]
     public override void AuthorizeAttributeCheck()
@@ -15,21 +16,22 @@ public class RequestPasswordResetEmailTests : BaseTestFixture
         ShouldNotRequireAuthorization<SendPasswordResetEmailCommand>();
     }
 
-    [Test]
-    public async Task ShouldThrowIfParametersAreInvalid()
+    [TestCase("")]
+    [TestCase("invalid@email")]
+    public async Task ShouldThrowIfParametersAreInvalid(string email)
     {
-        var command = new SendPasswordResetEmailCommand("invalidEmail");
+        var command = new SendPasswordResetEmailCommand(email);
 
-        await Should.ThrowAsync<ValidationException>(SendAsync(command));
+        await ShouldThrowIfParametersAreInvalidAsync(command);
     }
 
     [Test]
     public async Task ShouldReturnSuccessIfUserNotExist()
     {
-        var command = new SendPasswordResetEmailCommand("userNotExist@localhost");
+        var command = new SendPasswordResetEmailCommand("doesnotexists@test.com");
 
         var result = await SendAsync(command);
-        result.Succeeded.ShouldBeTrue();
+        result.ShouldBeSuccessful();
     }
 
     [Test]
@@ -40,6 +42,8 @@ public class RequestPasswordResetEmailTests : BaseTestFixture
         var command = new SendPasswordResetEmailCommand(user.Email!);
 
         var result = await SendAsync(command);
-        result.Succeeded.ShouldBeTrue();
+        result.ShouldBeSuccessful();
+
+        EmailFolderShouldContainEmails();
     }
 }

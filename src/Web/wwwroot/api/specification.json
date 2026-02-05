@@ -132,45 +132,6 @@
         ]
       }
     },
-    "/api/GymEmployments/Gyms/{gymId}": {
-      "get": {
-        "tags": [
-          "GymEmployments"
-        ],
-        "operationId": "GetGymEmploymentsByGymId",
-        "parameters": [
-          {
-            "name": "gymId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "x-position": 1
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/GymEmploymentDto"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "JWT": []
-          }
-        ]
-      }
-    },
     "/api/GymEmployments/{gymEmploymentId}": {
       "get": {
         "tags": [
@@ -555,34 +516,6 @@
             }
           }
         }
-      }
-    },
-    "/api/GymPassProducts/My": {
-      "get": {
-        "tags": [
-          "GymPassProducts"
-        ],
-        "operationId": "GetMyGymPassProducts",
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/GymPassProductDto"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "JWT": []
-          }
-        ]
       }
     },
     "/api/GymPassUsages/MyGym/Today": {
@@ -1426,31 +1359,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/PaymentProviderLinkDto"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "JWT": []
-          }
-        ]
-      }
-    },
-    "/api/UserProfiles/My": {
-      "get": {
-        "tags": [
-          "UserProfiles"
-        ],
-        "operationId": "GetMyUserProfile",
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UserProfileWithEmailDto"
                 }
               }
             }
@@ -2676,6 +2584,9 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
+          "title": {
+            "type": "string"
+          },
           "description": {
             "type": "string"
           },
@@ -2712,6 +2623,9 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
+          "title": {
+            "type": "string"
+          },
           "pendingGymEmployeeEmail": {
             "type": "string"
           },
@@ -2779,9 +2693,6 @@
           },
           "type": {
             "$ref": "#/components/schemas/ClientNotificationType"
-          },
-          "payload": {
-            "nullable": true
           }
         }
       },
@@ -2796,7 +2707,8 @@
           "GymPassProductPurchaseFulfillmentFailed",
           "SuccessfulPurchase",
           "GymPassUsageLockerUpdated",
-          "GymSessionEnded"
+          "GymSessionEnded",
+          "GymStatusUpdatedByAppAdmin"
         ],
         "enum": [
           "Default",
@@ -2806,7 +2718,8 @@
           "GymPassProductPurchaseFulfillmentFailed",
           "SuccessfulPurchase",
           "GymPassUsageLockerUpdated",
-          "GymSessionEnded"
+          "GymSessionEnded",
+          "GymStatusUpdatedByAppAdmin"
         ]
       },
       "PaymentProviderLinkDto": {

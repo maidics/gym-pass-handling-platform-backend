@@ -17,8 +17,6 @@ public class GymPassProducts : EndpointGroupBase
         groupBuilder.MapPut(UpdateGymPassProductActiveStatus, "{gymPassProductId}/Status").RequireAuthorization();
 
         groupBuilder.MapGet(GetGymPassProductsByGymId, "{gymId}");
-
-        groupBuilder.MapGet(GetMyGymPassProducts, "My").RequireAuthorization();
     }
 
     public async Task<Results<Ok<GymPassProductDto>, ProblemHttpResult>> CreateGymPassProduct(
@@ -61,13 +59,5 @@ public class GymPassProducts : EndpointGroupBase
         var result = await sender.Send(new GetGymPassProductsByGymIdQuery(gymId), cancellationToken);
 
         return result.ToTypedResult();
-    }
-
-    public async Task<Ok<List<GymPassProductDto>>> GetMyGymPassProducts(ISender sender,
-        CancellationToken cancellationToken)
-    {
-        var result = await sender.Send(new GetMyGymPassProductsQuery(), cancellationToken);
-
-        return TypedResults.Ok(result);
     }
 }

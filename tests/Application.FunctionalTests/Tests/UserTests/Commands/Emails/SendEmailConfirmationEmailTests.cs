@@ -1,8 +1,7 @@
-﻿using FitPass.Application.Common.Exceptions;
-using FitPass.Application.Common.Models;
+﻿using FitPass.Application.Common.Models;
+using FitPass.Application.FunctionalTests.Common.Extensions;
 using FitPass.Application.FunctionalTests.Infrastructure.Testing;
 using FitPass.Application.Users.Commands.Emails;
-using FitPass.Domain.Constants;
 
 namespace FitPass.Application.FunctionalTests.Tests.UserTests.Commands.Emails;
 
@@ -11,12 +10,9 @@ using static Testing;
 public class SendEmailConfirmationEmailTests : BaseTestFixture
 {
     [Test]
-    public async Task ShouldReturnSuccessForUser()
+    public override void AuthorizeAttributeCheck()
     {
-        await RunAsDefaultUserAsync();
-
-        var result = await SendAsync(new SendEmailConfirmationEmailCommand());
-        result.Type.ShouldBe(ResultTypes.Success);
+        ShouldRequireAuthorization<SendEmailConfirmationEmailCommand>();
     }
 
     [Test]
@@ -27,13 +23,15 @@ public class SendEmailConfirmationEmailTests : BaseTestFixture
         await RunAsUserAsync(user);
 
         var result = await SendAsync(new SendEmailConfirmationEmailCommand());
-        result.Type.ShouldBe(ResultTypes.BusinessRuleViolation);
-        result.Message.ShouldNotBeEmpty();
+        result.ShouldBeFailed(ResultTypes.BusinessRuleViolation);
     }
 
     [Test]
-    public override void AuthorizeAttributeCheck()
+    public async Task ShouldReturnSuccessForUser()
     {
-        ShouldRequireAuthorization<SendEmailConfirmationEmailCommand>();
+        await RunAsDefaultUserAsync();
+
+        var result = await SendAsync(new SendEmailConfirmationEmailCommand());
+        result.ShouldBeSuccessful();
     }
 }

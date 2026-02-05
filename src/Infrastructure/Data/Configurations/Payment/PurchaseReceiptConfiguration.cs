@@ -1,4 +1,5 @@
 using FitPass.Domain.Entities.Payment;
+using FitPass.Infrastructure.Common;
 using FitPass.Infrastructure.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -9,11 +10,8 @@ public class PurchaseReceiptConfiguration : IEntityTypeConfiguration<PurchaseRec
 {
     public void Configure(EntityTypeBuilder<PurchaseReceipt> builder)
     {
-        builder
-            .HasOne<ApplicationUser>()
-            .WithMany()
-            .HasForeignKey(pr => pr.UserId);
+        builder.HasOne<ApplicationUser>().WithMany().HasForeignKey(pr => pr.UserId);
 
-        builder.OwnsOne(pr => pr.Spent);
+        builder.OwnsOne(pr => pr.Spent).ConfigureMoney();
     }
 }

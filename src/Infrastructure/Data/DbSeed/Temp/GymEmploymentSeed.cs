@@ -16,15 +16,15 @@ public partial class ApplicationDbContextInitialiser
                 GymId = "TestGymId",
                 UserId = "GymAdminLocalhostId",
                 Role = Roles.GymAdministrator,
-                SupervisorEmail = "escalation@localhost"
+                SupervisorEmail = "supervisor@localhost.com",
             },
             new GymEmployment
             {
                 GymId = "TestGymId",
                 UserId = "GymStaffLocalhostId",
                 Role = Roles.GymStaff,
-                SupervisorEmail = "escalation@localhost"
-            }
+                SupervisorEmail = "supervisor@localhost.com",
+            },
         };
 
         await _context.GymEmployments.AddRangeAsync(gymEmployments);

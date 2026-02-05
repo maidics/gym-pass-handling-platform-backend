@@ -7,11 +7,10 @@ namespace FitPass.Infrastructure.Data.DbSeed;
 
 public partial class ApplicationDbContextInitialiser
 {
-
     private async Task SeedGymsAsync()
     {
         var now = DateTimeOffset.UtcNow;
-        
+
         var gyms = new List<Gym>()
         {
             new Gym
@@ -25,20 +24,21 @@ public partial class ApplicationDbContextInitialiser
                 CreatedBy = "Seed_Script",
                 LastModifiedOn = now,
                 LastModifiedBy = null,
-                ContactInfos = [
+                ContactInfos =
+                [
                     new GymContactInfo
                     {
-                        FullName = "Alexander Thorne", 
+                        FullName = "Alexander Thorne",
                         Email = "alex.thorne@ironfitness.hu",
                         PhoneNumber = PhoneNumber.Create("+36301234567"),
                         Address = new Address(
-                            "Váci út 12", 
-                            "Building B, Suite 400", 
-                            "Budapest", 
-                            "Pest", 
-                            "1134", 
+                            "Váci út 12",
+                            "Building B, Suite 400",
+                            "Budapest",
+                            "Pest",
+                            "1134",
                             "HU"
-                        )
+                        ),
                     },
                     new GymContactInfo
                     {
@@ -46,13 +46,13 @@ public partial class ApplicationDbContextInitialiser
                         Email = "operations@metroflex.com",
                         PhoneNumber = PhoneNumber.Create("+36709876543"),
                         Address = new Address(
-                            "Kossuth Lajos utca 5", 
+                            "Kossuth Lajos utca 5",
                             null,
-                            "Debrecen", 
-                            "Hajdú-Bihar", 
-                            "4024", 
+                            "Debrecen",
+                            "Hajdú-Bihar",
+                            "4024",
                             "HU"
-                        )
+                        ),
                     },
                     new GymContactInfo
                     {
@@ -60,26 +60,26 @@ public partial class ApplicationDbContextInitialiser
                         Email = "invoices@gymnetwork.eu",
                         PhoneNumber = PhoneNumber.Create("+3612345678"),
                         Address = new Address(
-                            "Andrássy út 22", 
-                            "Floor 2", 
-                            "Budapest", 
-                            "Pest", 
-                            "1061", 
+                            "Andrássy út 22",
+                            "Floor 2",
+                            "Budapest",
+                            "Pest",
+                            "1061",
                             "HU"
-                        )
-                    }
+                        ),
+                    },
                 ],
                 PaymentProfile = new TenantPaymentProfile()
                 {
                     PaymentAccountId = "acct_1SsMj4PEBQsxcoAF",
                     GymId = "TestGymId",
-                    CreatedOn = DateTimeOffset.UtcNow
-                }
+                    CreatedOn = DateTimeOffset.UtcNow,
+                },
             },
-
             // 2. Local Gym in London
             new Gym
             {
+                Id = "LocalPumpId",
                 Name = "The Local Pump",
                 Address = new Address("15 Baker Street", null, "London", null, "NW1 6XE", "GB"),
                 Status = GymStatus.Active,
@@ -87,9 +87,28 @@ public partial class ApplicationDbContextInitialiser
                 CreatedOn = now,
                 CreatedBy = "Seed_Script",
                 LastModifiedOn = now,
-                LastModifiedBy = null
+                LastModifiedBy = null,
+                ContactInfos =
+                [
+                    new GymContactInfo()
+                    {
+                        Address = null,
+                        PhoneNumber = PhoneNumber.Create("+36201111111"),
+                        Email = null,
+                        FullName = "Full Name",
+                    },
+                ],
+                PassProducts =
+                [
+                    GymPassProduct.SingleUse(
+                        "LocalPumpId",
+                        "Single Use",
+                        "Single Use Description",
+                        true,
+                        new Money(10, CurrencyCode.EUR)
+                    ),
+                ],
             },
-
             // 3. MidRange in Toronto
             new Gym
             {
@@ -100,9 +119,8 @@ public partial class ApplicationDbContextInitialiser
                 CreatedOn = now,
                 CreatedBy = "Seed_Script",
                 LastModifiedOn = now,
-                LastModifiedBy = null
+                LastModifiedBy = null,
             },
-
             // 4. Premium in Berlin
             new Gym
             {
@@ -113,9 +131,8 @@ public partial class ApplicationDbContextInitialiser
                 CreatedOn = now,
                 CreatedBy = "Seed_Script",
                 LastModifiedOn = now,
-                LastModifiedBy = null
+                LastModifiedBy = null,
             },
-
             // 5. Suspended Local Gym
             new Gym
             {
@@ -126,9 +143,8 @@ public partial class ApplicationDbContextInitialiser
                 CreatedOn = now,
                 CreatedBy = "Seed_Script",
                 LastModifiedOn = now,
-                LastModifiedBy = null
+                LastModifiedBy = null,
             },
-
             // 6. Active MidRange in Paris
             new Gym
             {
@@ -139,22 +155,27 @@ public partial class ApplicationDbContextInitialiser
                 CreatedOn = now,
                 CreatedBy = "Seed_Script",
                 LastModifiedOn = now,
-                LastModifiedBy = null
+                LastModifiedBy = null,
             },
-
             // 7. Active Elite in Los Angeles
             new Gym
             {
                 Name = "Gold Coast Athletics",
-                Address = new Address("500 Santa Monica Blvd", null, "Santa Monica", "CA", "90401", "US"),
+                Address = new Address(
+                    "500 Santa Monica Blvd",
+                    null,
+                    "Santa Monica",
+                    "CA",
+                    "90401",
+                    "US"
+                ),
                 Status = GymStatus.Active,
                 Tier = GymTier.Elite,
                 CreatedOn = now,
                 CreatedBy = "Seed_Script",
                 LastModifiedOn = now,
-                LastModifiedBy = null
+                LastModifiedBy = null,
             },
-
             // 8. Inactive Local Gym
             new Gym
             {
@@ -165,9 +186,8 @@ public partial class ApplicationDbContextInitialiser
                 CreatedOn = now,
                 CreatedBy = "Seed_Script",
                 LastModifiedOn = now,
-                LastModifiedBy = null
+                LastModifiedBy = null,
             },
-
             // 9. Active Premium in Sydney
             new Gym
             {
@@ -178,9 +198,8 @@ public partial class ApplicationDbContextInitialiser
                 CreatedOn = now,
                 CreatedBy = "Seed_Script",
                 LastModifiedOn = now,
-                LastModifiedBy = null
+                LastModifiedBy = null,
             },
-
             // 10. Active MidRange in Austin
             new Gym
             {
@@ -191,9 +210,8 @@ public partial class ApplicationDbContextInitialiser
                 CreatedOn = now,
                 CreatedBy = "Seed_Script",
                 LastModifiedOn = now,
-                LastModifiedBy = null
+                LastModifiedBy = null,
             },
-
             // 11. Active Elite in Tokyo
             new Gym
             {
@@ -204,9 +222,8 @@ public partial class ApplicationDbContextInitialiser
                 CreatedOn = now,
                 CreatedBy = "Seed_Script",
                 LastModifiedOn = now,
-                LastModifiedBy = null
+                LastModifiedBy = null,
             },
-
             // 12. Active Local in Dublin
             new Gym
             {
@@ -217,9 +234,8 @@ public partial class ApplicationDbContextInitialiser
                 CreatedOn = now,
                 CreatedBy = "Seed_Script",
                 LastModifiedOn = now,
-                LastModifiedBy = null
+                LastModifiedBy = null,
             },
-
             // 13. Active Premium in Miami
             new Gym
             {
@@ -230,9 +246,8 @@ public partial class ApplicationDbContextInitialiser
                 CreatedOn = now,
                 CreatedBy = "Seed_Script",
                 LastModifiedOn = now,
-                LastModifiedBy = null
+                LastModifiedBy = null,
             },
-
             // 14. Suspended MidRange
             new Gym
             {
@@ -243,9 +258,8 @@ public partial class ApplicationDbContextInitialiser
                 CreatedOn = now,
                 CreatedBy = "Seed_Script",
                 LastModifiedOn = now,
-                LastModifiedBy = null
+                LastModifiedBy = null,
             },
-
             // 15. Active Local in Rome
             new Gym
             {
@@ -256,9 +270,8 @@ public partial class ApplicationDbContextInitialiser
                 CreatedOn = now,
                 CreatedBy = "Seed_Script",
                 LastModifiedOn = now,
-                LastModifiedBy = null
+                LastModifiedBy = null,
             },
-
             // 16. Active Elite in Dubai
             new Gym
             {
@@ -269,22 +282,27 @@ public partial class ApplicationDbContextInitialiser
                 CreatedOn = now,
                 CreatedBy = "Seed_Script",
                 LastModifiedOn = now,
-                LastModifiedBy = null
+                LastModifiedBy = null,
             },
-
             // 17. Inactive Premium
             new Gym
             {
                 Name = "Closed Circuit Gym",
-                Address = new Address("404 Not Found St", null, "San Francisco", "CA", "94105", "US"),
+                Address = new Address(
+                    "404 Not Found St",
+                    null,
+                    "San Francisco",
+                    "CA",
+                    "94105",
+                    "US"
+                ),
                 Status = GymStatus.Inactive,
                 Tier = GymTier.Premium,
                 CreatedOn = now,
                 CreatedBy = "Seed_Script",
                 LastModifiedOn = now,
-                LastModifiedBy = null
+                LastModifiedBy = null,
             },
-
             // 18. Active MidRange in Barcelona
             new Gym
             {
@@ -295,9 +313,8 @@ public partial class ApplicationDbContextInitialiser
                 CreatedOn = now,
                 CreatedBy = "Seed_Script",
                 LastModifiedOn = now,
-                LastModifiedBy = null
+                LastModifiedBy = null,
             },
-
             // 19. Active Local in Denver
             new Gym
             {
@@ -308,9 +325,8 @@ public partial class ApplicationDbContextInitialiser
                 CreatedOn = now,
                 CreatedBy = "Seed_Script",
                 LastModifiedOn = now,
-                LastModifiedBy = null
+                LastModifiedBy = null,
             },
-
             // 20. Active Elite in Singapore
             new Gym
             {
@@ -321,8 +337,8 @@ public partial class ApplicationDbContextInitialiser
                 CreatedOn = now,
                 CreatedBy = "Seed_Script",
                 LastModifiedOn = now,
-                LastModifiedBy = null
-            }
+                LastModifiedBy = null,
+            },
         };
 
         await _context.Gyms.AddRangeAsync(gyms);

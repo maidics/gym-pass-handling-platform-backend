@@ -11,10 +11,11 @@ public partial class ApplicationDbContextInitialiser
         List<(ApplicationUser user, string role, string password, UserProfile profile)> users =
         [
             (
-                new ApplicationUser {
+                new ApplicationUser
+                {
                     Id = "AppAdminLocalhostId",
                     Email = "appadmin@localhost.com",
-                    UserName = "AppAdmin"
+                    UserName = "AppAdmin",
                 },
                 Roles.AppAdministrator,
                 "Password123!",
@@ -22,9 +23,9 @@ public partial class ApplicationDbContextInitialiser
                 {
                     FirstName = "App",
                     LastName = "Admin",
-                    PreferredLanguage =  "hu-HU",
+                    PreferredLanguage = "hu-HU",
                     UserId = "AppAdminLocalhostId",
-                    CreatedOn =  DateTime.UtcNow
+                    CreatedOn = DateTime.UtcNow,
                 }
             ),
             (
@@ -32,7 +33,7 @@ public partial class ApplicationDbContextInitialiser
                 {
                     Id = "GymAdminLocalhostId",
                     Email = "gymadmin@localhost.com",
-                    UserName = "GymAdmin"
+                    UserName = "GymAdmin",
                 },
                 Roles.GymAdministrator,
                 "Password123!",
@@ -40,17 +41,17 @@ public partial class ApplicationDbContextInitialiser
                 {
                     FirstName = "Gym",
                     LastName = "Admin",
-                    PreferredLanguage =  "hu-HU",
+                    PreferredLanguage = "hu-HU",
                     UserId = "GymAdminLocalhostId",
-                    CreatedOn =  DateTime.UtcNow
+                    CreatedOn = DateTime.UtcNow,
                 }
-                ),
+            ),
             (
                 new ApplicationUser
                 {
                     Id = "GymStaffLocalhostId",
                     UserName = "GymStaff",
-                    Email = "gymstaff@localhost.com"
+                    Email = "gymstaff@localhost.com",
                 },
                 Roles.GymStaff,
                 "Password123!",
@@ -58,9 +59,9 @@ public partial class ApplicationDbContextInitialiser
                 {
                     FirstName = "Gym",
                     LastName = "Staff",
-                    PreferredLanguage =  "en-US",
+                    PreferredLanguage = "en-US",
                     UserId = "GymStaffLocalhostId",
-                    CreatedOn =  DateTime.UtcNow
+                    CreatedOn = DateTime.UtcNow,
                 }
             ),
             (
@@ -68,7 +69,7 @@ public partial class ApplicationDbContextInitialiser
                 {
                     Id = "UserId",
                     UserName = "User",
-                    Email = "user@localhost.com"
+                    Email = "user@localhost.com",
                 },
                 Roles.User,
                 "Password123!",
@@ -76,9 +77,9 @@ public partial class ApplicationDbContextInitialiser
                 {
                     FirstName = "User",
                     LastName = "User",
-                    PreferredLanguage =  "hu-HU",
+                    PreferredLanguage = "hu-HU",
                     UserId = "UserId",
-                    CreatedOn =  DateTime.UtcNow
+                    CreatedOn = DateTime.UtcNow,
                 }
             ),
             (
@@ -86,7 +87,7 @@ public partial class ApplicationDbContextInitialiser
                 {
                     Id = "PendingGymEmployeeId",
                     UserName = "PendingGymEmployee",
-                    Email = "pendinggymemployee@localhost.com"
+                    Email = "pendinggymemployee@localhost.com",
                 },
                 Roles.PendingGymEmployee,
                 "Password123!",
@@ -94,11 +95,11 @@ public partial class ApplicationDbContextInitialiser
                 {
                     FirstName = "Pending",
                     LastName = "GymEmployee",
-                    PreferredLanguage =  "en-US",
+                    PreferredLanguage = "en-US",
                     UserId = "PendingGymEmployeeId",
-                    CreatedOn = DateTime.UtcNow
+                    CreatedOn = DateTime.UtcNow,
                 }
-            )
+            ),
         ];
 
         var existingUsers = _userManager.Users;
@@ -120,25 +121,32 @@ public partial class ApplicationDbContextInitialiser
 
                     if (!roleResult.Succeeded)
                     {
-                        throw new InvalidOperationException($"Failed to add {obj.user.Id} user to {obj.role} role: {string.Join(", ", roleResult.Errors)}");
+                        throw new InvalidOperationException(
+                            $"Failed to add {obj.user.Id} user to {obj.role} role: {string.Join(", ", roleResult.Errors)}"
+                        );
                     }
 
-                    var token = await _userManager.GenerateEmailConfirmationTokenAsync(obj.user);
-                    
-                    var emailResult = await _userManager.ConfirmEmailAsync(obj.user, token);
-
-                    if (!emailResult.Succeeded)
+                    if (obj.role != Roles.User)
                     {
-                        throw new InvalidOperationException(
-                            $"Failed to confirm {obj.user.Id} user email: {string.Join(", ", emailResult.Errors)}");
+                        var token = await _userManager.GenerateEmailConfirmationTokenAsync(
+                            obj.user
+                        );
+
+                        var emailResult = await _userManager.ConfirmEmailAsync(obj.user, token);
+
+                        if (!emailResult.Succeeded)
+                        {
+                            throw new InvalidOperationException(
+                                $"Failed to confirm {obj.user.Id} user email: {string.Join(", ", emailResult.Errors)}"
+                            );
+                        }
                     }
                 }
-                
+
                 await _context.UserProfiles.AddAsync(obj.profile);
             }
         }
 
         await _context.SaveChangesAsync();
     }
-
 }

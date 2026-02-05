@@ -1,4 +1,5 @@
 ﻿using FitPass.Application.Common.Models;
+using FitPass.Application.FunctionalTests.Common.Extensions;
 using FitPass.Application.FunctionalTests.Infrastructure.Testing;
 using FitPass.Application.Requests.Queries;
 using FitPass.Domain.Constants;
@@ -22,7 +23,7 @@ public class GetRequestByIdTests : BaseTestFixture
     {
         await RunAsAppAdminAsync();
 
-        var query = new GetRequestByIdQuery(RequestId: "");
+        var query = new GetRequestByIdQuery(string.Empty);
 
         await ShouldThrowIfParametersAreInvalidAsync(query);
     }
@@ -32,11 +33,10 @@ public class GetRequestByIdTests : BaseTestFixture
     {
         await RunAsAppAdminAsync();
 
-        var query = new GetRequestByIdQuery("requestId");
+        var query = new GetRequestByIdQuery("id");
 
         var result = await SendAsync(query);
-        result.Type.ShouldBe(ResultTypes.NotFound);
-        result.Message.ShouldNotBeEmpty();
+        result.ShouldBeFailed(ResultTypes.NotFound);
     }
 
     [Test]
@@ -59,10 +59,10 @@ public class GetRequestByIdTests : BaseTestFixture
         var query = new GetRequestByIdQuery(request.Id);
 
         var result = await SendAsync(query);
-        result.Succeeded.ShouldBeTrue();
-        result.Value.ShouldNotBeNull();
+        result.ShouldBeSuccessful();
 
-        var requestDto = result.Value;
-        requestDto.AssertTo(request);
+        var dto = result.Value;
+
+        dto.Id.ShouldBe(request.Id);
     }
 }

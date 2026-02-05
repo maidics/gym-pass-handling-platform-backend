@@ -1,10 +1,10 @@
-﻿using FitPass.Application.Common.Exceptions;
+﻿using FitPass.Application.FunctionalTests.Common.Extensions;
+using FitPass.Application.FunctionalTests.Infrastructure.Testing;
 using FitPass.Application.UserProfiles.Commands;
 using FitPass.Domain.Entities;
 
 namespace FitPass.Application.FunctionalTests.Tests.UserProfileTests.Commands;
 
-/*
 using static Testing;
 
 public class UpdateMyUserProfileTests : BaseTestFixture
@@ -15,33 +15,42 @@ public class UpdateMyUserProfileTests : BaseTestFixture
         ShouldRequireAuthorization<UpdateMyUserProfileCommand>();
     }
 
-    [Test]
-    public async Task ShouldThrowIfParametersAreInvalid()
+    [TestCase("", "Last", "hu-HU")]
+    [TestCase("First", "", "hu-HU")]
+    [TestCase("First", "Last", "")]
+    [TestCase("First", "Last", "xx-XX")]
+    public async Task ShouldThrowIfParametersAreInvalid(
+        string firstName,
+        string lastName,
+        string preferredLanguage
+    )
     {
         await RunAsDefaultUserAsync();
 
-        var command = new UpdateMyUserProfileCommand(string.Empty, string.Empty);
+        var command = new UpdateMyUserProfileCommand(firstName, lastName, preferredLanguage);
 
         await ShouldThrowIfParametersAreInvalidAsync(command);
     }
 
-    [Test]
-    public async Task ShouldUpdateUserProfile()
+    [TestCase("First", "Last", "hu-HU")]
+    [TestCase("First", "Last", "en-US")]
+    public async Task ShouldUpdateUserProfile(
+        string firstName,
+        string lastName,
+        string preferredLanguage
+    )
     {
         var obj = await RunAsDefaultUserAsync();
 
-        var newFirstName = "FirstNew";
-        var newLastName = "LastNew";
+        var command = new UpdateMyUserProfileCommand(firstName, lastName, preferredLanguage);
 
-        var command = new UpdateMyUserProfileCommand(newFirstName, newLastName);
+        var result = await SendAsync(command);
+        result.ShouldBeSuccessful();
 
-        await SendAsync(command);
-
-        var updatedUserProfile = await FindAsync<UserProfile>(obj.userProfile.Id);
-
-        updatedUserProfile.ShouldNotBeNull();
-        updatedUserProfile.FirstName.ShouldBe(newFirstName);
-        updatedUserProfile.LastName.ShouldBe(newLastName);
+        var profile = await FindAsync<UserProfile>(obj.userProfile.Id);
+        profile.ShouldNotBeNull();
+        profile.FirstName.ShouldBe(firstName);
+        profile.LastName.ShouldBe(lastName);
+        profile.PreferredLanguage.ShouldBe(preferredLanguage);
     }
 }
-*/

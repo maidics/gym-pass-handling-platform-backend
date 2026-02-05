@@ -1,5 +1,6 @@
 ﻿using FitPass.Application.Common.Exceptions;
 using FitPass.Application.Common.Models;
+using FitPass.Application.FunctionalTests.Common.Extensions;
 using FitPass.Application.FunctionalTests.Infrastructure.Testing;
 using FitPass.Application.Users.Commands;
 using FitPass.Domain.Strings;
@@ -11,42 +12,40 @@ using static Testing;
 public class LogInUserTests : BaseTestFixture
 {
     [Test]
+    public override void AuthorizeAttributeCheck()
+    {
+        ShouldNotRequireAuthorization<LogInUserCommand>();
+    }
+
+    [TestCase("", "Password123!")]
+    [TestCase("invalid@email", "Password123!")]
+    [TestCase("email@test.com", "")]
+    public async Task ShouldThrowIfParametersAreInvalid(string email, string password)
+    {
+        var command = new LogInUserCommand(email, password);
+
+        await ShouldThrowIfParametersAreInvalidAsync(command);
+    }
+
+    [Test]
+    public async Task ShouldReturnUnauthorizedIfTheEmailIsNotInUse()
+    {
+        var command = new LogInUserCommand("email@test.com", "password");
+
+        var result = await SendAsync(command);
+        result.ShouldBeFailed(ResultTypes.Unauthorized);
+    }
+
+    [Test]
     public async Task ShouldLogInUserWithValidCredentials()
     {
         var user = await CreateUserAsync();
 
         var result = await SendAsync(new LogInUserCommand(user.Email!, "Password123!"));
-        result.Succeeded.ShouldBeTrue();
-        result.Value.ShouldNotBeNull();
-    }
+        result.ShouldBeSuccessful();
 
-    [Test]
-    public async Task ShouldThrowWithEmptyCredentials()
-    {
-        var command = new LogInUserCommand(string.Empty, string.Empty);
-
-        var action = () => SendAsync(command);
-
-        await Should.ThrowAsync<ValidationException>(action);
-    }
-
-    [Test]
-    public async Task ShouldRequireValidEmail()
-    {
-        var command = new LogInUserCommand("invalid", "Password123_");
-
-        var action = () => SendAsync(command);
-
-        await action.ShouldThrowAsync<ValidationException>();
-    }
-
-    [Test]
-    public async Task ShouldReturnUnathorizedIfTheEmailIsNotInUse()
-    {
-        var command = new LogInUserCommand("email@test", "password");
-
-        var result = await SendAsync(command);
-        result.Type.ShouldBe(ResultTypes.Unauthorized);
+        var jwt = result.Value;
+        jwt.AccessToken.ShouldNotBeNull();
     }
 
     [Test]
@@ -56,24 +55,32 @@ public class LogInUserTests : BaseTestFixture
 
         var command = new LogInUserCommand(user.Email!.ToUpperInvariant(), "Password123!");
 
-        await SendAsync(command);
+        var result = await SendAsync(command);
+        result.ShouldBeSuccessful();
+
+        var jwt = result.Value;
+        jwt.AccessToken.ShouldNotBeNull();
     }
 
     [Test]
-    public async Task ShoudlReturnUnauthorizedIfUserAccountIsNotActivated()
+    public async Task ShouldReturnUnauthorizedIfUserAccountIsNotActivated()
     {
         var user = await CreateUserAsync(password: null, emailConfirmed: false);
 
         var command = new LogInUserCommand(user.Email!, "Password123_");
 
         var result = await SendAsync(command);
-        result.Type.ShouldBe(ResultTypes.Unauthorized);
-        result.Message.ShouldNotBeEmpty();
+        result.ShouldBeFailed(ResultTypes.Unauthorized);
     }
 
     [Test]
-    public override void AuthorizeAttributeCheck()
+    public async Task ShouldReturnUnauthorizedIfPasswordIsIncorrect()
     {
-        ShouldNotRequireAuthorization<LogInUserCommand>();
+        var user = await CreateUserAsync();
+
+        var command = new LogInUserCommand(user.Email!, "Password123");
+
+        var result = await SendAsync(command);
+        result.ShouldBeFailed(ResultTypes.Unauthorized);
     }
 }

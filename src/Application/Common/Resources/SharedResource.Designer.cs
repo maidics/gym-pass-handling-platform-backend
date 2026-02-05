@@ -658,6 +658,15 @@ namespace FitPass.Application.Common.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to New password cannot be the same as old..
+        /// </summary>
+        public static string NewPasswordCannotBeSameAsOld {
+            get {
+                return ResourceManager.GetString("NewPasswordCannotBeSameAsOld", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to new {0}.
         /// </summary>
         public static string NewValue {

@@ -1,4 +1,5 @@
-﻿using FitPass.Application.FunctionalTests.Infrastructure.Testing;
+﻿using FitPass.Application.FunctionalTests.Common.Extensions;
+using FitPass.Application.FunctionalTests.Infrastructure.Testing;
 
 namespace FitPass.Application.FunctionalTests.Tests.UserTests.Commands;
 
@@ -22,14 +23,14 @@ public class ActivateUserAccountTests : BaseTestFixture
     {
         var command = new ActivateUserAccountCommand(string.Empty, string.Empty, true, null, null);
 
-        await Should.ThrowAsync<ValidationException>(() => SendAsync(command));
+        await ShouldThrowIfParametersAreInvalidAsync(command);
     }
 
     [Test]
     public async Task ShouldReturnNotFoundIfUserNotFound()
     {
         var command = new ActivateUserAccountCommand(
-            Uri.EscapeDataString("email@localhost"),
+            Uri.EscapeDataString("email@test.com"),
             "token",
             false,
             null,
@@ -37,8 +38,7 @@ public class ActivateUserAccountTests : BaseTestFixture
         );
 
         var result = await SendAsync(command);
-        result.Type.ShouldBe(ResultTypes.NotFound);
-        result.Message.ShouldNotBeEmpty();
+        result.ShouldBeFailed(ResultTypes.NotFound);
     }
 
     [Test]
@@ -57,25 +57,24 @@ public class ActivateUserAccountTests : BaseTestFixture
         );
 
         var result = await SendAsync(command);
-        result.Type.ShouldBe(ResultTypes.BusinessRuleViolation);
-        result.Message.ShouldNotBeEmpty();
+        result.ShouldBeFailed(ResultTypes.BusinessRuleViolation);
     }
 
     [Test]
-    public async Task ShoudlReturnForbiddenIfTokenIsNotValid()
+    public async Task ShouldReturnForbiddenIfTokenIsNotValid()
     {
         var user = await CreateUserAsync(password: null);
 
         var command = new ActivateUserAccountCommand(
             Uri.EscapeDataString(user.Email!),
-            "invalidtoken",
+            "token",
             true,
             "Password123!",
             "Password123!"
         );
 
         var result = await SendAsync(command);
-        result.Type.ShouldBe(ResultTypes.Forbidden);
+        result.ShouldBeFailed(ResultTypes.Forbidden);
     }
 
     [Test]
@@ -94,8 +93,7 @@ public class ActivateUserAccountTests : BaseTestFixture
         );
 
         var result = await SendAsync(command);
-        result.Type.ShouldBe(ResultTypes.Forbidden);
-        result.Message.ShouldNotBeEmpty();
+        result.ShouldBeFailed(ResultTypes.Forbidden);
     }
 
     [Test]
@@ -114,8 +112,11 @@ public class ActivateUserAccountTests : BaseTestFixture
         );
 
         var result = await SendAsync(command);
-        result.Succeeded.ShouldBeTrue();
-        result.Value.ShouldNotBeNull();
+        result.ShouldBeSuccessful();
+
+        var jwt = result.Value;
+        jwt.ShouldNotBeNull();
+        jwt.AccessToken.ShouldNotBeNull();
 
         var updatedUser = await FindAsync<ApplicationUser>(user.Id);
         updatedUser.ShouldNotBeNull();
@@ -138,11 +139,13 @@ public class ActivateUserAccountTests : BaseTestFixture
         );
 
         var result = await SendAsync(command);
-        result.Succeeded.ShouldBeTrue();
-        result.Value.ShouldNotBeNull();
+        result.ShouldBeSuccessful();
+
+        var jwt = result.Value;
+        jwt.ShouldNotBeNull();
+        jwt.AccessToken.ShouldNotBeNull();
 
         var updatedUser = await FindAsync<ApplicationUser>(user.Id);
-
         updatedUser!.EmailConfirmed.ShouldBeTrue();
         updatedUser!.PasswordHash.ShouldNotBeNull();
     }

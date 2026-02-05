@@ -125,10 +125,11 @@ public class GymMembershipStatusChangedEventHandler
                     gymName
                 );
 
-        var clientNotification = ClientNotification.Create(
-            message,
-            ClientNotificationType.GymMembershipStatusChange
-        );
+        var clientNotification = new ClientNotification
+        {
+            Message = message,
+            Type = ClientNotificationType.GymMembershipStatusChange,
+        };
 
         await _clientNotificationSender.SendAsync(notification.UserId, clientNotification);
     }

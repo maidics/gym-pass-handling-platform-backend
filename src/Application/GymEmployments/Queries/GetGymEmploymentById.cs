@@ -9,7 +9,7 @@ using FitPass.Domain.Entities;
 
 namespace FitPass.Application.GymEmployments.Queries;
 
-[Authorize(Roles = $"{Roles.AppAdministrator},{Roles.GymAdministrator},{Roles.GymStaff}")]
+[Authorize(Roles = $"{Roles.GymAdministrator},{Roles.GymStaff}")]
 public record GetGymEmploymentByIdQuery(string GymEmploymentId) : IRequest<Result<GymEmploymentDto>>;
 
 public class GetGymEmploymentByIdQueryValidator : AbstractValidator<GetGymEmploymentByIdQuery>

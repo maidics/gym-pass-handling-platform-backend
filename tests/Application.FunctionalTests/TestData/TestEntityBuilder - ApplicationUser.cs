@@ -11,12 +11,11 @@ using static Testing;
 
 public static partial class TestEntityBuilder
 {
-    public static async Task<(
-        ApplicationUser user,
-        UserProfile userProfile
-    )> BuildDefaultUserAsync()
+    public static async Task<(ApplicationUser user, UserProfile userProfile)> BuildDefaultUserAsync(
+        bool emailConfirmed = false
+    )
     {
-        var user = await CreateUserAsync();
+        var user = await CreateUserAsync(emailConfirmed: emailConfirmed);
 
         var userProfile = new UserProfile
         {

@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using FitPass.Application.Common.Exceptions;
 using FitPass.Application.Common.Models;
+using FitPass.Application.FunctionalTests.Common.Extensions;
 using FitPass.Application.FunctionalTests.Infrastructure.Testing;
 using FitPass.Application.Requests.Commands;
 using FitPass.Application.Requests.DTOs;
@@ -28,6 +29,7 @@ public class CreateGymAdminPromotionRequestTests : BaseTestFixture
         var command = new CreateGymAdminPromotionRequestCommand(
             string.Empty,
             string.Empty,
+            string.Empty,
             PriorityLevel.High,
             string.Empty
         );
@@ -41,25 +43,26 @@ public class CreateGymAdminPromotionRequestTests : BaseTestFixture
         await RunAsGymEmployeeAsync(Roles.GymAdministrator);
 
         var command = new CreateGymAdminPromotionRequestCommand(
-            "invalidUserId",
+            "Title",
+            "userId",
             "Description",
             PriorityLevel.Medium,
-            "email@email"
+            "supervisor@test.com"
         );
 
         var result = await SendAsync(command);
-        result.Type.ShouldBe(ResultTypes.NotFound);
-        result.Message.ShouldNotBeEmpty();
+        result.ShouldBeFailed(ResultTypes.NotFound);
     }
 
     [Test]
-    public async Task ShouldReturnBusinessRuleViolationIfTheUserToPromoteIsNotPendingGymEmployee()
+    public async Task ShouldReturnNotFoundIfTheUserToPromoteIsNotPendingGymEmployee()
     {
         var user = await CreateUserAsync();
 
         await RunAsGymEmployeeAsync(Roles.GymAdministrator);
 
         var command = new CreateGymAdminPromotionRequestCommand(
+            "Title",
             user.Id,
             "Description",
             PriorityLevel.High,
@@ -67,8 +70,7 @@ public class CreateGymAdminPromotionRequestTests : BaseTestFixture
         );
 
         var result = await SendAsync(command);
-        result.Type.ShouldBe(ResultTypes.BusinessRuleViolation);
-        result.Message.ShouldNotBeEmpty();
+        result.ShouldBeFailed(ResultTypes.NotFound);
     }
 
     [Test]
@@ -79,6 +81,7 @@ public class CreateGymAdminPromotionRequestTests : BaseTestFixture
         var gymAdminObj = await RunAsGymEmployeeAsync(Roles.GymAdministrator);
 
         var command = new CreateGymAdminPromotionRequestCommand(
+            "Title",
             pendingGymEmployee.Id,
             "Description",
             PriorityLevel.High,
@@ -90,10 +93,12 @@ public class CreateGymAdminPromotionRequestTests : BaseTestFixture
 
         var createdRequest = await GetFirstAsync<Request>();
         createdRequest.ShouldNotBeNull();
+        createdRequest.Title.ShouldBe(command.Title);
         createdRequest.Type.ShouldBe(RequestType.GymAdminPromotion);
         createdRequest.Description.ShouldBe(command.Description);
         createdRequest.PriorityLevel.ShouldBe(PriorityLevel.High);
         createdRequest.Payload.ShouldNotBeNull();
+
         var payload = JsonSerializer.Deserialize<GymAdminPromotionDto>(createdRequest.Payload);
         payload.ShouldNotBeNull();
         payload.GymId.ShouldBe(gymAdminObj.gymEmployment.GymId);

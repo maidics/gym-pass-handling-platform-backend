@@ -2,6 +2,7 @@
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Resources;
+using FitPass.Application.Common.Scopes;
 using FitPass.Application.Common.Security;
 using FitPass.Domain.Constants;
 
@@ -62,10 +63,18 @@ public class EndUserGymSessionCommandHandler : IRequestHandler<EndUserGymSession
 
         await _context.SaveChangesAsync(cancellationToken);
 
-        var notification = ClientNotification.Create(
-            _localizer.Get(nameof(SharedResource.GymEmployeeEndedGymSession)),
-            ClientNotificationType.GymSessionEnded
-        );
+        var lang = await _context
+            .UserProfiles.Where(x => x.UserId == gymPassUsage.UserId)
+            .Select(x => x.PreferredLanguage)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        using var scope = new CultureInfoScope(lang ?? _localizer.DefaultCulture);
+
+        var notification = new ClientNotification
+        {
+            Message = _localizer.Get(nameof(SharedResource.GymEmployeeEndedGymSession)),
+            Type = ClientNotificationType.GymSessionEnded,
+        };
 
         await _clientNotificationSender.SendAsync(gymPassUsage.UserId, notification);
 
