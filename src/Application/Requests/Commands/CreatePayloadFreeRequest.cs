@@ -20,9 +20,7 @@ public class CreatePayloadFreeRequestCommandValidator : AbstractValidator<Create
         RuleFor(v => v.Title).NotEmptyWithMessageLocalized(localizer, nameof(SharedResource.Title));
 
         RuleFor(v => v.Description).NotEmptyWithMessageLocalized(localizer, nameof(SharedResource.Description));
-
-        RuleFor(v => v.PriorityLevel).NotEmptyWithMessageLocalized(localizer, nameof(SharedResource.Priority));
-
+        
         RuleFor(v => v.RequestType).NotEmpty()
             .WithMessage(localizer.GetPropertyOfEntityIsRequired(nameof(SharedResource.Type),
                 nameof(SharedResource.Request)));

@@ -4,6 +4,7 @@ using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Resources;
 using FitPass.Application.Common.Security;
+using FitPass.Application.Common.Settings;
 using FitPass.Application.Requests.DTOs;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
@@ -95,7 +96,7 @@ public class CreateGymAdminPromotionRequestCommandHandler
 
         var request = new Request
         {
-            Title = "Gym Administrator Nomination",
+            Title = command.Title,
             Description = command.Description,
             PriorityLevel = command.PriorityLevel,
             Type = RequestType.GymAdminPromotion,
@@ -103,9 +104,10 @@ public class CreateGymAdminPromotionRequestCommandHandler
                 new GymAdminPromotionDto
                 {
                     GymId = gymEmployment.GymId!,
-                    PendingGymEmployeeEmail = pendingGymEmployeeId,
+                    PendingGymEmployeeEmail = command.PendingGymEmployeeEmail,
                     SupervisorEmail = command.SupervisorEmail,
-                }
+                },
+                JsonDefaults.SerializerOptions
             ),
         };
 

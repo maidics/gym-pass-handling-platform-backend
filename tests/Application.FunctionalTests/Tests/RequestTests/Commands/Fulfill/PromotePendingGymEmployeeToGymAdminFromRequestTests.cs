@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using FitPass.Application.Common.Models;
+using FitPass.Application.Common.Settings;
 using FitPass.Application.FunctionalTests.Common.Extensions;
 using FitPass.Application.FunctionalTests.Infrastructure.Testing;
 using FitPass.Application.FunctionalTests.TestData;
@@ -129,7 +130,8 @@ public class PromotePendingGymEmployeeToGymAdminFromRequestTests : BaseTestFixtu
             Description = "Description",
             PriorityLevel = PriorityLevel.Medium,
             Payload = JsonSerializer.Serialize(
-                TestEntityBuilder.CreateGymAdminPromotionDto("GymId", "id")
+                TestEntityBuilder.CreateGymAdminPromotionDto("GymId", "id"),
+                JsonDefaults.SerializerOptions
             ),
         };
 
@@ -156,7 +158,8 @@ public class PromotePendingGymEmployeeToGymAdminFromRequestTests : BaseTestFixtu
             Description = "description",
             PriorityLevel = PriorityLevel.Medium,
             Payload = JsonSerializer.Serialize(
-                TestEntityBuilder.CreateGymAdminPromotionDto("GymId", user.Id)
+                TestEntityBuilder.CreateGymAdminPromotionDto("GymId", user.Id),
+                JsonDefaults.SerializerOptions
             ),
         };
 
@@ -186,7 +189,8 @@ public class PromotePendingGymEmployeeToGymAdminFromRequestTests : BaseTestFixtu
                 TestEntityBuilder.CreateGymAdminPromotionDto(
                     "non-existent-gym-id",
                     pendingGymEmployee.Id
-                )
+                ),
+                JsonDefaults.SerializerOptions
             ),
         };
 
@@ -215,7 +219,8 @@ public class PromotePendingGymEmployeeToGymAdminFromRequestTests : BaseTestFixtu
             Description = "description",
             PriorityLevel = PriorityLevel.Medium,
             Payload = JsonSerializer.Serialize(
-                TestEntityBuilder.CreateGymAdminPromotionDto(obj.gym.Id, pendingGymEmployee.Id)
+                TestEntityBuilder.CreateGymAdminPromotionDto(obj.gym.Id, pendingGymEmployee.Id),
+                JsonDefaults.SerializerOptions
             ),
         };
 

@@ -1,4 +1,5 @@
 using System.Text.Json;
+using FitPass.Application.Common.Settings;
 using FitPass.Application.FunctionalTests.Infrastructure.Testing;
 using FitPass.Application.Requests.DTOs;
 using FitPass.Domain.Entities;
@@ -29,7 +30,7 @@ public partial class TestEntityBuilder
             Description = "Request to create a new gym",
             Type = RequestType.GymCreation,
             Status = RequestStatus.Submitted,
-            Payload = JsonSerializer.Serialize(createGymDto),
+            Payload = JsonSerializer.Serialize(createGymDto, JsonDefaults.SerializerOptions),
             CreatedBy = obj.user.Id,
             PriorityLevel = PriorityLevel.High,
         };

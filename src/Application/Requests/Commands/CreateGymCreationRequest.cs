@@ -4,6 +4,7 @@ using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Resources;
 using FitPass.Application.Common.Security;
+using FitPass.Application.Common.Settings;
 using FitPass.Application.Requests.DTOs;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
@@ -115,7 +116,10 @@ public class CreateGymCreationRequestCommandHandler
             Description = command.Description,
             PriorityLevel = command.PriorityLevel,
             Type = RequestType.GymCreation,
-            Payload = JsonSerializer.Serialize(command.CreateGymDto),
+            Payload = JsonSerializer.Serialize(
+                command.CreateGymDto,
+                JsonDefaults.SerializerOptions
+            ),
         };
 
         await _context.Requests.AddAsync(request, cancellationToken);

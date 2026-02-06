@@ -262,7 +262,7 @@
     <value>indoklás</value>
   </data>
   <data name="PropertyOf" xml:space="preserve">
-    <value>{0} {1}</value>
+    <value>{1} {0}</value>
   </data>
   <data name="ValueIsInvalid" xml:space="preserve">
     <value>érvénytelen {0}</value>

@@ -8,80 +8,151 @@ namespace FitPass.Application.Common.Extensions;
 
 public static class ValidationExtensions
 {
-    public static IRuleBuilderOptions<T, TProperty> NotEmptyWithMessageLocalized<T, TProperty>(this IRuleBuilder<T, TProperty> rule, ILocalizer localizer, string key)
+    public static IRuleBuilderOptions<T, TProperty> NotEmptyWithMessageLocalized<T, TProperty>(
+        this IRuleBuilder<T, TProperty> rule,
+        ILocalizer localizer,
+        string key
+    )
     {
-        return rule
-            .NotNull()
+        return rule.NotNull()
             .NotEmpty()
-            .WithMessage(localizer.GetWithParamsLocalized(nameof(SharedResource.PropertyIsRequired), key));
+            .WithMessage(
+                localizer.GetWithParamsLocalized(nameof(SharedResource.PropertyIsRequired), key)
+            );
     }
 
-    public static IRuleBuilderOptions<T, TProperty> PropertyOfEntityNotEmptyWithMessageLocalized<T, TProperty>(
-        this IRuleBuilder<T, TProperty> rule, ILocalizer localizer, string propertyKey, string entityKey)
+    public static IRuleBuilderOptions<T, TProperty> PropertyOfEntityNotEmptyWithMessageLocalized<
+        T,
+        TProperty
+    >(
+        this IRuleBuilder<T, TProperty> rule,
+        ILocalizer localizer,
+        string propertyKey,
+        string entityKey
+    )
     {
-        return rule
+        return rule.NotNull()
             .NotEmpty()
             .WithMessage(localizer.GetPropertyOfEntityIsRequired(propertyKey, entityKey));
     }
 
     public static IRuleBuilderOptions<T, string> NotEmptyWithMaxLengthAndMessageLocalized<T>(
-        this IRuleBuilder<T, string> rule, ILocalizer localizer, string key, int maxLength)
+        this IRuleBuilder<T, string> rule,
+        ILocalizer localizer,
+        string key,
+        int maxLength
+    )
     {
-        return rule
-            .NotEmpty()
-            .WithMessage(localizer.GetWithParamsLocalized(nameof(SharedResource.PropertyIsRequired), key, maxLength.ToString()))
+        return rule.NotEmpty()
+            .WithMessage(
+                localizer.GetWithParamsLocalized(
+                    nameof(SharedResource.PropertyIsRequired),
+                    key,
+                    maxLength.ToString()
+                )
+            )
             .MaximumLength(maxLength)
-            .WithMessage(localizer.GetWithParamsLocalized(nameof(SharedResource.PropertyMaxLength), key, maxLength.ToString()));
+            .WithMessage(
+                localizer.GetWithParamsLocalized(
+                    nameof(SharedResource.PropertyMaxLength),
+                    key,
+                    maxLength.ToString()
+                )
+            );
     }
 
     public static IRuleBuilderOptions<T, string> NotEmptyWithMinLengthAndMessageLocalized<T>(
-        this IRuleBuilder<T, string> rule, ILocalizer localizer, string key, int minLength)
+        this IRuleBuilder<T, string> rule,
+        ILocalizer localizer,
+        string key,
+        int minLength
+    )
     {
-        return rule
-            .NotEmpty()
-            .WithMessage(localizer.GetWithParamsLocalized(nameof(SharedResource.PropertyIsRequired), key, minLength.ToString()))
+        return rule.NotEmpty()
+            .WithMessage(
+                localizer.GetWithParamsLocalized(
+                    nameof(SharedResource.PropertyIsRequired),
+                    key,
+                    minLength.ToString()
+                )
+            )
             .MinimumLength(minLength)
-            .WithMessage(localizer.GetWithParamsLocalized(nameof(SharedResource.PropertyMinLength), key, minLength.ToString()));
-    }
-    
-    public static IRuleBuilderOptions<T, string> StrongPasswordLocalized<T>(this IRuleBuilder<T, string> rule, ILocalizer localizer)
-    {
-        return rule
-            .NotEmptyWithMessageLocalized(localizer, nameof(SharedResource.Password))
-            .MinimumLength(8).WithMessage(localizer.Get(nameof(SharedResource.PasswordMinimumLength), 8))
-            .MaximumLength(MaxLengths.Password).WithMessage(localizer.Get(nameof(SharedResource.PasswordMaximumLength), MaxLengths.Password))
-            .Must(p => p.Any(char.IsLower)).WithMessage(localizer.Get(nameof(SharedResource.PasswordAtLeastOneLowerCase)))
-            .Must(p => p.Any(char.IsUpper)).WithMessage(localizer.Get(nameof(SharedResource.PasswordAtLeastOneUpperCase)))
-            .Must(p => p.Any(char.IsDigit)).WithMessage(localizer.Get(nameof(SharedResource.PasswordAtLeastOneNumber)))
-            .Must(p => p.Any(c => !char.IsLetterOrDigit(c))).WithMessage(localizer.Get(nameof(SharedResource.PasswordAtLeastOneSpecial)));
+            .WithMessage(
+                localizer.GetWithParamsLocalized(
+                    nameof(SharedResource.PropertyMinLength),
+                    key,
+                    minLength.ToString()
+                )
+            );
     }
 
-    public static IRuleBuilder<T, string> EmailAddressWithMessageLocalized<T>(this IRuleBuilder<T, string> rule, ILocalizer localizer)
+    public static IRuleBuilderOptions<T, string> StrongPasswordLocalized<T>(
+        this IRuleBuilder<T, string> rule,
+        ILocalizer localizer
+    )
     {
-        return rule
-            .NotEmptyWithMessageLocalized(localizer, nameof(SharedResource.Email))
+        return rule.NotEmptyWithMessageLocalized(localizer, nameof(SharedResource.Password))
+            .MinimumLength(8)
+            .WithMessage(localizer.Get(nameof(SharedResource.PasswordMinimumLength), 8))
+            .MaximumLength(MaxLengths.Password)
+            .WithMessage(
+                localizer.Get(nameof(SharedResource.PasswordMaximumLength), MaxLengths.Password)
+            )
+            .Must(p => p.Any(char.IsLower))
+            .WithMessage(localizer.Get(nameof(SharedResource.PasswordAtLeastOneLowerCase)))
+            .Must(p => p.Any(char.IsUpper))
+            .WithMessage(localizer.Get(nameof(SharedResource.PasswordAtLeastOneUpperCase)))
+            .Must(p => p.Any(char.IsDigit))
+            .WithMessage(localizer.Get(nameof(SharedResource.PasswordAtLeastOneNumber)))
+            .Must(p => p.Any(c => !char.IsLetterOrDigit(c)))
+            .WithMessage(localizer.Get(nameof(SharedResource.PasswordAtLeastOneSpecial)));
+    }
+
+    public static IRuleBuilder<T, string> EmailAddressWithMessageLocalized<T>(
+        this IRuleBuilder<T, string> rule,
+        ILocalizer localizer
+    )
+    {
+        return rule.NotEmptyWithMessageLocalized(localizer, nameof(SharedResource.Email))
             .EmailAddress()
             .Matches(@"^[^@\s]+@[^@\s]+\.[^@\s]+$")
-            .WithMessage(localizer.GetWithParamsLocalized(nameof(SharedResource.ValueIsInvalid), nameof(SharedResource.Email)));
+            .WithMessage(
+                localizer.GetWithParamsLocalized(
+                    nameof(SharedResource.ValueIsInvalid),
+                    nameof(SharedResource.Email)
+                )
+            );
     }
 
-    public static IRuleBuilder<T, string> SupportedLanguageWithMessageLocalized<T>(this IRuleBuilder<T, string> rule,
-        ILocalizer localizer, string[] supportedLanguages)
+    public static IRuleBuilder<T, string> SupportedLanguageWithMessageLocalized<T>(
+        this IRuleBuilder<T, string> rule,
+        ILocalizer localizer,
+        string[] supportedLanguages
+    )
     {
-        return rule
-            .Must(lang => supportedLanguages.Contains(lang))
-            .WithMessage(localizer.Get(nameof(SharedResource.LanguageIsNotSupported), string.Join(", ", supportedLanguages)));
-    }
-
-    public static IRuleBuilder<T, Money> ValidMoneyWithMessageLocalized<T>(this IRuleBuilder<T, Money> rule, ILocalizer localizer)
-    {
-        return rule
-            .NotEmptyWithMessageLocalized(localizer, nameof(SharedResource.Price))
-            .Must(x => x.Amount >= CurrencyPolicies.GetRule(x.Currency).MinAmount)
-            .WithMessage((_, x) => 
+        return rule.Must(lang => supportedLanguages.Contains(lang))
+            .WithMessage(
                 localizer.Get(
-                    nameof(SharedResource.CurrencyMinimumAmount), 
-                    x.Currency, 
-                    CurrencyPolicies.GetRule(x.Currency).MinAmount));
+                    nameof(SharedResource.LanguageIsNotSupported),
+                    string.Join(", ", supportedLanguages)
+                )
+            );
+    }
+
+    public static IRuleBuilder<T, Money> ValidMoneyWithMessageLocalized<T>(
+        this IRuleBuilder<T, Money> rule,
+        ILocalizer localizer
+    )
+    {
+        return rule.NotEmptyWithMessageLocalized(localizer, nameof(SharedResource.Price))
+            .Must(x => x.Amount >= CurrencyPolicies.GetRule(x.Currency).MinAmount)
+            .WithMessage(
+                (_, x) =>
+                    localizer.Get(
+                        nameof(SharedResource.CurrencyMinimumAmount),
+                        x.Currency,
+                        CurrencyPolicies.GetRule(x.Currency).MinAmount
+                    )
+            );
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using FitPass.Application.Common.Exceptions;
 using FitPass.Application.Common.Models;
+using FitPass.Application.Common.Settings;
 using FitPass.Application.FunctionalTests.Common.Extensions;
 using FitPass.Application.FunctionalTests.Infrastructure.Testing;
 using FitPass.Application.Requests.Commands;
@@ -99,7 +100,10 @@ public class CreateGymAdminPromotionRequestTests : BaseTestFixture
         createdRequest.PriorityLevel.ShouldBe(PriorityLevel.High);
         createdRequest.Payload.ShouldNotBeNull();
 
-        var payload = JsonSerializer.Deserialize<GymAdminPromotionDto>(createdRequest.Payload);
+        var payload = JsonSerializer.Deserialize<GymAdminPromotionDto>(
+            createdRequest.Payload,
+            JsonDefaults.SerializerOptions
+        );
         payload.ShouldNotBeNull();
         payload.GymId.ShouldBe(gymAdminObj.gymEmployment.GymId);
         payload.PendingGymEmployeeEmail.ShouldBe(pendingGymEmployee.Id);

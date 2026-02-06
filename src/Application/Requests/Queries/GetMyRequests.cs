@@ -29,7 +29,22 @@ public class GetMyRequestsQueryHandler : IRequestHandler<GetMyRequestsQuery, Lis
         return await _context
             .Requests.AsNoTracking()
             .Where(x => x.CreatedBy == _user.Id)
-            .Select(x => x.MapToDto())
+            .Select(x => new RequestDto()
+            {
+                Id = x.Id,
+                CreatedBy = x.CreatedBy,
+                CreatedOn = x.CreatedOn,
+                Description = x.Description,
+                Title = x.Title,
+                Error = x.Error,
+                HandlerRationale = x.HandlerRationale,
+                LastModifiedBy = x.LastModifiedBy,
+                LastModifiedOn = x.LastModifiedOn,
+                Payload = x.Payload,
+                PriorityLevel = x.PriorityLevel,
+                Status = x.Status,
+                Type = x.Type,
+            })
             .ToListAsync(cancellationToken);
     }
 }

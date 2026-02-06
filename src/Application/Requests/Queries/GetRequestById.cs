@@ -1,11 +1,11 @@
-using FitPass.Application.Requests.DTOs;
 using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
-using FitPass.Application.Common.Security;
-using FitPass.Domain.Constants;
 using FitPass.Application.Common.Models;
-using FitPass.Domain.Entities;
 using FitPass.Application.Common.Resources;
+using FitPass.Application.Common.Security;
+using FitPass.Application.Requests.DTOs;
+using FitPass.Domain.Constants;
+using FitPass.Domain.Entities;
 
 namespace FitPass.Application.Requests.Queries;
 
@@ -17,7 +17,11 @@ public class GetRequestByIdQueryValidator : AbstractValidator<GetRequestByIdQuer
     public GetRequestByIdQueryValidator(ILocalizer localizer)
     {
         RuleFor(v => v.RequestId)
-            .PropertyOfEntityNotEmptyWithMessageLocalized(localizer, nameof(SharedResource.Id), nameof(SharedResource.Request));
+            .PropertyOfEntityNotEmptyWithMessageLocalized(
+                localizer,
+                nameof(SharedResource.Id),
+                nameof(SharedResource.Request)
+            );
     }
 }
 
@@ -31,11 +35,30 @@ public class GetRequestByIdQueryHandler : IRequestHandler<GetRequestByIdQuery, R
         _context = context;
         _localizer = localizer;
     }
-    public async Task<Result<RequestDto>> Handle(GetRequestByIdQuery query, CancellationToken cancellationToken)
+
+    public async Task<Result<RequestDto>> Handle(
+        GetRequestByIdQuery query,
+        CancellationToken cancellationToken
+    )
     {
-        var dto = await _context.Requests
-            .AsNoTracking()
-            .Select(x => x.MapToDto())
+        var dto = await _context
+            .Requests.AsNoTracking()
+            .Select(x => new RequestDto()
+            {
+                Id = x.Id,
+                CreatedBy = x.CreatedBy,
+                CreatedOn = x.CreatedOn,
+                Description = x.Description,
+                Title = x.Title,
+                Error = x.Error,
+                HandlerRationale = x.HandlerRationale,
+                LastModifiedBy = x.LastModifiedBy,
+                LastModifiedOn = x.LastModifiedOn,
+                Payload = x.Payload,
+                PriorityLevel = x.PriorityLevel,
+                Status = x.Status,
+                Type = x.Type,
+            })
             .FirstOrDefaultAsync(gcr => gcr.Id == query.RequestId, cancellationToken);
 
         if (dto is null)

@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using FitPass.Application.Common.Models;
+using FitPass.Application.Common.Settings;
 using FitPass.Application.FunctionalTests.Common.Extensions;
 using FitPass.Application.FunctionalTests.Infrastructure.Testing;
 using FitPass.Application.FunctionalTests.TestData;
@@ -238,7 +239,7 @@ public class RegisterGymFromRequestTests : BaseTestFixture
             Type = RequestType.GymCreation,
             PriorityLevel = PriorityLevel.Medium,
             Status = RequestStatus.Submitted,
-            Payload = JsonSerializer.Serialize(createGymDto),
+            Payload = JsonSerializer.Serialize(createGymDto, JsonDefaults.SerializerOptions),
             CreatedBy = pendingGymEmployee.Id,
         };
 

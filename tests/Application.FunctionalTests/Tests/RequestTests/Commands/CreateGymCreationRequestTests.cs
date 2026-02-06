@@ -1,6 +1,7 @@
 using System.Text.Json;
 using FitPass.Application.Common.Exceptions;
 using FitPass.Application.Common.Models;
+using FitPass.Application.Common.Settings;
 using FitPass.Application.FunctionalTests.Common.Extensions;
 using FitPass.Application.FunctionalTests.Infrastructure.Testing;
 using FitPass.Application.FunctionalTests.TestData;
@@ -74,7 +75,10 @@ public class CreateGymCreationRequestTests : BaseTestFixture
             Description = "Existing request",
             PriorityLevel = PriorityLevel.Medium,
             Status = RequestStatus.Submitted,
-            Payload = JsonSerializer.Serialize(TestEntityBuilder.BuildCreateGymDto()),
+            Payload = JsonSerializer.Serialize(
+                TestEntityBuilder.BuildCreateGymDto(),
+                JsonDefaults.SerializerOptions
+            ),
         };
 
         await AddAsync(request);
@@ -122,6 +126,8 @@ public class CreateGymCreationRequestTests : BaseTestFixture
         request.PriorityLevel.ShouldBe(command.PriorityLevel);
         request.Status.ShouldBe(RequestStatus.Submitted);
         request.Payload.ShouldNotBeNull();
-        request.Payload.ShouldBe(JsonSerializer.Serialize(createGymDto));
+        request.Payload.ShouldBe(
+            JsonSerializer.Serialize(createGymDto, JsonDefaults.SerializerOptions)
+        );
     }
 }
