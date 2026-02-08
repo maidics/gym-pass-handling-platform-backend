@@ -3,7 +3,7 @@ using FitPass.Application.Common.Exceptions;
 using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Settings;
 using FitPass.Application.FunctionalTests.Common.Extensions;
-using FitPass.Application.FunctionalTests.Infrastructure.Testing;
+
 using FitPass.Application.Requests.Commands;
 using FitPass.Application.Requests.DTOs;
 using FitPass.Domain.Constants;
@@ -45,7 +45,7 @@ public class CreateGymAdminPromotionRequestTests : BaseTestFixture
 
         var command = new CreateGymAdminPromotionRequestCommand(
             "Title",
-            "userId",
+            "test@email.com",
             "Description",
             PriorityLevel.Medium,
             "supervisor@test.com"
@@ -64,10 +64,10 @@ public class CreateGymAdminPromotionRequestTests : BaseTestFixture
 
         var command = new CreateGymAdminPromotionRequestCommand(
             "Title",
-            user.Id,
+            user.Email!,
             "Description",
             PriorityLevel.High,
-            "escalation@email"
+            "escalation@email.com"
         );
 
         var result = await SendAsync(command);
@@ -83,10 +83,10 @@ public class CreateGymAdminPromotionRequestTests : BaseTestFixture
 
         var command = new CreateGymAdminPromotionRequestCommand(
             "Title",
-            pendingGymEmployee.Id,
+            pendingGymEmployee.Email!,
             "Description",
             PriorityLevel.High,
-            "escalation@email"
+            "escalation@email.com"
         );
 
         var result = await SendAsync(command);
@@ -106,7 +106,7 @@ public class CreateGymAdminPromotionRequestTests : BaseTestFixture
         );
         payload.ShouldNotBeNull();
         payload.GymId.ShouldBe(gymAdminObj.gymEmployment.GymId);
-        payload.PendingGymEmployeeEmail.ShouldBe(pendingGymEmployee.Id);
+        payload.PendingGymEmployeeEmail.ShouldBe(pendingGymEmployee.Email);
         payload.SupervisorEmail.ShouldBe(command.SupervisorEmail);
     }
 }

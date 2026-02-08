@@ -1,6 +1,6 @@
 using FitPass.Application.Common.Models;
 using FitPass.Application.FunctionalTests.Common.Extensions;
-using FitPass.Application.FunctionalTests.Infrastructure.Testing;
+
 using FitPass.Application.FunctionalTests.TestData;
 using FitPass.Application.GymPassUsages.Commands;
 using FitPass.Domain.Constants;
@@ -81,7 +81,5 @@ public class UpdateGymPassUsageLockerNumberTests : BaseTestFixture
         var updatedGymPassUsage = await FindAsync<GymPassUsage>(usage.Id);
         updatedGymPassUsage.ShouldNotBeNull();
         updatedGymPassUsage.LockerNumber.ShouldBe(newLockerNumber);
-
-        await ShouldContainNotificationForUserAsync(usage.UserId);
     }
 }

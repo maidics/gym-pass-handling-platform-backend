@@ -1,6 +1,6 @@
 ﻿using FitPass.Application.Common.Models;
 using FitPass.Application.FunctionalTests.Common.Extensions;
-using FitPass.Application.FunctionalTests.Infrastructure.Testing;
+
 using FitPass.Application.FunctionalTests.TestData;
 using FitPass.Application.TenantPaymentProfiles.DTOs;
 using FitPass.Application.TenantPaymentProfiles.Queries;

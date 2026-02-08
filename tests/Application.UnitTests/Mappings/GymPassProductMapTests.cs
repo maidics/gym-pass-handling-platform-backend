@@ -1,8 +1,8 @@
+using FitPass.Application.GymPassProducts.DTOs;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Entities.Payment;
 using FitPass.Domain.Enums;
 using FitPass.Domain.ValueObjects;
-using FitPass.Application.GymPassProducts.DTOs;
 using NUnit.Framework;
 using Shouldly;
 
@@ -13,7 +13,13 @@ public class GymPassProductMapTests
     [Test]
     public void ShouldMapToDto()
     {
-        var product = GymPassProduct.SingleUse("GymId", "name", "description", true, Money.Usd(10));
+        var product = GymPassProduct.SingleUse(
+            "GymId",
+            "name",
+            "description",
+            true,
+            new Money(10, CurrencyCode.USD)
+        );
 
         var dto = product.MapToDto();
 
@@ -26,6 +32,7 @@ public class GymPassProductMapTests
             () => dto.TotalUses.ShouldBe(1),
             () => dto.DaysAfterExpiring.ShouldBeNull(),
             () => dto.IsActive.ShouldBeTrue(),
-            () => dto.Price.ShouldBeEquivalentTo(Money.Usd(10)));
+            () => dto.Price.ShouldBeEquivalentTo(new Money(10, CurrencyCode.USD))
+        );
     }
 }

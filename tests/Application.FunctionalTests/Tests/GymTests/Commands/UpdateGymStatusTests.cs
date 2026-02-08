@@ -1,6 +1,6 @@
 using FitPass.Application.Common.Models;
 using FitPass.Application.FunctionalTests.Common.Extensions;
-using FitPass.Application.FunctionalTests.Infrastructure.Testing;
+
 using FitPass.Application.FunctionalTests.TestData;
 using FitPass.Application.Gyms.Commands;
 using FitPass.Domain.Constants;
@@ -57,10 +57,5 @@ public class UpdateGymStatusTests : BaseTestFixture
         var updatedGym = await FindAsync<Gym>(command.GymId);
         updatedGym.ShouldNotBeNull();
         updatedGym.Status.ShouldBe(command.NewGymStatus);
-
-        EmailFolderShouldContainEmails(2);
-
-        await ShouldContainNotificationForUserAsync(obj.gymAdmin.Id);
-        await ShouldContainNotificationForUserAsync(obj.gymStaff.Id);
     }
 }

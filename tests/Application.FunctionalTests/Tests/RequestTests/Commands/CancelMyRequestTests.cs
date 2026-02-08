@@ -1,6 +1,6 @@
 ﻿using FitPass.Application.Common.Models;
 using FitPass.Application.FunctionalTests.Common.Extensions;
-using FitPass.Application.FunctionalTests.Infrastructure.Testing;
+
 using FitPass.Application.Requests.Commands;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;

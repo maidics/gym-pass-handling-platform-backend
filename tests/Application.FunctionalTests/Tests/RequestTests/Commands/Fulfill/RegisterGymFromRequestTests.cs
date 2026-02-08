@@ -2,7 +2,7 @@
 using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Settings;
 using FitPass.Application.FunctionalTests.Common.Extensions;
-using FitPass.Application.FunctionalTests.Infrastructure.Testing;
+
 using FitPass.Application.FunctionalTests.TestData;
 using FitPass.Application.Requests.Commands.Fulfill;
 using FitPass.Application.Requests.DTOs;

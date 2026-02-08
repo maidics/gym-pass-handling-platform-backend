@@ -2,7 +2,6 @@
 using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Settings;
 using FitPass.Application.FunctionalTests.Common.Extensions;
-using FitPass.Application.FunctionalTests.Infrastructure.Testing;
 using FitPass.Application.FunctionalTests.TestData;
 using FitPass.Application.Requests.Commands.Fulfill;
 using FitPass.Domain.Constants;
@@ -158,7 +157,7 @@ public class PromotePendingGymEmployeeToGymAdminFromRequestTests : BaseTestFixtu
             Description = "description",
             PriorityLevel = PriorityLevel.Medium,
             Payload = JsonSerializer.Serialize(
-                TestEntityBuilder.CreateGymAdminPromotionDto("GymId", user.Id),
+                TestEntityBuilder.CreateGymAdminPromotionDto("GymId", user.Email!),
                 JsonDefaults.SerializerOptions
             ),
         };
@@ -219,7 +218,7 @@ public class PromotePendingGymEmployeeToGymAdminFromRequestTests : BaseTestFixtu
             Description = "description",
             PriorityLevel = PriorityLevel.Medium,
             Payload = JsonSerializer.Serialize(
-                TestEntityBuilder.CreateGymAdminPromotionDto(obj.gym.Id, pendingGymEmployee.Id),
+                TestEntityBuilder.CreateGymAdminPromotionDto(obj.gym.Id, pendingGymEmployee.Email!),
                 JsonDefaults.SerializerOptions
             ),
         };

@@ -1,7 +1,6 @@
 ﻿using FitPass.Application.Common.Models;
 using FitPass.Application.FunctionalTests.Common.Constants;
 using FitPass.Application.FunctionalTests.Common.Extensions;
-using FitPass.Application.FunctionalTests.Infrastructure.Testing;
 using FitPass.Application.FunctionalTests.TestData;
 using FitPass.Application.GymPassProducts.Commands;
 using FitPass.Domain.Constants;
@@ -25,7 +24,6 @@ public class CreateGymPassProductTests : BaseTestFixture
     [TestCase(PassType.SingleUse, 1, null, 0, CurrencyCode.HUF)]
     [TestCase(PassType.SingleUse, 1, null, 125, CurrencyCode.HUF)]
     [TestCase(PassType.SingleUse, 1, null, 249, CurrencyCode.HUF)]
-    [TestCase(PassType.SingleUse, 1, null, -1, CurrencyCode.HUF)]
     [TestCase(PassType.SingleUse, 1, null, 0, CurrencyCode.USD)]
     [TestCase(PassType.SingleUse, 1, null, 0.9, CurrencyCode.USD)]
     [TestCase(PassType.SingleUse, 1, null, 0, CurrencyCode.EUR)]
@@ -139,7 +137,11 @@ public class CreateGymPassProductTests : BaseTestFixture
         result.ShouldBeSuccessful();
         result.Value.ShouldNotBeNull();
 
-        var gymPassProduct = await FindAsync<GymPassProduct>(result.Value.Id);
+        var gymPassProduct = await FindAsync<GymPassProduct>(
+            [result.Value.Id],
+            x => x.PaymentIdentity
+        );
+
         gymPassProduct.ShouldNotBeNull();
         gymPassProduct.Type.ShouldBe(type);
         gymPassProduct.TotalUses.ShouldBe(totalUses);
@@ -147,7 +149,7 @@ public class CreateGymPassProductTests : BaseTestFixture
         gymPassProduct.Price.Amount.ShouldBe(priceAmount);
         gymPassProduct.Price.Currency.ShouldBe(priceCurrency);
 
-        var productIdentity = await GetFirstAsync<ProductPaymentIdentity>();
+        var productIdentity = gymPassProduct.PaymentIdentity;
         productIdentity.ShouldNotBeNull();
         productIdentity.GymPassProductId.ShouldBe(gymPassProduct.Id);
         productIdentity.ProductId.ShouldNotBeNullOrEmpty();

@@ -48,7 +48,9 @@ app.Map("/", () => Results.Redirect("/api"));
 
 app.MapEndpoints();
 
-var cultureSettings = app.Configuration.GetSection(ConfigurationSections.Cultures).Get<CultureSettings>();
+var cultureSettings = app
+    .Configuration.GetSection(ConfigurationSections.Cultures)
+    .Get<CultureSettings>();
 Guard.Against.Null(cultureSettings);
 var localizationOptions = new RequestLocalizationOptions()
     .SetDefaultCulture(cultureSettings.DefaultCulture)

@@ -11,7 +11,13 @@ public class GymPassProductTests
     [Test]
     public void ShouldReturnSingleUsePass()
     {
-        var product = GymPassProduct.SingleUse("gymId", "name", "description", false, Money.Usd(10));
+        var product = GymPassProduct.SingleUse(
+            "gymId",
+            "name",
+            "description",
+            false,
+            new Money(10, CurrencyCode.USD)
+        );
 
         product.ShouldSatisfyAllConditions(
             () => product.GymId.ShouldBe("gymId"),
@@ -21,13 +27,21 @@ public class GymPassProductTests
             () => product.TotalUses.ShouldBe(1),
             () => product.DaysAfterExpires.ShouldBeNull(),
             () => product.IsActive.ShouldBeFalse(),
-            () => product.Price.ShouldBe(Money.Usd(10)));
+            () => product.Price.ShouldBe(new Money(10, CurrencyCode.USD))
+        );
     }
 
     [Test]
     public void ShouldReturnMultiUsePass()
     {
-        var product = GymPassProduct.MultiUse("gymId", "name", "description", 5, true, Money.Usd(10));
+        var product = GymPassProduct.MultiUse(
+            "gymId",
+            "name",
+            "description",
+            5,
+            true,
+            new Money(10, CurrencyCode.USD)
+        );
 
         product.ShouldSatisfyAllConditions(
             () => product.GymId.ShouldBe("gymId"),
@@ -37,13 +51,21 @@ public class GymPassProductTests
             () => product.TotalUses.ShouldBe(5),
             () => product.DaysAfterExpires.ShouldBeNull(),
             () => product.IsActive.ShouldBeTrue(),
-            () => product.Price.ShouldBe(Money.Usd(10)));
+            () => product.Price.ShouldBe(new Money(10, CurrencyCode.USD))
+        );
     }
 
     [Test]
     public void ShouldReturnUnlimitedUsePass()
     {
-        var product = GymPassProduct.UnlimitedUse("gymId", "name", "description", 5, false, Money.Usd(10));
+        var product = GymPassProduct.UnlimitedUse(
+            "gymId",
+            "name",
+            "description",
+            5,
+            false,
+            new Money(10, CurrencyCode.USD)
+        );
 
         product.ShouldSatisfyAllConditions(
             () => product.GymId.ShouldBe("gymId"),
@@ -53,13 +75,21 @@ public class GymPassProductTests
             () => product.TotalUses.ShouldBeNull(),
             () => product.DaysAfterExpires.ShouldBe(5),
             () => product.IsActive.ShouldBeFalse(),
-            () => product.Price.ShouldBe(Money.Usd(10)));
+            () => product.Price.ShouldBe(new Money(10, CurrencyCode.USD))
+        );
     }
 
     [Test]
     public void ShouldUpdateTotalUses()
     {
-        var product = GymPassProduct.MultiUse("gymId", "name", "description", 6, false, Money.Usd(10));
+        var product = GymPassProduct.MultiUse(
+            "gymId",
+            "name",
+            "description",
+            6,
+            false,
+            new Money(10, CurrencyCode.USD)
+        );
 
         product.UpdateTotalUsesIfApplicable(10);
 
@@ -69,7 +99,13 @@ public class GymPassProductTests
     [Test]
     public void ShouldNotUpdateTotalUses()
     {
-        var product = GymPassProduct.SingleUse("gymId", "name", "description", false, Money.Usd(10));
+        var product = GymPassProduct.SingleUse(
+            "gymId",
+            "name",
+            "description",
+            false,
+            new Money(10, CurrencyCode.USD)
+        );
 
         product.UpdateTotalUsesIfApplicable(10);
 
@@ -81,7 +117,14 @@ public class GymPassProductTests
     {
         var utcNow = DateTimeOffset.UtcNow;
 
-        var product = GymPassProduct.UnlimitedUse("gymId", "name", "description", 5, false, Money.Eur(10));
+        var product = GymPassProduct.UnlimitedUse(
+            "gymId",
+            "name",
+            "description",
+            5,
+            false,
+            new Money(10, CurrencyCode.EUR)
+        );
 
         var expirationDate = product.GetExpirationDate(utcNow);
 
@@ -91,7 +134,13 @@ public class GymPassProductTests
     [Test]
     public void ShouldReturnGymMembershipPass()
     {
-        var product = GymPassProduct.SingleUse("gymId", "name", "description", false, Money.Usd(10));
+        var product = GymPassProduct.SingleUse(
+            "gymId",
+            "name",
+            "description",
+            false,
+            new Money(10, CurrencyCode.USD)
+        );
 
         var utcNow = DateTimeOffset.UtcNow;
 

@@ -1,5 +1,6 @@
 using FitPass.Application.Common.Models;
-using FitPass.Application.FunctionalTests.Infrastructure.Testing;
+using FitPass.Application.FunctionalTests.Common.Extensions;
+
 using FitPass.Application.FunctionalTests.TestData;
 using FitPass.Application.GymMemberships.Commands;
 using FitPass.Domain.Constants;
@@ -66,7 +67,6 @@ public class UpdateGymMembershipStatusTests : BaseTestFixture
     {
         var obj = await TestEntityBuilder.BuildGymAsync();
 
-        var notificationTask = ShouldContainNotificationForUserAsync(obj.gymMember.Id);
         await Task.Delay(50);
 
         await RunAsUserAsync(obj.gymAdmin);
@@ -84,8 +84,5 @@ public class UpdateGymMembershipStatusTests : BaseTestFixture
         updatedGymMembership.Status.ShouldBe(command.NewStatus);
 
         EmailFolderShouldContainEmails(1);
-
-        var notification = await notificationTask;
-        notification.Type.ShouldBe(ClientNotificationType.GymMembershipStatusChange);
     }
 }

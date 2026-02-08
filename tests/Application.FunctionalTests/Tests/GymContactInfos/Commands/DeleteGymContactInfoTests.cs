@@ -1,4 +1,5 @@
-﻿using FitPass.Application.FunctionalTests.Infrastructure.Testing;
+﻿using FitPass.Application.FunctionalTests.Common.Extensions;
+
 using FitPass.Application.FunctionalTests.TestData;
 using FitPass.Application.GymContactInfos.Commands;
 using FitPass.Domain.Constants;
@@ -19,6 +20,8 @@ public class DeleteGymContactInfoTests : BaseTestFixture
     [Test]
     public async Task ShouldThrowIfParametersAreInvalid()
     {
+        await RunAsGymEmployeeAsync(Roles.GymAdministrator);
+
         var command = new DeleteGymContactInfoCommand(string.Empty);
 
         await ShouldThrowIfParametersAreInvalidAsync(command);

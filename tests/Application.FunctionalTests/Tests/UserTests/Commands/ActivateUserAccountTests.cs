@@ -1,5 +1,5 @@
 ﻿using FitPass.Application.FunctionalTests.Common.Extensions;
-using FitPass.Application.FunctionalTests.Infrastructure.Testing;
+
 
 namespace FitPass.Application.FunctionalTests.Tests.UserTests.Commands;
 

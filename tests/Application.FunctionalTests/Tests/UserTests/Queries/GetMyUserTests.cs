@@ -1,4 +1,4 @@
-﻿using FitPass.Application.FunctionalTests.Infrastructure.Testing;
+﻿
 using FitPass.Application.Users.Queries;
 using FitPass.Domain.Constants;
 
