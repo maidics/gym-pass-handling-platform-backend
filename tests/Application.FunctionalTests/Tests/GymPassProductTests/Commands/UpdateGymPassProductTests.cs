@@ -1,7 +1,6 @@
 ﻿using FitPass.Application.Common.Models;
 using FitPass.Application.FunctionalTests.Common.Constants;
 using FitPass.Application.FunctionalTests.Common.Extensions;
-using FitPass.Application.FunctionalTests.Infrastructure.Testing;
 using FitPass.Application.FunctionalTests.TestData;
 using FitPass.Application.GymPassProducts.Commands;
 using FitPass.Domain.Constants;
@@ -23,16 +22,6 @@ public class UpdateGymPassProductTests : BaseTestFixture
         ShouldRequireAuthorization<UpdateGymPassProductCommand>(Roles.GymAdministrator);
     }
 
-    [TestCase(
-        "",
-        PassType.SingleUse,
-        "Product Name",
-        "Product Description",
-        10,
-        CurrencyCode.USD,
-        1,
-        null
-    )]
     [TestCase("id", PassType.SingleUse, "", "Product Description", 10, CurrencyCode.USD, 1, null)]
     [TestCase("id", PassType.SingleUse, "Product Name", "", 10, CurrencyCode.USD, 1, null)]
     [TestCase(
@@ -153,7 +142,7 @@ public class UpdateGymPassProductTests : BaseTestFixture
     }
 
     [Test]
-    public async Task ShouldReturnBusinessRuleViolationIfGymHasNoPaymentProfile()
+    public async Task ShouldThrowIfGymHasNoPaymentProfile()
     {
         var obj = await TestEntityBuilder.BuildGymAsync();
 
@@ -169,8 +158,7 @@ public class UpdateGymPassProductTests : BaseTestFixture
             null
         );
 
-        var result = await SendAsync(command);
-        result.ShouldBeFailed(ResultTypes.BusinessRuleViolation);
+        await Should.ThrowAsync<ArgumentNullException>(SendAsync(command));
     }
 
     [Test]
@@ -192,6 +180,18 @@ public class UpdateGymPassProductTests : BaseTestFixture
 
         var result = await SendAsync(command);
         result.ShouldBeFailed(ResultTypes.NotFound);
+    }
+
+    [Test]
+    public async Task ShouldThrowIfProductHasNoPaymentIdentity()
+    {
+        var obj = await TestEntityBuilder.BuildGymAsync();
+
+        await RunAsUserAsync(obj.gymAdmin);
+
+        var command = new UpdateGymPassProductActiveStatusCommand(obj.gymPassProduct.Id, false);
+
+        await Should.ThrowAsync<ArgumentNullException>(SendAsync(command));
     }
 
     [TestCase(
@@ -240,7 +240,7 @@ public class UpdateGymPassProductTests : BaseTestFixture
     )
     {
         var obj = await TestEntityBuilder.BuildGymWithTenantPaymentProfileAsync();
-        var product = await TestEntityBuilder.BuildGymPassProduct(
+        var product = await TestEntityBuilder.BuildGymPassProductWithPaymentProfile(
             obj.gymAdmin,
             new Money(10, CurrencyCode.USD),
             type: passType,
@@ -294,7 +294,7 @@ public class UpdateGymPassProductTests : BaseTestFixture
     {
         var obj = await TestEntityBuilder.BuildGymWithTenantPaymentProfileAsync();
 
-        var product = await TestEntityBuilder.BuildGymPassProduct(
+        var product = await TestEntityBuilder.BuildGymPassProductWithPaymentProfile(
             obj.gymAdmin,
             new Money(10, CurrencyCode.USD)
         );

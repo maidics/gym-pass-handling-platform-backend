@@ -1,4 +1,4 @@
-﻿using FitPass.Application.FunctionalTests.Infrastructure.Testing;
+﻿
 using FitPass.Application.FunctionalTests.TestData;
 using FitPass.Application.GymMembershipPasses.Queries;
 using FitPass.Domain.Constants;
@@ -25,7 +25,7 @@ public class GetMyGymMembershipPassesTests : BaseTestFixture
 
         var result = await SendAsync(new GetMyGymMembershipPassesQuery());
         result.ShouldNotBeNull();
-        result.Count.ShouldBe(2);
-        result.Count(x => x.Type is PassType.SingleUse or PassType.Unlimited).ShouldBe(2);
+        result.Count.ShouldBe(3);
+        result.Count(x => x.Type is PassType.SingleUse or PassType.Unlimited).ShouldBe(3);
     }
 }

@@ -185,6 +185,8 @@ public class UpdateGymPassProductCommandHandler
             return Result.NotFound(_localizer.GetNotFound(nameof(SharedResource.GymPassProduct)));
         }
 
+        Guard.Against.Null(product.PaymentIdentity, nameof(ProductPaymentIdentity));
+
         if (product.Type != command.Type)
         {
             return Result.BusinessRuleViolation("");

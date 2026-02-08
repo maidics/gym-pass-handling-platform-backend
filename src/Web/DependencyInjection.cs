@@ -18,48 +18,62 @@ public static class DependencyInjection
         builder.Services.AddScoped<IUser, CurrentUser>();
 
         builder.Services.AddHttpContextAccessor();
-        builder.Services.AddHealthChecks()
-            .AddDbContextCheck<ApplicationDbContext>();
+        builder.Services.AddHealthChecks().AddDbContextCheck<ApplicationDbContext>();
 
         builder.Services.AddExceptionHandler<CustomExceptionHandler>();
-        
+
         // Customise default API behaviour
         builder.Services.Configure<ApiBehaviorOptions>(options =>
-            options.SuppressModelStateInvalidFilter = true);
+            options.SuppressModelStateInvalidFilter = true
+        );
 
         builder.Services.AddEndpointsApiExplorer();
 
         //Json - Enum converter: strings only
         builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(options =>
         {
-            options.SerializerOptions.Converters.Add(new JsonStringEnumConverter(namingPolicy: null, allowIntegerValues: false));
+            options.SerializerOptions.Converters.Add(
+                new JsonStringEnumConverter(namingPolicy: null, allowIntegerValues: false)
+            );
         });
 
-        builder.Services.AddOpenApiDocument((configure, sp) =>
-        {
-            configure.Title = "FitPass API";
-
-            // Add JWT
-            configure.AddSecurity("JWT", Enumerable.Empty<string>(), new OpenApiSecurityScheme
+        builder.Services.AddOpenApiDocument(
+            (configure, sp) =>
             {
-                Type = OpenApiSecuritySchemeType.ApiKey,
-                Name = "Authorization",
-                In = OpenApiSecurityApiKeyLocation.Header,
-                Description = "Type into the textbox: Bearer {your JWT token}."
-            });
+                configure.Title = "FitPass API";
 
-            configure.OperationProcessors.Add(new AspNetCoreOperationSecurityScopeProcessor("JWT"));
-        });
+                // Add JWT
+                configure.AddSecurity(
+                    "JWT",
+                    Enumerable.Empty<string>(),
+                    new OpenApiSecurityScheme
+                    {
+                        Type = OpenApiSecuritySchemeType.ApiKey,
+                        Name = "Authorization",
+                        In = OpenApiSecurityApiKeyLocation.Header,
+                        Description = "Type into the textbox: Bearer {your JWT token}.",
+                    }
+                );
+
+                configure.OperationProcessors.Add(
+                    new AspNetCoreOperationSecurityScopeProcessor("JWT")
+                );
+            }
+        );
 
         builder.Services.AddCors(options =>
         {
-            options.AddPolicy("AllowFrontend", corsBuilder =>
-            {
-                corsBuilder.WithOrigins("http://localhost:5173")
-                    .AllowAnyHeader()
-                    .AllowAnyMethod()
-                    .AllowCredentials();
-            });
+            options.AddPolicy(
+                "AllowFrontend",
+                corsBuilder =>
+                {
+                    corsBuilder
+                        .WithOrigins("http://localhost:5173")
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .AllowCredentials();
+                }
+            );
         });
 
         builder.Services.AddScoped<StripeWebHookSignatureFilter>();
@@ -68,10 +82,12 @@ public static class DependencyInjection
         builder.Services.AddSingleton<ClientNotificationService>();
 
         builder.Services.AddSingleton<IClientNotificationSender>(provider =>
-            provider.GetRequiredService<ClientNotificationService>());
+            provider.GetRequiredService<ClientNotificationService>()
+        );
 
-        builder.Services.AddSingleton<IClientNotificationStreamer>(provider => 
-            provider.GetRequiredService<ClientNotificationService>());
+        builder.Services.AddSingleton<IClientNotificationStreamer>(provider =>
+            provider.GetRequiredService<ClientNotificationService>()
+        );
     }
 
     public static void AddKeyVaultIfConfigured(this IHostApplicationBuilder builder)
@@ -81,7 +97,8 @@ public static class DependencyInjection
         {
             builder.Configuration.AddAzureKeyVault(
                 new Uri(keyVaultUri),
-                new DefaultAzureCredential());
+                new DefaultAzureCredential()
+            );
         }
     }
 }

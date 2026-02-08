@@ -1,5 +1,5 @@
 using System;
-using FitPass.Application.FunctionalTests.Infrastructure.Testing;
+
 using FitPass.Application.FunctionalTests.TestData;
 using FitPass.Application.Gyms.Queries;
 

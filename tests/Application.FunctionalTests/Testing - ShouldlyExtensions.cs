@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
 using FitPass.Application.Common.Security;
 
-namespace FitPass.Application.FunctionalTests.Infrastructure.Testing;
+namespace FitPass.Application.FunctionalTests;
 
 public partial class Testing
 {

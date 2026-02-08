@@ -1,5 +1,4 @@
-﻿using FitPass.Application.FunctionalTests.Infrastructure.Testing;
-using FitPass.Application.GymPassProducts.Commands;
+﻿using FitPass.Application.GymPassProducts.Commands;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
 using FitPass.Domain.ValueObjects;
@@ -11,7 +10,7 @@ using static Testing;
 
 public partial class TestEntityBuilder
 {
-    public static async Task<GymPassProduct> BuildGymPassProduct(
+    public static async Task<GymPassProduct> BuildGymPassProductWithPaymentProfile(
         ApplicationUser gymAdmin,
         Money price,
         string name = "Test Gym Pass Product",
@@ -36,7 +35,7 @@ public partial class TestEntityBuilder
 
         var result = await SendAsync(command);
 
-        var product = await FindAsync<GymPassProduct>(result.Value.Id);
+        var product = await FindAsync<GymPassProduct>([result.Value.Id], x => x.PaymentIdentity);
 
         Guard.Against.Null(product);
 

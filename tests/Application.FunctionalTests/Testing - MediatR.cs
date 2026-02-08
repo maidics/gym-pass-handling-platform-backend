@@ -2,7 +2,7 @@
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace FitPass.Application.FunctionalTests.Infrastructure.Testing;
+namespace FitPass.Application.FunctionalTests;
 
 public partial class Testing
 {

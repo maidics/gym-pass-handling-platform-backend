@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
-namespace FitPass.Application.FunctionalTests.Infrastructure.Testing;
+namespace FitPass.Application.FunctionalTests;
 
 public partial class Testing
 {

@@ -6,11 +6,11 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Respawn;
 using Testcontainers.MsSql;
 
-namespace FitPass.Application.FunctionalTests.Infrastructure;
+namespace FitPass.Application.FunctionalTests;
 
 public class SqlTestcontainersTestDatabase : ITestDatabase
 {
-    private const string DefaultDatabase = "FitPassTestDb";
+    private const string DefaultDatabase = "CleanArchitectureTestDb";
     private readonly MsSqlContainer _container;
     private DbConnection _connection = null!;
     private string _connectionString = null!;
@@ -18,7 +18,9 @@ public class SqlTestcontainersTestDatabase : ITestDatabase
 
     public SqlTestcontainersTestDatabase()
     {
-        _container = new MsSqlBuilder().WithAutoRemove(true).Build();
+        _container = new MsSqlBuilder()
+            .WithAutoRemove(true)
+            .Build();
     }
 
     public async Task InitialiseAsync()
@@ -28,7 +30,7 @@ public class SqlTestcontainersTestDatabase : ITestDatabase
 
         var builder = new SqlConnectionStringBuilder(_container.GetConnectionString())
         {
-            InitialCatalog = DefaultDatabase,
+            InitialCatalog = DefaultDatabase
         };
 
         _connectionString = builder.ConnectionString;
@@ -37,9 +39,7 @@ public class SqlTestcontainersTestDatabase : ITestDatabase
 
         var options = new DbContextOptionsBuilder<ApplicationDbContext>()
             .UseSqlServer(_connectionString)
-            .ConfigureWarnings(warnings =>
-                warnings.Log(RelationalEventId.PendingModelChangesWarning)
-            )
+            .ConfigureWarnings(warnings => warnings.Log(RelationalEventId.PendingModelChangesWarning))
             .Options;
 
         var context = new ApplicationDbContext(options);
@@ -47,10 +47,20 @@ public class SqlTestcontainersTestDatabase : ITestDatabase
         await context.Database.EnsureDeletedAsync();
         await context.Database.EnsureCreatedAsync();
 
-        _respawner = await Respawner.CreateAsync(
-            _connectionString,
-            new RespawnerOptions { TablesToIgnore = [new("AspNetRoles"), new("AspNetRoleClaims")] }
-        );
+        _respawner = await Respawner.CreateAsync(_connectionString/* new RespawnerOptions
+        {
+            TablesToIgnore =
+            [
+                new("AspNetRoles"),
+                new("AspNetRoleClaims"),
+                new("AspNetUsers"),
+                new("AspNetUserClaims"),
+                new("AspNetUserLogins"),
+                new("AspNetUserTokens"),
+                new("AspNetUserRoles"),
+                new("__EFMigrationsHistory")
+            ]
+        }*/);
     }
 
     public DbConnection GetConnection()

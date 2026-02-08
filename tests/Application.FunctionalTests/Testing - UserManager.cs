@@ -3,7 +3,7 @@ using FitPass.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace FitPass.Application.FunctionalTests.Infrastructure.Testing;
+namespace FitPass.Application.FunctionalTests;
 
 public partial class Testing
 {
@@ -16,7 +16,7 @@ public partial class Testing
     {
         if (email is null)
         {
-            email = $"{Guid.NewGuid()}@test";
+            email = $"{Guid.NewGuid()}@test.com";
         }
 
         using var scope = _scopeFactory.CreateScope();

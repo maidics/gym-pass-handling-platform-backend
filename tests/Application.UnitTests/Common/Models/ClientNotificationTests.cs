@@ -10,14 +10,12 @@ public class ClientNotificationTests
     [Test]
     public void ShouldCreateClientNotification()
     {
-        var notification1 = ClientNotification.Create("message", ClientNotificationType.Default);
+        var notification1 = new ClientNotification
+        {
+            Message = "message",
+            Type = ClientNotificationType.Default,
+        };
         notification1.Message.ShouldBe("message");
         notification1.Type.ShouldBe(ClientNotificationType.Default);
-
-        var notification2 = ClientNotification.Create("message", ClientNotificationType.Default, "payload");
-        notification2.Message.ShouldBe("message");
-        notification2.Type.ShouldBe(ClientNotificationType.Default);
-        notification2.Payload.ShouldNotBeNull();
-        notification2.Payload.ShouldBe("payload");
     }
 }

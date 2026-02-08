@@ -1,4 +1,4 @@
-﻿namespace FitPass.Application.FunctionalTests.Infrastructure;
+﻿namespace FitPass.Application.FunctionalTests;
 
 public static class TestDatabaseFactory
 {

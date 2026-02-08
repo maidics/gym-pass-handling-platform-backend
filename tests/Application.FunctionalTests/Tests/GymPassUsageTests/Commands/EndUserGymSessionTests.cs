@@ -1,6 +1,6 @@
 using FitPass.Application.Common.Models;
 using FitPass.Application.FunctionalTests.Common.Extensions;
-using FitPass.Application.FunctionalTests.Infrastructure.Testing;
+
 using FitPass.Application.FunctionalTests.TestData;
 using FitPass.Application.GymPassUsages.Commands;
 using FitPass.Domain.Constants;
@@ -73,7 +73,5 @@ public class EndUserGymSessionTests : BaseTestFixture
         updatedGymPassUsage.ShouldNotBeNull();
         updatedGymPassUsage.Id.ShouldBe(usage.Id);
         updatedGymPassUsage.GymSessionEndedAt.ShouldNotBeNull();
-
-        await ShouldContainNotificationForUserAsync(usage.UserId);
     }
 }

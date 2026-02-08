@@ -1,5 +1,6 @@
 using FitPass.Application.Common.Models;
-using FitPass.Application.FunctionalTests.Infrastructure.Testing;
+using FitPass.Application.FunctionalTests.Common.Extensions;
+
 using FitPass.Application.FunctionalTests.TestData;
 using FitPass.Application.GymMembershipPasses.Commands;
 using FitPass.Domain.Constants;
@@ -50,13 +51,14 @@ public class GymEmployeeUseGymMembershipPassTests : BaseTestFixture
     [Test]
     public async Task ShouldReturnNotFoundIfPassBelongsToAnotherUser()
     {
-        var obj = await TestEntityBuilder.BuildGymAsync();
+        var obj1 = await TestEntityBuilder.BuildGymAsync();
+        var obj2 = await TestEntityBuilder.BuildGymAsync();
 
-        await RunAsGymEmployeeAsync(Roles.GymAdministrator);
+        await RunAsUserAsync(obj1.gymAdmin);
 
         var command = new GymEmployeeUseGymMembershipPassCommand(
-            obj.singleUsePass.Id,
-            obj.gymMember.Id,
+            obj1.singleUsePass.Id,
+            obj2.gymMember.Id,
             "2"
         );
 

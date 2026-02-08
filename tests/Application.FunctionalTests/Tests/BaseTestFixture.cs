@@ -1,6 +1,7 @@
-﻿using FitPass.Application.FunctionalTests.Infrastructure.Testing;
+﻿
 
 namespace FitPass.Application.FunctionalTests.Tests;
+
 
 using static Testing;
 

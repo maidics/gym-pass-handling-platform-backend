@@ -1,6 +1,6 @@
+using FitPass.Application.TenantPaymentProfiles.DTOs;
 using FitPass.Domain.Entities.Payment;
 using NUnit.Framework;
-using FitPass.Application.TenantPaymentProfiles.DTOs;
 using Shouldly;
 
 namespace FitPass.Application.UnitTests.Mappings;
@@ -15,22 +15,17 @@ public class TenantPaymentProfileMapTests
         var profile = new TenantPaymentProfile
         {
             GymId = "GymId",
-            AccountStatus = TenantPaymentAccountStatus.Default(),
-            LastUpdatedByOnPaymentProvidersSide = null,
-            LastUpdatedOnPaymentProvidersSide = now,
             LastAccountLinkGeneratedOn = now,
             LastAccountLinkGeneratedBy = null,
-            PaymentAccountId = "id"
+            PaymentAccountId = "id",
         };
 
         var dto = profile.MapToDto();
 
         dto.ShouldSatisfyAllConditions(
             () => dto.GymId.ShouldBe("GymId"),
-            () => dto.AccountStatus.ShouldBeEquivalentTo(profile.AccountStatus.MapToDto()),
-            () => dto.LastUpdatedByOnPaymentProvidersSide.ShouldBeNull(),
-            () => dto.LastUpdatedOnPaymentProvidersSide.ShouldBe(now),
             () => dto.LastAccountLinkGeneratedOn.ShouldBe(now),
-            () => dto.LastAccountLinkGeneratedBy.ShouldBeNull());
+            () => dto.LastAccountLinkGeneratedBy.ShouldBeNull()
+        );
     }
 }

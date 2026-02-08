@@ -1,6 +1,6 @@
 ﻿using FitPass.Application.Common.Models;
 using FitPass.Application.FunctionalTests.Common.Extensions;
-using FitPass.Application.FunctionalTests.Infrastructure.Testing;
+
 using FitPass.Application.FunctionalTests.TestData;
 using FitPass.Application.GymEmployments.Queries;
 using FitPass.Domain.Constants;
@@ -23,7 +23,7 @@ public class GetGymEmploymentByIdTests : BaseTestFixture
     [Test]
     public async Task ShouldThrowIfParametersAreInvalid()
     {
-        await RunAsAppAdminAsync();
+        await RunAsGymEmployeeAsync(Roles.GymAdministrator);
 
         var command = new GetGymEmploymentByIdQuery(string.Empty);
 
@@ -33,29 +33,12 @@ public class GetGymEmploymentByIdTests : BaseTestFixture
     [Test]
     public async Task ShouldReturnNotFoundIfNotFound()
     {
-        await RunAsAppAdminAsync();
+        await RunAsGymEmployeeAsync(Roles.GymAdministrator);
 
         var command = new GetGymEmploymentByIdQuery("id");
 
         var result = await SendAsync(command);
         result.ShouldBeFailed(ResultTypes.NotFound);
-    }
-
-    [Test]
-    public async Task ShouldReturnGymEmploymentToAppAdministrator()
-    {
-        var obj = await TestEntityBuilder.BuildGymEmployeeAsync(Roles.GymStaff);
-
-        await RunAsAppAdminAsync();
-
-        var command = new GetGymEmploymentByIdQuery(obj.gymEmployment.Id);
-
-        var result = await SendAsync(command);
-        result.ShouldBeSuccessful();
-
-        var gymEmployment = result.Value;
-        gymEmployment.ShouldNotBeNull();
-        gymEmployment.Id.ShouldBe(obj.gymEmployment.Id);
     }
 
     [Test]

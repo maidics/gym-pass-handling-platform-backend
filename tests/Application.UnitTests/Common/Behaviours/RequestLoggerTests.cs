@@ -1,6 +1,5 @@
-﻿using FitPass.Application.Common.Behaviours;
-using FitPass.Application.Common.Interfaces;
-using FitPass.Application.UserProfiles.Queries;
+﻿using FitPass.Application.Common.Interfaces;
+using FitPass.Application.Users.Queries;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
@@ -9,14 +8,14 @@ namespace FitPass.Application.UnitTests.Common.Behaviours;
 
 public class RequestLoggerTests
 {
-    private Mock<ILogger<GetMyUserProfileQuery>> _logger = null!;
+    private Mock<ILogger<GetMyUserQuery>> _logger = null!;
     private Mock<IUser> _user = null!;
     private Mock<IIdentityService> _identityService = null!;
 
     [SetUp]
     public void Setup()
     {
-        _logger = new Mock<ILogger<GetMyUserProfileQuery>>();
+        _logger = new Mock<ILogger<GetMyUserQuery>>();
         _user = new Mock<IUser>();
         _identityService = new Mock<IIdentityService>();
     }

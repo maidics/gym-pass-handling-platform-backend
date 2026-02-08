@@ -1,6 +1,5 @@
 using System.Text.Json;
 using FitPass.Application.Common.Settings;
-using FitPass.Application.FunctionalTests.Infrastructure.Testing;
 using FitPass.Application.Requests.DTOs;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
@@ -48,20 +47,20 @@ public partial class TestEntityBuilder
             Address = new Address("line1", "line2", "city", null, "postalCode", "HU"),
             Status = GymStatus.Active,
             Tier = GymTier.Local,
-            SupervisorEmail = "escalation@email",
+            SupervisorEmail = "escalation@email.com",
         };
     }
 
     public static GymAdminPromotionDto CreateGymAdminPromotionDto(
         string gymId,
-        string userId,
-        string supervisorEmail = "escalation@test"
+        string pendingGymEmployeeEmail,
+        string supervisorEmail = "escalation@test.com"
     )
     {
         return new GymAdminPromotionDto
         {
             GymId = gymId,
-            PendingGymEmployeeEmail = userId,
+            PendingGymEmployeeEmail = pendingGymEmployeeEmail,
             SupervisorEmail = supervisorEmail,
         };
     }

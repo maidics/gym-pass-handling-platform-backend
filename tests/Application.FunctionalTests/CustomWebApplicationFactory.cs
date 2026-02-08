@@ -15,15 +15,17 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Stripe;
 
-namespace FitPass.Application.FunctionalTests.Infrastructure;
+namespace FitPass.Application.FunctionalTests;
 
-using static Testing.Testing;
+using static Testing;
 
 public class CustomWebApplicationFactory : WebApplicationFactory<Program>
 {
     private readonly IContainer _stripeContainer = new ContainerBuilder()
         .WithImage("stripe/stripe-mock:latest")
         .WithPortBinding(12111, true)
+        //.WithWitStrategy(Wait.ForUnixContainer().UntilInternalTcpPortIsAvailable(12111))
+        
         .WithWaitStrategy(
             Wait.ForUnixContainer()
                 .UntilHttpRequestIsSucceeded(r =>
@@ -32,6 +34,7 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
                         .ForStatusCode(System.Net.HttpStatusCode.Unauthorized)
                 )
         )
+        
         .Build();
 
     private readonly DbConnection _connection;

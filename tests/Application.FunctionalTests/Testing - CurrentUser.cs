@@ -4,7 +4,7 @@ using FitPass.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace FitPass.Application.FunctionalTests.Infrastructure.Testing;
+namespace FitPass.Application.FunctionalTests;
 
 public partial class Testing
 {

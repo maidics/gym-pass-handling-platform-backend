@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Respawn;
 
-namespace FitPass.Application.FunctionalTests.Infrastructure;
+namespace FitPass.Application.FunctionalTests;
 
 public class SqlTestDatabase : ITestDatabase
 {
@@ -40,7 +40,7 @@ public class SqlTestDatabase : ITestDatabase
         await context.Database.EnsureDeletedAsync();
         await context.Database.EnsureCreatedAsync();
 
-        _respawner = await Respawner.CreateAsync(_connectionString);
+        _respawner = await Respawner.CreateAsync(_connection);
     }
 
     public DbConnection GetConnection()
@@ -55,7 +55,7 @@ public class SqlTestDatabase : ITestDatabase
 
     public async Task ResetAsync()
     {
-        await _respawner.ResetAsync(_connectionString);
+        await _respawner.ResetAsync(_connection);
     }
 
     public async Task DisposeAsync()

@@ -7,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Stripe;
 
-namespace FitPass.Application.FunctionalTests.Infrastructure.Testing;
+namespace FitPass.Application.FunctionalTests;
 
 [SetUpFixture]
 public partial class Testing
@@ -23,17 +23,20 @@ public partial class Testing
     {
         Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Testing");
 
+        TestContext.Progress.WriteLine("Creating DB...");
         _database = await TestDatabaseFactory.CreateAsync();
+        TestContext.Progress.WriteLine("DB created.");
 
         _factory = new CustomWebApplicationFactory(
             _database.GetConnection(),
             _database.GetConnectionString()
         );
+
+        TestContext.Progress.WriteLine("Starting stripe...");
         await _factory.InitialiseStripeAsync();
+        TestContext.Progress.WriteLine("Stripe started.");
 
         _scopeFactory = _factory.Services.GetRequiredService<IServiceScopeFactory>();
-
-        await SeedRolesIfNotExist();
 
         using var scope = _scopeFactory.CreateScope();
         var stripeClient = scope.ServiceProvider.GetRequiredService<IStripeClient>();
@@ -126,6 +129,7 @@ public partial class Testing
         catch (Exception) { }
 
         LogOutCurrentUser();
+        await SeedRolesIfNotExist();
     }
 
     public static DateTimeOffset GetUtcNow()

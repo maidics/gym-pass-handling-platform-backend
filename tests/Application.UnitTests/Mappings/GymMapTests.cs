@@ -1,11 +1,11 @@
+using FitPass.Application.GymPassProducts.DTOs;
+using FitPass.Application.Gyms.DTOs;
 using FitPass.Domain.Entities;
+using FitPass.Domain.Entities.Payment;
 using FitPass.Domain.Enums;
 using FitPass.Domain.ValueObjects;
 using NUnit.Framework;
-using FitPass.Application.Gyms.DTOs;
 using Shouldly;
-using FitPass.Domain.Entities.Payment;
-using FitPass.Application.GymPassProducts.DTOs;
 
 namespace FitPass.Application.UnitTests.Mappings;
 
@@ -23,17 +23,30 @@ public class GymMapTests
             Tier = GymTier.Elite,
             PassProducts =
             [
-                GymPassProduct.SingleUse("id", "Single Use Pass", "Description", true, new Money(1000, "huf")),
-            ]
+                GymPassProduct.SingleUse(
+                    "id",
+                    "Single Use Pass",
+                    "Description",
+                    true,
+                    new Money(1000, CurrencyCode.HUF)
+                ),
+            ],
         };
 
         var dto = gym.MapToDto();
 
         dto.ShouldSatisfyAllConditions(
             () => dto.Name.ShouldBe(gym.Name),
-            () => dto.Address.ShouldBeEquivalentTo(new Address("line1", "line2", "city", null, "postalCode", "HU")),
+            () =>
+                dto.Address.ShouldBeEquivalentTo(
+                    new Address("line1", "line2", "city", null, "postalCode", "HU")
+                ),
             () => dto.Status.ShouldBe(GymStatus.Inactive),
             () => dto.Tier.ShouldBe(GymTier.Elite),
-            () => dto.PassProducts.ShouldBeEquivalentTo(new List<GymPassProductDto>(gym.PassProducts.Select(x => x.MapToDto()))));
+            () =>
+                dto.PassProducts.ShouldBeEquivalentTo(
+                    new List<GymPassProductDto>(gym.PassProducts.Select(x => x.MapToDto()))
+                )
+        );
     }
 }

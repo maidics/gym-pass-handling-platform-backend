@@ -1,6 +1,5 @@
 ﻿using FitPass.Application.Common.Models;
 using FitPass.Application.FunctionalTests.Common.Extensions;
-using FitPass.Application.FunctionalTests.Infrastructure.Testing;
 using FitPass.Application.FunctionalTests.TestData;
 using FitPass.Application.GymPassProducts.Commands;
 using FitPass.Domain.Constants;
@@ -43,6 +42,18 @@ public class UpdateGymPassProductActiveStatusTests : BaseTestFixture
         result.ShouldBeFailed(ResultTypes.NotFound);
     }
 
+    [Test]
+    public async Task ShouldThrowIfProductHasNoPaymentIdentity()
+    {
+        var obj = await TestEntityBuilder.BuildGymAsync();
+
+        await RunAsUserAsync(obj.gymAdmin);
+
+        var command = new UpdateGymPassProductActiveStatusCommand(obj.gymPassProduct.Id, false);
+
+        await Should.ThrowAsync<ArgumentNullException>(SendAsync(command));
+    }
+
     [TestCase(true, true)]
     [TestCase(false, false)]
     [TestCase(true, false)]
@@ -50,7 +61,7 @@ public class UpdateGymPassProductActiveStatusTests : BaseTestFixture
     public async Task ShouldUpdateGymPassProductActiveStatus(bool isActive, bool newStatus)
     {
         var obj = await TestEntityBuilder.BuildGymWithTenantPaymentProfileAsync();
-        var product = await TestEntityBuilder.BuildGymPassProduct(
+        var product = await TestEntityBuilder.BuildGymPassProductWithPaymentProfile(
             obj.gymAdmin,
             new Money(10, CurrencyCode.USD),
             isActive: isActive

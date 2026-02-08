@@ -42,9 +42,7 @@ public class GetGymByIdQueryHandler : IRequestHandler<GetGymByIdQuery, Result<Gy
             .Include(x => x.PassProducts)
             .AsNoTracking();
 
-        Guard.Against.NullParameterRelatedToCurrentUser(_user.Roles, "roles", _user.Id);
-
-        if (_user.Roles.Contains(Roles.GymAdministrator))
+        if (_user.Id is not null && _user.Roles!.Contains(Roles.GymAdministrator))
         {
             var obj = await _context.GymEmployments
                 .AsNoTracking()

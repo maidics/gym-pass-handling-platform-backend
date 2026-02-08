@@ -1,0 +1,26 @@
+X-Sender: no-reply@fitpass
+X-Receiver: test2@localhost.com
+MIME-Version: 1.0
+From: no-reply@fitpass
+To: test2@localhost.com
+Date: 6 Feb 2026 15:36:22 +0100
+Subject: FitPass - Confirm your email
+Content-Type: text/html; charset=us-ascii
+Content-Transfer-Encoding: quoted-printable
+
+=0D=0A<!DOCTYPE html>=0D=0A=0D=0A<html lang=3D"en-US">=0D=0A<head=
+>=0D=0A    <meta charset=3D"utf-8" />=0D=0A    <title>FitPass - C=
+onfirm your email</title>=0D=0A    <style>=0D=0A        body {=0D=0A=
+            font-family: Arial, sans-serif;=0D=0A            font=
+-size: 14px;=0D=0A            color: #333;=0D=0A        }=0D=0A  =
+  </style>=0D=0A</head>=0D=0A<body>=0D=0A<p>Dear User,</p>=0D=0A=0D=0A=
+<p>Thanks for signing up for FitPass. Please confirm your email a=
+ddress by clicking the link below:&#xD;&#xA;&#xD;&#xA;Confirm my =
+email: http://localhost:5173/activate-account?token=3DCfDJ8LRNqdv=
+MgXNKtAVz%2FYdnjX3Ww0UAQRf5i27hQLVcm3c5x5cnZGp3BygTst9zSBXNgKERbH=
+hSszWdMm6AK6AyVq0EXbjIwwP7NJDl9XzmEQCRKjIuMLN%2FdlCLtvnL4nJywngB6=
+j%2Bf%2BlcPcjYt7gFMjD7%2Bcazi7GEZH8n15pd45%2BaIB0BeZbbKeONLWxhdMU=
+sQN8Jl2gMxqAhsXJEaAdya%2BZrM93xal0u9aWBTPU%2FtMGhAUg4GuSVgJCV1V6i=
+6Mn9Cug%3D%3D&amp;user=3Dtest2%40localhost.com&amp;=3Dflag1</p>=0D=0A=
+=0D=0A<p style=3D"white-space: pre-line">Best regards,&#xD;&#xA; =
+FitPass</p>=0D=0A</body>=0D=0A</html>

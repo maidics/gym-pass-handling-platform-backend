@@ -1,6 +1,6 @@
 ﻿using System.Data.Common;
 
-namespace FitPass.Application.FunctionalTests.Infrastructure;
+namespace FitPass.Application.FunctionalTests;
 
 public interface ITestDatabase
 {

@@ -1,8 +1,15 @@
-﻿using FitPass.Application.Common.Interfaces.Payment;
+﻿using System.Text.Json;
+using FitPass.Application.Common.Interfaces.Payment;
+using FitPass.Application.GymPassProducts.Commands;
+using FitPass.Domain.Entities;
 using FitPass.Domain.Entities.Payment;
+using FitPass.Domain.Enums;
+using FitPass.Domain.ValueObjects;
+using FitPass.Infrastructure.Identity;
+using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace FitPass.Application.FunctionalTests.Infrastructure.Testing;
+namespace FitPass.Application.FunctionalTests;
 
 public partial class Testing
 {
