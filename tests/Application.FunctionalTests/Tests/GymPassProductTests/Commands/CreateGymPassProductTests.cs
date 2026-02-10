@@ -145,7 +145,7 @@ public class CreateGymPassProductTests : BaseTestFixture
         gymPassProduct.ShouldNotBeNull();
         gymPassProduct.Type.ShouldBe(type);
         gymPassProduct.TotalUses.ShouldBe(totalUses);
-        gymPassProduct.DaysAfterExpires.ShouldBe(daysAfterExpiring);
+        gymPassProduct.DaysAfterExpiring.ShouldBe(daysAfterExpiring);
         gymPassProduct.Price.Amount.ShouldBe(priceAmount);
         gymPassProduct.Price.Currency.ShouldBe(priceCurrency);
 

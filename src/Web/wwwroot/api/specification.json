@@ -441,6 +441,35 @@
             "JWT": []
           }
         ]
+      },
+      "get": {
+        "tags": [
+          "GymPassProducts"
+        ],
+        "operationId": "GetGymPassProductById",
+        "parameters": [
+          {
+            "name": "gymPassProductId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GymPassProductDto"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/GymPassProducts/{gymPassProductId}/Status": {
@@ -484,7 +513,7 @@
         ]
       }
     },
-    "/api/GymPassProducts/{gymId}": {
+    "/api/GymPassProducts/gyms/{gymId}": {
       "get": {
         "tags": [
           "GymPassProducts"
@@ -1952,6 +1981,10 @@
           },
           "role": {
             "type": "string"
+          },
+          "createdOn": {
+            "type": "string",
+            "format": "date-time"
           },
           "userProfile": {
             "$ref": "#/components/schemas/UserProfileWithEmailDto"

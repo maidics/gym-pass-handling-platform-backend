@@ -12,13 +12,16 @@ namespace FitPass.Infrastructure.Data.Queries;
 public class QueryService : IQueryService
 {
     private readonly ApplicationDbContext _context;
-    public QueryService(
-        ApplicationDbContext context)
+
+    public QueryService(ApplicationDbContext context)
     {
         _context = context;
     }
 
-    public async Task<List<GymEmploymentDto>> GetGymEmploymentsWithUserProfileAndEmailByGymId(string gymId, CancellationToken cancellationToken)
+    public async Task<List<GymEmploymentDto>> GetGymEmploymentsWithUserProfileAndEmailByGymId(
+        string gymId,
+        CancellationToken cancellationToken
+    )
     {
         return await (
             from ge in _context.GymEmployments
@@ -32,17 +35,22 @@ public class QueryService : IQueryService
                 GymId = gymId,
                 SupervisorEmail = ge.SupervisorEmail,
                 Role = ge.Role,
+                CreatedOn = ge.CreatedOn,
                 UserProfile = new UserProfileWithEmailDto(
                     user.Id,
                     up.FirstName,
                     up.LastName,
                     user.Email!,
                     up.PreferredLanguage
-                    )
-            }).ToListAsync(cancellationToken);
+                ),
+            }
+        ).ToListAsync(cancellationToken);
     }
 
-    public async Task<GymEmploymentDto?> GetGymEmploymentWithUserProfileAndEmailByUserId(string applicationUserId, CancellationToken cancellationToken)
+    public async Task<GymEmploymentDto?> GetGymEmploymentWithUserProfileAndEmailByUserId(
+        string applicationUserId,
+        CancellationToken cancellationToken
+    )
     {
         return await (
             from ge in _context.GymEmployments
@@ -56,17 +64,22 @@ public class QueryService : IQueryService
                 GymId = ge.GymId,
                 SupervisorEmail = ge.SupervisorEmail,
                 Role = ge.Role,
+                CreatedOn = ge.CreatedOn,
                 UserProfile = new UserProfileWithEmailDto(
                     user.Id,
                     up.FirstName,
                     up.LastName,
                     user.Email!,
-                    up.PreferredLanguage)
+                    up.PreferredLanguage
+                ),
             }
         ).FirstOrDefaultAsync(cancellationToken);
     }
 
-    public async Task<UserProfileWithEmailDto?> GetUserProfileWithEmailByApplicationUserId(string applicationUserId, CancellationToken cancellationToken)
+    public async Task<UserProfileWithEmailDto?> GetUserProfileWithEmailByApplicationUserId(
+        string applicationUserId,
+        CancellationToken cancellationToken
+    )
     {
         return await (
             from up in _context.UserProfiles
@@ -77,32 +90,39 @@ public class QueryService : IQueryService
                 up.FirstName,
                 up.LastName,
                 user.Email!,
-                up.PreferredLanguage)
+                up.PreferredLanguage
+            )
         ).FirstOrDefaultAsync(cancellationToken);
     }
 
-    public async Task<List<GymMembershipWithUserProfileAndEmailDto>> GetGymMembershipsWithUserProfilesAndEmailByGymIdAndMembershipStatus(
-        string gymId, GymMembershipStatus? status, CancellationToken cancellationToken)
+    public async Task<
+        List<GymMembershipWithUserProfileAndEmailDto>
+    > GetGymMembershipsWithUserProfilesAndEmailByGymIdAndMembershipStatus(
+        string gymId,
+        GymMembershipStatus? status,
+        CancellationToken cancellationToken
+    )
     {
         var query = (
-                from gm in _context.GymMemberships
-                join user in _context.Users on gm.UserId equals user.Id
-                join up in _context.UserProfiles on user.Id equals up.UserId
-                where gm.GymId == gymId
-                select new GymMembershipWithUserProfileAndEmailDto
-                {
-                    Id = gm.Id,
-                    UserId = user.Id,
-                    GymId = gm.GymId!,
-                    Status = gm.Status,
-                    UserProfile = new UserProfileWithEmailDto(
-                        user.Id,
-                        up.FirstName,
-                        up.LastName,
-                        user.Email!,
-                        up.PreferredLanguage),
-                }
-            );
+            from gm in _context.GymMemberships
+            join user in _context.Users on gm.UserId equals user.Id
+            join up in _context.UserProfiles on user.Id equals up.UserId
+            where gm.GymId == gymId
+            select new GymMembershipWithUserProfileAndEmailDto
+            {
+                Id = gm.Id,
+                UserId = user.Id,
+                GymId = gm.GymId!,
+                Status = gm.Status,
+                UserProfile = new UserProfileWithEmailDto(
+                    user.Id,
+                    up.FirstName,
+                    up.LastName,
+                    user.Email!,
+                    up.PreferredLanguage
+                ),
+            }
+        );
 
         if (status is not null)
         {
@@ -112,7 +132,10 @@ public class QueryService : IQueryService
         return await query.ToListAsync(cancellationToken);
     }
 
-    public async Task<GymEmploymentDto?> GetGymEmploymentWithUserProfileAndEmailByIdAsync(string gymEmploymentId, CancellationToken cancellationToken)
+    public async Task<GymEmploymentDto?> GetGymEmploymentWithUserProfileAndEmailByIdAsync(
+        string gymEmploymentId,
+        CancellationToken cancellationToken
+    )
     {
         return await (
             from ge in _context.GymEmployments
@@ -126,18 +149,22 @@ public class QueryService : IQueryService
                 GymId = ge.GymId,
                 SupervisorEmail = ge.SupervisorEmail,
                 Role = ge.Role,
+                CreatedOn = ge.CreatedOn,
                 UserProfile = new UserProfileWithEmailDto(
                     user.Id,
                     up.FirstName,
                     up.LastName,
                     user.Email!,
-                    up.PreferredLanguage)
+                    up.PreferredLanguage
+                ),
             }
         ).FirstOrDefaultAsync(cancellationToken);
     }
 
     public async Task<GymMembershipWithUserProfileAndEmailDto?> GetGymMembershipWithUserProfileAndEmailByGymIdAndMembershipStatus(
-        string gymMembershipId, CancellationToken cancellationToken)
+        string gymMembershipId,
+        CancellationToken cancellationToken
+    )
     {
         return await (
             from gm in _context.GymMemberships
@@ -155,18 +182,23 @@ public class QueryService : IQueryService
                     up.FirstName,
                     up.LastName,
                     user.Email!,
-                    up.PreferredLanguage),
+                    up.PreferredLanguage
+                ),
             }
         ).FirstOrDefaultAsync(cancellationToken);
     }
 
-    public async Task<string[]> GetGymEmployeeEmailsByGymIdAsync(string gymId, CancellationToken cancellationToken)
+    public async Task<string[]> GetGymEmployeeEmailsByGymIdAsync(
+        string gymId,
+        CancellationToken cancellationToken
+    )
     {
         return await (
             from ge in _context.GymEmployments
             join users in _context.Users on ge.UserId equals users.Id
             where ge.GymId == gymId
-            select users.Email).ToArrayAsync(cancellationToken);
+            select users.Email
+        ).ToArrayAsync(cancellationToken);
     }
 
     public async Task<UserDto?> GetUserAsync(string userId, CancellationToken cancellationToken)
@@ -174,7 +206,9 @@ public class QueryService : IQueryService
         return await (
             from user in _context.Users
             join profile in _context.UserProfiles on user.Id equals profile.UserId
-            join employment in _context.GymEmployments on user.Id equals employment.UserId into empGroup
+            join employment in _context.GymEmployments
+                on user.Id equals employment.UserId
+                into empGroup
             from emp in empGroup.DefaultIfEmpty() //left join workaround
             where user.Id == userId
             select new UserDto(
@@ -184,13 +218,16 @@ public class QueryService : IQueryService
                 Email: user.Email,
                 PreferredLanguage: profile.PreferredLanguage,
                 CreatedOn: profile.CreatedOn,
-                Roles: (from ur in _context.UserRoles
+                Roles: (
+                    from ur in _context.UserRoles
                     join r in _context.Roles on ur.RoleId equals r.Id
                     where ur.UserId == user.Id
-                    select r.Name).ToArray(),
+                    select r.Name
+                ).ToArray(),
                 IsEmailConfirmed: user.EmailConfirmed,
                 GymId: emp == null ? null : emp.GymId, //no null propagator in expression tree...
-                GymEmploymentId: emp == null ? null : emp.Id)
-            ).FirstOrDefaultAsync(cancellationToken);
+                GymEmploymentId: emp == null ? null : emp.Id
+            )
+        ).FirstOrDefaultAsync(cancellationToken);
     }
 }

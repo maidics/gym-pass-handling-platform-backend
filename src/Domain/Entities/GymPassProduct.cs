@@ -15,7 +15,7 @@ public class GymPassProduct : BaseAuditableEntity
     public string Description { get; set; }
     public PassType Type { get; private set; }
     public int? TotalUses { get; private set; }
-    public int? DaysAfterExpires { get; private set; }
+    public int? DaysAfterExpiring { get; private set; }
     public bool IsActive { get; set; }
     public Money Price { get; set; }
     public ProductPaymentIdentity PaymentIdentity { get; set; } = null!;
@@ -30,56 +30,96 @@ public class GymPassProduct : BaseAuditableEntity
     }
 
     private GymPassProduct(
-        string gymId, 
-        string name, 
-        string description, 
-        PassType type, 
-        int? totalUses, 
-        int? daysAfteExpires, 
-        bool isActive, 
-        Money price)
+        string gymId,
+        string name,
+        string description,
+        PassType type,
+        int? totalUses,
+        int? daysAfteExpiring,
+        bool isActive,
+        Money price
+    )
     {
         GymId = gymId;
         Name = name;
         Description = description;
         Type = type;
         TotalUses = totalUses;
-        DaysAfterExpires = daysAfteExpires;
+        DaysAfterExpiring = daysAfteExpiring;
         IsActive = isActive;
         Price = price;
     }
 
-    public static GymPassProduct SingleUse(string gymId, string name, string description, bool isActive, Money price)
+    public static GymPassProduct SingleUse(
+        string gymId,
+        string name,
+        string description,
+        bool isActive,
+        Money price
+    )
     {
         return new GymPassProduct(
-            gymId, 
-            name, 
-            description, 
-            PassType.SingleUse, 
-            1, 
-            null, 
-            isActive, 
-            price);
+            gymId,
+            name,
+            description,
+            PassType.SingleUse,
+            1,
+            null,
+            isActive,
+            price
+        );
     }
 
-    public static GymPassProduct MultiUse(string gymId, string name, string description, int totalUses, bool isActive, Money price)
+    public static GymPassProduct MultiUse(
+        string gymId,
+        string name,
+        string description,
+        int totalUses,
+        bool isActive,
+        Money price
+    )
     {
         if (totalUses < 1)
         {
             throw new ArgumentOutOfRangeException(nameof(totalUses));
         }
 
-        return new GymPassProduct(gymId, name, description, PassType.MultiUse, totalUses, null, isActive, price);
+        return new GymPassProduct(
+            gymId,
+            name,
+            description,
+            PassType.MultiUse,
+            totalUses,
+            null,
+            isActive,
+            price
+        );
     }
 
-    public static GymPassProduct UnlimitedUse(string gymId, string name, string description, int daysAfterExpiring, bool isActive, Money price)
+    public static GymPassProduct UnlimitedUse(
+        string gymId,
+        string name,
+        string description,
+        int daysAfterExpiring,
+        bool isActive,
+        Money price
+    )
     {
         if (daysAfterExpiring < 1)
         {
             throw new ArgumentOutOfRangeException(nameof(daysAfterExpiring));
         }
 
-        return new GymPassProduct(gymId, name, description, PassType.Unlimited, null, daysAfterExpiring, isActive, price);
+        return new GymPassProduct(
+            gymId,
+            name,
+            description,
+            PassType.Unlimited,
+            null,
+            daysAfterExpiring,
+            isActive,
+            price
+        );
     }
 
     public GymPassProduct UpdateTotalUsesIfApplicable(int? totalUses)
@@ -96,7 +136,7 @@ public class GymPassProduct : BaseAuditableEntity
     {
         if (Type == PassType.Unlimited)
         {
-            DaysAfterExpires = daysAfterExpiring;
+            DaysAfterExpiring = daysAfterExpiring;
         }
 
         return this;
@@ -104,15 +144,19 @@ public class GymPassProduct : BaseAuditableEntity
 
     public DateTimeOffset? GetExpirationDate(DateTimeOffset utcNow)
     {
-        if (DaysAfterExpires == null)
+        if (DaysAfterExpiring == null)
         {
             return null;
         }
 
-        return utcNow.AddDays((int)DaysAfterExpires);
+        return utcNow.AddDays((int)DaysAfterExpiring);
     }
 
-    public GymMembershipPass ToGymMembershipPass(string gymMembershipId, string userId, DateTimeOffset utcNow)
+    public GymMembershipPass ToGymMembershipPass(
+        string gymMembershipId,
+        string userId,
+        DateTimeOffset utcNow
+    )
     {
         return new GymMembershipPass
         {
@@ -121,7 +165,7 @@ public class GymPassProduct : BaseAuditableEntity
             Type = Type,
             TotalUses = TotalUses,
             ExpirationDate = GetExpirationDate(utcNow),
-            RemainingUses = TotalUses
+            RemainingUses = TotalUses,
         };
     }
 }

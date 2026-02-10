@@ -1,52 +1,63 @@
 using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Models;
+using FitPass.Application.Common.Resources;
 using FitPass.Application.Common.Security;
 using FitPass.Application.Gyms.DTOs;
 using FitPass.Application.Requests.DTOs;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
-using FitPass.Application.Common.Resources;
 
 namespace FitPass.Application.Requests.Commands.Fulfill;
 
 [Authorize(Roles = Roles.AppAdministrator)]
 public record RegisterGymFromRequestCommand(string RequestId) : IRequest<Result<GymDto>>;
 
-public class RegisterGymFromRequestCommandValidator : AbstractValidator<RegisterGymFromRequestCommand>
+public class RegisterGymFromRequestCommandValidator
+    : AbstractValidator<RegisterGymFromRequestCommand>
 {
     public RegisterGymFromRequestCommandValidator(ILocalizer localizer)
     {
         RuleFor(v => v.RequestId)
-            .PropertyOfEntityNotEmptyWithMessageLocalized(localizer, nameof(SharedResource.Id), nameof(SharedResource.Request));
+            .PropertyOfEntityNotEmptyWithMessageLocalized(
+                localizer,
+                nameof(SharedResource.Id),
+                nameof(SharedResource.Request)
+            );
     }
 }
 
-public class RegisterGymFromRequestCommandHandler : IRequestHandler<RegisterGymFromRequestCommand, Result<GymDto>>
+public class RegisterGymFromRequestCommandHandler
+    : IRequestHandler<RegisterGymFromRequestCommand, Result<GymDto>>
 {
     private readonly IApplicationDbContext _context;
     private readonly IIdentityService _identityService;
     private readonly ISender _sender;
     private readonly ILocalizer _localizer;
+    private readonly TimeProvider _timeProvider;
 
     public RegisterGymFromRequestCommandHandler(
         IApplicationDbContext context,
         IIdentityService identityService,
         ISender sender,
-        ILocalizer localizer)
+        ILocalizer localizer,
+        TimeProvider timeProvider
+    )
     {
         _context = context;
         _identityService = identityService;
         _sender = sender;
         _localizer = localizer;
+        _timeProvider = timeProvider;
     }
-    
-    public async Task<Result<GymDto>> Handle(RegisterGymFromRequestCommand command, CancellationToken cancellationToken)
+
+    public async Task<Result<GymDto>> Handle(
+        RegisterGymFromRequestCommand command,
+        CancellationToken cancellationToken
+    )
     {
-        var request = await _context
-            .Requests
-            .FindAsync([command.RequestId], cancellationToken);
+        var request = await _context.Requests.FindAsync([command.RequestId], cancellationToken);
 
         if (request is null)
         {
@@ -60,25 +71,34 @@ public class RegisterGymFromRequestCommandHandler : IRequestHandler<RegisterGymF
 
         if (request.Type != RequestType.GymCreation)
         {
-            return Result.BusinessRuleViolation(_localizer.Get(nameof(SharedResource.ActionIsApplicableForRequestType)));
+            return Result.BusinessRuleViolation(
+                _localizer.Get(nameof(SharedResource.ActionIsApplicableForRequestType))
+            );
         }
 
         if (request.CreatedBy is null)
         {
-            return Result.InternalError(_localizer.Get(nameof(SharedResource.RequestHandlingError)));
+            return Result.InternalError(
+                _localizer.Get(nameof(SharedResource.RequestHandlingError))
+            );
         }
 
         if (!await _identityService.DoesUserExist(request.CreatedBy))
-        { 
+        {
             return Result.NotFound(_localizer.Get(nameof(SharedResource.RequestHandlingError)));
         }
 
         if (!await _identityService.IsInRoleAsync(request.CreatedBy, Roles.PendingGymEmployee))
         {
-            return Result.BusinessRuleViolation(_localizer.Get(nameof(SharedResource.CannotPerformActionOnRoleType)));
+            return Result.BusinessRuleViolation(
+                _localizer.Get(nameof(SharedResource.CannotPerformActionOnRoleType))
+            );
         }
 
-        var deserializationResult = await _sender.Send(new DeserializeRequestPayloadCommand<CreateGymDto>(request), cancellationToken);
+        var deserializationResult = await _sender.Send(
+            new DeserializeRequestPayloadCommand<CreateGymDto>(request),
+            cancellationToken
+        );
 
         if (!deserializationResult.Succeeded)
         {
@@ -87,21 +107,28 @@ public class RegisterGymFromRequestCommandHandler : IRequestHandler<RegisterGymF
 
             await _context.SaveChangesAsync(cancellationToken);
 
-            return Result.InternalError(_localizer.Get(nameof(SharedResource.RequestHandlingError)));
+            return Result.InternalError(
+                _localizer.Get(nameof(SharedResource.RequestHandlingError))
+            );
         }
 
         var createGymDto = deserializationResult.Value;
 
         var existingGym = await _context
-                .Gyms
-                .AsNoTracking()
-                .FirstOrDefaultAsync(g => g.Name == createGymDto.Name, cancellationToken);
+            .Gyms.AsNoTracking()
+            .FirstOrDefaultAsync(g => g.Name == createGymDto.Name, cancellationToken);
 
         if (existingGym is not null)
         {
             return Result.Conflict(
-                _localizer.Get(nameof(SharedResource.Conflict), 
-                    _localizer.GetWithParamsLocalized(nameof(SharedResource.Name), nameof(SharedResource.Gym))));
+                _localizer.Get(
+                    nameof(SharedResource.Conflict),
+                    _localizer.GetWithParamsLocalized(
+                        nameof(SharedResource.Name),
+                        nameof(SharedResource.Gym)
+                    )
+                )
+            );
         }
 
         await using var transaction = await _context.BeginTransactionAsync(cancellationToken);
@@ -118,14 +145,22 @@ public class RegisterGymFromRequestCommandHandler : IRequestHandler<RegisterGymF
 
             await _context.Gyms.AddAsync(gym, cancellationToken);
 
-            var demotionResult = await _identityService.RemoveFromRoleAsync(request.CreatedBy, Roles.PendingGymEmployee);
+            var demotionResult = await _identityService.RemoveFromRoleAsync(
+                request.CreatedBy,
+                Roles.PendingGymEmployee
+            );
 
             if (!demotionResult.Succeeded)
             {
-                throw new Exception($"Failed to remove user from their role. Result: {demotionResult}.");
+                throw new Exception(
+                    $"Failed to remove user from their role. Result: {demotionResult}."
+                );
             }
 
-            var promotionResult = await _identityService.AddToRoleAsync(request.CreatedBy, Roles.GymAdministrator);
+            var promotionResult = await _identityService.AddToRoleAsync(
+                request.CreatedBy,
+                Roles.GymAdministrator
+            );
 
             if (!promotionResult.Succeeded)
             {
@@ -138,6 +173,7 @@ public class RegisterGymFromRequestCommandHandler : IRequestHandler<RegisterGymF
                 GymId = gym.Id,
                 Role = Roles.GymAdministrator,
                 SupervisorEmail = createGymDto.SupervisorEmail,
+                CreatedOn = _timeProvider.GetUtcNow(),
             };
 
             await _context.GymEmployments.AddAsync(gymEmployment, cancellationToken);
@@ -148,7 +184,8 @@ public class RegisterGymFromRequestCommandHandler : IRequestHandler<RegisterGymF
             await transaction.CommitAsync(cancellationToken);
 
             return Result.Success(gym.MapToDto());
-        } catch
+        }
+        catch
         {
             await transaction.RollbackAsync(cancellationToken);
 

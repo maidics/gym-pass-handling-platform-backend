@@ -277,7 +277,7 @@ public class UpdateGymPassProductTests : BaseTestFixture
         updatedProduct.Name.ShouldBe(newName);
         updatedProduct.Description.ShouldBe(newDescription);
         updatedProduct.TotalUses.ShouldBe(newTotalUses);
-        updatedProduct.DaysAfterExpires.ShouldBe(newDaysAfterExpiring);
+        updatedProduct.DaysAfterExpiring.ShouldBe(newDaysAfterExpiring);
         updatedProduct.Price.Amount.ShouldBe(newMoneyAmount);
         updatedProduct.Price.Currency.ShouldBe(newMoneyCurrency);
 
@@ -310,7 +310,7 @@ public class UpdateGymPassProductTests : BaseTestFixture
             product.Description,
             product.Price,
             product.TotalUses,
-            product.DaysAfterExpires
+            product.DaysAfterExpiring
         );
 
         var result = await SendAsync(command);

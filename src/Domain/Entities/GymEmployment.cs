@@ -6,5 +6,6 @@ public class GymEmployment : BaseEntity
     public required string GymId { get; set; }
     public string? SupervisorEmail { get; set; }
     public required string Role { get; set; }
+    public required DateTimeOffset CreatedOn { get; set; }
     public Gym Gym { get; set; } = null!;
 }

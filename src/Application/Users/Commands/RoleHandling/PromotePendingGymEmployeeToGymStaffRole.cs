@@ -28,18 +28,21 @@ public class PromotePendingGymEmployeeToGymStaffRoleCommandHandler
     private readonly IUser _user;
     private readonly IApplicationDbContext _context;
     private readonly ILocalizer _localizer;
+    private readonly TimeProvider _timeProvider;
 
     public PromotePendingGymEmployeeToGymStaffRoleCommandHandler(
         IIdentityService identityService,
         IUser user,
         IApplicationDbContext context,
-        ILocalizer localizer
+        ILocalizer localizer,
+        TimeProvider timeProvider
     )
     {
         _identityService = identityService;
         _user = user;
         _context = context;
         _localizer = localizer;
+        _timeProvider = timeProvider;
     }
 
     public async Task<Result> Handle(
@@ -99,6 +102,7 @@ public class PromotePendingGymEmployeeToGymStaffRoleCommandHandler
                 UserId = userId,
                 GymId = promoterGymEmployment.GymId,
                 Role = Roles.GymStaff,
+                CreatedOn = _timeProvider.GetUtcNow(),
             };
 
             await _context.GymEmployments.AddAsync(gymEmployment, cancellationToken);

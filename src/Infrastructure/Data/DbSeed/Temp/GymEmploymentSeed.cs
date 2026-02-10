@@ -17,6 +17,7 @@ public partial class ApplicationDbContextInitialiser
                 UserId = "GymAdminLocalhostId",
                 Role = Roles.GymAdministrator,
                 SupervisorEmail = "supervisor@localhost.com",
+                CreatedOn = now,
             },
             new GymEmployment
             {
@@ -24,6 +25,7 @@ public partial class ApplicationDbContextInitialiser
                 UserId = "GymStaffLocalhostId",
                 Role = Roles.GymStaff,
                 SupervisorEmail = "supervisor@localhost.com",
+                CreatedOn = now,
             },
         };
 

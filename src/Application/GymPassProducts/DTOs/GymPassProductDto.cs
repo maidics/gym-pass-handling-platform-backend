@@ -31,9 +31,9 @@ public static class Mappings
                 Description = gymPassProduct.Description,
                 Type = gymPassProduct.Type,
                 TotalUses = gymPassProduct.TotalUses,
-                DaysAfterExpiring = gymPassProduct.DaysAfterExpires,
+                DaysAfterExpiring = gymPassProduct.DaysAfterExpiring,
                 Price = gymPassProduct.Price,
-                IsActive = gymPassProduct.IsActive
+                IsActive = gymPassProduct.IsActive,
             };
         }
     }

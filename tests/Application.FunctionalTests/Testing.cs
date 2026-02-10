@@ -23,18 +23,18 @@ public partial class Testing
     {
         Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Testing");
 
-        TestContext.Progress.WriteLine("Creating DB...");
+        //TestContext.Progress.WriteLine("Creating DB...");
         _database = await TestDatabaseFactory.CreateAsync();
-        TestContext.Progress.WriteLine("DB created.");
+        //TestContext.Progress.WriteLine("DB created.");
 
         _factory = new CustomWebApplicationFactory(
             _database.GetConnection(),
             _database.GetConnectionString()
         );
 
-        TestContext.Progress.WriteLine("Starting stripe...");
+        //TestContext.Progress.WriteLine("Starting stripe...");
         await _factory.InitialiseStripeAsync();
-        TestContext.Progress.WriteLine("Stripe started.");
+        //TestContext.Progress.WriteLine("Stripe started.");
 
         _scopeFactory = _factory.Services.GetRequiredService<IServiceScopeFactory>();
 
