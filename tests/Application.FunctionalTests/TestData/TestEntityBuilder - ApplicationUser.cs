@@ -1,4 +1,3 @@
-
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
@@ -107,6 +106,7 @@ public static partial class TestEntityBuilder
             UserId = user.Id,
             GymId = gym.Id,
             Role = employeeRole,
+            CreatedOn = GetUtcNow(),
         };
 
         await AddAsync(gymEmployment);

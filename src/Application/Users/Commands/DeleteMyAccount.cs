@@ -34,27 +34,34 @@ public class DeleteMyAccountCommandHandler : IRequestHandler<DeleteMyAccountComm
         CancellationToken cancellationToken
     )
     {
+        var userId = _user.Id;
+
+        Guard.Against.Null(userId);
+
         await using var transaction = await _context.BeginTransactionAsync(cancellationToken);
 
         try
         {
-            var result = await _identityService.DeleteUserAsync(_user.Id!);
+            var result = await _identityService.DeleteUserAsync(userId);
 
             if (!result.Succeeded)
             {
                 await transaction.RollbackAsync(cancellationToken);
 
-                throw new Exception($"Failed to delete user account.");
+                throw new Exception(
+                    $"Failed to delete user account. Message: {result.Message} Errors: ${string.Join(", ", result.Errors)}"
+                );
             }
 
             var profile = await _context.UserProfiles.FirstOrDefaultAsync(
-                x => x.UserId == _user.Id,
-                cancellationToken
+                x => x.UserId == userId,
+                cancellationToken: cancellationToken
             );
 
-            Guard.Against.NullParameterRelatedToCurrentUser(profile, nameof(UserProfile), _user.Id);
-
-            _context.UserProfiles.Remove(profile);
+            if (profile is not null) //should be cascade deleted
+            {
+                _context.UserProfiles.Remove(profile);
+            }
 
             await _context.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);

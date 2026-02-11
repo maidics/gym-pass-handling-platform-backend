@@ -37,7 +37,6 @@ public class GymStatusUpdatedByAppAdminEventHandler
         CancellationToken cancellationToken
     )
     {
-        //TODO: send to escalation emails and other gym contacts as well?
         var gymEmployeeEmails = await _queryService.GetGymEmployeeEmailsByGymIdAsync(
             notification.GymId,
             CancellationToken.None

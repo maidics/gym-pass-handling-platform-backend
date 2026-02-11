@@ -1,6 +1,5 @@
 ﻿using FitPass.Application.Common.Models;
 using FitPass.Application.FunctionalTests.Common.Extensions;
-
 using FitPass.Application.Requests.Queries;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
@@ -26,6 +25,8 @@ public class GetMyRequestByIdTests : BaseTestFixture
     [Test]
     public async Task ShouldThrowIfParametersAreInvalid()
     {
+        await RunAsDefaultUserAsync();
+
         var query = new GetMyRequestByIdQuery(string.Empty);
 
         await ShouldThrowIfParametersAreInvalidAsync(query);
@@ -45,9 +46,11 @@ public class GetMyRequestByIdTests : BaseTestFixture
     [Test]
     public async Task ShouldReturnNotFoundIfUserIsNotTheCreatorOfRequest()
     {
+        var user = await CreateUserAsync();
+
         var request = new Request()
         {
-            CreatedBy = "id", //TODO: test if this works
+            CreatedBy = user.Id,
             Title = "Title",
             Description = "Description",
             PriorityLevel = PriorityLevel.High,
@@ -73,7 +76,7 @@ public class GetMyRequestByIdTests : BaseTestFixture
 
         var request = new Request()
         {
-            CreatedBy = obj.user.Id, //TODO: test if this works
+            CreatedBy = obj.user.Id,
             Title = "Title",
             Description = "Description",
             PriorityLevel = PriorityLevel.High,

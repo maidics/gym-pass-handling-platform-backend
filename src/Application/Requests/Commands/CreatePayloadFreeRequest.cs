@@ -4,26 +4,40 @@ using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Resources;
 using FitPass.Application.Common.Security;
 using FitPass.Application.Requests.DTOs;
+using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
 
 namespace FitPass.Application.Requests.Commands;
 
-[Authorize]
+[Authorize(
+    Roles = $"{Roles.User},{Roles.PendingGymEmployee},{Roles.GymStaff},{Roles.GymAdministrator}"
+)]
 public record CreatePayloadFreeRequestCommand(
-    string Title, string Description, PriorityLevel PriorityLevel, RequestType RequestType) : IRequest<Result>;
+    string Title,
+    string Description,
+    PriorityLevel PriorityLevel,
+    RequestType RequestType
+) : IRequest<Result>;
 
-public class CreatePayloadFreeRequestCommandValidator : AbstractValidator<CreatePayloadFreeRequestCommand>
+public class CreatePayloadFreeRequestCommandValidator
+    : AbstractValidator<CreatePayloadFreeRequestCommand>
 {
     public CreatePayloadFreeRequestCommandValidator(ILocalizer localizer)
     {
         RuleFor(v => v.Title).NotEmptyWithMessageLocalized(localizer, nameof(SharedResource.Title));
 
-        RuleFor(v => v.Description).NotEmptyWithMessageLocalized(localizer, nameof(SharedResource.Description));
-        
-        RuleFor(v => v.RequestType).NotEmpty()
-            .WithMessage(localizer.GetPropertyOfEntityIsRequired(nameof(SharedResource.Type),
-                nameof(SharedResource.Request)));
+        RuleFor(v => v.Description)
+            .NotEmptyWithMessageLocalized(localizer, nameof(SharedResource.Description));
+
+        RuleFor(v => v.RequestType)
+            .NotEmpty()
+            .WithMessage(
+                localizer.GetPropertyOfEntityIsRequired(
+                    nameof(SharedResource.Type),
+                    nameof(SharedResource.Request)
+                )
+            );
 
         RuleFor(v => v.RequestType)
             .Must(v => v != RequestType.GymAdminPromotion && v != RequestType.GymCreation)
@@ -31,7 +45,8 @@ public class CreatePayloadFreeRequestCommandValidator : AbstractValidator<Create
     }
 }
 
-public class CreatePayloadFreeRequestCommandHandler : IRequestHandler<CreatePayloadFreeRequestCommand, Result>
+public class CreatePayloadFreeRequestCommandHandler
+    : IRequestHandler<CreatePayloadFreeRequestCommand, Result>
 {
     private readonly IApplicationDbContext _context;
 
@@ -39,8 +54,11 @@ public class CreatePayloadFreeRequestCommandHandler : IRequestHandler<CreatePayl
     {
         _context = context;
     }
-    
-    public async Task<Result> Handle(CreatePayloadFreeRequestCommand command, CancellationToken cancellationToken)
+
+    public async Task<Result> Handle(
+        CreatePayloadFreeRequestCommand command,
+        CancellationToken cancellationToken
+    )
     {
         var request = new Request
         {
@@ -48,7 +66,7 @@ public class CreatePayloadFreeRequestCommandHandler : IRequestHandler<CreatePayl
             Description = command.Description,
             PriorityLevel = command.PriorityLevel,
             Type = command.RequestType,
-            Payload = null
+            Payload = null,
         };
 
         await _context.Requests.AddAsync(request, cancellationToken);

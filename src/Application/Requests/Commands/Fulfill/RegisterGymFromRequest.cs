@@ -78,6 +78,11 @@ public class RegisterGymFromRequestCommandHandler
 
         if (request.CreatedBy is null)
         {
+            request.Status = RequestStatus.Error;
+            request.Error = "Request has no creator";
+
+            await _context.SaveChangesAsync(cancellationToken);
+
             return Result.InternalError(
                 _localizer.Get(nameof(SharedResource.RequestHandlingError))
             );

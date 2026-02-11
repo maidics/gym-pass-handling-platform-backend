@@ -1,4 +1,3 @@
-
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Entities.Payment;
@@ -39,6 +38,7 @@ public partial class TestEntityBuilder
             UserId = gymStaff.Id,
             GymId = obj.gym.Id,
             Role = Roles.GymStaff,
+            CreatedOn = GetUtcNow(),
         };
 
         await AddAsync(gymStaffGymEmployment);

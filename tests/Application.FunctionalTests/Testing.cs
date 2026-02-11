@@ -46,7 +46,9 @@ public partial class Testing
             throw new InvalidOperationException("Tests tried to run in non docker environment.");
         }
 
-        EraseEmailPickupFolder(); //deleting email folder here so they can be viewed once the test ends
+        EraseEmailPickupFolder();
+
+        await SeedRolesIfNotExist();
     }
 
     [OneTimeTearDown]
@@ -126,9 +128,14 @@ public partial class Testing
         {
             await _database.ResetAsync();
         }
-        catch (Exception) { }
+        catch
+        {
+            // ignored
+        }
 
         LogOutCurrentUser();
+        EraseEmailPickupFolder();
+
         await SeedRolesIfNotExist();
     }
 

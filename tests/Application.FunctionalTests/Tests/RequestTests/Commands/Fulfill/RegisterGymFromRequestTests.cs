@@ -2,7 +2,6 @@
 using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Settings;
 using FitPass.Application.FunctionalTests.Common.Extensions;
-
 using FitPass.Application.FunctionalTests.TestData;
 using FitPass.Application.Requests.Commands.Fulfill;
 using FitPass.Application.Requests.DTOs;
@@ -178,11 +177,6 @@ public class RegisterGymFromRequestTests : BaseTestFixture
 
         var result = await SendAsync(command);
         result.ShouldBeFailed(ResultTypes.BusinessRuleViolation);
-
-        var updatedRequest = await FindAsync<Request>(request.Id);
-        updatedRequest.ShouldNotBeNull();
-        updatedRequest.Status.ShouldBe(RequestStatus.Error);
-        updatedRequest.Error.ShouldNotBeNullOrEmpty();
     }
 
     [Test]

@@ -35,6 +35,11 @@ public partial class TestEntityBuilder
 
         var result = await SendAsync(command);
 
+        if (!result.Succeeded)
+        {
+            throw new ArgumentException($"Failed to create product. Error: {result.Message}");
+        }
+
         var product = await FindAsync<GymPassProduct>([result.Value.Id], x => x.PaymentIdentity);
 
         Guard.Against.Null(product);

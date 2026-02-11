@@ -1,5 +1,4 @@
 ﻿using FitPass.Application.FunctionalTests.Common.Extensions;
-
 using FitPass.Application.Users.Commands;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;

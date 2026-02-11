@@ -84,7 +84,7 @@ public class PromotePendingGymEmployeeToGymAdminFromRequestCommandHandler
         if (!deserializationResult.Succeeded)
         {
             request.Status = RequestStatus.Error;
-            request.Error = string.Join(", ", deserializationResult.Errors);
+            request.Error = deserializationResult.Message;
 
             await _context.SaveChangesAsync(cancellationToken);
 

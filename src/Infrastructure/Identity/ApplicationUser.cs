@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
 namespace FitPass.Infrastructure.Identity;
-public class ApplicationUser : IdentityUser
-{
-    //TODO: Add created on date?
-}
+
+public class ApplicationUser : IdentityUser { }

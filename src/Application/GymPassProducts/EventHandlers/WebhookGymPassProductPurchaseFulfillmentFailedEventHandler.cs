@@ -38,8 +38,6 @@ public class WebhookGymPassProductPurchaseFulfillmentFailedEventHandler
         CancellationToken cancellationToken
     )
     {
-        //TODO: instead of sending an email refund the user
-
         var email = await _identityService.GetEmailByIdAsync(notification.UserId);
 
         Guard.Against.NullParameterRelatedToCurrentUser(email, nameof(email), notification.UserId);

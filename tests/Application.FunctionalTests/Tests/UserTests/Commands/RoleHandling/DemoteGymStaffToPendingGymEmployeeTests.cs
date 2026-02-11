@@ -1,7 +1,6 @@
 ﻿using FitPass.Application.Common.Exceptions;
 using FitPass.Application.Common.Models;
 using FitPass.Application.FunctionalTests.Common.Extensions;
-
 using FitPass.Application.FunctionalTests.TestData;
 using FitPass.Application.Users.Commands.RoleHandling;
 using FitPass.Domain.Constants;
@@ -70,6 +69,7 @@ public class DemoteGymStaffToPendingGymEmployeeTests : BaseTestFixture
                 UserId = gymAdmin2.Id,
                 GymId = obj.gym.Id,
                 Role = Roles.GymAdministrator,
+                CreatedOn = GetUtcNow(),
             }
         );
 

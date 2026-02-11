@@ -1,7 +1,6 @@
 ﻿using FitPass.Application.Common.Exceptions;
 using FitPass.Application.Common.Models;
 using FitPass.Application.FunctionalTests.Common.Extensions;
-
 using FitPass.Application.Users.Commands.RoleHandling;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
@@ -36,23 +35,23 @@ public class PromotePendingGymEmployeeToGymStaffRoleTests : BaseTestFixture
     {
         await RunAsGymEmployeeAsync(Roles.GymAdministrator);
 
-        var command = new PromotePendingGymEmployeeToGymStaffRoleCommand("non-existing-user-id");
+        var command = new PromotePendingGymEmployeeToGymStaffRoleCommand("test@email.com");
 
         var result = await SendAsync(command);
         result.ShouldBeFailed(ResultTypes.NotFound);
     }
 
     [Test]
-    public async Task ShouldReturnForbiddenIfUserIsNotPendingGymEmployee()
+    public async Task ShouldReturnNotFoundIfUserIsNotPendingGymEmployee()
     {
         var user = await CreateUserAsync();
 
         await RunAsGymEmployeeAsync(Roles.GymAdministrator);
 
-        var command = new PromotePendingGymEmployeeToGymStaffRoleCommand(user.Id);
+        var command = new PromotePendingGymEmployeeToGymStaffRoleCommand(user.Email!);
 
         var result = await SendAsync(command);
-        result.ShouldBeFailed(ResultTypes.Forbidden);
+        result.ShouldBeFailed(ResultTypes.NotFound);
     }
 
     [Test]
@@ -62,7 +61,7 @@ public class PromotePendingGymEmployeeToGymStaffRoleTests : BaseTestFixture
 
         var pendingGymEmployee = await CreateUserAsync(role: Roles.PendingGymEmployee);
 
-        var command = new PromotePendingGymEmployeeToGymStaffRoleCommand(pendingGymEmployee.Id);
+        var command = new PromotePendingGymEmployeeToGymStaffRoleCommand(pendingGymEmployee.Email!);
 
         var result = await SendAsync(command);
         result.ShouldBeSuccessful();

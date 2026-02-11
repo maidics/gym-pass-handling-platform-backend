@@ -1,5 +1,4 @@
-﻿
-using FitPass.Application.Requests.Queries;
+﻿using FitPass.Application.Requests.Queries;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
 using FitPass.Domain.Enums;
@@ -28,7 +27,7 @@ public class GetMyRequestsTests : BaseTestFixture
 
         var request1 = new Request()
         {
-            CreatedBy = obj.user.Id, //TODO: test if this works
+            CreatedBy = obj.user.Id,
             Title = "Title",
             Description = "Description",
             PriorityLevel = PriorityLevel.High,
@@ -37,9 +36,11 @@ public class GetMyRequestsTests : BaseTestFixture
             Payload = null,
         };
 
+        await AddAsync(request1);
+
         var request2 = new Request()
         {
-            CreatedBy = obj.user.Id, //TODO: test if this works
+            CreatedBy = obj.user.Id,
             Title = "Title",
             Description = "Description",
             PriorityLevel = PriorityLevel.High,
@@ -47,10 +48,13 @@ public class GetMyRequestsTests : BaseTestFixture
             Type = RequestType.Other,
             Payload = null,
         };
+
+        await AddAsync(request2);
 
         var query = new GetMyRequestsQuery();
 
         var result = await SendAsync(query);
+
         result.Count.ShouldBe(2);
         result.Count(x => x.Id == request1.Id || x.Id == request2.Id).ShouldBe(2);
     }

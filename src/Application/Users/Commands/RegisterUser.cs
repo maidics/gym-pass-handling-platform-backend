@@ -1,42 +1,50 @@
 using FitPass.Application.Common.Extensions;
 using FitPass.Application.Common.Interfaces;
-using FitPass.Domain.Constants;
-using FitPass.Domain.Entities;
 using FitPass.Application.Common.Models;
-using FitPass.Application.Users.DTOs;
-using FitPass.Domain.Events.Users;
 using FitPass.Application.Common.Resources;
 using FitPass.Application.Common.Settings;
+using FitPass.Application.Users.DTOs;
+using FitPass.Domain.Constants;
+using FitPass.Domain.Entities;
+using FitPass.Domain.Events.Users;
 using Microsoft.Extensions.Options;
 
 namespace FitPass.Application.Users.Commands;
 
 public record RegisterUserCommand(
-        string FirstName,
-        string LastName,
-        string Email,
-        string Password,
-        string PasswordConfirm,
-        bool AsPendingGymEmployee,
-        string PreferredLanguage
-    ) : IRequest<Result<JwtToken>>;
+    string FirstName,
+    string LastName,
+    string Email,
+    string Password,
+    string PasswordConfirm,
+    bool AsPendingGymEmployee,
+    string PreferredLanguage
+) : IRequest<Result<JwtToken>>;
 
 public class RegisterUserCommandValidator : AbstractValidator<RegisterUserCommand>
 {
     public RegisterUserCommandValidator(ILocalizer localizer, IOptions<CultureSettings> options)
     {
         RuleFor(v => v.FirstName)
-            .NotEmptyWithMaxLengthAndMessageLocalized(localizer, nameof(SharedResource.FirstName), MaxLengths.Name);
+            .NotEmptyWithMaxLengthAndMessageLocalized(
+                localizer,
+                nameof(SharedResource.FirstName),
+                MaxLengths.Name
+            );
 
         RuleFor(v => v.LastName!)
-            .NotEmptyWithMaxLengthAndMessageLocalized(localizer, nameof(SharedResource.LastName), MaxLengths.Name);
+            .NotEmptyWithMaxLengthAndMessageLocalized(
+                localizer,
+                nameof(SharedResource.LastName),
+                MaxLengths.Name
+            );
 
         RuleFor(v => v.Email).EmailAddressWithMessageLocalized(localizer);
 
         RuleFor(v => v.Password).StrongPasswordLocalized(localizer);
 
         RuleFor(v => v.PasswordConfirm)
-            .Equal(v => v.PasswordConfirm)
+            .Equal(v => v.Password)
             .WithMessage(localizer.Get(nameof(SharedResource.PasswordsMustMatch)));
 
         RuleFor(v => v.PreferredLanguage)
@@ -57,7 +65,8 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, R
         IApplicationDbContext context,
         IJwtTokenService jwtTokenService,
         ILocalizer localizer,
-        TimeProvider  timeProvider)
+        TimeProvider timeProvider
+    )
     {
         _identityService = identityService;
         _context = context;
@@ -65,11 +74,20 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, R
         _localizer = localizer;
         _timeProvider = timeProvider;
     }
-    public async Task<Result<JwtToken>> Handle(RegisterUserCommand command, CancellationToken cancellationToken)
+
+    public async Task<Result<JwtToken>> Handle(
+        RegisterUserCommand command,
+        CancellationToken cancellationToken
+    )
     {
         if (await _identityService.IsEmailInUseAsync(command.Email))
         {
-            return Result.Conflict(_localizer.GetWithParamsLocalized(nameof(SharedResource.Conflict), nameof(SharedResource.Email)));
+            return Result.Conflict(
+                _localizer.GetWithParamsLocalized(
+                    nameof(SharedResource.Conflict),
+                    nameof(SharedResource.Email)
+                )
+            );
         }
 
         string userId;
@@ -78,7 +96,10 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, R
 
         try
         {
-            var userCreationResultObj = await _identityService.CreateUserAsync(command.Email, command.Password);
+            var userCreationResultObj = await _identityService.CreateUserAsync(
+                command.Email,
+                command.Password
+            );
 
             if (!userCreationResultObj.result.Succeeded)
             {
@@ -91,7 +112,10 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, R
 
             var role = command.AsPendingGymEmployee ? Roles.PendingGymEmployee : Roles.User;
 
-            var roleResult = await _identityService.AddToRoleAsync(userCreationResultObj.userId!, role);
+            var roleResult = await _identityService.AddToRoleAsync(
+                userCreationResultObj.userId!,
+                role
+            );
 
             if (!roleResult.Succeeded)
             {
@@ -106,7 +130,7 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, R
                 FirstName = command.FirstName,
                 LastName = command.LastName,
                 PreferredLanguage = command.PreferredLanguage,
-                CreatedOn = _timeProvider.GetUtcNow()
+                CreatedOn = _timeProvider.GetUtcNow(),
             };
 
             await _context.UserProfiles.AddAsync(profile, cancellationToken);
@@ -115,7 +139,8 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, R
 
             await _context.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
-        } catch
+        }
+        catch
         {
             await transaction.RollbackAsync(cancellationToken);
 

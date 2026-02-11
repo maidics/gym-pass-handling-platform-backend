@@ -1,5 +1,4 @@
 ﻿using FitPass.Application.FunctionalTests.Common.Extensions;
-
 using FitPass.Application.Users.Commands;
 using FitPass.Infrastructure.Identity;
 
@@ -46,6 +45,6 @@ public class UpdateMyPasswordTests : BaseTestFixture
 
         var updatedUser = await FindAsync<ApplicationUser>(obj.user.Id);
         updatedUser.ShouldNotBeNull();
-        updatedUser.PasswordHash.ShouldBe(obj.user.PasswordHash);
+        updatedUser.PasswordHash.ShouldNotBe(obj.user.PasswordHash);
     }
 }

@@ -3,13 +3,18 @@ using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Interfaces.Payment;
 using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Resources;
+using FitPass.Application.Common.Security;
 using FitPass.Application.TenantPaymentProfiles.DTOs;
+using FitPass.Domain.Constants;
 
 namespace FitPass.Application.TenantPaymentProfiles.Commands;
 
-public record GeneratePaymentProviderLinkCommand(PaymentProviderLinkType Type) : IRequest<Result<PaymentProviderLinkDto>>;
+[Authorize(Roles = Roles.GymAdministrator)]
+public record GeneratePaymentProviderLinkCommand(PaymentProviderLinkType Type)
+    : IRequest<Result<PaymentProviderLinkDto>>;
 
-public class GeneratePaymentProviderLinkCommandHandler : IRequestHandler<GeneratePaymentProviderLinkCommand, Result<PaymentProviderLinkDto>>
+public class GeneratePaymentProviderLinkCommandHandler
+    : IRequestHandler<GeneratePaymentProviderLinkCommand, Result<PaymentProviderLinkDto>>
 {
     private readonly IApplicationDbContext _context;
     private readonly IUser _user;
@@ -18,11 +23,12 @@ public class GeneratePaymentProviderLinkCommandHandler : IRequestHandler<Generat
     private readonly TimeProvider _timeProvider;
 
     public GeneratePaymentProviderLinkCommandHandler(
-        IApplicationDbContext context, 
+        IApplicationDbContext context,
         IUser user,
         ILocalizer localizer,
         IPaymentTenantService paymentTenantService,
-        TimeProvider timeProvider)
+        TimeProvider timeProvider
+    )
     {
         _context = context;
         _user = user;
@@ -30,31 +36,40 @@ public class GeneratePaymentProviderLinkCommandHandler : IRequestHandler<Generat
         _paymentTenantService = paymentTenantService;
         _timeProvider = timeProvider;
     }
-    
-    public async Task<Result<PaymentProviderLinkDto>> Handle(GeneratePaymentProviderLinkCommand command, CancellationToken cancellationToken)
+
+    public async Task<Result<PaymentProviderLinkDto>> Handle(
+        GeneratePaymentProviderLinkCommand command,
+        CancellationToken cancellationToken
+    )
     {
-        var gymId = await _context.GymEmployments
-            .AsNoTracking()
+        var gymId = await _context
+            .GymEmployments.AsNoTracking()
             .Where(x => x.UserId == _user.Id)
             .Select(x => x.GymId)
             .FirstOrDefaultAsync(cancellationToken);
 
         Guard.Against.NullParameterRelatedToCurrentUser(gymId, "Employee gym id", _user.Id);
 
-        var paymentProfile = await _context.TenantPaymentProfiles
-            .FirstOrDefaultAsync(x => x.GymId == gymId, cancellationToken);
+        var paymentProfile = await _context.TenantPaymentProfiles.FirstOrDefaultAsync(
+            x => x.GymId == gymId,
+            cancellationToken
+        );
 
         if (paymentProfile is null)
         {
-            return Result.BusinessRuleViolation(_localizer.Get(nameof(SharedResource.RequiresStripeAccount)));
+            return Result.BusinessRuleViolation(
+                _localizer.Get(nameof(SharedResource.RequiresStripeAccount))
+            );
         }
 
         Result<PaymentProviderLinkDto>? result;
 
         if (command.Type == PaymentProviderLinkType.AccountLink)
         {
-            var onboardingResult =
-                await _paymentTenantService.IsOnboardingCompleteAsync(paymentProfile.PaymentAccountId, cancellationToken);
+            var onboardingResult = await _paymentTenantService.IsOnboardingCompleteAsync(
+                paymentProfile.PaymentAccountId,
+                cancellationToken
+            );
 
             if (!onboardingResult.Succeeded)
             {
@@ -62,12 +77,19 @@ public class GeneratePaymentProviderLinkCommandHandler : IRequestHandler<Generat
             }
 
             result = await _paymentTenantService.GenerateAccountLinkAsync(
-                paymentProfile.PaymentAccountId, gymId,!onboardingResult.Value, true, cancellationToken);
+                paymentProfile.PaymentAccountId,
+                gymId,
+                !onboardingResult.Value,
+                true,
+                cancellationToken
+            );
         }
         else
         {
-            result = await _paymentTenantService.GenerateLoginLinkAsync(paymentProfile.PaymentAccountId,
-                cancellationToken: cancellationToken);
+            result = await _paymentTenantService.GenerateLoginLinkAsync(
+                paymentProfile.PaymentAccountId,
+                cancellationToken: cancellationToken
+            );
         }
 
         if (result.Succeeded)

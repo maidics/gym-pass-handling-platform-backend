@@ -38,10 +38,10 @@ public class GetGymPassProductByIdTests : BaseTestFixture
     [Test]
     public async Task ShouldReturnGymPassProduct()
     {
-        var gymAdmin = await CreateUserAsync(role: Roles.GymAdministrator);
+        var obj = await TestEntityBuilder.BuildGymWithTenantPaymentProfileAsync();
 
         var gymPassProduct = await TestEntityBuilder.BuildGymPassProductWithPaymentProfile(
-            gymAdmin,
+            obj.gymAdmin,
             new Money(10, CurrencyCode.EUR)
         );
 

@@ -1,6 +1,7 @@
-﻿
+﻿using FitPass.Application.FunctionalTests.TestData;
 using FitPass.Application.Users.Queries;
 using FitPass.Domain.Constants;
+using FitPass.Domain.Entities;
 
 namespace FitPass.Application.FunctionalTests.Tests.UserTests.Queries;
 
@@ -19,17 +20,30 @@ public class GetMyUserTests
     [TestCase(Roles.AppAdministrator)]
     public async Task ShouldReturnUserForNonGymEmployee(string role)
     {
-        var obj = await RunAsDefaultUserAsync();
+        var user = await CreateUserAsync(role: role);
+
+        var profile = new UserProfile()
+        {
+            UserId = user.Id,
+            CreatedOn = GetUtcNow(),
+            FirstName = "First",
+            LastName = "Last",
+            PreferredLanguage = GetDefaultCulture(),
+        };
+
+        await AddAsync(profile);
+
+        await RunAsUserAsync(user);
 
         var query = new GetMyUserQuery();
 
         var dto = await SendAsync(query);
-        dto.Id.ShouldBe(obj.user.Id);
-        dto.Email.ShouldBe(obj.user.Email);
-        dto.FirstName.ShouldBe(obj.userProfile.FirstName);
-        dto.LastName.ShouldBe(obj.userProfile.LastName);
-        dto.PreferredLanguage.ShouldBe(obj.userProfile.PreferredLanguage);
-        dto.CreatedOn.ShouldBe(obj.userProfile.CreatedOn);
+        dto.Id.ShouldBe(user.Id);
+        dto.Email.ShouldBe(user.Email);
+        dto.FirstName.ShouldBe(profile.FirstName);
+        dto.LastName.ShouldBe(profile.LastName);
+        dto.PreferredLanguage.ShouldBe(profile.PreferredLanguage);
+        dto.CreatedOn.ShouldBe(profile.CreatedOn);
 
         dto.Roles.Length.ShouldBe(1);
         dto.Roles.First().ShouldBe(role);

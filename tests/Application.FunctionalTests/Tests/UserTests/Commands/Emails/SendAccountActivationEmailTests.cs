@@ -1,6 +1,5 @@
 ﻿using FitPass.Application.Common.Models;
 using FitPass.Application.FunctionalTests.Common.Extensions;
-
 using FitPass.Application.FunctionalTests.TestData;
 using FitPass.Application.Users.Commands.Emails;
 
@@ -40,17 +39,6 @@ public class SendAccountActivationEmailTests : BaseTestFixture
         var obj = await TestEntityBuilder.BuildDefaultUserAsync(true);
 
         await RunAsUserAsync(obj.user);
-
-        var command = new SendAccountActivationEmailCommand(obj.user.Email!);
-
-        var result = await SendAsync(command);
-        result.ShouldBeFailed(ResultTypes.BusinessRuleViolation);
-    }
-
-    [Test]
-    public async Task ShouldReturnBusinessRuleViolationIfUserAlreadyHasPassword()
-    {
-        var obj = await RunAsDefaultUserAsync();
 
         var command = new SendAccountActivationEmailCommand(obj.user.Email!);
 

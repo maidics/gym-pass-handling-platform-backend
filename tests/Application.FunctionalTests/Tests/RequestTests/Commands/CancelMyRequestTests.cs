@@ -1,6 +1,5 @@
 ﻿using FitPass.Application.Common.Models;
 using FitPass.Application.FunctionalTests.Common.Extensions;
-
 using FitPass.Application.Requests.Commands;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
@@ -41,7 +40,7 @@ public class CancelMyRequestTests : BaseTestFixture
 
         var request = new Request()
         {
-            CreatedBy = obj.user.Id, //TODO: check if works
+            CreatedBy = obj.user.Id,
             Title = "Title",
             Description = "Description",
             PriorityLevel = PriorityLevel.High,
@@ -65,7 +64,7 @@ public class CancelMyRequestTests : BaseTestFixture
 
         var request = new Request()
         {
-            CreatedBy = obj.user.Id, //TODO: check if works
+            CreatedBy = obj.user.Id,
             Title = "Title",
             Description = "Description",
             PriorityLevel = PriorityLevel.High,
