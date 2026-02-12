@@ -49,10 +49,21 @@ public class CreatePayloadFreeRequestCommandHandler
     : IRequestHandler<CreatePayloadFreeRequestCommand, Result>
 {
     private readonly IApplicationDbContext _context;
+    private readonly IIdentityService _identityService;
+    private readonly IUser _user;
+    private readonly ILocalizer _localizer;
 
-    public CreatePayloadFreeRequestCommandHandler(IApplicationDbContext context)
+    public CreatePayloadFreeRequestCommandHandler(
+        IApplicationDbContext context,
+        IIdentityService identityService,
+        IUser user,
+        ILocalizer localizer
+    )
     {
         _context = context;
+        _identityService = identityService;
+        _user = user;
+        _localizer = localizer;
     }
 
     public async Task<Result> Handle(
@@ -60,6 +71,13 @@ public class CreatePayloadFreeRequestCommandHandler
         CancellationToken cancellationToken
     )
     {
+        if (!await _identityService.IsUserEmailConfirmed(_user.Id!))
+        {
+            return Result.BusinessRuleViolation(
+                _localizer.Get(nameof(SharedResource.RequiresEmailConfirmation))
+            );
+        }
+
         var request = new Request
         {
             Title = command.Title,

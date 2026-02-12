@@ -28,6 +28,7 @@ public partial class ApplicationDbContextInitialiser
                     CreatedOn = DateTime.UtcNow,
                 }
             ),
+            /*
             (
                 new ApplicationUser
                 {
@@ -100,6 +101,7 @@ public partial class ApplicationDbContextInitialiser
                     CreatedOn = DateTime.UtcNow,
                 }
             ),
+            */
         ];
 
         var existingUsers = _userManager.Users;

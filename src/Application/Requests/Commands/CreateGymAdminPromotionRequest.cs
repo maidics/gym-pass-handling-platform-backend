@@ -82,6 +82,13 @@ public class CreateGymAdminPromotionRequestCommandHandler
             _user.Id
         );
 
+        if (!await _identityService.IsUserEmailConfirmed(_user.Id!))
+        {
+            return Result.BusinessRuleViolation(
+                _localizer.Get(nameof(SharedResource.RequiresEmailConfirmation))
+            );
+        }
+
         var pendingGymEmployeeId = await _identityService.GetUserIdByEmailAsync(
             command.PendingGymEmployeeEmail
         );

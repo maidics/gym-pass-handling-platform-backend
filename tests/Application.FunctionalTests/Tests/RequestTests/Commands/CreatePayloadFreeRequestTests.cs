@@ -1,5 +1,5 @@
-﻿using FitPass.Application.FunctionalTests.Common.Extensions;
-
+﻿using FitPass.Application.Common.Models;
+using FitPass.Application.FunctionalTests.Common.Extensions;
 using FitPass.Application.Requests.Commands;
 using FitPass.Domain.Constants;
 using FitPass.Domain.Entities;
@@ -20,6 +20,24 @@ public class CreatePayloadFreeRequestTests : BaseTestFixture
             Roles.GymStaff,
             Roles.GymAdministrator
         );
+    }
+
+    [Test]
+    public async Task ShouldReturnBusinessRuleViolationIfUserEmailIsNotConfirmed()
+    {
+        var user = await CreateUserAsync(emailConfirmed: false);
+
+        await RunAsUserAsync(user);
+
+        var command = new CreatePayloadFreeRequestCommand(
+            "Title",
+            "Test Description",
+            PriorityLevel.High,
+            RequestType.Other
+        );
+
+        var result = await SendAsync(command);
+        result.ShouldBeFailed(ResultTypes.BusinessRuleViolation);
     }
 
     [TestCase("", "", PriorityLevel.None, RequestType.Other)]

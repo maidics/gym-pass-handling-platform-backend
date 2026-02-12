@@ -13,12 +13,13 @@ public partial class ApplicationDbContextInitialiser
     private readonly RoleManager<IdentityRole> _roleManager;
     private readonly InterceptorStateService _interceptorStateService;
 
-    public ApplicationDbContextInitialiser
-        (ILogger<ApplicationDbContextInitialiser> logger,
+    public ApplicationDbContextInitialiser(
+        ILogger<ApplicationDbContextInitialiser> logger,
         ApplicationDbContext context,
         UserManager<ApplicationUser> userManager,
         RoleManager<IdentityRole> roleManager,
-        InterceptorStateService interceptorStateService)
+        InterceptorStateService interceptorStateService
+    )
     {
         _logger = logger;
         _context = context;
@@ -50,7 +51,10 @@ public partial class ApplicationDbContextInitialiser
 
             await SeedRolesAsync();
             await SeedUsersAsync();
-            
+
+            // test data:
+
+            /*
             await SeedRequestsAsync();
             await SeedGymsAsync();
             await SeedGymEmploymentsAsync();
@@ -60,6 +64,7 @@ public partial class ApplicationDbContextInitialiser
             await SeedGymPassUsagesAsync();
 
             await SeedTestUsersAsync();
+            */
 
             await _context.SaveChangesAsync();
 
