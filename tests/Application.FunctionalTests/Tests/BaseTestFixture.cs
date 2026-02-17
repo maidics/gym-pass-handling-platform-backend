@@ -1,7 +1,4 @@
-﻿
-
-namespace FitPass.Application.FunctionalTests.Tests;
-
+﻿namespace FitPass.Application.FunctionalTests.Tests;
 
 using static Testing;
 

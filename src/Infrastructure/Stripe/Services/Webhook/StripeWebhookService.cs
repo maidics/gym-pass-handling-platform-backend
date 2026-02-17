@@ -1,7 +1,6 @@
 using FitPass.Application.Common.Interfaces;
 using FitPass.Application.Common.Interfaces.Payment;
 using FitPass.Application.Common.Models;
-using FitPass.Application.GymPassProducts.Commands;
 using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -9,7 +8,7 @@ using Stripe;
 
 namespace FitPass.Infrastructure.Stripe.Services.Webhook;
 
-public class StripeWebhookService : IPaymentWebhookService
+public partial class StripeWebhookService : IPaymentWebhookService
 {
     private readonly ILogger<StripeWebhookService> _logger;
     private readonly ISender _sender;
@@ -41,31 +40,39 @@ public class StripeWebhookService : IPaymentWebhookService
 
         return stripeEvent.Type switch
         {
-            EventTypes.PaymentIntentSucceeded => HandlePaymentIntentSucceeded(stripeEvent),
-            EventTypes.PaymentIntentCanceled => HandlePaymentIntentCanceled(stripeEvent),
-            EventTypes.PaymentIntentPaymentFailed => HandlePaymentIntentPaymentFailed(stripeEvent),
-            EventTypes.PaymentIntentRequiresAction => HandlePaymentIntentRequiresAction(
+            EventTypes.PaymentIntentCreated => HandlePaymentIntentCreatedAsync(stripeEvent),
+            EventTypes.PaymentIntentSucceeded => HandlePaymentIntentSucceededAsync(stripeEvent),
+            EventTypes.PaymentIntentCanceled => HandlePaymentIntentCanceledAsync(stripeEvent),
+            EventTypes.PaymentIntentPaymentFailed => HandlePaymentIntentPaymentFailedAsync(
                 stripeEvent
             ),
-            /*EventTypes.AccountUpdated => HandleAccountUpdated(stripeEvent),
+            EventTypes.PaymentIntentRequiresAction => HandlePaymentIntentRequiresActionAsync(
+                stripeEvent
+            ),
+
+            { } t when t.StartsWith("charge", StringComparison.OrdinalIgnoreCase) =>
+                HandleChargeEventAsync(stripeEvent),
+
+            /*
+            EventTypes.AccountUpdated => HandleAccountUpdated(stripeEvent),
             EventTypes.PaymentIntentProcessing => HandlePaymentIntentProcessing(stripeEvent),
             EventTypes.ProductCreated => HandleProductCreated(stripeEvent),
             EventTypes.ProductDeleted => HandleProductDeleted(stripeEvent),
             EventTypes.ProductUpdated => HandleProductUpdated(stripeEvent),
             EventTypes.PriceCreated => HandlePriceCreated(stripeEvent),
             EventTypes.PriceUpdated => HandlePriceUpdated(stripeEvent),
-            EventTypes.PriceDeleted => HandlePriceDeleted(stripeEvent),*/
+            EventTypes.PriceDeleted => HandlePriceDeleted(stripeEvent),
+            */
+
             _ => HandleUnhandled(stripeEvent),
         };
     }
 
     private Task<Result> HandleUnhandled(Event stripeEvent)
     {
-        _logger.LogError("Unhandled Stripe Webhook event: {StripeEvent}.", stripeEvent);
+        _logger.LogError("Unhandled Stripe Webhook event type: {Type}", stripeEvent.Type);
 
-        return Task.FromResult(
-            Result.Failure("Unhandled payment provider webhook.", [], ResultTypes.InternalError)
-        );
+        throw new NotImplementedException($"Unhandled Stripe event type: {stripeEvent.Type}");
     }
 
     // private Result<T> GetEventData<T>(Event stripeEvent)
@@ -115,102 +122,5 @@ public class StripeWebhookService : IPaymentWebhookService
         }
 
         return Result.Success((userId, gymId, gymPassProductId));
-    }
-
-    private async Task<Result> HandlePaymentIntentSucceeded(Event stripeEvent)
-    {
-        var result = GetPaymentIntentEventData(stripeEvent);
-
-        if (!result.Succeeded)
-        {
-            return result;
-        }
-
-        var (userId, gymId, gymPassProductId) = result.Value;
-
-        return await _sender.Send(
-            new WebhookFulFillGymPassProductPaymentCommand(userId, gymId, gymPassProductId),
-            CancellationToken.None
-        );
-    }
-
-    private async Task<Result> HandlePaymentIntentCanceled(Event stripeEvent)
-    {
-        var result = GetPaymentIntentEventData(stripeEvent);
-
-        if (!result.Succeeded)
-        {
-            return result;
-        }
-
-        var notification = new ClientNotification
-        {
-            Message = "Payment was canceled.",
-            Type = ClientNotificationType.Default,
-        };
-
-        await _notificationSender.SendAsync(result.Value.userId, notification);
-
-        return Result.Success();
-    }
-
-    private async Task<Result> HandlePaymentIntentPaymentFailed(Event stripeEvent)
-    {
-        var result = GetPaymentIntentEventData(stripeEvent);
-
-        if (!result.Succeeded)
-        {
-            return result;
-        }
-
-        var notification = new ClientNotification
-        {
-            Message = "Payment has failed. Not enough funds or card was declined",
-            Type = ClientNotificationType.PaymentFailed,
-        };
-
-        await _notificationSender.SendAsync(result.Value.userId, notification);
-
-        return Result.Success();
-    }
-
-    private async Task<Result> HandlePaymentIntentRequiresAction(Event stripeEvent)
-    {
-        var result = GetPaymentIntentEventData(stripeEvent);
-
-        if (!result.Succeeded)
-        {
-            return result;
-        }
-
-        var notification = new ClientNotification
-        {
-            Message = "Payment requires action. Please check your banking application.",
-            Type = ClientNotificationType.Default,
-        };
-
-        await _notificationSender.SendAsync(result.Value.userId, notification);
-
-        return Result.Success();
-    }
-
-    private async Task<Result> HandlePaymentIntentProcessing(Event stripeEvent)
-    {
-        var result = GetPaymentIntentEventData(stripeEvent);
-
-        if (!result.Succeeded)
-        {
-            return result;
-        }
-
-        var notification = new ClientNotification
-        {
-            Message = "Processing your payment...",
-            Type = ClientNotificationType.Default,
-        };
-
-        await _notificationSender.SendAsync(result.Value.userId, notification);
-
-        return Result.Success();
     }
 }

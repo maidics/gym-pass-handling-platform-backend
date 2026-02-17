@@ -54,7 +54,7 @@ public partial class ApplicationDbContextInitialiser
 
             // test data:
 
-            /*
+            
             await SeedRequestsAsync();
             await SeedGymsAsync();
             await SeedGymEmploymentsAsync();
@@ -64,7 +64,7 @@ public partial class ApplicationDbContextInitialiser
             await SeedGymPassUsagesAsync();
 
             await SeedTestUsersAsync();
-            */
+            
 
             await _context.SaveChangesAsync();
 
