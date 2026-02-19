@@ -97,7 +97,7 @@ public partial class StripeWebhookService : IPaymentWebhookService
         if (stripeEvent.Data.Object is not PaymentIntent intent)
         {
             _logger.LogError(
-                "Payment intent data is null in webhook StripeEvent {StripeEvent}",
+                "Payment intent data is null in webhook PaymentIntent type Event: {StripeEvent}",
                 stripeEvent
             );
 
@@ -111,14 +111,14 @@ public partial class StripeWebhookService : IPaymentWebhookService
         if (userId is null || gymId is null || gymPassProductId is null)
         {
             _logger.LogError(
-                "One or more required metadata inside payment intent StripeEvent {StripeEvent} was null. Found data: {UserId}, {GymId}, {GymPassProductId}",
-                stripeEvent,
+                "Required metadata not found in PaymentIntent event. PaymentIntentId: {PaymentIntentId}, UserId: {UserId}, GymId: {GymId}, GymPassProductId: {GymPassProductId}",
+                intent.Id,
                 userId,
                 gymId,
                 gymPassProductId
             );
 
-            return Result.BusinessRuleViolation("Invalid request.");
+            return Result.BusinessRuleViolation("");
         }
 
         return Result.Success((userId, gymId, gymPassProductId));

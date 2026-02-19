@@ -9,10 +9,9 @@ using Microsoft.AspNetCore.Localization;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.AddKeyVaultIfConfigured();
 builder.AddApplicationServices();
+builder.AddWebServices(); // adding web before infra so infra can use the Stripe key
 builder.AddInfrastructureServices();
-builder.AddWebServices();
 
 var app = builder.Build();
 

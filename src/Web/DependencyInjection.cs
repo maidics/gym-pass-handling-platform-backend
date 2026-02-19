@@ -1,5 +1,4 @@
 ﻿using System.Text.Json.Serialization;
-using Azure.Identity;
 using FitPass.Application.Common.Interfaces;
 using FitPass.Infrastructure.Data;
 using FitPass.Web.Services;
@@ -13,6 +12,15 @@ public static class DependencyInjection
 {
     public static void AddWebServices(this IHostApplicationBuilder builder)
     {
+        if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") != "Testing")
+        {
+            builder.Configuration.AddJsonFile(
+                "secrets.local.json",
+                optional: false,
+                reloadOnChange: true
+            );
+        }
+
         builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
         builder.Services.AddScoped<IUser, CurrentUser>();
@@ -88,17 +96,5 @@ public static class DependencyInjection
         builder.Services.AddSingleton<IClientNotificationStreamer>(provider =>
             provider.GetRequiredService<ClientNotificationService>()
         );
-    }
-
-    public static void AddKeyVaultIfConfigured(this IHostApplicationBuilder builder)
-    {
-        var keyVaultUri = builder.Configuration["AZURE_KEY_VAULT_ENDPOINT"];
-        if (!string.IsNullOrWhiteSpace(keyVaultUri))
-        {
-            builder.Configuration.AddAzureKeyVault(
-                new Uri(keyVaultUri),
-                new DefaultAzureCredential()
-            );
-        }
     }
 }

@@ -54,17 +54,15 @@ public partial class ApplicationDbContextInitialiser
 
             // test data:
 
-            
             await SeedRequestsAsync();
             await SeedGymsAsync();
             await SeedGymEmploymentsAsync();
             await SeedGymPassProductsAsync();
             await SeedGymMembershipsAsync();
-            await SeedGymMembershipPassesAsync();
-            await SeedGymPassUsagesAsync();
+            //await SeedGymMembershipPassesAsync();
+            //await SeedGymPassUsagesAsync();
 
             await SeedTestUsersAsync();
-            
 
             await _context.SaveChangesAsync();
 

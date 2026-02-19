@@ -484,3 +484,4 @@ $RECYCLE.BIN/
 .email_pickup/
 
 .idea
+secrets.local.json
