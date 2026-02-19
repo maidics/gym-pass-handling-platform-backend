@@ -1,10 +1,7 @@
 using FitPass.Application;
-using FitPass.Application.Common.Settings;
 using FitPass.Infrastructure;
-using FitPass.Infrastructure.Common;
 using FitPass.Infrastructure.Data;
 using FitPass.Web;
-using Microsoft.AspNetCore.Localization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -45,20 +42,7 @@ app.UseAuthorization();
 
 app.Map("/", () => Results.Redirect("/api"));
 
-app.MapEndpoints();
-
-var cultureSettings = app
-    .Configuration.GetSection(ConfigurationSections.Cultures)
-    .Get<CultureSettings>();
-Guard.Against.Null(cultureSettings);
-var localizationOptions = new RequestLocalizationOptions()
-    .SetDefaultCulture(cultureSettings.DefaultCulture)
-    .AddSupportedCultures(cultureSettings.SupportedCultures)
-    .AddSupportedUICultures(cultureSettings.SupportedCultures);
-
-localizationOptions.RequestCultureProviders = [new AcceptLanguageHeaderRequestCultureProvider()];
-
-app.UseRequestLocalization(localizationOptions);
+app.MapEndpoints().AddLocalization();
 
 app.Run();
 
