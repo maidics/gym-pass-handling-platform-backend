@@ -46,13 +46,14 @@ public static class DependencyInjection
             (sp, options) =>
             {
                 options.AddInterceptors(sp.GetServices<ISaveChangesInterceptor>());
-                
+                /*
                 options
                     .UseInMemoryDatabase("NSwagDb")
                     //ignores exceptions from transactions
                     .ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning));
+                */
 
-                //options.UseSqlServer(connectionString);
+                options.UseSqlServer(connectionString);
                 options.ConfigureWarnings(warnings =>
                     warnings.Ignore(RelationalEventId.PendingModelChangesWarning)
                 );

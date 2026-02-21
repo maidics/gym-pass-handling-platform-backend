@@ -37,6 +37,7 @@ public class GuardClauseExtensionsTests
             UserId = userId,
             GymId = Guid.NewGuid().ToString(),
             Role = Roles.GymAdministrator,
+            CreatedOn = DateTimeOffset.UtcNow,
         };
 
         var action = () =>

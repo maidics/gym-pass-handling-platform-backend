@@ -18,12 +18,11 @@ public partial class Testing
         return _roles;
     }
 
-    public static async Task<(
-        ApplicationUser user,
-        UserProfile userProfile
-    )> RunAsDefaultUserAsync()
+    public static async Task<(ApplicationUser user, UserProfile userProfile)> RunAsDefaultUserAsync(
+        bool emailConfirmed = false
+    )
     {
-        var obj = await TestEntityBuilder.BuildDefaultUserAsync();
+        var obj = await TestEntityBuilder.BuildDefaultUserAsync(emailConfirmed);
 
         return (await RunAsUserAsync(obj.user), obj.userProfile);
     }
@@ -40,9 +39,12 @@ public partial class Testing
         Gym gym,
         GymEmployment gymEmployment,
         UserProfile userProfile
-    )> RunAsGymEmployeeAsync(string employeeRole)
+    )> RunAsGymEmployeeAsync(string employeeRole, bool emailConfirmed = false)
     {
-        var obj = await TestEntityBuilder.BuildGymEmployeeAsync(employeeRole);
+        var obj = await TestEntityBuilder.BuildGymEmployeeAsync(
+            employeeRole,
+            emailConfirmed: emailConfirmed
+        );
 
         return (await RunAsUserAsync(obj.user), obj.gym, obj.gymEmployment, obj.userProfile);
     }

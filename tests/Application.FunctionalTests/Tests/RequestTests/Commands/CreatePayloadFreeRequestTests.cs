@@ -65,7 +65,7 @@ public class CreatePayloadFreeRequestTests : BaseTestFixture
     [Test]
     public async Task ShouldCreateRequest()
     {
-        await RunAsDefaultUserAsync();
+        await RunAsDefaultUserAsync(true);
 
         var command = new CreatePayloadFreeRequestCommand(
             "Title",

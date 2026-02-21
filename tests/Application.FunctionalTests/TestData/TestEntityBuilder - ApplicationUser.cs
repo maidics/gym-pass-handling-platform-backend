@@ -80,7 +80,8 @@ public static partial class TestEntityBuilder
     )> BuildGymEmployeeAsync(
         string employeeRole,
         GymStatus gymStatus = GymStatus.Active,
-        List<GymContactInfo>? gymContactInfos = null
+        List<GymContactInfo>? gymContactInfos = null,
+        bool emailConfirmed = false
     )
     {
         if (employeeRole != Roles.GymAdministrator && employeeRole != Roles.GymStaff)
@@ -88,7 +89,7 @@ public static partial class TestEntityBuilder
             throw new InvalidOperationException("$'{role}' role is not a gym employee role.");
         }
 
-        var user = await CreateUserAsync(role: employeeRole);
+        var user = await CreateUserAsync(role: employeeRole, emailConfirmed: emailConfirmed);
 
         var gym = new Gym
         {

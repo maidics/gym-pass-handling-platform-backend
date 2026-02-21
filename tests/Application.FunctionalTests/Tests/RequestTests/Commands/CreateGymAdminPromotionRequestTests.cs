@@ -3,7 +3,6 @@ using FitPass.Application.Common.Exceptions;
 using FitPass.Application.Common.Models;
 using FitPass.Application.Common.Settings;
 using FitPass.Application.FunctionalTests.Common.Extensions;
-
 using FitPass.Application.Requests.Commands;
 using FitPass.Application.Requests.DTOs;
 using FitPass.Domain.Constants;
@@ -41,7 +40,7 @@ public class CreateGymAdminPromotionRequestTests : BaseTestFixture
     [Test]
     public async Task ShouldReturnNotFoundIfUserToPromoteIsNotFound()
     {
-        await RunAsGymEmployeeAsync(Roles.GymAdministrator);
+        await RunAsGymEmployeeAsync(Roles.GymAdministrator, emailConfirmed: true);
 
         var command = new CreateGymAdminPromotionRequestCommand(
             "Title",
@@ -60,7 +59,7 @@ public class CreateGymAdminPromotionRequestTests : BaseTestFixture
     {
         var user = await CreateUserAsync();
 
-        await RunAsGymEmployeeAsync(Roles.GymAdministrator);
+        await RunAsGymEmployeeAsync(Roles.GymAdministrator, emailConfirmed: true);
 
         var command = new CreateGymAdminPromotionRequestCommand(
             "Title",
@@ -79,7 +78,7 @@ public class CreateGymAdminPromotionRequestTests : BaseTestFixture
     {
         var pendingGymEmployee = await CreateUserAsync(role: Roles.PendingGymEmployee);
 
-        var gymAdminObj = await RunAsGymEmployeeAsync(Roles.GymAdministrator);
+        var gymAdminObj = await RunAsGymEmployeeAsync(Roles.GymAdministrator, emailConfirmed: true);
 
         var command = new CreateGymAdminPromotionRequestCommand(
             "Title",
