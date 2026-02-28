@@ -10,16 +10,22 @@ namespace FitPass.Application.GymMembershipPasses.Queries;
 [Authorize(Roles = $"{Roles.GymAdministrator},{Roles.GymStaff}")]
 public record IsGymMembershipPassValidQuery(string GymMembershipPassId) : IRequest<Result<bool>>;
 
-public class IsGymMembershipPassValidQueryValidator : AbstractValidator<IsGymMembershipPassValidQuery>
+public class IsGymMembershipPassValidQueryValidator
+    : AbstractValidator<IsGymMembershipPassValidQuery>
 {
     public IsGymMembershipPassValidQueryValidator(ILocalizer localizer)
     {
         RuleFor(v => v.GymMembershipPassId)
-            .PropertyOfEntityNotEmptyWithMessageLocalized(localizer, nameof(SharedResource.Id), nameof(SharedResource.GymMembershipPass));
+            .PropertyOfEntityNotEmptyWithMessageLocalized(
+                localizer,
+                nameof(SharedResource.Id),
+                nameof(SharedResource.GymMembershipPass)
+            );
     }
 }
 
-public class IsGymMembershipPassValidQueryHandler : IRequestHandler<IsGymMembershipPassValidQuery, Result<bool>>
+public class IsGymMembershipPassValidQueryHandler
+    : IRequestHandler<IsGymMembershipPassValidQuery, Result<bool>>
 {
     private readonly IApplicationDbContext _context;
     private readonly ILocalizer _localizer;
@@ -28,23 +34,28 @@ public class IsGymMembershipPassValidQueryHandler : IRequestHandler<IsGymMembers
     public IsGymMembershipPassValidQueryHandler(
         IApplicationDbContext context,
         ILocalizer localizer,
-        TimeProvider timeProvider)
+        TimeProvider timeProvider
+    )
     {
         _context = context;
         _localizer = localizer;
         _timeProvider = timeProvider;
     }
 
-    public async Task<Result<bool>> Handle(IsGymMembershipPassValidQuery query, CancellationToken cancellationToken)
+    public async Task<Result<bool>> Handle(
+        IsGymMembershipPassValidQuery query,
+        CancellationToken cancellationToken
+    )
     {
         var pass = await _context
-            .GymMembershipPasses
-            .AsNoTracking()
+            .GymMembershipPasses.AsNoTracking()
             .FirstOrDefaultAsync(p => p.Id == query.GymMembershipPassId, cancellationToken);
 
         if (pass is null)
         {
-            return Result.NotFound(_localizer.GetNotFound(nameof(SharedResource.GymPassProduct)));
+            return Result.NotFound(
+                _localizer.GetNotFound(nameof(SharedResource.GymMembershipPass))
+            );
         }
 
         return Result.Success(pass.IsValid(_timeProvider.GetUtcNow()));

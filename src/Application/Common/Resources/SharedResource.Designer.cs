@@ -1135,6 +1135,15 @@ namespace FitPass.Application.Common.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to User has an ongoing gym session..
+        /// </summary>
+        public static string UserHasOngoingGymSession {
+            get {
+                return ResourceManager.GetString("UserHasOngoingGymSession", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to You have to set a password..
         /// </summary>
         public static string UserHasToSetAPassword {

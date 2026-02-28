@@ -500,4 +500,7 @@ E-mail-cím megerősítése: {1}</value>
   <data name="NewPasswordCannotBeSameAsOld" xml:space="preserve">
     <value>Az új jelszó nem lehet ugyanaz, mint a régi.</value>
   </data>
+  <data name="UserHasOngoingGymSession" xml:space="preserve">
+    <value>A felhasználó jelenleg edzésben van.</value>
+  </data>
 </root>

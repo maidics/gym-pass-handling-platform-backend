@@ -496,4 +496,7 @@ Confirm my email: {1}</value>
   <data name="NewPasswordCannotBeSameAsOld" xml:space="preserve">
     <value>New password cannot be the same as old.</value>
   </data>
+  <data name="UserHasOngoingGymSession" xml:space="preserve">
+    <value>User has an ongoing gym session.</value>
+  </data>
 </root>

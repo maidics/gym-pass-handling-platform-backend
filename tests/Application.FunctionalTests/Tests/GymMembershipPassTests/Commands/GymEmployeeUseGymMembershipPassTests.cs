@@ -1,6 +1,5 @@
 using FitPass.Application.Common.Models;
 using FitPass.Application.FunctionalTests.Common.Extensions;
-
 using FitPass.Application.FunctionalTests.TestData;
 using FitPass.Application.GymMembershipPasses.Commands;
 using FitPass.Domain.Constants;
@@ -158,6 +157,33 @@ public class GymEmployeeUseGymMembershipPassTests : BaseTestFixture
         }
 
         await AddAsync(pass);
+
+        await RunAsUserAsync(obj.gymStaff);
+
+        var command = new GymEmployeeUseGymMembershipPassCommand(
+            pass.Id,
+            obj.gymMember.Id,
+            "test locker"
+        );
+
+        var result = await SendAsync(command);
+        result.ShouldBeFailed(ResultTypes.BusinessRuleViolation);
+    }
+
+    [Test]
+    public async Task ShouldReturnBusinessRuleViolationIfUserHasOngoingGymSession()
+    {
+        var obj = await TestEntityBuilder.BuildGymAsync();
+
+        var pass = GymPassProduct
+            .SingleUse(obj.gym.Id, "name", "description", true, new Money(10, CurrencyCode.USD))
+            .ToGymMembershipPass(obj.gymMembership.Id, obj.gymMember.Id, GetUtcNow());
+
+        await AddAsync(pass);
+
+        var ongoingPassUsage = pass.Use(obj.gym.Id, "123", GetUtcNow());
+
+        await AddAsync(ongoingPassUsage);
 
         await RunAsUserAsync(obj.gymStaff);
 

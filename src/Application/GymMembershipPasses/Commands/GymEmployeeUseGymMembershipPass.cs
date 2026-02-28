@@ -108,6 +108,21 @@ public class GymEmployeeUseGymMembershipPassCommandHandler
             return Result.BusinessRuleViolation(_localizer.Get(key));
         }
 
+        var ongoingPassUsage = await _context.GymPassUsages.FirstOrDefaultAsync(
+            x =>
+                x.UserId == command.UserId
+                && x.PassUseResult == PassUseResult.Success
+                && x.GymSessionEndedAt == null,
+            cancellationToken
+        );
+
+        if (ongoingPassUsage is not null)
+        {
+            return Result.BusinessRuleViolation(
+                _localizer.Get(SharedResource.UserHasOngoingGymSession)
+            );
+        }
+
         var passUsage = pass.Use(gymEmployment.GymId, command.LockerNumber, utcNow);
 
         await _context.GymPassUsages.AddAsync(passUsage, cancellationToken);
