@@ -13,7 +13,7 @@ public partial class ApplicationDbContextInitialiser
         {
             new GymEmployment
             {
-                GymId = "TestGymId",
+                GymId = "DemoGymId",
                 UserId = "GymAdminLocalhostId",
                 Role = Roles.GymAdministrator,
                 SupervisorEmail = "supervisor@localhost.com",
@@ -21,7 +21,7 @@ public partial class ApplicationDbContextInitialiser
             },
             new GymEmployment
             {
-                GymId = "TestGymId",
+                GymId = "DemoGymId",
                 UserId = "GymStaffLocalhostId",
                 Role = Roles.GymStaff,
                 SupervisorEmail = "supervisor@localhost.com",

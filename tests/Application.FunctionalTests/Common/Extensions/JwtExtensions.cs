@@ -4,7 +4,7 @@ namespace FitPass.Application.FunctionalTests.Common.Extensions;
 
 public static class JwtExtensions
 {
-    extension(JwtToken jwt)
+    extension(Jwt jwt)
     {
         public void ShouldBeValid()
         {

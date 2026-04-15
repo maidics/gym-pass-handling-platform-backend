@@ -11,7 +11,7 @@ public partial class ApplicationDbContextInitialiser
             {
                 Id = "GymMembershipId",
                 UserId = "UserId",
-                GymId = "TestGymId"
+                GymId = "DemoGymId"
             } 
         };
         

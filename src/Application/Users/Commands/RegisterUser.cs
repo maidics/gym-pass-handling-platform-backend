@@ -19,7 +19,7 @@ public record RegisterUserCommand(
     string PasswordConfirm,
     bool AsPendingGymEmployee,
     string PreferredLanguage
-) : IRequest<Result<JwtToken>>;
+) : IRequest<Result<Jwt>>;
 
 public class RegisterUserCommandValidator : AbstractValidator<RegisterUserCommand>
 {
@@ -52,30 +52,30 @@ public class RegisterUserCommandValidator : AbstractValidator<RegisterUserComman
     }
 }
 
-public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, Result<JwtToken>>
+public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, Result<Jwt>>
 {
     private readonly IIdentityService _identityService;
     private readonly IApplicationDbContext _context;
-    private readonly IJwtTokenService _jwtTokenService;
+    private readonly IJwtService _jwtService;
     private readonly ILocalizer _localizer;
     private readonly TimeProvider _timeProvider;
 
     public RegisterUserCommandHandler(
         IIdentityService identityService,
         IApplicationDbContext context,
-        IJwtTokenService jwtTokenService,
+        IJwtService jwtService,
         ILocalizer localizer,
         TimeProvider timeProvider
     )
     {
         _identityService = identityService;
         _context = context;
-        _jwtTokenService = jwtTokenService;
+        _jwtService = jwtService;
         _localizer = localizer;
         _timeProvider = timeProvider;
     }
 
-    public async Task<Result<JwtToken>> Handle(
+    public async Task<Result<Jwt>> Handle(
         RegisterUserCommand command,
         CancellationToken cancellationToken
     )
@@ -147,7 +147,7 @@ public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, R
             throw;
         }
 
-        var jwtResponse = await _jwtTokenService.GenerateTokenAsync(userId, cancellationToken);
+        var jwtResponse = await _jwtService.GenerateTokenAsync(userId, cancellationToken);
 
         return Result.Success(jwtResponse);
     }

@@ -15,88 +15,16 @@ public partial class ApplicationDbContextInitialiser
                 {
                     Id = "AppAdminLocalhostId",
                     Email = "appadmin@localhost.com",
-                    UserName = "AppAdmin",
+                    UserName = "appadmin@localhost.com",
                 },
                 Roles.AppAdministrator,
                 "Password123!",
                 new UserProfile
                 {
-                    FirstName = "App",
-                    LastName = "Admin",
+                    FirstName = "Adminisztrátor",
+                    LastName = "Aladár",
                     PreferredLanguage = "hu-HU",
                     UserId = "AppAdminLocalhostId",
-                    CreatedOn = DateTime.UtcNow,
-                }
-            ),
-            (
-                new ApplicationUser
-                {
-                    Id = "GymAdminLocalhostId",
-                    Email = "gymadmin@localhost.com",
-                    UserName = "GymAdmin",
-                },
-                Roles.GymAdministrator,
-                "Password123!",
-                new UserProfile
-                {
-                    FirstName = "Gym",
-                    LastName = "Admin",
-                    PreferredLanguage = "hu-HU",
-                    UserId = "GymAdminLocalhostId",
-                    CreatedOn = DateTime.UtcNow,
-                }
-            ),
-            (
-                new ApplicationUser
-                {
-                    Id = "GymStaffLocalhostId",
-                    UserName = "GymStaff",
-                    Email = "gymstaff@localhost.com",
-                },
-                Roles.GymStaff,
-                "Password123!",
-                new UserProfile
-                {
-                    FirstName = "Gym",
-                    LastName = "Staff",
-                    PreferredLanguage = "en-US",
-                    UserId = "GymStaffLocalhostId",
-                    CreatedOn = DateTime.UtcNow,
-                }
-            ),
-            (
-                new ApplicationUser
-                {
-                    Id = "UserId",
-                    UserName = "User",
-                    Email = "user@localhost.com",
-                },
-                Roles.User,
-                "Password123!",
-                new UserProfile
-                {
-                    FirstName = "User",
-                    LastName = "User",
-                    PreferredLanguage = "hu-HU",
-                    UserId = "UserId",
-                    CreatedOn = DateTime.UtcNow,
-                }
-            ),
-            (
-                new ApplicationUser
-                {
-                    Id = "PendingGymEmployeeId",
-                    UserName = "PendingGymEmployee",
-                    Email = "pendinggymemployee@localhost.com",
-                },
-                Roles.PendingGymEmployee,
-                "Password123!",
-                new UserProfile
-                {
-                    FirstName = "Pending",
-                    LastName = "GymEmployee",
-                    PreferredLanguage = "en-US",
-                    UserId = "PendingGymEmployeeId",
                     CreatedOn = DateTime.UtcNow,
                 }
             ),

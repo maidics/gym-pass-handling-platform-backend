@@ -54,7 +54,7 @@ public class Users : EndpointGroupBase
         groupBuilder.MapPost(SendAccountActivationEmail, "AccountActivationEmail");
     }
 
-    public async Task<Results<Ok<JwtToken>, ProblemHttpResult>> RegisterUser(
+    public async Task<Results<Ok<Jwt>, ProblemHttpResult>> RegisterUser(
         ISender sender,
         [FromBody] RegisterUserCommand command
     )
@@ -64,7 +64,7 @@ public class Users : EndpointGroupBase
         return result.ToTypedResult();
     }
 
-    public async Task<Results<Ok<JwtToken>, ProblemHttpResult>> LogInUser(
+    public async Task<Results<Ok<Jwt>, ProblemHttpResult>> LogInUser(
         ISender sender,
         [FromBody] LogInUserCommand command,
         CancellationToken cancellationToken
@@ -105,7 +105,7 @@ public class Users : EndpointGroupBase
         return result.ToTypedResult();
     }
 
-    public async Task<Results<Ok<JwtToken>, ProblemHttpResult>> ResetPassword(
+    public async Task<Results<Ok<Jwt>, ProblemHttpResult>> ResetPassword(
         ISender sender,
         [FromBody] ResetPasswordCommand command
     )
@@ -135,7 +135,7 @@ public class Users : EndpointGroupBase
         return result.ToTypedResult();
     }
 
-    public async Task<Results<Ok<JwtToken>, ProblemHttpResult>> ActivateUserAccount(
+    public async Task<Results<Ok<Jwt>, ProblemHttpResult>> ActivateUserAccount(
         ISender sender,
         [FromBody] ActivateUserAccountCommand command
     )

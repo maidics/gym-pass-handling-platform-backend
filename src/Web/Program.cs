@@ -7,7 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.AddApplicationServices();
-builder.AddWebServices(); // adding web before infra so infra can use the Stripe key
+builder.AddWebServices(); // adding web before infra so infra can use the Stripe key from appsettings.json
 builder.AddInfrastructureServices();
 
 var app = builder.Build();
@@ -42,7 +42,8 @@ app.UseAuthorization();
 
 app.Map("/", () => Results.Redirect("/api"));
 
-app.MapEndpoints().AddLocalization();
+app.MapEndpoints();
+app.AddLocalization();
 
 app.Run();
 

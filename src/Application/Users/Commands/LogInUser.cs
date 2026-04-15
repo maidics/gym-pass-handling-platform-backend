@@ -7,7 +7,7 @@ using FitPass.Domain.Constants;
 
 namespace FitPass.Application.Users.Commands;
 
-public record LogInUserCommand(string Email, string Password) : IRequest<Result<JwtToken>>;
+public record LogInUserCommand(string Email, string Password) : IRequest<Result<Jwt>>;
 
 public class LogInUserCommandValidator : AbstractValidator<LogInUserCommand>
 {
@@ -24,21 +24,21 @@ public class LogInUserCommandValidator : AbstractValidator<LogInUserCommand>
     }
 }
 
-public class LogInUserCommandHandler : IRequestHandler<LogInUserCommand, Result<JwtToken>>
+public class LogInUserCommandHandler : IRequestHandler<LogInUserCommand, Result<Jwt>>
 {
     private readonly IIdentityService _identityService;
-    private readonly IJwtTokenService _jwtTokenService;
+    private readonly IJwtService _jwtService;
 
     public LogInUserCommandHandler(
         IIdentityService identityService,
-        IJwtTokenService jwtTokenService
+        IJwtService jwtService
     )
     {
         _identityService = identityService;
-        _jwtTokenService = jwtTokenService;
+        _jwtService = jwtService;
     }
 
-    public async Task<Result<JwtToken>> Handle(
+    public async Task<Result<Jwt>> Handle(
         LogInUserCommand command,
         CancellationToken cancellationToken
     )
@@ -58,7 +58,7 @@ public class LogInUserCommandHandler : IRequestHandler<LogInUserCommand, Result<
             "User was authenticated but then not found after by email."
         );
 
-        var token = await _jwtTokenService.GenerateTokenAsync(userId, cancellationToken);
+        var token = await _jwtService.GenerateTokenAsync(userId, cancellationToken);
 
         return Result.Success(token);
     }

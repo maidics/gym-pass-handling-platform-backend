@@ -10,7 +10,7 @@ public record ResetPasswordCommand(
     string EncodedPasswordResetToken,
     string NewPassword,
     string NewPasswordConfirm
-) : IRequest<Result<JwtToken>>;
+) : IRequest<Result<Jwt>>;
 
 public class ResetPasswordCommandValidator : AbstractValidator<ResetPasswordCommand>
 {
@@ -31,18 +31,18 @@ public class ResetPasswordCommandValidator : AbstractValidator<ResetPasswordComm
     }
 }
 
-public class ResetPasswordCommandHandler : IRequestHandler<ResetPasswordCommand, Result<JwtToken>>
+public class ResetPasswordCommandHandler : IRequestHandler<ResetPasswordCommand, Result<Jwt>>
 {
     private readonly IIdentityService _identityService;
-    private readonly IJwtTokenService _jwtTokenService;
+    private readonly IJwtService _jwtService;
 
-    public ResetPasswordCommandHandler(IIdentityService identityService, IJwtTokenService jwtTokenService)
+    public ResetPasswordCommandHandler(IIdentityService identityService, IJwtService jwtService)
     {
         _identityService = identityService;
-        _jwtTokenService = jwtTokenService;
+        _jwtService = jwtService;
     }
 
-    public async Task<Result<JwtToken>> Handle(ResetPasswordCommand command, CancellationToken cancellationToken)
+    public async Task<Result<Jwt>> Handle(ResetPasswordCommand command, CancellationToken cancellationToken)
     {
         var userId = Uri.UnescapeDataString(command.EncodedUserId);
         var passwordResetToken = Uri.UnescapeDataString(command.EncodedPasswordResetToken);
@@ -54,7 +54,7 @@ public class ResetPasswordCommandHandler : IRequestHandler<ResetPasswordCommand,
             return new ResultFailure(result);
         }
 
-        var jwt = await _jwtTokenService.GenerateTokenAsync(userId, cancellationToken);
+        var jwt = await _jwtService.GenerateTokenAsync(userId, cancellationToken);
 
         return Result.Success(jwt);
     }

@@ -485,3 +485,4 @@ $RECYCLE.BIN/
 
 .idea
 secrets.local.json
+dotnet-tools.json

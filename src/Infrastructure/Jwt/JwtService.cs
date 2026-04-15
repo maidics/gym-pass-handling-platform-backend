@@ -2,19 +2,18 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using FitPass.Application.Common.Interfaces;
-using FitPass.Application.Users.DTOs;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
 namespace FitPass.Infrastructure.Jwt;
 
-public class JwtTokenService : IJwtTokenService
+public class JwtService : IJwtService
 {
     private readonly IIdentityService _identityService;
     private readonly JwtSettings _settings;
     private readonly TimeProvider _timeProvider;
 
-    public JwtTokenService(
+    public JwtService(
         IIdentityService identityService, 
         IOptions<JwtSettings> options,
         TimeProvider timeProvider)
@@ -23,7 +22,7 @@ public class JwtTokenService : IJwtTokenService
         _settings = options.Value;
         _timeProvider = timeProvider;
     }
-    public async Task<JwtToken> GenerateTokenAsync(string userId, CancellationToken cancellationToken)
+    public async Task<Application.Users.DTOs.Jwt> GenerateTokenAsync(string userId, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
@@ -65,7 +64,7 @@ public class JwtTokenService : IJwtTokenService
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        return new JwtToken
+        return new Application.Users.DTOs.Jwt
         {
             AccessToken = accessToken,
             ExpiresIn = expiryMinutes * 60

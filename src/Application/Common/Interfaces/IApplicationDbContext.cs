@@ -21,8 +21,7 @@ public interface IApplicationDbContext
     DbSet<ProductPaymentIdentity> ProductPaymentIdentities { get; }
     
     DbSet<GymContactInfo> GymContactInfos { get; }
-
-    Task<int> SaveChangesAsync();
+    
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
     Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default);
 }

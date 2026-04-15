@@ -2,7 +2,8 @@
 
 namespace FitPass.Application.Common.Scopes;
 
-public sealed class CultureInfoScope : IDisposable //credit: Roland Tóth: https://blog.rolandtoth.hu/cultureinfo-scope/
+//credit: Roland Tóth: https://blog.rolandtoth.hu/cultureinfo-scope/
+public sealed class CultureInfoScope : IDisposable
 {
     private readonly CultureInfo _originalCulture;
     private readonly CultureInfo _originalUICulture;

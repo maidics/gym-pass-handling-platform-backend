@@ -51,6 +51,7 @@ public partial class ApplicationDbContextInitialiser
 
             await SeedRolesAsync();
             await SeedUsersAsync();
+            await SeedTestUsersAsync();
 
             // test data:
 
@@ -61,8 +62,6 @@ public partial class ApplicationDbContextInitialiser
             await SeedGymMembershipsAsync();
             await SeedGymMembershipPassesAsync();
             //await SeedGymPassUsagesAsync();
-
-            await SeedTestUsersAsync();
 
             await _context.SaveChangesAsync();
 

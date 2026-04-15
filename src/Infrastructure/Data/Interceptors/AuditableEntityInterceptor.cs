@@ -1,5 +1,4 @@
-﻿using FitPass.Infrastructure.Data.Interceptors;
-using FitPass.Application.Common.Interfaces;
+﻿using FitPass.Application.Common.Interfaces;
 using FitPass.Domain.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;

@@ -12,7 +12,7 @@ public record ActivateUserAccountCommand(
     string EncodedEmailConfirmationToken,
     bool SetPassword,
     string? Password,
-    string? PasswordConfirm) : IRequest<Result<JwtToken>>;
+    string? PasswordConfirm) : IRequest<Result<Jwt>>;
 
 public class ActivateUserAccountCommandValidator : AbstractValidator<ActivateUserAccountCommand>
 {
@@ -44,23 +44,23 @@ public class ActivateUserAccountCommandValidator : AbstractValidator<ActivateUse
     }
 }
 
-public class ActivateUserAccountCommandHandler : IRequestHandler<ActivateUserAccountCommand, Result<JwtToken>>
+public class ActivateUserAccountCommandHandler : IRequestHandler<ActivateUserAccountCommand, Result<Jwt>>
 {
     private readonly IIdentityService _identityService;
-    private readonly IJwtTokenService _jwtTokenService;
+    private readonly IJwtService _jwtService;
     private readonly ILocalizer _localizer;
 
     public ActivateUserAccountCommandHandler(
         IIdentityService identityService,
-        IJwtTokenService jwtTokenService,
+        IJwtService jwtService,
         ILocalizer localizer)
     {
         _identityService = identityService;
-        _jwtTokenService = jwtTokenService;
+        _jwtService = jwtService;
         _localizer = localizer;
     }
     
-    public async Task<Result<JwtToken>> Handle(ActivateUserAccountCommand command, CancellationToken cancellationToken)
+    public async Task<Result<Jwt>> Handle(ActivateUserAccountCommand command, CancellationToken cancellationToken)
     {
         var email = Uri.UnescapeDataString(command.EncodedEmail);
 
@@ -95,7 +95,7 @@ public class ActivateUserAccountCommandHandler : IRequestHandler<ActivateUserAcc
             }
         }
 
-        var token = await _jwtTokenService.GenerateTokenAsync(userId, cancellationToken);
+        var token = await _jwtService.GenerateTokenAsync(userId, cancellationToken);
 
         return Result.Success(token);
     }

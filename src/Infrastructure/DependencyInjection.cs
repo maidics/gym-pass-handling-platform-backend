@@ -35,8 +35,7 @@ public static class DependencyInjection
 {
     public static void AddInfrastructureServices(this IHostApplicationBuilder builder)
     {
-        var connectionString = builder.Configuration.GetConnectionString("FitPassDb");
-        Guard.Against.Null(connectionString, message: "Connection string 'FitPassDb' not found.");
+        var dbType = builder.Configuration["DbType"];
 
         builder.Services.AddScoped<ISaveChangesInterceptor, AuditableEntityInterceptor>();
         builder.Services.AddScoped<ISaveChangesInterceptor, DispatchDomainEventsInterceptor>();
@@ -46,14 +45,35 @@ public static class DependencyInjection
             (sp, options) =>
             {
                 options.AddInterceptors(sp.GetServices<ISaveChangesInterceptor>());
-                
-                options
-                    .UseInMemoryDatabase("NSwagDb")
-                    //ignores exceptions from transactions
-                    .ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning));
-                
 
-                //options.UseSqlServer(connectionString);
+                if (dbType == "SQL")
+                {
+                    string? connectionString = builder.Configuration.GetConnectionString(
+                        "FitPassDb"
+                    );
+
+                    Guard.Against.Null(
+                        connectionString,
+                        message: "Connection string 'FitPassDb' not found."
+                    );
+
+                    options.UseSqlServer(connectionString);
+                }
+                else if (dbType == "InMemory")
+                {
+                    options
+                        .UseInMemoryDatabase("NSwagDb")
+                        .ConfigureWarnings(x =>
+                            x.Ignore(InMemoryEventId.TransactionIgnoredWarning)
+                        );
+                }
+                else
+                {
+                    throw new ArgumentException(
+                        $"Unsupported database type in configuration: '{dbType}'"
+                    );
+                }
+
                 options.ConfigureWarnings(warnings =>
                     warnings.Ignore(RelationalEventId.PendingModelChangesWarning)
                 );
@@ -83,7 +103,7 @@ public static class DependencyInjection
         builder.Services.Configure<JwtSettings>(
             builder.Configuration.GetSection(ConfigurationSections.Jwt)
         );
-        builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
+        builder.Services.AddScoped<IJwtService, JwtService>();
 
         //Email
         builder.Services.AddSingleton<IRazorLightEngine>(_ =>

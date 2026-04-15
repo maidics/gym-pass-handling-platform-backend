@@ -14,11 +14,16 @@ public static class DependencyInjection
     {
         if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") != "Testing")
         {
-            builder.Configuration.AddJsonFile(
-                "secrets.local.json",
-                optional: false,
-                reloadOnChange: true
-            );
+            var filePath = "secrets.local.json";
+
+            if (!File.Exists(filePath))
+            {
+                throw new FileNotFoundException(
+                    $"Web project root is missing {filePath}. This file is required in non Testing environment."
+                );
+            }
+
+            builder.Configuration.AddJsonFile(filePath, optional: false, reloadOnChange: true);
         }
 
         builder.Services.AddDatabaseDeveloperPageExceptionFilter();

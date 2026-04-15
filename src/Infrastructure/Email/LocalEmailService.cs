@@ -50,9 +50,9 @@ public class LocalEmailService : IEmailService
     public async Task SendEmailAsync(IEmailModel emailModel, string[] to, string[]? cc = null, string[]? bcc = null, CancellationToken cancellationToken = default)
     {
         using var scope = new CultureInfoScope(_localizer.DefaultCulture); 
-        //overriding here because multiple people receiving the email,
+        //overriding here because multiple people receiving the email (for simplicity),
         //using ensures the scope is disposed even if this method throws
-        //this culture is tied to the thread of IRazorLightEngine so this have to be forced
+        //this culture is tied to the thread of IRazorLightEngine (singleton) so this have to be forced
         
         var mailMessage = await GetMailMessage(emailModel, cancellationToken);
 

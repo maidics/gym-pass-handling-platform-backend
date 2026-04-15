@@ -83,8 +83,6 @@ public partial class ApplicationDbContextInitialiser
                 Payload =
                     """{"Name": "Metro Flex", "Address": {"Line1": "55 Main St", "Line2": null, "City": "Seattle", "State": "WA", "PostalCode": "98101", "CountryAlpha2": "US"}, "Status": 0, "Tier": 1, "SupervisorEmail": "contact@metroflex.com"}""",
             },
-            // GYM ADMIN PROMOTION REQUESTS
-
             new Request
             {
                 CreatedOn = now,

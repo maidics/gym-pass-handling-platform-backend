@@ -1,7 +1,6 @@
 ﻿using System.Reflection;
 using FitPass.Application.Common.Behaviours;
 using FitPass.Application.Common.Models;
-using FitPass.Application.Common.Settings;
 using FitPass.Application.Requests.Commands;
 using FitPass.Application.Requests.DTOs;
 using Microsoft.Extensions.DependencyInjection;
