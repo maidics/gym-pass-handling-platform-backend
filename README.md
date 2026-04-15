@@ -7,13 +7,14 @@ The project was generated using the [Clean.Architecture.Solution.Template](https
 - Application requires .NET version: 10.0.100
 - Running the app also requires API keys
 - API keys are loaded from secrets.local.json in Web project root (src/Web/secrets.local.json).
-- Database type can be set to InMemory or SQL in appsettings.Development.json
+- Database type can be set to "InMemory" or "SQL" in appsettings.Development.json
+- If SQL DbType is set the database will be created automatically using the given connection string in appsettings.Development.json
 
 ## Prerequisites
 - Stripe Secret Key & webhook secret (from [StripeDashboard](https://dashboard.stripe.com/apikeys))
 - Stripe Webhook endpoint url: https://localhost:5001/api/Webhooks/Stripe
 
-**Add the secrets.local.json file with the following structure using your own API keys to access Stripe & Jwt services:**
+**Add the secrets.local.json file with the following structure using your own API keys:**
 
 <pre>
 {
