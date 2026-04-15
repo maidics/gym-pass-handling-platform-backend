@@ -4,7 +4,8 @@ The project was generated using the [Clean.Architecture.Solution.Template](https
 
 # Run the app
 
-- Running the app requires API keys
+- Application requires .NET version: 10.0.100
+- Running the app also requires API keys
 - API keys are loaded from secrets.local.json in Web project root (src/Web/secrets.local.json).
 - Database type can be set to InMemory or SQL in appsettings.Development.json
 
