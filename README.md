@@ -8,6 +8,8 @@ The solution was initially scaffolded using [Jason Taylor's Clean Architecture T
 
 **First and second semester presentation can be found in [docs folder](./docs).** Unfortunately the final thesis presentation is *lost*.
 
+Find more information about the **frontend** [here](https://github.com/maidics/gym-pass-handling-platform-frontend).
+
 ---
 
 ## Structure: Clean Architecture
@@ -136,7 +138,28 @@ Application entry point from the web. Exposes endpoints and defines HTTP process
   - Password reset
   - etc.
 
-**For further technical details read the codebase or contact University of Pannonia for the hungarian thesis.**
+**For further technical details read the codebase or contact University of Pannonia for the *hungarian* thesis.**
+
+---
+
+## Technologies
+- [ASP.NET Core](https://asp.net)
+- [EF Core](https://learn.microsoft.com/en-us/ef/core/)
+- [Stripe](https://stripe.com/) & [Stripe Connect](https://stripe.com/connect)
+- [MediatR](https://github.com/LuckyPennySoftware/MediatR)
+- [FluentValidation](https://docs.fluentvalidation.net/en/latest/)
+- [NUnit](https://nunit.org/)
+- [TestContainers](https://dotnet.testcontainers.org/)
+- [Shouldly](https://github.com/shouldly/shouldly)
+- [Respawn](https://github.com/jbogard/respawn)
+
+---
+
+## Testing
+
+Covers unit tests for the [Domain Layer](./src/Domain) and [Application Layer](./src/Application). Also has functional testing of the [Application Layer](./src/Application) - this covers all business flows. 
+
+Due to the size and time constraints of this thesis, the integration tests are left out of testing.
 
 ---
 
