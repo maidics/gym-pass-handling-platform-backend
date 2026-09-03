@@ -10,6 +10,78 @@ The solution was initially scaffolded using [Jason Taylor's Clean Architecture T
 
 ---
 
+## Structure
+
+As state in [Overview](#overview) the backend structure follows Clean Architecture.
+
+### [Domain Layer](./src/Domain)
+
+Contains self-contain objects and business logic:
+- Entities
+- Constants (e.g: [`Roles`](./src/Domain/Constants/Roles.cs))
+- Enums
+- Events
+- Strings
+- Value objects
+
+### [Application Layer](./src/Application)
+
+Orchestrates business flows with [Domain Layer](./src/Domain) definitions and [Infrastructure Layer](./src/Infrastructure) services through interfaces:
+- Common:
+  - Behaviours: [MediatR](https://github.com/LuckyPennySoftware/MediatR) `PipelineBehaviours`
+  - EmailModels
+  - Exceptions
+  - Extensions
+  - Interfaces: defined for [Infrastructure Layer](./src/Infrastructure) to implement
+  - Models:
+    - [`ClientNotification`](./src/Application/Common/Models/ClientNotification.cs): contains a localized message for the client
+    - [`Result`](./src/Application/Common/Models/Result.cs): used instead of throwing Exceptions for performance
+  - Resources: localization `.resx` files
+  - Scopes/[`CultureInfoScope`](./src/Application/Common/Scopes/CultureInfoScope.cs)
+    - Used for changing the culture info for a scope in a thread-safe manner
+    - Credit: [Roland Tóth](https://blog.rolandtoth.hu/cultureinfo-scope/)
+  - Security
+  - Settings
+- Additional folders for features containing: `IRequest`, `IRequestHandler`, `INotificationHandler` implementations and DTOs
+
+### [Infrastructure Layer](./src/Infrastructure)
+
+Contains code with external dependencies. Implements interfaces defined by [Application Layer](./src/Application):
+- Common: extension methods
+- Data:
+  - [EF Core](https://learn.microsoft.com/en-us/ef/core/) logic for database handling
+  - Configurations
+  - Database seeding
+  - Interceptors
+  - [`QueryService`](./src/Infrastructure/Data/Queries/QueryService.cs): used for complex queries that cannot be performed via the [`IApplicationDbContext`](./src/Application/Common/Interfaces/IApplicationDbContext.cs) interface due to architecture constraints ([`ApplicationUser`](./src/Infrastructure/Identity/ApplicationUser.cs) exists in the [Infrastructure Layer](./src/Infrastructure))
+- Email: local email service for demo purposes
+- Identity: 
+  - [`ApplicationUser`](./src/Infrastructure/Identity/ApplicationUser.cs)
+  - [`IdentityService`](./src/Infrastructure/Identity/IdentityService.cs) for handling users and roles
+- JWT: JSON Web Token service and settings class
+- Localization: translator service
+- Stripe: 
+  - Payment service
+  - Other services for handling multi-tenancy
+
+### [Web Layer](./src/Web)
+
+Application entry point from the web. Exposes endpoints and defines HTTP processing pipeline:
+- Endpoints: defines HTTP endpoints for features and webhooks
+- Infrastructure:
+  - [`CustomExceptionHandler`](./src/Web/Infrastructure/CustomExceptionHandler.cs): middleware for uncaught `Exception` instances
+  - Extension methods and more...
+- Services:
+  - [`CurrentUser`](./src/Web/Services/CurrentUser.cs): implements the [`IUser`](./src/Application/Common/Interfaces/IUser.cs) interface
+  - [`ClientNotificationService`](./src/Web/Services/ClientNotificationService.cs):
+    - Defines logic for writing and sending notifications
+    - Backed by a `ConcurrentDictionary` for thread-safety
+    - Notifications are sent out to each client connection for the user via `TypedResults.ServerSentEvents`
+- JSON files for settings
+- `Program.cs`: application entry
+
+---
+
 ## Features
 
 ### [`Gym`](./src/Domain/Entities/Gym.cs)
@@ -68,17 +140,11 @@ The solution was initially scaffolded using [Jason Taylor's Clean Architecture T
 
 ---
 
-## Structure
-
-TODO
-
----
-
 ## Run the app
 
 - Application requires .NET version: 10.0.100
 - Running the app also requires API keys
-- API keys are loaded from secrets.local.json in [Web project root](src/Web) for **simplicity**
+- API keys are loaded from secrets.local.json in [Web project root](./src/Web) for **simplicity**
 - Database type can be set to `InMemory` or `SQL` in appsettings.Development.json
 - If SQL DbType is set the database will be created automatically using the given connection string in appsettings.Development.json
 
