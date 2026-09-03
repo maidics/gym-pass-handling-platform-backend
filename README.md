@@ -198,3 +198,7 @@ Due to the size and time constraints of this thesis, the integration tests are l
 - Domain.UnitTests & Application.UnitTests do not require anything specific
 - Application.FunctionalTests require Docker engine running (tested via SQL & Stripe containers) & appsettings.Testing.json: "DbType": "SQL"
 - secrets.local.json is not required for testing
+
+---
+
+**All rights reserved. This code is provided for viewing purposes only. No permission is granted to copy, modify, or distribute without express written consent.**
