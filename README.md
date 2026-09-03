@@ -138,8 +138,6 @@ Application entry point from the web. Exposes endpoints and defines HTTP process
   - Password reset
   - etc.
 
-**For further technical details read the codebase or contact University of Pannonia for the *hungarian* thesis.**
-
 ---
 
 ## Technologies
